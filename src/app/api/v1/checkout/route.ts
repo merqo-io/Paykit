@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { verifyKitAuth } from "@/lib/kit-auth";
-import { checkoutRequestSchema } from "@/lib/api-schemas";
+import {
+  checkoutLookupQuerySchema,
+  checkoutRequestSchema,
+} from "@/lib/api-schemas";
+import {
+  CHECKOUT_LOOKUP_COLUMNS,
+  toLookupResponse,
+} from "@/lib/checkout-lookup";
 import { createCheckout } from "@/lib/checkout";
 import { createServiceClient } from "@/lib/supabase/server";
 import {
@@ -9,6 +16,51 @@ import {
   PER_ROUTE_LIMIT,
   PER_ROUTE_WINDOW_SECONDS,
 } from "@/lib/rate-limit";
+
+/** Finds the calling kit's transaction for one of its own order references,
+ *  so a kit that stores no transaction id never has to create a checkout
+ *  just to learn it. Read-only. */
+export async function GET(request: Request) {
+  const auth = await verifyKitAuth(request);
+  if (!auth)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const supabase = await createServiceClient();
+  const allowed = await rateLimit(
+    supabase,
+    `checkout-lookup:${auth.kitSlug}:${clientIp(request.headers)}`,
+    PER_ROUTE_LIMIT,
+    PER_ROUTE_WINDOW_SECONDS,
+  );
+  if (!allowed)
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+
+  const parsed = checkoutLookupQuerySchema.safeParse({
+    order_ref: new URL(request.url).searchParams.get("order_ref") ?? undefined,
+  });
+  if (!parsed.success)
+    return NextResponse.json(
+      { error: "order_ref is required" },
+      { status: 400 },
+    );
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select(CHECKOUT_LOOKUP_COLUMNS)
+    .eq("kit_slug", auth.kitSlug)
+    .eq("order_ref", parsed.data.order_ref)
+    .maybeSingle();
+  if (error) {
+    console.error("checkout lookup: read failed", error.message);
+    return NextResponse.json(
+      { error: "Upstream unavailable" },
+      { status: 503 },
+    );
+  }
+  if (!data) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  return NextResponse.json(toLookupResponse(data));
+}
 
 export async function POST(request: Request) {
   const auth = await verifyKitAuth(request);
