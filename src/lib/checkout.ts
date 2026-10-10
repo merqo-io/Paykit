@@ -1,5 +1,6 @@
 import type { CheckoutView } from "@/lib/payments/adapter";
 import { checkoutKind } from "@/lib/checkout-kind";
+import { FALLBACK_LINK_LABEL } from "@/lib/checkout-lookup";
 import { createServiceClient } from "@/lib/supabase/server";
 import { getProvider } from "@/lib/payments/provider";
 import { recordPaymentAudit } from "@/lib/payment-audit";
@@ -184,7 +185,7 @@ function checkoutResponse(
       url: tx.qr_payload,
       label: isFreshInsert
         ? view.label
-        : (tx.checkout_label ?? "Open payment link"),
+        : (tx.checkout_label ?? FALLBACK_LINK_LABEL),
     };
   }
   return { ok: true, type: "image", transaction_id: tx.id, url: tx.qr_payload };
