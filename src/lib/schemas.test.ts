@@ -93,6 +93,35 @@ describe("vendorPaymentConfigInputSchema", () => {
       },
     );
 
+    it.each(["53312345AX12", "201912345KA01", "T09LL0001B001"])(
+      "accepts the UEN %s with a 3-character suffix",
+      (uen) => {
+        const parsed = vendorPaymentConfigInputSchema.safeParse({
+          kind: "paynow",
+          payee_name: "Kopitiam Cart",
+          uen,
+          mobile: "",
+        });
+        expect(parsed.success).toBe(true);
+      },
+    );
+
+    it.each([
+      ["8 characters ending in a letter", "5331234A"],
+      ["a UEN followed by 1 extra character", "201912345KA"],
+      ["a UEN followed by 2 extra characters", "53312345AX1"],
+      ["a value longer than a UEN plus its suffix", "53312345AX1234"],
+      ["12 digits", "912345678901"],
+    ])("rejects %s as a UEN", (_label, uen) => {
+      const parsed = vendorPaymentConfigInputSchema.safeParse({
+        kind: "paynow",
+        payee_name: "Kopitiam Cart",
+        uen,
+        mobile: "",
+      });
+      expect(parsed.success).toBe(false);
+    });
+
     it("rejects an empty payee name", () => {
       const parsed = vendorPaymentConfigInputSchema.safeParse({
         kind: "paynow",

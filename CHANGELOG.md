@@ -21,7 +21,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - `GET /api/v1/checkout?order_ref=`: a calling kit can find its own
-  transaction for an order without creating a checkout.
+  transaction for an order without creating a checkout. It returns the status, the owning `vendor_id` and the stored checkout view.
 - Playwright end-to-end smoke tests (`e2e/`, `pnpm test:e2e`): a public smoke spec and a signed-out auth-guard spec, run in CI as `e2e (public smoke)` against `pnpm dev` with dummy Supabase values. The job name and baseline match qkit, loopkit and merqo, so every kit can require the same check. `@playwright/test` is pinned to `1.61.1`.
 
 ### Changed
@@ -31,9 +31,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- The UEN field now rejects a value that does not end in a check letter, the
-  same rule qkit applies, so an 8-digit mobile number can no longer be saved
-  as a UEN.
+- The UEN field now accepts only a UEN (9 or 10 characters ending in a check
+  letter), optionally followed by the 3-character suffix PayNow Corporate
+  allows, so an 8-digit mobile number can no longer be saved as a UEN.
 
 - Improve small brand-text and input-boundary contrast in both themes while preserving primary button fills and decorative separators.
 
