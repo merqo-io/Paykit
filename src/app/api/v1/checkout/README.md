@@ -3,8 +3,9 @@
 ## Purpose
 
 `POST /api/v1/checkout` — a calling kit requests a checkout QR/payment
-pointer for a vendor's transaction. Bearer-secret authenticated
-(`verifyKitAuth`).
+pointer for a vendor's transaction. `GET /api/v1/checkout?order_ref=` — a
+calling kit looks up its own existing transaction for an order reference.
+Both are bearer-secret authenticated (`verifyKitAuth`).
 
 ## Contents
 
@@ -23,6 +24,17 @@ pointer for a vendor's transaction. Bearer-secret authenticated
 - `route.test.ts` — covers a fresh checkout, the idempotent-retry path
   (same `(kit_slug, order_ref)` returns the same transaction, no duplicate
   row), and the 503 case where the idempotent re-read itself fails.
+- `route.ts` — `GET ?order_ref=`: finds the calling kit's transaction for one
+  of its own order references and returns its status plus the checkout view
+  stored at creation (`view`, null when an old row's display kind cannot be
+  proven). Scoped to the bearer's `kit_slug`, so one kit can never read
+  another kit's transaction by guessing a reference. Read-only: it never
+  creates a transaction and never re-renders from the vendor's current
+  config, which is what lets a kit confirm or claim an order after the vendor
+  edits their payment details.
+- `route.lookup.test.ts` — the `GET` handler: the response shape, the
+  `kit_slug` filter, 400 for a missing, blank or over-long `order_ref`, and
+  401, 404, 429 and 503.
 - `[id]/` — sub-routes for claiming/unclaiming/confirming a specific
   transaction. `claim` moves `pending`→`claimed` (customer tapped "I've
   paid"); `unclaim` reverts `claimed`→`pending` (undoes an accidental tap) —

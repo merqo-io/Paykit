@@ -1,0 +1,15 @@
+{
+  "transaction_id": "11111111-1111-1111-1111-111111111111",
+  "status": "claimed",
+  "amount_cents": 450,
+  "order_ref": "A-001",
+  "kit_slug": "qkit",
+  "claimed_at": "2026-07-15T00:01:00Z",
+  "confirmed_at": null,
+  "created_at": "2026-07-15T00:00:00Z",
+  "view": {
+    "type": "link",
+    "url": "https://pay.example/checkout/abc",
+    "label": "Pay with PayLah"
+  }
+}

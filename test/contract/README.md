@@ -15,6 +15,8 @@ the saved shape. Route tests cover handler output; database tests cover RLS.
   response.
 - `transaction-status.sample.json` — a saved example `GET /api/v1/checkout/{id}`
   response.
+- `checkout-lookup.sample.json` — a saved example
+  `GET /api/v1/checkout?order_ref=` response.
 - `vendor-config.sample.json` — a saved example vendor-config response.
 - `booking-status.sample.json` — a saved example
   `GET /api/v1/bookings/{booking_id}` response.
