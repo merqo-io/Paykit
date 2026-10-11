@@ -1,0 +1,5 @@
+# Node scripts that start with a shebang keep LF endings on every platform.
+# With core.autocrlf=true a Windows checkout gives the shebang line a CRLF,
+# and Vitest then cannot load the script (SyntaxError), which fails
+# test/scripts/create-kit-key.test.ts and the pre-push hook.
+scripts/*.mjs text eol=lf

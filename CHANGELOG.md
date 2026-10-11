@@ -6,8 +6,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- The test suite and the pre-push hook pass on a Windows checkout again. `scripts/create-kit-key.mjs` was checked out with a CRLF after its shebang line, which Vitest cannot load; `.gitattributes` now keeps `scripts/*.mjs` on LF.
+
 ### Changed
 
+- Pin `@merqo/ui` to commit `a8063218e5954bef35242550070606628d79375a` (tag `v0.32.2`) with matching build permission. Every info icon now takes taps through a transparent 44px touch area on touch devices; the icon is drawn as before and nothing moves. Here that is the transaction status info icon, which was a 16px target.
+- Drop the leftover `allowBuilds` entry for the previous `@merqo/ui` commit, so build permission names only the pinned source URL.
+- Pin `@merqo/ui` to commit `cb9dd39ab56d6bc2030d30edb7474ee8ebf60820` (tag `v0.32.1`) with matching build permission. From this revision, `Section` title tooltips and default-mode `InfoTooltip`s open on a tap as well as on hover and keyboard focus. Nothing changes for vendors here: the transaction status info icon already opens on a tap.
 - Reuse money conversion, radio cards, shared statistics and branding; remove six unused UI primitives and correct stale documentation.
 
 ### Security
