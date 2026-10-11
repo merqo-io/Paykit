@@ -5,7 +5,7 @@ import {
 } from "@/lib/api-schemas";
 
 export const CHECKOUT_LOOKUP_COLUMNS =
-  "id, status, amount_cents, order_ref, kit_slug, claimed_at, confirmed_at, created_at, qr_payload, checkout_kind, checkout_label";
+  "id, status, amount_cents, order_ref, kit_slug, vendor_id, claimed_at, confirmed_at, created_at, qr_payload, checkout_kind, checkout_label";
 
 export const FALLBACK_LINK_LABEL = "Open payment link";
 
@@ -15,6 +15,7 @@ export type CheckoutLookupRow = {
   amount_cents: number;
   order_ref: string;
   kit_slug: string;
+  vendor_id: string;
   claimed_at: string | null;
   confirmed_at: string | null;
   created_at: string;
@@ -40,5 +41,9 @@ function snapshotView(row: CheckoutLookupRow): CheckoutLookupResponse["view"] {
 export function toLookupResponse(
   row: CheckoutLookupRow,
 ): CheckoutLookupResponse {
-  return { ...toStatusResponse(row), view: snapshotView(row) };
+  return {
+    ...toStatusResponse(row),
+    vendor_id: row.vendor_id,
+    view: snapshotView(row),
+  };
 }

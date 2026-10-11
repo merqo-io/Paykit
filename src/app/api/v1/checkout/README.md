@@ -25,10 +25,13 @@ Both are bearer-secret authenticated (`verifyKitAuth`).
   (same `(kit_slug, order_ref)` returns the same transaction, no duplicate
   row), and the 503 case where the idempotent re-read itself fails.
 - `route.ts` — `GET ?order_ref=`: finds the calling kit's transaction for one
-  of its own order references and returns its status plus the checkout view
-  stored at creation (`view`, null when an old row's display kind cannot be
-  proven). Scoped to the bearer's `kit_slug`, so one kit can never read
-  another kit's transaction by guessing a reference. Read-only: it never
+  of its own order references and returns its status, the `vendor_id` that owns
+  it, and the checkout view stored at creation (`view`, null when an old row's
+  display kind cannot be proven). The `vendor_id` lets the calling kit confirm
+  the transaction belongs to the vendor it is acting for, a check `POST`'s
+  replay already enforces for a create. Scoped to the bearer's `kit_slug`, so
+  one kit can never read another kit's transaction by guessing a reference.
+  Read-only: it never
   creates a transaction and never re-renders from the vendor's current
   config, which is what lets a kit confirm or claim an order after the vendor
   edits their payment details.

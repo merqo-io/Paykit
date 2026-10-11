@@ -1,7 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { buildPayNowPayload } from "@/lib/payments/paynow";
 import { toLookupResponse, type CheckoutLookupRow } from "./checkout-lookup";
-import { checkoutLookupResponseSchema } from "./api-schemas";
+import {
+  checkoutLookupResponseSchema,
+  type CheckoutLookupResponse,
+} from "./api-schemas";
 
 const BASE: CheckoutLookupRow = {
   id: "22222222-2222-2222-2222-222222222222",
@@ -9,6 +12,7 @@ const BASE: CheckoutLookupRow = {
   amount_cents: 450,
   order_ref: "A-001",
   kit_slug: "qkit",
+  vendor_id: "11111111-1111-1111-1111-111111111111",
   claimed_at: "2026-07-15T00:01:00Z",
   confirmed_at: null,
   created_at: "2026-07-15T00:00:00Z",
@@ -26,6 +30,7 @@ describe("toLookupResponse", () => {
       amount_cents: 450,
       order_ref: "A-001",
       kit_slug: "qkit",
+      vendor_id: "11111111-1111-1111-1111-111111111111",
     });
     expect(body.view).toEqual({
       type: "link",
@@ -33,6 +38,15 @@ describe("toLookupResponse", () => {
       label: "Pay with PayLah",
     });
     expect(checkoutLookupResponseSchema.safeParse(body).success).toBe(true);
+  });
+
+  it("fails the response schema when vendor_id is missing", () => {
+    const withoutVendor: Partial<CheckoutLookupResponse> =
+      toLookupResponse(BASE);
+    delete withoutVendor.vendor_id;
+    expect(checkoutLookupResponseSchema.safeParse(withoutVendor).success).toBe(
+      false,
+    );
   });
 
   it("uses the fallback label for a link stored without one", () => {

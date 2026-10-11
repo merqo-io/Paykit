@@ -87,7 +87,10 @@ Earnings, both live nav items that previously had no tour step at all.
 client-side transition rather than a full page reload in the first
 place. `POST /api/v1/checkout` is idempotent
 on `(kit_slug, order_ref)` — a retried call returns the existing
-transaction instead of creating a duplicate. Checkout creation itself
+transaction instead of creating a duplicate. A calling kit can find its own
+transaction for an order with `GET /api/v1/checkout?order_ref=`, a read-only
+lookup that returns the status, the owning `vendor_id` and the stored checkout
+view. Checkout creation itself
 goes through a pluggable `PaymentProvider` seam
 (`src/lib/payments/provider.ts`) — today's only registered provider is
 `direct`, wrapping the existing PayNow/pointer builder unchanged, so a

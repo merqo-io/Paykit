@@ -62,9 +62,12 @@ const snapshotViewSchema = z.discriminatedUnion("type", [
 
 /** `GET /api/v1/checkout?order_ref=`. `view` is the snapshot stored when the
  *  checkout was created, never rebuilt from the vendor's current config; it
- *  is null for a row whose display kind cannot be proven. */
+ *  is null for a row whose display kind cannot be proven. `vendor_id` is the
+ *  vendor that owns the transaction, returned so the calling kit can confirm
+ *  the transaction belongs to the vendor it is acting for. */
 export const checkoutLookupResponseSchema =
   transactionStatusResponseSchema.extend({
+    vendor_id: uuidSchema,
     view: snapshotViewSchema.nullable(),
   });
 export type CheckoutLookupResponse = z.infer<

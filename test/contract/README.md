@@ -9,8 +9,8 @@ the saved shape. Route tests cover handler output; database tests cover RLS.
 ## Contents
 
 - `paykit-api.contract.test.ts` — checkout create/claim/confirm/status, the
-  vendor-config `GET`/`POST`, and the booking-status `GET` responses against
-  their sample fixtures.
+  order-ref lookup `GET`, the vendor-config `GET`/`POST`, and the
+  booking-status `GET` responses against their sample fixtures.
 - `checkout-response.sample.json` — a saved example `POST /api/v1/checkout`
   response.
 - `transaction-status.sample.json` — a saved example `GET /api/v1/checkout/{id}`
