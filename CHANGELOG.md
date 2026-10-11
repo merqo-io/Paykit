@@ -31,6 +31,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- The UEN field now rejects a value that does not end in a check letter, the
+  same rule qkit applies, so an 8-digit mobile number can no longer be saved
+  as a UEN.
+
 - Improve small brand-text and input-boundary contrast in both themes while preserving primary button fills and decorative separators.
 
 - Kit-key provisioning refuses duplicate slugs; replacing a live key now requires an explicit --rotate command.

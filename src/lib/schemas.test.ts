@@ -60,6 +60,39 @@ describe("vendorPaymentConfigInputSchema", () => {
       expect(parsed.success).toBe(false);
     });
 
+    it("rejects a bare 8-digit mobile number typed as a UEN", () => {
+      const parsed = vendorPaymentConfigInputSchema.safeParse({
+        kind: "paynow",
+        payee_name: "Kopitiam Cart",
+        uen: "91234567",
+        mobile: "",
+      });
+      expect(parsed.success).toBe(false);
+    });
+
+    it("rejects a UEN that does not end in a letter", () => {
+      const parsed = vendorPaymentConfigInputSchema.safeParse({
+        kind: "paynow",
+        payee_name: "Kopitiam Cart",
+        uen: "533123456",
+        mobile: "",
+      });
+      expect(parsed.success).toBe(false);
+    });
+
+    it.each(["53312345A", "201912345K", "T09LL0001B"])(
+      "accepts the UEN %s",
+      (uen) => {
+        const parsed = vendorPaymentConfigInputSchema.safeParse({
+          kind: "paynow",
+          payee_name: "Kopitiam Cart",
+          uen,
+          mobile: "",
+        });
+        expect(parsed.success).toBe(true);
+      },
+    );
+
     it("rejects an empty payee name", () => {
       const parsed = vendorPaymentConfigInputSchema.safeParse({
         kind: "paynow",

@@ -20,7 +20,10 @@ const payNowInputSchema = z.object({
   uen: z
     .string()
     .trim()
-    .regex(/^[0-9A-Za-z]{8,12}$/, "Invalid UEN")
+    // Every UEN format is 9 or 10 characters and ends in a check letter. An
+    // 8-digit mobile number typed here would otherwise pass and produce a
+    // QR that banking apps reject. qkit applies the same rule.
+    .regex(/^[0-9A-Za-z]{8,9}[A-Za-z]$/, "Invalid UEN")
     .optional()
     .or(z.literal("")),
   mobile: z
