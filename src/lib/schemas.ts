@@ -20,7 +20,11 @@ const payNowInputSchema = z.object({
   uen: z
     .string()
     .trim()
-    .regex(/^[0-9A-Za-z]{8,12}$/, "Invalid UEN")
+    // A UEN is 9 or 10 characters and ends in a check letter. PayNow
+    // Corporate lets a business append a 3-character suffix to link more
+    // than one account, so that is accepted too. An 8-digit mobile number
+    // typed here must not pass: it would produce a QR banking apps reject.
+    .regex(/^[0-9A-Za-z]{8,9}[A-Za-z](?:[0-9A-Za-z]{3})?$/, "Invalid UEN")
     .optional()
     .or(z.literal("")),
   mobile: z

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
   checkoutResponseSchema,
+  checkoutLookupResponseSchema,
   transactionStatusResponseSchema,
   vendorConfigResponseSchema,
   bookingStatusResponseSchema,
@@ -47,6 +48,20 @@ describe("paykit /api/v1 contract", () => {
   it("GET /api/v1/bookings/{booking_id} response satisfies bookingStatusResponseSchema", () => {
     const parsed = bookingStatusResponseSchema.safeParse(
       loadSample("booking-status.sample.json"),
+    );
+    expect(parsed.success, JSON.stringify(parsed.error?.format())).toBe(true);
+  });
+
+  it("GET /api/v1/checkout?order_ref= response satisfies checkoutLookupResponseSchema", () => {
+    const parsed = checkoutLookupResponseSchema.safeParse(
+      loadSample("checkout-lookup.sample.json"),
+    );
+    expect(parsed.success, JSON.stringify(parsed.error?.format())).toBe(true);
+  });
+
+  it("the lookup response also satisfies the plain transaction status contract", () => {
+    const parsed = transactionStatusResponseSchema.safeParse(
+      loadSample("checkout-lookup.sample.json"),
     );
     expect(parsed.success, JSON.stringify(parsed.error?.format())).toBe(true);
   });

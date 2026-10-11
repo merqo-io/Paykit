@@ -13,6 +13,11 @@ provide authorization.
   A replay of the same kit and order reference must match the vendor, amount,
   checkout kind and payload; a conflicting replay fails. `checkout-kind.ts`
   reads persisted display identity without guessing an unknown legacy pointer.
+- `checkout-lookup.ts` — `toLookupResponse(row)`: maps a `transactions` row to
+  the `GET /api/v1/checkout?order_ref=` wire shape, building `view` from the
+  stored snapshot through `checkoutKind`, and passes `vendor_id` through. Also
+  holds the column list that route selects and the fallback label for a link
+  stored without one.
 - `tx-state.ts` defines claim, unclaim and confirm transitions. Confirmation
   cannot be undone by unclaim. Routes use conditional writes and re-read a
   concurrent winner; returned or rejected write failures are not success.
