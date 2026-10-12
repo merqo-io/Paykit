@@ -4,6 +4,7 @@ import { verifyKitAuth } from "@/lib/kit-auth";
 import { unclaimTransition, type TxStatus } from "@/lib/tx-state";
 import { toStatusResponse, uuidSchema } from "@/lib/api-schemas";
 import { recordPaymentAudit } from "@/lib/payment-audit";
+import { schedulePaymentStatusCallback } from "@/lib/kit-callback";
 import {
   clientIp,
   rateLimit,
@@ -81,5 +82,6 @@ export async function POST(
   }
 
   await recordPaymentAudit(supabase, id, auth.kitSlug, "unclaimed");
+  schedulePaymentStatusCallback(updated);
   return NextResponse.json(toStatusResponse(updated));
 }

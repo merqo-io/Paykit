@@ -28,6 +28,16 @@ vi.mock("@/lib/rate-limit", () => ({
   rateLimit: rateLimitMock,
 }));
 
+const { scheduleCallbackMock } = vi.hoisted(() => ({
+  scheduleCallbackMock: vi.fn(),
+}));
+vi.mock("@/lib/kit-callback", () => ({
+  schedulePaymentStatusCallback: scheduleCallbackMock,
+}));
+beforeEach(() => {
+  scheduleCallbackMock.mockReset();
+});
+
 const TX_ID = "22222222-2222-2222-2222-222222222222";
 
 const ROW = {
@@ -192,4 +202,75 @@ it("returns 503 when the race recheck itself fails", async () => {
     error: { message: "conditional update returned no row" },
   });
   expect((await POST(req(), ctx())).status).toBe(503);
+});
+
+describe("payment-status callback on claim", () => {
+  const CLAIMED = {
+    ...ROW,
+    status: "claimed",
+    claimed_at: "2026-07-15T00:01:00Z",
+  };
+
+  it("schedules one callback with the updated row after a real claim", async () => {
+    updateSingle.mockResolvedValue({ data: CLAIMED, error: null });
+    const res = await POST(req(), ctx());
+    expect(res.status).toBe(200);
+    expect(scheduleCallbackMock).toHaveBeenCalledTimes(1);
+    expect(scheduleCallbackMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: TX_ID,
+        kit_slug: "qkit",
+        order_ref: "A-001",
+        status: "claimed",
+      }),
+    );
+  });
+
+  it("targets the kit that owns the transaction, not the calling kit", async () => {
+    verifyKitAuthMock.mockResolvedValue({ kitSlug: "loopkit" });
+    updateSingle.mockResolvedValue({ data: CLAIMED, error: null });
+    await POST(req(), ctx());
+    expect(scheduleCallbackMock).toHaveBeenCalledWith(
+      expect.objectContaining({ kit_slug: "qkit" }),
+    );
+  });
+
+  it("schedules nothing for an idempotent no-op", async () => {
+    readMaybeSingle.mockResolvedValue({ data: CLAIMED, error: null });
+    await POST(req(), ctx());
+    expect(scheduleCallbackMock).not.toHaveBeenCalled();
+  });
+
+  it("schedules nothing when a concurrent request won the race", async () => {
+    readMaybeSingle
+      .mockReset()
+      .mockResolvedValueOnce({ data: ROW, error: null })
+      .mockResolvedValueOnce({ data: CLAIMED, error: null });
+    updateSingle.mockResolvedValue({
+      data: null,
+      error: { message: "no rows matched the conditional update" },
+    });
+    const res = await POST(req(), ctx());
+    expect(res.status).toBe(200);
+    expect(scheduleCallbackMock).not.toHaveBeenCalled();
+  });
+
+  it("schedules nothing when the update fails", async () => {
+    updateSingle.mockResolvedValue({
+      data: null,
+      error: { message: "database unavailable" },
+    });
+    const res = await POST(req(), ctx());
+    expect(res.status).toBe(503);
+    expect(scheduleCallbackMock).not.toHaveBeenCalled();
+  });
+
+  it("schedules nothing when unauthorized or rate limited", async () => {
+    verifyKitAuthMock.mockResolvedValue(null);
+    await POST(req(), ctx());
+    verifyKitAuthMock.mockResolvedValue({ kitSlug: "qkit" });
+    rateLimitMock.mockResolvedValue(false);
+    await POST(req(), ctx());
+    expect(scheduleCallbackMock).not.toHaveBeenCalled();
+  });
 });
