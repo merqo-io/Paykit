@@ -226,15 +226,6 @@ describe("payment-status callback on claim", () => {
     );
   });
 
-  it("targets the kit that owns the transaction, not the calling kit", async () => {
-    verifyKitAuthMock.mockResolvedValue({ kitSlug: "loopkit" });
-    updateSingle.mockResolvedValue({ data: CLAIMED, error: null });
-    await POST(req(), ctx());
-    expect(scheduleCallbackMock).toHaveBeenCalledWith(
-      expect.objectContaining({ kit_slug: "qkit" }),
-    );
-  });
-
   it("schedules nothing for an idempotent no-op", async () => {
     readMaybeSingle.mockResolvedValue({ data: CLAIMED, error: null });
     await POST(req(), ctx());

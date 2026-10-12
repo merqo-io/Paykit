@@ -11,11 +11,14 @@ export type CallbackTransaction = {
   status: string;
 };
 
-// The secret travels in a header, so anything but https would expose it.
+// The secret travels in a header, so anything but https would expose it. An
+// address with credentials in it is refused too: fetch rejects one with an
+// error that quotes the whole URL.
 function httpsUrl(value: string): URL | null {
   try {
     const url = new URL(value);
-    return url.protocol === "https:" ? url : null;
+    if (url.protocol !== "https:" || url.username || url.password) return null;
+    return url;
   } catch {
     return null;
   }
@@ -27,8 +30,8 @@ function httpsUrl(value: string): URL | null {
  * a change paykit makes by itself reaches the right kit too.
  *
  * Best effort: a kit with no callback configured is skipped silently, every
- * failure is logged and swallowed, and the request is abandoned after 5
- * seconds. The receiver treats the body as a hint and reads the status back,
+ * failure is logged and swallowed, and the request is abandoned 5 seconds
+ * after it is sent. The receiver treats the body as a hint and reads the status back,
  * so a lost or repeated call can never leave it holding a wrong status.
  */
 export async function notifyKitPaymentStatus(
@@ -45,7 +48,7 @@ export async function notifyKitPaymentStatus(
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), CALLBACK_TIMEOUT_MS);
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     const supabase = await createServiceClient();
     const { data, error } = await supabase
@@ -60,16 +63,23 @@ export async function notifyKitPaymentStatus(
       );
       return;
     }
-    if (!data?.callback_url || !data.callback_secret) return;
-
-    const url = httpsUrl(data.callback_url);
-    if (!url) {
+    if (!data?.callback_url && !data?.callback_secret) return;
+    if (!data.callback_url || !data.callback_secret) {
       console.error(
-        `notifyKitPaymentStatus: ${tx.kit_slug} callback_url is not an https URL`,
+        `notifyKitPaymentStatus: ${tx.kit_slug} has only one of callback_url and callback_secret set`,
       );
       return;
     }
 
+    const url = httpsUrl(data.callback_url);
+    if (!url) {
+      console.error(
+        `notifyKitPaymentStatus: ${tx.kit_slug} callback_url is not a plain https URL`,
+      );
+      return;
+    }
+
+    timer = setTimeout(() => controller.abort(), CALLBACK_TIMEOUT_MS);
     const res = await fetch(url, {
       method: "POST",
       cache: "no-store",
@@ -86,9 +96,11 @@ export async function notifyKitPaymentStatus(
         `notifyKitPaymentStatus: ${tx.kit_slug} returned ${res.status}`,
       );
   } catch (err) {
+    // The name only. A fetch error's message can quote the Authorization
+    // header or the URL it was given.
     console.error(
       "notifyKitPaymentStatus failed",
-      err instanceof Error ? err.message : "unknown error",
+      err instanceof Error ? err.name : "unknown error",
     );
   } finally {
     clearTimeout(timer);
@@ -102,5 +114,11 @@ export async function notifyKitPaymentStatus(
  * paykit back from inside its handler.
  */
 export function schedulePaymentStatusCallback(tx: CallbackTransaction): void {
-  after(() => notifyKitPaymentStatus(tx));
+  try {
+    after(() => notifyKitPaymentStatus(tx));
+  } catch {
+    // `after` throws where there is no request to outlive. The transition
+    // has already committed, so the route must still answer with it.
+    console.error("schedulePaymentStatusCallback: could not schedule", tx.id);
+  }
 }

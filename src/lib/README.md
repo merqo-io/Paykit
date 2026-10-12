@@ -29,9 +29,11 @@ provide authorization.
   `{ order_ref, transaction_id, status }` to the `callback_url` of the kit
   that owns the transaction (`transactions.kit_slug`), with
   `Authorization: Bearer <callback_secret>`, both read from `kit_api_keys`.
-  Best effort: a kit with either column unset is skipped silently, a
-  non-https address is refused, the request is abandoned after 5 seconds and
-  nothing is thrown. `schedulePaymentStatusCallback(tx)` registers it with
+  Best effort: a kit with neither column set is skipped silently, a kit with
+  only one set is skipped with a log line, an address that is not plain https
+  (or carries credentials) is refused, the request is abandoned 5 seconds
+  after it is sent and nothing is thrown. A request error is logged by name
+  only, since its message can quote the secret. `schedulePaymentStatusCallback(tx)` registers it with
   `after`, so it runs once the response has gone out. The body is a hint: the
   receiving kit reads the status back with `GET /api/v1/checkout?order_ref=`.
 - `rate-limit.ts` calls the database fixed-window limiter after authentication.

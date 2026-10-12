@@ -33,6 +33,10 @@ const TX = {
   status: "claimed",
 };
 const CALLBACK_URL = "https://qkit.test/api/paykit/payment-status";
+const NO_CALLBACK: {
+  callback_url: string | null;
+  callback_secret: string | null;
+} = { callback_url: null, callback_secret: null };
 const originalFetch = global.fetch;
 let fetchMock: ReturnType<typeof vi.fn>;
 let errorSpy: ReturnType<typeof vi.spyOn>;
@@ -88,18 +92,87 @@ describe("notifyKitPaymentStatus", () => {
   });
 
   it.each([
-    ["no row for the kit", null],
-    ["no callback_url", { callback_url: null, callback_secret: "s" }],
-    [
-      "no callback_secret",
-      { callback_url: CALLBACK_URL, callback_secret: null },
-    ],
-    ["an empty callback_url", { callback_url: "", callback_secret: "s" }],
-  ])("sends nothing when the kit has %s", async (_, row) => {
+    ["no row", null],
+    ["a row with neither column set", NO_CALLBACK],
+  ])("sends nothing, silently, when the kit has %s", async (_, row) => {
     maybeSingleMock.mockResolvedValue({ data: row, error: null });
     await expect(notifyKitPaymentStatus(TX)).resolves.toBeUndefined();
     expect(fetchMock).not.toHaveBeenCalled();
     expect(errorSpy).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["a secret but no address", { ...NO_CALLBACK, callback_secret: "hush" }],
+    [
+      "an address but no secret",
+      { ...NO_CALLBACK, callback_url: CALLBACK_URL },
+    ],
+    ["an empty address", { callback_url: "", callback_secret: "hush" }],
+  ])("sends nothing, and says so, when the kit has %s", async (_, row) => {
+    maybeSingleMock.mockResolvedValue({ data: row, error: null });
+    await expect(notifyKitPaymentStatus(TX)).resolves.toBeUndefined();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(errorSpy.mock.calls)).not.toContain("hush");
+  });
+
+  it("refuses an address that carries credentials, without logging them", async () => {
+    configured({
+      callback_url: "https://user:url-password@qkit.test/api/paykit",
+      callback_secret: "shared-secret",
+    });
+    await expect(notifyKitPaymentStatus(TX)).resolves.toBeUndefined();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalled();
+    expect(JSON.stringify(errorSpy.mock.calls)).not.toContain("url-password");
+  });
+
+  it("does not log a request error's message, which can quote the secret", async () => {
+    configured();
+    fetchMock.mockRejectedValue(
+      new TypeError(
+        'Headers.append: "Bearer shared-secret" is an invalid header value.',
+      ),
+    );
+    await expect(notifyKitPaymentStatus(TX)).resolves.toBeUndefined();
+    expect(errorSpy).toHaveBeenCalled();
+    expect(JSON.stringify(errorSpy.mock.calls)).not.toContain("shared-secret");
+  });
+
+  it("gives the request its full 5 seconds after a slow lookup", async () => {
+    vi.useFakeTimers();
+    maybeSingleMock.mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve({
+                data: {
+                  callback_url: CALLBACK_URL,
+                  callback_secret: "shared-secret",
+                },
+                error: null,
+              }),
+            3000,
+          ),
+        ),
+    );
+    fetchMock.mockImplementation(
+      (_url: unknown, init: RequestInit) =>
+        new Promise((_resolve, reject) => {
+          init.signal?.addEventListener("abort", () =>
+            reject(new Error("aborted")),
+          );
+        }),
+    );
+    const done = notifyKitPaymentStatus(TX);
+    await vi.advanceTimersByTimeAsync(3000);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(4000);
+    expect(fetchMock.mock.calls[0][1].signal.aborted).toBe(false);
+    await vi.advanceTimersByTimeAsync(1000);
+    await expect(done).resolves.toBeUndefined();
+    expect(fetchMock.mock.calls[0][1].signal.aborted).toBe(true);
   });
 
   it.each(["http://qkit.test/api/paykit/payment-status", "not a url"])(
@@ -173,6 +246,14 @@ describe("schedulePaymentStatusCallback", () => {
     schedulePaymentStatusCallback(TX);
     expect(afterMock).toHaveBeenCalledTimes(1);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("does not throw when the work cannot be registered", () => {
+    afterMock.mockImplementation(() => {
+      throw new Error("`after` was called outside a request scope");
+    });
+    expect(() => schedulePaymentStatusCallback(TX)).not.toThrow();
+    expect(errorSpy).toHaveBeenCalled();
   });
 
   it("sends the callback when the registered work runs", async () => {

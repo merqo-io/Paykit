@@ -74,8 +74,7 @@ presents to a calling kit's own callback route. It is unrelated to the bearer
 secret above, runs in the other direction, and `create-kit-key.mjs` neither
 reads nor writes it, so rotating the bearer secret leaves it alone.
 
-To rotate it, change both sides in this order, so the receiving kit never
-rejects a callback paykit is already sending:
+To rotate it, change both sides in this order:
 
 1. Set the new value in the calling kit's environment (for qkit,
    `PAYKIT_CALLBACK_SECRET`) and redeploy it.
