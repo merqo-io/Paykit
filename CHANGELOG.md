@@ -12,6 +12,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Internal: the AI harness follows templateCentral 6.0.4. Hook commands no
+  longer depend on the shell's current directory, the end-of-turn test run
+  is skipped when nothing changed, the guard against skipping git hooks
+  closes six gaps and reads the branch of the directory a command runs in
+  (so commits from a git worktree are not blocked by the main checkout's
+  branch), and the pull-request doc gates fail when the base branch is
+  missing. See the dated entry in `AGENTS.md`.
 - Pin `@merqo/ui` to commit `9b202ba529dfd8fecbcbb9a2cc9f37efba4bd7d4` (tag `v0.32.3`) with matching build permission. Long info tooltips now wrap inside the screen instead of staying on one line that runs off a phone, and tests that import `@merqo/ui` no longer load about 3,400 Simple Icons modules. No tooltip here was long enough to run off the screen.
 - Pin `@merqo/ui` to commit `a8063218e5954bef35242550070606628d79375a` (tag `v0.32.2`) with matching build permission. Every info icon now takes taps through a transparent 44px touch area on touch devices; the icon is drawn as before and nothing moves. Here that is the transaction status info icon, which was a 16px target.
 - Drop the leftover `allowBuilds` entry for the previous `@merqo/ui` commit, so build permission names only the pinned source URL.

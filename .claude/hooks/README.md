@@ -20,12 +20,10 @@ harness.
   change-narration comments (patterns from `../comment-hygiene-patterns.txt`)
   and oversized comment blocks via `hookSpecificOutput.additionalContext`;
   feedback-only, never blocks.
-- `post-tool-failure.sh` — PostToolUseFailure: writes the failed tool's
-  name/error to stderr so the model can self-correct; always exits 0.
 - `protect-files.sh` — checks reads and writes, normalizes Windows paths, and hard-blocks secret/credential access except blank environment templates. Governance and CI workflow writes require approval; ordinary application code, skills and specs are unrestricted.
 - `session-context.sh` — SessionStart(startup|resume|clear|compact):
   re-injects the first 30 lines of `AGENTS.md`.
-- `skill-usage-log.sh` — PostToolUse(`Skill__.*`): appends a
+- `skill-usage-log.sh` — PostToolUse(`Skill`): appends a
   `timestamp\tskill-name` line to `.claude/skill-usage.log`; always exits 0.
 - `stop-checks.sh` — Stop: runs `pnpm test`; on failure, tails the last 20
   lines to stderr and exits 2; short-circuits to exit 0 when

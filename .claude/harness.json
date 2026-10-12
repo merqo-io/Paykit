@@ -1,34 +1,34 @@
 {
-  "templatecentral_version": "5.15.0",
+  "templatecentral_version": "6.0.4",
   "stack": "nextjs",
   "adapted": "Next 16 + Supabase (auth/db) — Supabase variant, based on qkit harness",
   "seeded_at": "2026-07-22",
-  "review_note": "Harness built to match the AGENTS.md 'AI Harness' section that had described it since the qkit-seeded bootstrap but was never actually built. Hooks/skills match qkit's simpler pattern; git-hook layer (lefthook) matches loopkit's, since that's this plan's chosen baseline. CI gates (changelog, readme-freshness, coverage) added to match loopkit's real working jobs. Follow-up: added the missing .claude/hooks/* Claude-Code-hook script layer (previously inline `node -e` one-liners embedded in settings.json), and fixed lefthook.yml's format-lint command, which had no exclude list and would have reformatted/drifted those scripts on first commit; version marker bumped 5.7.0 -> 5.11.0 to match sibling repo loopkit's harness architecture, which this change brings paykit's Claude Code hook layer up to.",
+  "review_note": "2026-10-12: templateCentral 5.15 to 6.0.4. Ported the harness qkit adopted in its 6.0.1 and 6.0.4 reviews by 3-way merge, keeping this repo's local lines: project-anchored hook commands with timeouts, clean-tree Stop skip, additionalContext typecheck feedback, the Skill matcher, the per-segment block-no-verify parser with cwd-aware branch detection, protect-files path resolution, a verifier that fails on an unreadable manifest, a wider commit-msg gate, fail-closed PR doc gates in CI. Removed post-tool-failure.sh. Not adopted: exec-form hooks, the gitleaks syntax changes, ci-gates.sh, hooks/local, Azure DevOps and OpenCode items. Reasoning is in the AGENTS.md entry of the same date. Hashes below were recomputed from the LF-normalised blobs. Harness built to match the AGENTS.md 'AI Harness' section that had described it since the qkit-seeded bootstrap but was never actually built. Hooks/skills match qkit's simpler pattern; git-hook layer (lefthook) matches loopkit's, since that's this plan's chosen baseline. CI gates (changelog, readme-freshness, coverage) added to match loopkit's real working jobs. Follow-up: added the missing .claude/hooks/* Claude-Code-hook script layer (previously inline `node -e` one-liners embedded in settings.json), and fixed lefthook.yml's format-lint command, which had no exclude list and would have reformatted/drifted those scripts on first commit; version marker bumped 5.7.0 -> 5.11.0 to match sibling repo loopkit's harness architecture, which this change brings paykit's Claude Code hook layer up to.",
   "adoWiki": false,
   "richReadme": true,
   "seeded_files": {
     "AGENTS.md": {
-      "origin_hash": "9b21de48677e4af608be55ac231d57e77a9e6cfc07f1f3bb41d361ff35566063",
+      "origin_hash": "5113304478bf6d08ff577ec1fa8431fde710cff7bb39bf983cbe8f0809ab8f8a",
       "path": "AGENTS.md"
     },
     ".claude/settings.json": {
-      "origin_hash": "91265764ca1c4d084e6a24c962a60f0255fef5c01fd7af5cb2850702e1597890",
+      "origin_hash": "499784c2b5e9bb28567c8810785862bdebb19c2d6d424fca963e170e6109525a",
       "path": ".claude/settings.json"
     },
     ".claude/hooks/block-no-verify.sh": {
-      "origin_hash": "bb58d44fec7b994cfbf5e956a4e95d00314ce4a9c07ad97f42a829b1d0c3d03c",
+      "origin_hash": "e780da8322bc56be0eb517637aa4593257ef9b8c02e98e3c4d8c60f689544a1b",
       "path": ".claude/hooks/block-no-verify.sh"
     },
     ".claude/hooks/protect-files.sh": {
-      "origin_hash": "281dabc9d452a8d00d0749d698a764fec355641723abd47ba6860f3941305048",
+      "origin_hash": "3b828581fc1123e27d325401212f295cfbfc6cde34c7f06e36a2dc3f7955e382",
       "path": ".claude/hooks/protect-files.sh"
     },
     ".claude/hooks/user-prompt-guard.cjs": {
-      "origin_hash": "534a7cb2b825a73d23a8687bbd14c9e9161b24ac3c61ae3df2fcfca8fbddccfd",
+      "origin_hash": "c2caf4b848a00e182e3f4c70517cc774e9c873d346a01e5311ea87eb2872b803",
       "path": ".claude/hooks/user-prompt-guard.cjs"
     },
     ".claude/hooks/post-edit-comment-check.sh": {
-      "origin_hash": "f7e5f610135ea114b401b6ca22ce01af3a64729eb753645f21460810ff749fee",
+      "origin_hash": "506aa92359903beb7bf7c8d35636f0150d4f4939c25b680821ae662ab5324275",
       "path": ".claude/hooks/post-edit-comment-check.sh"
     },
     ".claude/comment-hygiene-patterns.txt": {
@@ -40,27 +40,23 @@
       "path": ".husky/lib/comment-hygiene.sh"
     },
     ".claude/hooks/post-edit-typecheck.sh": {
-      "origin_hash": "f17a4f6cb67b023f1058acb542b43ccf294de612e5d15352776ffbb50366b509",
+      "origin_hash": "c69f6097a629aa85f321c8c08b61d6dee62d75b82f8647e7034fd0cc08a8172e",
       "path": ".claude/hooks/post-edit-typecheck.sh"
     },
-    ".claude/hooks/post-tool-failure.sh": {
-      "origin_hash": "31af87da10f31b5ead1d5fa455ffeb8903956ed2dacb5ef7319b1e8a2822efcd",
-      "path": ".claude/hooks/post-tool-failure.sh"
-    },
     ".claude/hooks/session-context.sh": {
-      "origin_hash": "8e563afe1421e080fc7ed651f80422d4b8d901898d6c52e7a770efb85d5e5982",
+      "origin_hash": "9bc0b18f5f4d9c90921bcf84c52ae01e479f8cdf82847431c32081a865e8f6ec",
       "path": ".claude/hooks/session-context.sh"
     },
     ".claude/hooks/skill-usage-log.sh": {
-      "origin_hash": "5405cf6e00bfee4c2f0bf7f90285215825f9671376383154b2a7aff2dd6db74f",
+      "origin_hash": "db8271e45ac10d7e77fe25eddae497f967a78a483f935c824a34f7f61be0ebdf",
       "path": ".claude/hooks/skill-usage-log.sh"
     },
     ".claude/hooks/stop-checks.sh": {
-      "origin_hash": "91e87eef5d1fdb2a2b7ee2b59d907cf341816e42512cb99eb8c3de24e7fd7ab8",
+      "origin_hash": "f45ed1afb1581f5af473003f2b249d480b6c574dd488afc44d1676a64c627b08",
       "path": ".claude/hooks/stop-checks.sh"
     },
     ".claude/hooks/subagent-stop.sh": {
-      "origin_hash": "8107bdb11b7dbe71121d24e1e585284f430503f96713b5bcc646308a9c777da5",
+      "origin_hash": "48d0784d1cca1174cb9877d7b9d8579f3585ca53dc927d3e463ca1fdde24922d",
       "path": ".claude/hooks/subagent-stop.sh"
     },
     ".claude/skills/next-verify/SKILL.md": {
@@ -88,7 +84,7 @@
       "path": ".husky/lib/readme-coupling.sh"
     },
     ".husky/lib/commit-msg-check.sh": {
-      "origin_hash": "f5347b89ef6d530b5ae388cc4dea3bfce10898c89e5218dcfd908876ccc0659e",
+      "origin_hash": "7e90a71545213bdfd63ac45bfad3ef25c06a7ad96d6bbd4a4833c8664bf5bc23",
       "path": ".husky/lib/commit-msg-check.sh"
     },
     ".husky/lib/pre-commit.sh": {
@@ -104,11 +100,11 @@
       "path": ".gitleaks.toml"
     },
     ".github/workflows/ci.yml": {
-      "origin_hash": "aaabc007b0ce659d68e73c634961cda46d91c079001e10b000236ddcca8ba043",
+      "origin_hash": "dab239bf1ba5448ea5fe278aef4a66e2605b99c71810646b9e171fef20092000",
       "path": ".github/workflows/ci.yml"
     },
     ".claude/verify-harness.sh": {
-      "origin_hash": "54a5f6b03db4e1925a74ecc4dd69d37c265ffbdf594db1978b4599a94adfcaf0",
+      "origin_hash": "33b1c81e067a2a18a1635c753f921c7143cc658a246c5b8b2e54828137cb4918",
       "path": ".claude/verify-harness.sh"
     },
     ".claude/regen-harness.sh": {

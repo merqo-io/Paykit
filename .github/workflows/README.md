@@ -37,8 +37,12 @@ secret scan, dependency audit).
 `.claude/harness.json` (see `.claude/README.md`) staying in sync.
 `security.yml` is what husky's `pre-commit` gitleaks step mirrors locally.
 
+The `readme-freshness` gate skips `.claude/.harness-base/`, a snapshot of seeded harness files with no READMEs of its own.
+
 ## Parent
 
 [.github](../README.md)
 
 The unit suite runs once with coverage. Vitest enforces at least 80% statements, branches, functions and lines over production source; any existing changed-line coverage gate remains in place.
+
+The three PR-only gates in `ci.yml` (changelog, README freshness, comment hygiene) fail when `origin/<base>` is missing, and read the base branch from `env`.
