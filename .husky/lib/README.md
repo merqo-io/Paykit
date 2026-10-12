@@ -42,6 +42,8 @@ Invoked exclusively by the three top-level `.husky/*` hook files — see
 `core.hooksPath`. Every file here is part of the integrity-checked
 enforcement layer recorded in `.claude/harness.json`.
 
+`commit-msg-check.sh` also accepts a breaking-change subject (`type(scope)!:`) and the messages git writes itself (`Revert "…"`, `fixup!`, `squash!`, `amend!`).
+
 ## Parent
 
 [.husky](../README.md)
