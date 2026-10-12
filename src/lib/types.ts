@@ -248,14 +248,23 @@ export interface Database {
           secret_hash: string;
           created_at: string;
           last_used_at: string | null;
+          callback_url: string | null;
+          callback_secret: string | null;
         };
         Insert: {
           kit_slug: string;
           secret_hash: string;
           created_at?: string;
           last_used_at?: string | null;
+          callback_url?: string | null;
+          callback_secret?: string | null;
         };
-        Update: { secret_hash?: string; last_used_at?: string | null };
+        Update: {
+          secret_hash?: string;
+          last_used_at?: string | null;
+          callback_url?: string | null;
+          callback_secret?: string | null;
+        };
         Relationships: [];
       };
       feedback: {
