@@ -27,6 +27,8 @@ itself, the husky/gitleaks/CI config) count as "enforcement layer" —
 `verify-harness.sh` hashes each guarded path at committed HEAD and fails if it differs from the
 recorded `origin_hash`.
 
+`.harness-base/` mirrors the seeded harness files and holds no READMEs; the CI README-freshness gate skips it.
+
 ## Parent
 
 [paykit](../README.md)
