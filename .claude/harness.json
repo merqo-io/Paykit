@@ -100,7 +100,7 @@
       "path": ".gitleaks.toml"
     },
     ".github/workflows/ci.yml": {
-      "origin_hash": "e51ab34caecf86ed897a2f8d5e0b43229b559e2db023a15383bc41229efa14ec",
+      "origin_hash": "dab239bf1ba5448ea5fe278aef4a66e2605b99c71810646b9e171fef20092000",
       "path": ".github/workflows/ci.yml"
     },
     ".claude/verify-harness.sh": {

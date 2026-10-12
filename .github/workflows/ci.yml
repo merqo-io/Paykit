@@ -165,6 +165,7 @@ jobs:
           missing=""
           while IFS= read -r f; do
             case "$f" in */README.md|README.md) continue ;; esac
+            case "$f" in .claude/.harness-base/*) continue ;; esac
             d=$(dirname "$f")
             [ -d "$d" ] || continue
             rm_path="README.md"

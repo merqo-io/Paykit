@@ -37,6 +37,8 @@ secret scan, dependency audit).
 `.claude/harness.json` (see `.claude/README.md`) staying in sync.
 `security.yml` is what husky's `pre-commit` gitleaks step mirrors locally.
 
+The `readme-freshness` gate skips `.claude/.harness-base/`, a snapshot of seeded harness files with no READMEs of its own.
+
 ## Parent
 
 [.github](../README.md)
