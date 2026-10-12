@@ -90,7 +90,11 @@ on `(kit_slug, order_ref)` — a retried call returns the existing
 transaction instead of creating a duplicate. A calling kit can find its own
 transaction for an order with `GET /api/v1/checkout?order_ref=`, a read-only
 lookup that returns the status, the owning `vendor_id` and the stored checkout
-view. Checkout creation itself
+view. After a claim, unclaim or confirm commits, paykit posts a payment-status
+callback to the owning kit's `kit_api_keys.callback_url`, when one is set
+(`src/lib/kit-callback.ts`). It is a hint that the transaction changed, sent
+after the response and never awaited; the kit reads the status back with the
+lookup above. Checkout creation itself
 goes through a pluggable `PaymentProvider` seam
 (`src/lib/payments/provider.ts`) — today's only registered provider is
 `direct`, wrapping the existing PayNow/pointer builder unchanged, so a

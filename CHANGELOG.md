@@ -28,6 +28,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Payment-status callback: after a claim, unclaim or confirm commits, paykit
+  posts `{ order_ref, transaction_id, status }` to the callback address of the
+  kit that owns the transaction. A kit with no callback configured gets none,
+  and a slow or failing callback never changes the request's answer. Needs
+  migration `0021` (two nullable columns on `kit_api_keys`).
 - `GET /api/v1/checkout?order_ref=`: a calling kit can find its own
   transaction for an order without creating a checkout. It returns the status, the owning `vendor_id` and the stored checkout view.
 - Playwright end-to-end smoke tests (`e2e/`, `pnpm test:e2e`): a public smoke spec and a signed-out auth-guard spec, run in CI as `e2e (public smoke)` against `pnpm dev` with dummy Supabase values. The job name and baseline match qkit, loopkit and merqo, so every kit can require the same check. `@playwright/test` is pinned to `1.61.1`.

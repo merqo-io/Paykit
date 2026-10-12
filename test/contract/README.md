@@ -20,6 +20,9 @@ the saved shape. Route tests cover handler output; database tests cover RLS.
 - `vendor-config.sample.json` — a saved example vendor-config response.
 - `booking-status.sample.json` — a saved example
   `GET /api/v1/bookings/{booking_id}` response.
+- `payment-status-callback.sample.json` — a saved example of the body paykit
+  posts to a calling kit's `callback_url`. This one is outbound: it is what
+  paykit sends, not what an `/api/v1/*` route answers.
 - `merqo-metrics.contract.test.ts` — asserts `computePaykitMetrics`'s output
   satisfies merqo hub's own `metricsPayloadSchema` (hand-copied here since
   cross-repo runtime imports aren't available — this checks the saved contract, and cannot automatically catch

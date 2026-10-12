@@ -67,6 +67,29 @@ select kit_slug, last_used_at from paykit.kit_api_keys order by kit_slug;
    (`src/lib/kit-auth.ts`) for `"unknown kit_slug"` or `"secret mismatch"`
    warnings from that kit_slug.
 
+## The callback secret is a different secret
+
+`kit_api_keys.callback_secret` (migration `0021`) is the secret paykit
+presents to a calling kit's own callback route. It is unrelated to the bearer
+secret above, runs in the other direction, and `create-kit-key.mjs` neither
+reads nor writes it, so rotating the bearer secret leaves it alone.
+
+To rotate it, change both sides in this order, so the receiving kit never
+rejects a callback paykit is already sending:
+
+1. Set the new value in the calling kit's environment (for qkit,
+   `PAYKIT_CALLBACK_SECRET`) and redeploy it.
+2. Update the row:
+   ```sql
+   update paykit.kit_api_keys
+   set callback_secret = '<new value>'
+   where kit_slug = '<kit_slug>';
+   ```
+
+Between the two steps callbacks are answered 401 and dropped. That is safe:
+the callback is a hint and the kit's own actions still write their status.
+To stop callbacks to a kit, set `callback_url` to `null`.
+
 ## Parent
 
 See [docs/README.md](README.md) for the rest of the docs layout.

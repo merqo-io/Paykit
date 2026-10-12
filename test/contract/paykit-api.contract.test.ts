@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import {
   checkoutResponseSchema,
   checkoutLookupResponseSchema,
+  paymentStatusCallbackSchema,
   transactionStatusResponseSchema,
   vendorConfigResponseSchema,
   bookingStatusResponseSchema,
@@ -81,5 +82,20 @@ describe("paykit /api/v1 contract", () => {
         "url",
       ].sort(),
     );
+  });
+
+  it("the payment-status callback body satisfies paymentStatusCallbackSchema", () => {
+    const parsed = paymentStatusCallbackSchema.safeParse(
+      loadSample("payment-status-callback.sample.json"),
+    );
+    expect(parsed.success, JSON.stringify(parsed.error?.format())).toBe(true);
+  });
+
+  it("the callback body rejects a status outside the three payment statuses", () => {
+    const parsed = paymentStatusCallbackSchema.safeParse({
+      ...loadSample("payment-status-callback.sample.json"),
+      status: "refunded",
+    });
+    expect(parsed.success).toBe(false);
   });
 });
