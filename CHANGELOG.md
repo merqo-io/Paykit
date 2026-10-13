@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- A calling kit can attach the customer's payment screenshot to a claim. `POST /api/v1/checkout/{id}/claim` accepts an optional `multipart/form-data` body with one `proof` file (JPEG, PNG or WebP, at most 1 MB, checked by its bytes). paykit stores it in its own private bucket before the claim commits; if it cannot be stored the claim is refused with 503 and nothing changes. A claim with no body answers as before.
+- `GET /api/v1/checkout/{id}/evidence` returns a link to that screenshot, valid for 300 seconds, and two signals for a person to weigh: `duplicate_of`, another transaction of the same vendor in any kit that carries the same file, and `amount_match`, which is `null` (not checked) for now.
+- Migration `0022_payment_evidence.sql`: the private bucket `paykit-payment-proofs`, its read policy, and the `payment_evidence` table. A vendor can read their own evidence; only the service role writes. Not applied by this change: the owner runs it by hand.
+
 ### Fixed
 
 - The test suite and the pre-push hook pass on a Windows checkout again. `scripts/create-kit-key.mjs` was checked out with a CRLF after its shebang line, which Vitest cannot load; `.gitattributes` now keeps `scripts/*.mjs` on LF.

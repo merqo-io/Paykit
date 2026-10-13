@@ -25,6 +25,18 @@ provide authorization.
   credentials and touches last-use metadata best-effort. Ambiguous duplicate
   active keys fail closed. `merqo-auth.ts` separately authenticates hub metrics
   and provisioning routes.
+- `proof-file.ts` — the payment screenshot a kit may attach to a claim:
+  `PROOF_BUCKET`, `PROOF_MAX_BYTES`, `sniffImageType(bytes)` (JPEG, PNG or
+  WebP by the file's first bytes, never by the declared type) and
+  `readProofFromRequest(request)`, which returns no proof for a request that
+  is not multipart, and a 400 or 413 for a bad one. No database access.
+- `payment-evidence.ts` — `storeScreenshotEvidence(supabase, tx, proof)`
+  uploads to `{vendor_id}/{transaction_id}` and upserts the transaction's
+  one `payment_evidence` row; it returns false on any failure and the claim
+  route then refuses the claim. `loadCheckoutEvidence(supabase, tx)` builds
+  the evidence response: a 300-second signed link, the oldest other
+  transaction of the same vendor with the same hash, and `amount_match`
+  from the row's `detail` (null until something writes it).
 - `kit-callback.ts` — `notifyKitPaymentStatus(tx)` posts
   `{ order_ref, transaction_id, status }` to the `callback_url` of the kit
   that owns the transaction (`transactions.kit_slug`), with

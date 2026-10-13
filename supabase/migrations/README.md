@@ -42,6 +42,13 @@ tables, RLS policies, RPCs, and grants, applied in order.
   kit's transactions, and the secret it presents there. Stored readable, unlike
   `secret_hash`, because paykit has to send it; the table stays service-role
   only.
+- `0022_payment_evidence.sql` — the private storage bucket
+  `paykit-payment-proofs` (1 MB, JPEG/PNG/WebP; named apart from qkit's
+  `payment-proofs` in the shared project), a read policy scoping objects to
+  the vendor's own folder, and `payment_evidence`: one row per transaction
+  and kind (`screenshot` today) with the file's path, its sha256 and a
+  `detail` JSON. A vendor reads their own rows through the transaction;
+  the service role is the only writer and has no delete.
 
 ## Parent
 

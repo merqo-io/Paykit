@@ -24,3 +24,9 @@ or missing callback never changes this route's answer.
 ## Boundary and coverage
 
 The transaction lookup and guarded write both include the authenticated kit slug as well as the transaction ID. The rate limiter runs before mutation and fails closed on an unavailable limiter. Tests assert the predicates and ensure a calling kit cannot claim another kit transaction.
+
+## Payment screenshot
+
+The body is optional. A request that is not `multipart/form-data` (no body, or JSON) is the plain claim above. A multipart request must carry exactly one `proof` file: JPEG, PNG or WebP by its first bytes, more than 0 bytes and at most 1 MB. Anything else is 400, or 413 when too large, before the transaction is read.
+
+The file is stored before the claim commits (`@/lib/payment-evidence`'s `storeScreenshotEvidence`): if paykit cannot store it the answer is 503 and the transaction stays as it was, so the caller can retry. A screenshot sent for an already-`claimed` transaction replaces the earlier one; one sent for a `confirmed` transaction is ignored, so evidence a vendor confirmed against never changes. The caller reads it back with `GET ../evidence`.

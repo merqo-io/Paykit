@@ -265,3 +265,122 @@ describe("payment-status callback on claim", () => {
     expect(scheduleCallbackMock).not.toHaveBeenCalled();
   });
 });
+
+const { storeEvidenceMock } = vi.hoisted(() => ({
+  storeEvidenceMock: vi.fn(),
+}));
+vi.mock("@/lib/payment-evidence", () => ({
+  storeScreenshotEvidence: storeEvidenceMock,
+}));
+beforeEach(() => {
+  storeEvidenceMock.mockReset().mockResolvedValue(true);
+});
+
+describe("payment proof on claim", () => {
+  const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00];
+  const VENDOR_ROW = {
+    ...ROW,
+    vendor_id: "00000000-0000-0000-0000-00000000000a",
+  };
+
+  function proofReq(bytes: number[] = PNG, type = "image/png") {
+    const form = new FormData();
+    form.append("proof", new File([new Uint8Array(bytes)], "p", { type }));
+    return new Request(`http://localhost/api/v1/checkout/${TX_ID}/claim`, {
+      method: "POST",
+      headers: { authorization: "Bearer qkit:secret" },
+      body: form,
+    });
+  }
+
+  beforeEach(() => {
+    readMaybeSingle.mockResolvedValue({ data: VENDOR_ROW, error: null });
+  });
+
+  it("stores the screenshot, then claims", async () => {
+    const res = await POST(proofReq(), ctx());
+    expect(res.status).toBe(200);
+    expect((await res.json()).status).toBe("claimed");
+    expect(storeEvidenceMock).toHaveBeenCalledTimes(1);
+    const [, tx, proof] = storeEvidenceMock.mock.calls[0];
+    expect(tx).toMatchObject({ id: TX_ID, vendor_id: VENDOR_ROW.vendor_id });
+    expect(proof.contentType).toBe("image/png");
+    expect(Array.from(proof.bytes as Buffer)).toEqual(PNG);
+    expect(storeEvidenceMock.mock.invocationCallOrder[0]).toBeLessThan(
+      updateSingle.mock.invocationCallOrder[0],
+    );
+  });
+
+  it("does not claim when the screenshot cannot be stored", async () => {
+    storeEvidenceMock.mockResolvedValue(false);
+    const res = await POST(proofReq(), ctx());
+    expect(res.status).toBe(503);
+    expect(updateSingle).not.toHaveBeenCalled();
+    expect(auditInsert).not.toHaveBeenCalled();
+    expect(scheduleCallbackMock).not.toHaveBeenCalled();
+  });
+
+  it("refuses a file that is not an image, before reading the transaction", async () => {
+    const res = await POST(proofReq([0x47, 0x49, 0x46, 0x38]), ctx());
+    expect(res.status).toBe(400);
+    expect(readMaybeSingle).not.toHaveBeenCalled();
+    expect(storeEvidenceMock).not.toHaveBeenCalled();
+  });
+
+  it("refuses an oversized file with 413", async () => {
+    const big = new Array(1024 * 1024 + 1).fill(0);
+    big.splice(0, PNG.length, ...PNG);
+    const res = await POST(proofReq(big), ctx());
+    expect(res.status).toBe(413);
+    expect(updateSingle).not.toHaveBeenCalled();
+  });
+
+  it("stores nothing for an unknown transaction", async () => {
+    readMaybeSingle.mockResolvedValue({ data: null, error: null });
+    expect((await POST(proofReq(), ctx())).status).toBe(404);
+    expect(storeEvidenceMock).not.toHaveBeenCalled();
+  });
+
+  it("replaces the screenshot on an already-claimed transaction and echoes its status", async () => {
+    readMaybeSingle.mockResolvedValue({
+      data: { ...VENDOR_ROW, status: "claimed" },
+      error: null,
+    });
+    const res = await POST(proofReq(), ctx());
+    expect(res.status).toBe(200);
+    expect(storeEvidenceMock).toHaveBeenCalledTimes(1);
+    expect(updateSingle).not.toHaveBeenCalled();
+    expect(scheduleCallbackMock).not.toHaveBeenCalled();
+  });
+
+  it("leaves the evidence of a confirmed transaction alone", async () => {
+    readMaybeSingle.mockResolvedValue({
+      data: { ...VENDOR_ROW, status: "confirmed" },
+      error: null,
+    });
+    const res = await POST(proofReq(), ctx());
+    expect(res.status).toBe(200);
+    expect((await res.json()).status).toBe("confirmed");
+    expect(storeEvidenceMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["no body", undefined, undefined],
+    ["a JSON body", "{}", "application/json"],
+  ])("claims as before with %s", async (_name, body, contentType) => {
+    const res = await POST(
+      new Request(`http://localhost/api/v1/checkout/${TX_ID}/claim`, {
+        method: "POST",
+        headers: {
+          authorization: "Bearer qkit:secret",
+          ...(contentType ? { "content-type": contentType } : {}),
+        },
+        body,
+      }),
+      ctx(),
+    );
+    expect(res.status).toBe(200);
+    expect((await res.json()).status).toBe("claimed");
+    expect(storeEvidenceMock).not.toHaveBeenCalled();
+  });
+});

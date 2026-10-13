@@ -311,3 +311,5 @@ The shared UI dependency is pinned to immutable commit 9b202ba529dfd8fecbcbb9a2c
 Component consolidation is documented in [the cleanup spec](docs/meta/2026-10-10-component-reuse-spec.md). Shared presentation components retain payment configuration boundaries and monetary input validation.
 
 The AI harness follows templateCentral 6.0.4: hook commands are anchored on the project directory, and the guard against committing to `main` reads the branch of the directory a command runs in. The dated entry in `AGENTS.md` lists what was adopted.
+
+Payment screenshots belong to the transaction. A calling kit may attach the customer's screenshot to `POST /api/v1/checkout/{id}/claim` as a `multipart/form-data` `proof` file; paykit keeps it in the private `paykit-payment-proofs` bucket with one `payment_evidence` row (migration `0022`, applied by hand). `GET /api/v1/checkout/{id}/evidence` returns a 300-second link to it plus two hints, `duplicate_of` and `amount_match`. Neither hint ever changes a transaction's status. See `src/app/api/v1/checkout/[id]/evidence/README.md`.

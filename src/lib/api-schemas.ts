@@ -85,6 +85,25 @@ export const paymentStatusCallbackSchema = z.object({
 });
 export type PaymentStatusCallback = z.infer<typeof paymentStatusCallbackSchema>;
 
+/** `GET /api/v1/checkout/{id}/evidence`. `proof_url` is a signed link to the
+ *  payment screenshot, valid for 300 seconds, or null when there is none.
+ *  `duplicate_of` names another transaction of the same vendor, in any kit,
+ *  that carries the same screenshot. `amount_match` says whether the
+ *  transaction's amount was found in the screenshot; null means not checked.
+ *  Both signals are hints for a person, never proof that money arrived. */
+export const checkoutEvidenceResponseSchema = z.object({
+  proof_url: z.string().url().nullable(),
+  signals: z.object({
+    duplicate_of: z
+      .object({ order_ref: z.string(), kit_slug: z.string() })
+      .nullable(),
+    amount_match: z.boolean().nullable(),
+  }),
+});
+export type CheckoutEvidenceResponse = z.infer<
+  typeof checkoutEvidenceResponseSchema
+>;
+
 export const bookingStatusResponseSchema = z.object({
   booking_id: z.string().uuid(),
   status: z.enum([
