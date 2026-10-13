@@ -49,6 +49,9 @@ Both are bearer-secret authenticated (`verifyKitAuth`).
   writes nothing, see `src/lib/README.md`. Every route here (this one
   included) is also rate-limited (`@/lib/rate-limit`, 60 requests/60s per
   `kit_slug`+IP) right after auth, before any DB read.
+- `[id]/evidence/` — `GET`: what paykit holds as evidence for one of the
+  calling kit's transactions. `claim` may carry the customer's payment
+  screenshot; this is how the kit reads it back. See its own README.
 
 ## Parent
 
