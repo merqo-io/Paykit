@@ -47,6 +47,9 @@ export type Transaction = {
   qr_payload: string;
   checkout_kind?: "qr" | "link" | "image" | null;
   checkout_label?: string | null;
+  pay_token_hash?: string | null;
+  return_url?: string | null;
+  pay_title?: string | null;
   claimed_at: string | null;
   confirmed_at: string | null;
   created_at: string;
@@ -195,6 +198,9 @@ export interface Database {
           qr_payload: string;
           checkout_kind?: "qr" | "link" | "image" | null;
           checkout_label?: string | null;
+          pay_token_hash?: string | null;
+          return_url?: string | null;
+          pay_title?: string | null;
           claimed_at?: string | null;
           confirmed_at?: string | null;
           created_at?: string;
@@ -204,6 +210,9 @@ export interface Database {
           status?: TxStatus;
           claimed_at?: string | null;
           confirmed_at?: string | null;
+          pay_token_hash?: string | null;
+          return_url?: string | null;
+          pay_title?: string | null;
         };
         Relationships: [];
       };
@@ -263,6 +272,7 @@ export interface Database {
           last_used_at: string | null;
           callback_url: string | null;
           callback_secret: string | null;
+          return_origin: string | null;
         };
         Insert: {
           kit_slug: string;
@@ -271,12 +281,14 @@ export interface Database {
           last_used_at?: string | null;
           callback_url?: string | null;
           callback_secret?: string | null;
+          return_origin?: string | null;
         };
         Update: {
           secret_hash?: string;
           last_used_at?: string | null;
           callback_url?: string | null;
           callback_secret?: string | null;
+          return_origin?: string | null;
         };
         Relationships: [];
       };
