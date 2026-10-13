@@ -25,6 +25,17 @@ provide authorization.
   credentials and touches last-use metadata best-effort. Ambiguous duplicate
   active keys fail closed. `merqo-auth.ts` separately authenticates hub metrics
   and provisioning routes.
+- `kit-callback.ts` — `notifyKitPaymentStatus(tx)` posts
+  `{ order_ref, transaction_id, status }` to the `callback_url` of the kit
+  that owns the transaction (`transactions.kit_slug`), with
+  `Authorization: Bearer <callback_secret>`, both read from `kit_api_keys`.
+  Best effort: a kit with neither column set is skipped silently, a kit with
+  only one set is skipped with a log line, an address that is not plain https
+  (or carries credentials) is refused, the request is abandoned 5 seconds
+  after it is sent and nothing is thrown. A request error is logged by name
+  only, since its message can quote the secret. `schedulePaymentStatusCallback(tx)` registers it with
+  `after`, so it runs once the response has gone out. The body is a hint: the
+  receiving kit reads the status back with `GET /api/v1/checkout?order_ref=`.
 - `rate-limit.ts` calls the database fixed-window limiter after authentication.
   Limiter failure permits the request and logs degradation; the forwarded IP is
   a fairness key, never authorization. Migration 0019 prepares the bounded atomic

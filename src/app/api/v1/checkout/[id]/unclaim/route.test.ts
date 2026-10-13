@@ -28,6 +28,16 @@ vi.mock("@/lib/rate-limit", () => ({
   rateLimit: rateLimitMock,
 }));
 
+const { scheduleCallbackMock } = vi.hoisted(() => ({
+  scheduleCallbackMock: vi.fn(),
+}));
+vi.mock("@/lib/kit-callback", () => ({
+  schedulePaymentStatusCallback: scheduleCallbackMock,
+}));
+beforeEach(() => {
+  scheduleCallbackMock.mockReset();
+});
+
 const TX_ID = "22222222-2222-2222-2222-222222222222";
 
 const ROW = {
@@ -215,4 +225,65 @@ it("returns 503 when the race recheck itself fails", async () => {
     error: { message: "conditional update returned no row" },
   });
   expect((await POST(req(), ctx())).status).toBe(503);
+});
+
+describe("payment-status callback on unclaim", () => {
+  const PENDING = { ...ROW, status: "pending", claimed_at: null };
+
+  it("schedules one callback with the updated row after a real unclaim", async () => {
+    updateSingle.mockResolvedValue({ data: PENDING, error: null });
+    const res = await POST(req(), ctx());
+    expect(res.status).toBe(200);
+    expect(scheduleCallbackMock).toHaveBeenCalledTimes(1);
+    expect(scheduleCallbackMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: TX_ID,
+        kit_slug: "qkit",
+        order_ref: "A-001",
+        status: "pending",
+      }),
+    );
+  });
+
+  it("schedules nothing for an idempotent no-op", async () => {
+    readMaybeSingle.mockResolvedValue({ data: PENDING, error: null });
+    await POST(req(), ctx());
+    expect(scheduleCallbackMock).not.toHaveBeenCalled();
+  });
+
+  it("schedules nothing for a confirmed transaction it refuses to revert", async () => {
+    readMaybeSingle.mockResolvedValue({
+      data: { ...ROW, status: "confirmed" },
+      error: null,
+    });
+    await POST(req(), ctx());
+    expect(scheduleCallbackMock).not.toHaveBeenCalled();
+  });
+
+  it("schedules nothing when a concurrent request won the race", async () => {
+    readMaybeSingle
+      .mockReset()
+      .mockResolvedValueOnce({ data: ROW, error: null })
+      .mockResolvedValueOnce({
+        data: { ...ROW, status: "confirmed" },
+        error: null,
+      });
+    updateSingle.mockResolvedValue({
+      data: null,
+      error: { message: "no rows matched the conditional update" },
+    });
+    const res = await POST(req(), ctx());
+    expect(res.status).toBe(200);
+    expect(scheduleCallbackMock).not.toHaveBeenCalled();
+  });
+
+  it("schedules nothing when the update fails", async () => {
+    updateSingle.mockResolvedValue({
+      data: null,
+      error: { message: "database unavailable" },
+    });
+    const res = await POST(req(), ctx());
+    expect(res.status).toBe(503);
+    expect(scheduleCallbackMock).not.toHaveBeenCalled();
+  });
 });

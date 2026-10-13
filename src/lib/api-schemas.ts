@@ -74,6 +74,17 @@ export type CheckoutLookupResponse = z.infer<
   typeof checkoutLookupResponseSchema
 >;
 
+/** Body paykit posts to a calling kit's `callback_url` after a claim, unclaim
+ *  or confirm commits. It is a hint that the transaction changed: the
+ *  receiver reads the real status back with `GET /api/v1/checkout?order_ref=`
+ *  and must not act on `status` here. */
+export const paymentStatusCallbackSchema = z.object({
+  order_ref: z.string().min(1).max(200),
+  transaction_id: uuidSchema,
+  status: txStatusSchema,
+});
+export type PaymentStatusCallback = z.infer<typeof paymentStatusCallbackSchema>;
+
 export const bookingStatusResponseSchema = z.object({
   booking_id: z.string().uuid(),
   status: z.enum([

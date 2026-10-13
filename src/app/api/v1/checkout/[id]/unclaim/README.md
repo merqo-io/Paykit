@@ -18,6 +18,11 @@ A real (non-idempotent) unclaim writes an `unclaimed` `payment_audit` row
 (`@/lib/payment-audit`). Rate-limited (`@/lib/rate-limit`, 60/60s per
 `kit_slug`+IP) right after auth.
 
+A real transition also schedules one payment-status callback to the kit that
+owns the transaction (`@/lib/kit-callback`), sent after the response. An
+idempotent no-op, a lost race and every error path send none, and a failed
+or missing callback never changes this route's answer.
+
 ## Boundary and coverage
 
 The transaction lookup and guarded write both include the authenticated kit slug as well as the transaction ID. Rate-limit failures prevent mutation, and confirmed state remains unchanged. Tests assert ownership predicates and race fallback behavior.

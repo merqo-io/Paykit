@@ -37,6 +37,11 @@ tables, RLS policies, RPCs, and grants, applied in order.
   windows during cleanup. Removes audit writer privileges beyond SELECT/INSERT.
 
 - `0020_refund_total_integrity.sql` — serializes refund accounting, caps cumulative refunds at the confirmed checkout amount, and preserves refund identity and attribution.
+- `0021_kit_api_keys_callback.sql` — adds nullable `kit_api_keys.callback_url`
+  and `callback_secret`: where paykit posts a payment-status callback for that
+  kit's transactions, and the secret it presents there. Stored readable, unlike
+  `secret_hash`, because paykit has to send it; the table stays service-role
+  only.
 
 ## Parent
 
