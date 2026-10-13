@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   PROOF_MAX_BYTES,
+  readProofFile,
   readProofFromRequest,
   sniffImageType,
 } from "./proof-file";
@@ -147,5 +148,58 @@ describe("readProofFromRequest", () => {
       }),
     );
     expect(result).toMatchObject({ ok: false, status: 400 });
+  });
+});
+
+describe("readProofFile", () => {
+  it("reads a valid file and reports the type its bytes show", async () => {
+    const read = await readProofFile(file(PNG, "image/jpeg"));
+    expect(read).toMatchObject({
+      ok: true,
+      proof: { contentType: "image/png" },
+    });
+  });
+
+  it.each([
+    ["text", "proof"],
+    ["nothing", null],
+    ["undefined", undefined],
+    ["a plain object", { size: 10 }],
+  ])("refuses %s as not a file", async (_name, value) => {
+    expect(await readProofFile(value)).toEqual({
+      ok: false,
+      status: 400,
+      error: "proof must be a file",
+    });
+  });
+
+  it("refuses an empty file", async () => {
+    expect(await readProofFile(file([], "image/png"))).toMatchObject({
+      ok: false,
+      status: 400,
+    });
+  });
+
+  it("refuses a file over the limit with 413", async () => {
+    const big = new File([new Uint8Array(PROOF_MAX_BYTES + 1)], "proof");
+    expect(await readProofFile(big)).toMatchObject({ ok: false, status: 413 });
+  });
+
+  it("refuses bytes that are not an accepted image", async () => {
+    expect(await readProofFile(file(GIF, "image/png"))).toEqual({
+      ok: false,
+      status: 400,
+      error: "proof must be a JPEG, PNG or WebP image",
+    });
+  });
+
+  it("refuses a file whose bytes cannot be read", async () => {
+    const broken = file(JPEG, "image/jpeg");
+    broken.arrayBuffer = () => Promise.reject(new Error("gone"));
+    expect(await readProofFile(broken)).toEqual({
+      ok: false,
+      status: 400,
+      error: "The proof file could not be read",
+    });
   });
 });
