@@ -35,8 +35,9 @@ These are not reopened here.
 
 ## How the audit was done
 
-Read on 2026-10-13 at paykit `5ca765e` (`origin/main`) and qkit `098f052`
-(`origin/main`). `AGENTS.md` was read in paykit. paykit has no
+Read on 2026-10-13 at paykit `42e25b0` (`origin/main`) and qkit `098f052`
+(`origin/main`). `paykit #132` (P3) merged while this was being written; the
+status below is as of 21:30 SGT. `AGENTS.md` was read in paykit. paykit has no
 `docs/CONSTITUTION.md`; its `AGENTS.md` "Rules (always)" section is the
 equivalent. Merged and open PRs were listed with `gh pr list` on
 `merqo-io/paykit` and `merqo-io/qkit`.
@@ -53,13 +54,13 @@ or regulatory advice, and the regulatory notes in it are not a legal opinion.
 
 ## Where the separation stands
 
-| Phase | paykit                                                 | qkit                | P6 relies on it for               |
-| ----- | ------------------------------------------------------ | ------------------- | --------------------------------- |
-| P1    | Merged, `paykit #126` (lookup by `order_ref`)          | Merged, `qkit #215` | qkit's read-back after a callback |
-| P2    | Merged, `paykit #130` (callback, migration `0021`)     | Merged, `qkit #223` | Telling qkit about a confirm      |
-| P3    | **Open**, `paykit #132` (`payment_evidence`, `0022`)   | Not started         | The evidence table                |
-| P4    | Merged, `paykit #131` (`return_to` on the config page) | Not started         | Nothing                           |
-| P5    | Not started                                            | Not started         | Nothing, but see "Reconcile"      |
+| Phase | paykit                                                 | qkit                  | P6 relies on it for               |
+| ----- | ------------------------------------------------------ | --------------------- | --------------------------------- |
+| P1    | Merged, `paykit #126` (lookup by `order_ref`)          | Merged, `qkit #215`   | qkit's read-back after a callback |
+| P2    | Merged, `paykit #130` (callback, migration `0021`)     | Merged, `qkit #223`   | Telling qkit about a confirm      |
+| P3    | Merged, `paykit #132` (`payment_evidence`, `0022`)     | **Open**, `qkit #225` | The evidence table                |
+| P4    | Merged, `paykit #131` (`return_to` on the config page) | **Open**, `qkit #224` | Nothing                           |
+| P5    | Not started                                            | Not started           | Nothing, but see "Reconcile"      |
 
 What exists in paykit today that P6 uses:
 
@@ -77,11 +78,14 @@ What exists in paykit today that P6 uses:
 - The confirm route writes with `.in("status", ["pending", "claimed"])`, so a
   second writer cannot confirm twice.
 
+- `paykit.payment_evidence` (migration `0022`, merged today). Migrations are
+  applied by the owner by hand; whether `0022` is applied to the live
+  database was not checked. Its `kind` check allows only `'screenshot'`, and
+  it requires a `transaction_id`, so it cannot hold a payment that matched
+  nothing. P6 widens the first and works around the second.
+
 What does not exist:
 
-- `paykit.payment_evidence`. Its migration (`0022`) is in an open PR and is
-  not applied. Its `kind` check allows only `'screenshot'`, and it requires a
-  `transaction_id`, so it cannot hold a payment that matched nothing.
 - `transactions.expires_at`, or any void or expiry (parent spec, Problem 3).
 - Any inbound webhook from outside the Merqo family. `docs/DEPLOY.md` says
   the direct provider has none.
@@ -899,7 +903,7 @@ beside it.
 
 One PR per repo per phase. paykit first, additive, merged and deployed; then
 qkit. Before starting any phase, check for open PRs on the repos it touches.
-`paykit #132` (P3) must be merged and its migration applied before P6.3.
+Migration `0022` (P3) must be applied before P6.3.
 
 ### P6.0. The owner decides
 
