@@ -50,6 +50,7 @@ export type Transaction = {
   claimed_at: string | null;
   confirmed_at: string | null;
   created_at: string;
+  expires_at?: string | null;
 };
 
 export type BookingStatus =
@@ -197,6 +198,7 @@ export interface Database {
           claimed_at?: string | null;
           confirmed_at?: string | null;
           created_at?: string;
+          expires_at?: string | null;
         };
         Update: {
           status?: TxStatus;

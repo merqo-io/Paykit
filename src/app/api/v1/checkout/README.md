@@ -21,6 +21,12 @@ Both are bearer-secret authenticated (`verifyKitAuth`).
   on insert) reads back and returns the existing transaction instead of
   creating a duplicate. The existing vendor, amount, checkout kind and payload
   must match; a conflicting reuse fails instead of returning another checkout.
+  The body may carry `expires_at`, an ISO 8601 time with an offset no more
+  than 7 days ahead: when the calling kit gives up on the order. It is stored
+  on a new checkout only (a replay keeps the first value) and both `GET`s
+  return it, `null` when the kit sent none. It is for matching a detected
+  payment and never stops a person claiming or confirming. A time already
+  past is accepted.
 - `route.test.ts` — covers a fresh checkout, the idempotent-retry path
   (same `(kit_slug, order_ref)` returns the same transaction, no duplicate
   row), and the 503 case where the idempotent re-read itself fails.

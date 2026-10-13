@@ -40,6 +40,7 @@ const ROW = {
   claimed_at: "2026-07-15T00:01:00Z",
   confirmed_at: null,
   created_at: "2026-07-15T00:00:00Z",
+  expires_at: "2026-07-15T00:30:00Z",
   qr_payload: "https://pay.example/checkout/abc",
   checkout_kind: "link",
   checkout_label: "Pay with PayLah",
@@ -81,6 +82,7 @@ describe("GET /api/v1/checkout?order_ref=", () => {
       claimed_at: "2026-07-15T00:01:00Z",
       confirmed_at: null,
       created_at: "2026-07-15T00:00:00Z",
+      expires_at: "2026-07-15T00:30:00Z",
       view: {
         type: "link",
         url: "https://pay.example/checkout/abc",

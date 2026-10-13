@@ -4,10 +4,7 @@ import {
   checkoutLookupQuerySchema,
   checkoutRequestSchema,
 } from "@/lib/api-schemas";
-import {
-  CHECKOUT_LOOKUP_COLUMNS,
-  toLookupResponse,
-} from "@/lib/checkout-lookup";
+import { toLookupResponse } from "@/lib/checkout-lookup";
 import { createCheckout } from "@/lib/checkout";
 import { createServiceClient } from "@/lib/supabase/server";
 import {
@@ -46,7 +43,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabase
     .from("transactions")
-    .select(CHECKOUT_LOOKUP_COLUMNS)
+    .select("*")
     .eq("kit_slug", auth.kitSlug)
     .eq("order_ref", parsed.data.order_ref)
     .maybeSingle();
@@ -91,6 +88,7 @@ export async function POST(request: Request) {
     kitSlug: auth.kitSlug,
     orderRef: parsed.data.order_ref,
     amountCents: parsed.data.amount_cents,
+    expiresAt: parsed.data.expires_at,
   });
   if (!result.ok) {
     return NextResponse.json(

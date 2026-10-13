@@ -4,9 +4,6 @@ import {
   type CheckoutLookupResponse,
 } from "@/lib/api-schemas";
 
-export const CHECKOUT_LOOKUP_COLUMNS =
-  "id, status, amount_cents, order_ref, kit_slug, vendor_id, claimed_at, confirmed_at, created_at, qr_payload, checkout_kind, checkout_label";
-
 export const FALLBACK_LINK_LABEL = "Open payment link";
 
 export type CheckoutLookupRow = {
@@ -19,6 +16,7 @@ export type CheckoutLookupRow = {
   claimed_at: string | null;
   confirmed_at: string | null;
   created_at: string;
+  expires_at?: string | null;
   qr_payload: string;
   checkout_kind?: "qr" | "link" | "image" | null;
   checkout_label?: string | null;
