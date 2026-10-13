@@ -25,6 +25,31 @@ provide authorization.
   credentials and touches last-use metadata best-effort. Ambiguous duplicate
   active keys fail closed. `merqo-auth.ts` separately authenticates hub metrics
   and provisioning routes.
+- `proof-file.ts` — the payment screenshot a kit may attach to a claim:
+  `PROOF_BUCKET`, `PROOF_MAX_BYTES`, `sniffImageType(bytes)` (JPEG, PNG or
+  WebP by the file's first bytes, never by the declared type) and
+  `readProofFromRequest(request)`, which returns no proof for a request that
+  is not multipart, and a 400 or 413 for a bad one. No database access.
+- `payment-evidence.ts` — `storeScreenshotEvidence(supabase, tx, proof)`
+  uploads to `{vendor_id}/{transaction_id}` and upserts the transaction's
+  one `payment_evidence` row; it returns false on any failure and the claim
+  route then refuses the claim. `loadCheckoutEvidence(supabase, tx)` builds
+  the evidence response: a 300-second signed link, the oldest other
+  transaction of the same vendor with the same hash, and `amount_match`
+  from the row's `detail` (null until something writes it).
+- `proof-ocr.ts` — `recognizeText(image)`: reads the text out of an image
+  with Tesseract in this process, using the repo's own `ocr-data/` language
+  file. Stops its worker when done, on failure, and after 20 seconds. Its
+  bare imports of `bmp-js`, `zlibjs`, `wasm-feature-detect` and
+  `tesseract.js-core` are deliberate: the worker thread loads them by name,
+  and the imports are what put them in the deployed function.
+- `proof-amount-check.ts` — `amountInText(text, cents)` (pure: the amount as
+  a complete two-decimal figure, so `5.50` is not found inside `15.50`),
+  `checkProofAmount(supabase, tx, proof)` (reads the screenshot and writes
+  `detail.amount_match` on the evidence row matched by transaction and file
+  hash; writes nothing when the image cannot be read) and
+  `scheduleProofAmountCheck(...)`, which runs it with `after()` once the
+  claim's response is sent.
 - `kit-callback.ts` — `notifyKitPaymentStatus(tx)` posts
   `{ order_ref, transaction_id, status }` to the `callback_url` of the kit
   that owns the transaction (`transactions.kit_slug`), with
@@ -88,6 +113,15 @@ vendor's object folder, including when called with the service-role client.
 External URLs and other vendors' objects are never deletion targets.
 Deferred QR uploads occur on Save; failed saves clean up unused uploads.
 Uncertain network outcomes are not proof that a metadata write did not commit.
+The config form uploads a QR image to `vendor-images`; `booth-images` stays in
+the cleanup's list for images uploaded earlier through qkit's booth form.
+
+`return-to.ts` holds `familyReturnUrl`, which decides whether a `return_to`
+query value may be shown as a way back to another Merqo app: an https address
+on `merqo.io` or a subdomain of it, with no credentials and no port (plus
+http on localhost outside production). Anything else reads as no address.
+It is separate from `@merqo/ui`'s `safeRedirectPath`, which accepts only a
+path on this app.
 
 Redirect validation and image resizing come from `@merqo/ui`; there are no
 local `safe-redirect.ts` or `image-resize.ts` copies. `utils.ts` holds local

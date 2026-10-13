@@ -41,7 +41,7 @@ describe("ConfigPage", () => {
   it("renders the setup heading and passes vendorId + null initial config through", async () => {
     getConfigMock.mockResolvedValue(null);
 
-    const jsx = await ConfigPage();
+    const jsx = await ConfigPage({ searchParams: Promise.resolve({}) });
     render(jsx);
 
     expect(
@@ -71,11 +71,37 @@ describe("ConfigPage", () => {
     };
     getConfigMock.mockResolvedValue(config);
 
-    const jsx = await ConfigPage();
+    const jsx = await ConfigPage({ searchParams: Promise.resolve({}) });
     render(jsx);
 
     expect(PaymentConfigFormMock).toHaveBeenCalledWith(
       expect.objectContaining({ vendorId: "v1", initial: config }),
+      undefined,
+    );
+  });
+
+  it.each([
+    [
+      "a family address",
+      "https://qkit.merqo.io/dashboard/booths/b1",
+      "https://qkit.merqo.io/dashboard/booths/b1",
+    ],
+    ["an address outside the family", "https://evil.example/x", null],
+    [
+      "a repeated address",
+      ["https://qkit.merqo.io/a", "https://qkit.merqo.io/b"],
+      null,
+    ],
+    ["no address", undefined, null],
+  ])("passes %s to the form as the way back", async (_, raw, expected) => {
+    getConfigMock.mockResolvedValue(null);
+
+    render(
+      await ConfigPage({ searchParams: Promise.resolve({ return_to: raw }) }),
+    );
+
+    expect(PaymentConfigFormMock).toHaveBeenCalledWith(
+      expect.objectContaining({ returnTo: expected }),
       undefined,
     );
   });

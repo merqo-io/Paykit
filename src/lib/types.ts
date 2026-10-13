@@ -124,6 +124,17 @@ export type PaymentAudit = {
   created_at: string;
 };
 
+/** One piece of evidence about a transaction (migration 0022). */
+export type PaymentEvidence = {
+  id: string;
+  transaction_id: string;
+  kind: "screenshot";
+  storage_path: string | null;
+  content_hash: string | null;
+  detail: Json;
+  created_at: string;
+};
+
 export type AuthFailure = {
   id: string;
   kit_slug: string | null;
@@ -346,6 +357,25 @@ export interface Database {
         };
         Update: {
           detail?: Json;
+        };
+        Relationships: [];
+      };
+      payment_evidence: {
+        Row: PaymentEvidence;
+        Insert: {
+          id?: string;
+          transaction_id: string;
+          kind: "screenshot";
+          storage_path?: string | null;
+          content_hash?: string | null;
+          detail?: Json;
+          created_at?: string;
+        };
+        Update: {
+          storage_path?: string | null;
+          content_hash?: string | null;
+          detail?: Json;
+          created_at?: string;
         };
         Relationships: [];
       };

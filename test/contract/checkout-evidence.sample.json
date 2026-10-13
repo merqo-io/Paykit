@@ -1,0 +1,10 @@
+{
+  "proof_url": "https://example.supabase.co/storage/v1/object/sign/paykit-payment-proofs/00000000-0000-0000-0000-00000000000a/11111111-1111-1111-1111-111111111111?token=example",
+  "signals": {
+    "duplicate_of": {
+      "order_ref": "5f0c2f0e-6a57-4d0e-9d3c-0d6c1f4f7a11",
+      "kit_slug": "qkit"
+    },
+    "amount_match": null
+  }
+}

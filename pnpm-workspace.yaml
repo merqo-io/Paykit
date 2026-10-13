@@ -5,6 +5,7 @@ allowBuilds:
   unrs-resolver: true
   "@merqo/ui@https://codeload.github.com/merqo-io/merqo-ui/tar.gz/9b202ba529dfd8fecbcbb9a2cc9f37efba4bd7d4": true
   "@sentry/cli": false
+  tesseract.js: false
 
 minimumReleaseAgeExclude:
   - "@sentry/browser-utils@10.71.0"

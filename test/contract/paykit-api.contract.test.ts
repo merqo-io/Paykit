@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
   checkoutResponseSchema,
+  checkoutEvidenceResponseSchema,
   checkoutLookupResponseSchema,
   paymentStatusCallbackSchema,
   transactionStatusResponseSchema,
@@ -97,5 +98,20 @@ describe("paykit /api/v1 contract", () => {
       status: "refunded",
     });
     expect(parsed.success).toBe(false);
+  });
+
+  it("GET /api/v1/checkout/{id}/evidence response satisfies checkoutEvidenceResponseSchema", () => {
+    const parsed = checkoutEvidenceResponseSchema.safeParse(
+      loadSample("checkout-evidence.sample.json"),
+    );
+    expect(parsed.success, JSON.stringify(parsed.error?.format())).toBe(true);
+  });
+
+  it("an evidence response with no screenshot and no signals also satisfies the schema", () => {
+    const parsed = checkoutEvidenceResponseSchema.safeParse({
+      proof_url: null,
+      signals: { duplicate_of: null, amount_match: null },
+    });
+    expect(parsed.success, JSON.stringify(parsed.error?.format())).toBe(true);
   });
 });

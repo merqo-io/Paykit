@@ -1,9 +1,10 @@
 import { storagePathFromPublicUrl } from "@merqo/ui";
 
-// A pointer config's QR image is uploaded from whichever app the vendor edits
-// it in: paykit's own config form writes to `vendor-images`, qkit's booth
-// Payment section writes to `booth-images`. Both save through paykit, so the
-// cleanup lives here and checks both buckets.
+// paykit's config form uploads a pointer config's QR image to `vendor-images`.
+// `booth-images` is listed for images a vendor uploaded through qkit's booth
+// form, which wrote there and saved the address through the kit API. Such an
+// image stays where it is until the vendor replaces it, and this is what
+// deletes it then.
 const QR_IMAGE_BUCKETS = ["vendor-images", "booth-images"] as const;
 
 type StorageRemover = {
