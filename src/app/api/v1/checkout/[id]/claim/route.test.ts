@@ -266,14 +266,19 @@ describe("payment-status callback on claim", () => {
   });
 });
 
-const { storeEvidenceMock } = vi.hoisted(() => ({
+const { storeEvidenceMock, scheduleAmountCheckMock } = vi.hoisted(() => ({
   storeEvidenceMock: vi.fn(),
+  scheduleAmountCheckMock: vi.fn(),
 }));
 vi.mock("@/lib/payment-evidence", () => ({
   storeScreenshotEvidence: storeEvidenceMock,
 }));
+vi.mock("@/lib/proof-amount-check", () => ({
+  scheduleProofAmountCheck: scheduleAmountCheckMock,
+}));
 beforeEach(() => {
   storeEvidenceMock.mockReset().mockResolvedValue(true);
+  scheduleAmountCheckMock.mockReset();
 });
 
 describe("payment proof on claim", () => {
@@ -318,6 +323,33 @@ describe("payment proof on claim", () => {
     expect(updateSingle).not.toHaveBeenCalled();
     expect(auditInsert).not.toHaveBeenCalled();
     expect(scheduleCallbackMock).not.toHaveBeenCalled();
+    expect(scheduleAmountCheckMock).not.toHaveBeenCalled();
+  });
+
+  it("schedules the amount check for the stored screenshot, with the transaction's amount", async () => {
+    await POST(proofReq(), ctx());
+    expect(scheduleAmountCheckMock).toHaveBeenCalledTimes(1);
+    const [, tx, proof] = scheduleAmountCheckMock.mock.calls[0];
+    expect(tx).toMatchObject({ id: TX_ID, amount_cents: 450 });
+    expect(Array.from(proof.bytes as Buffer)).toEqual(PNG);
+    expect(storeEvidenceMock.mock.invocationCallOrder[0]).toBeLessThan(
+      scheduleAmountCheckMock.mock.invocationCallOrder[0],
+    );
+  });
+
+  it("schedules no amount check for a claim with no screenshot", async () => {
+    await POST(req(), ctx());
+    expect(scheduleAmountCheckMock).not.toHaveBeenCalled();
+  });
+
+  it("schedules no amount check for a refused file or a confirmed transaction", async () => {
+    await POST(proofReq([0x47, 0x49, 0x46, 0x38]), ctx());
+    readMaybeSingle.mockResolvedValue({
+      data: { ...VENDOR_ROW, status: "confirmed" },
+      error: null,
+    });
+    await POST(proofReq(), ctx());
+    expect(scheduleAmountCheckMock).not.toHaveBeenCalled();
   });
 
   it("refuses a file that is not an image, before reading the transaction", async () => {

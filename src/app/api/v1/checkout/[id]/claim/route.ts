@@ -7,6 +7,7 @@ import { recordPaymentAudit } from "@/lib/payment-audit";
 import { schedulePaymentStatusCallback } from "@/lib/kit-callback";
 import { readProofFromRequest } from "@/lib/proof-file";
 import { storeScreenshotEvidence } from "@/lib/payment-evidence";
+import { scheduleProofAmountCheck } from "@/lib/proof-amount-check";
 import {
   clientIp,
   rateLimit,
@@ -105,6 +106,9 @@ export async function POST(
         { error: "Could not store the payment proof" },
         { status: 503 },
       );
+    // Reading the amount out of the screenshot takes a second or more, so
+    // it runs once the response has gone out and never decides the claim.
+    scheduleProofAmountCheck(supabase, current, proofRead.proof);
   }
 
   const { status, changed } = claimTransition(current.status as TxStatus);

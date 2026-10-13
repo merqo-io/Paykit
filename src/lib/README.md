@@ -37,6 +37,19 @@ provide authorization.
   the evidence response: a 300-second signed link, the oldest other
   transaction of the same vendor with the same hash, and `amount_match`
   from the row's `detail` (null until something writes it).
+- `proof-ocr.ts` — `recognizeText(image)`: reads the text out of an image
+  with Tesseract in this process, using the repo's own `ocr-data/` language
+  file. Stops its worker when done, on failure, and after 20 seconds. Its
+  bare imports of `bmp-js`, `zlibjs`, `wasm-feature-detect` and
+  `tesseract.js-core` are deliberate: the worker thread loads them by name,
+  and the imports are what put them in the deployed function.
+- `proof-amount-check.ts` — `amountInText(text, cents)` (pure: the amount as
+  a complete two-decimal figure, so `5.50` is not found inside `15.50`),
+  `checkProofAmount(supabase, tx, proof)` (reads the screenshot and writes
+  `detail.amount_match` on the evidence row matched by transaction and file
+  hash; writes nothing when the image cannot be read) and
+  `scheduleProofAmountCheck(...)`, which runs it with `after()` once the
+  claim's response is sent.
 - `kit-callback.ts` — `notifyKitPaymentStatus(tx)` posts
   `{ order_ref, transaction_id, status }` to the `callback_url` of the kit
   that owns the transaction (`transactions.kit_slug`), with

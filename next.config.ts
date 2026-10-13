@@ -5,6 +5,33 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   devIndicators: false,
 
+  serverExternalPackages: [
+    "tesseract.js",
+    "tesseract.js-core",
+    "bmp-js",
+    "zlibjs",
+    "wasm-feature-detect",
+  ],
+  // The claim route reads the amount out of a payment screenshot with
+  // Tesseract (src/lib/proof-ocr.ts). Its worker thread loads these files by
+  // path at run time, which the build's own tracing cannot see. Name real
+  // package folders only: a glob that matches one of pnpm's linked folders
+  // fails the build on Windows.
+  outputFileTracingIncludes: {
+    // The key is a glob, so the route's [id] segment is written as *.
+    "/api/v1/checkout/*/claim": [
+      "./ocr-data/*",
+      "./node_modules/wasm-feature-detect/**/*",
+      "./node_modules/.pnpm/tesseract.js@5.1.1/node_modules/tesseract.js/**/*",
+      "./node_modules/.pnpm/tesseract.js-core@5.1.1/node_modules/tesseract.js-core/*",
+      "./node_modules/.pnpm/{bmp-js,is-electron,is-url,regenerator-runtime,wasm-feature-detect,zlibjs}@*/node_modules/*/**/*",
+      "./node_modules/.pnpm/node-fetch@2.7.0/node_modules/node-fetch/**/*",
+      "./node_modules/.pnpm/whatwg-url@5.0.0/node_modules/whatwg-url/**/*",
+      "./node_modules/.pnpm/tr46@0.0.3/node_modules/tr46/**/*",
+      "./node_modules/.pnpm/webidl-conversions@3.0.1/node_modules/webidl-conversions/**/*",
+    ],
+  },
+
   // sharp is only next's optional peer; Vercel optimizes images itself, so keep its binary out of every function.
   outputFileTracingExcludes: {
     "*": ["node_modules/@img/**", "node_modules/sharp/**"],

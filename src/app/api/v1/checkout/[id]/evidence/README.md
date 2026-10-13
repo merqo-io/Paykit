@@ -19,7 +19,9 @@ screenshot a calling kit attached to the claim (`../claim`).
   kit, whose screenshot is the same file (same sha256). The calling kit can
   resolve `order_ref` itself when `kit_slug` is its own.
 - `amount_match` says whether the transaction's amount was read in the
-  screenshot. `null` means not checked, which is every answer for now.
+  screenshot. The check runs just after the claim answers, so it is `null`
+  for the first second or two, and stays `null` when the image could not be
+  read.
 
 Both signals are hints for a person. Nothing here changes a transaction's
 status.
