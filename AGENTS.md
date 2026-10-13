@@ -152,6 +152,18 @@ status.ts`) — not a push. `rescheduleBookingAction` updates `event_date`/
   onboarding tour yet"). Deliberately separate from
   `vendor_payment_config`, which stays payment-config-only per its own
   column contract above.
+- `payment_evidence` (`0022_payment_evidence.sql`): one row per transaction
+  and `kind` (`'screenshot'` today) with the file's path in the private
+  `paykit-payment-proofs` bucket, its sha256 and a `detail` JSON. A calling
+  kit attaches the screenshot to `POST /api/v1/checkout/{id}/claim` as a
+  multipart `proof` file and reads it back with
+  `GET /api/v1/checkout/{id}/evidence`. After the claim answers, the amount
+  is read out of the screenshot on the server with Tesseract and stored as
+  `detail.amount_match`. A vendor reads their own rows through the
+  transaction; only the service role writes. Evidence is a hint for a person
+  and never changes a transaction's status. `ocr-data/` and the
+  `outputFileTracingIncludes` entry in `next.config.ts` must stay together:
+  without the entry the check fails silently on Vercel.
 - RLS: a vendor reads/writes only their own `vendor_payment_config`; reads
   (not writes) only their own `transactions`; reads/inserts `refunds` only for
   their own confirmed transactions while on Pro; reads/writes only their own
