@@ -54,7 +54,20 @@ Its `useActionState` action commits a pending QR with `commitPendingImages`
 before calling `saveConfigAction`, swapping the preview URL in the form data
 for the public URL. An upload failure stops the save; an upload or save
 failure deletes what uploaded (`removeUnsavedImages`). Covered by
-`payment-config-form.qr.dom.test.tsx`.
+`payment-config-form.qr.dom.test.tsx`, which also pins the bucket:
+`vendor-images`, the one paykit's own pages use. A payment QR is never
+uploaded to a calling kit's bucket from here.
+
+## Way back to the calling app
+
+Another Merqo app can link here as `/dashboard/config?return_to=<address>`
+(qkit's booth form does). `page.tsx` passes the value through
+`familyReturnUrl` (`src/lib/return-to.ts`) and hands the form either the
+checked address or null. After a successful save the form shows a "Back to
+your booth" link to it, beside "Saved.". Nothing is shown before a save,
+after a failed one, or for an address outside the Merqo family, and the page
+never redirects by itself. A vendor who is not signed in is sent to the login
+page first and arrives without `return_to`.
 
 ## Replaced QR-image cleanup
 

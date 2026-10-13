@@ -50,9 +50,13 @@ const KIND_OPTIONS: { k: PaymentConfigKind; label: string; hint: string }[] = [
 export function PaymentConfigForm({
   initial,
   vendorId,
+  returnTo = null,
 }: {
   initial: VendorPaymentConfig | null;
   vendorId: string;
+  // The page in another Merqo app that sent the vendor here, already checked
+  // by the page (`familyReturnUrl`). Offered as the way back after a save.
+  returnTo?: string | null;
 }) {
   const [qrImageUrl, setQrImageUrl] = useState<string | null>(
     initial?.qr_image_url ?? null,
@@ -358,7 +362,17 @@ export function PaymentConfigForm({
         </p>
       )}
       {state.status === "ok" && (
-        <p className="text-sm font-medium text-mint">Saved.</p>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <p className="text-sm font-medium text-mint">Saved.</p>
+          {returnTo && (
+            <a
+              href={returnTo}
+              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Back to your booth
+            </a>
+          )}
+        </div>
       )}
 
       <Button type="submit" disabled={pending}>

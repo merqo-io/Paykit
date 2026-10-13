@@ -263,6 +263,13 @@ uploaded from paykit (`vendor-images`) or from qkit's booth form
 (`booth-images`); both are checked, and only objects in the vendor's own
 folder are ever deleted.
 
+The payment setup page (`/dashboard/config`) accepts `return_to`, the page in
+another Merqo app to go back to. After a save it shows a "Back to your booth"
+link to that address, and only when the address is https on `merqo.io` or a
+subdomain of it (`familyReturnUrl` in `src/lib/return-to.ts`). This is what
+lets a calling kit send a vendor here to enter payment details instead of
+keeping a payment form of its own.
+
 `@merqo/ui` bumped to v0.31.4 (2026-09-22), for its new
 `storagePathFromPublicUrl`. Replacing or removing a profile icon now deletes the
 old image from storage (`removeReplacedAvatar` in

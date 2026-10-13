@@ -1,10 +1,23 @@
 import { getVendorSession } from "@/lib/vendor-session";
+import { familyReturnUrl } from "@/lib/return-to";
 import { getConfig } from "./actions";
 import { PaymentConfigForm } from "./payment-config-form";
 
-export default async function ConfigPage() {
+/**
+ * Another Merqo app can send a vendor here with `return_to`, the page to go
+ * back to once the payment details are saved. The value is the caller's to
+ * choose, so only an address `familyReturnUrl` accepts reaches the form.
+ */
+export default async function ConfigPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ return_to?: string | string[] }>;
+}) {
   const { user } = await getVendorSession();
-  const config = await getConfig();
+  const [config, { return_to }] = await Promise.all([
+    getConfig(),
+    searchParams,
+  ]);
   return (
     <div className="mx-auto max-w-lg">
       <h1 className="text-2xl font-semibold tracking-tight">Payment setup</h1>
@@ -13,7 +26,11 @@ export default async function ConfigPage() {
         you.
       </p>
       <div className="mt-6">
-        <PaymentConfigForm initial={config} vendorId={user.id} />
+        <PaymentConfigForm
+          initial={config}
+          vendorId={user.id}
+          returnTo={familyReturnUrl(return_to)}
+        />
       </div>
     </div>
   );

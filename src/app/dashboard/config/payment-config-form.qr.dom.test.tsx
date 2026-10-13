@@ -26,8 +26,18 @@ vi.mock("@merqo/ui", async (importOriginal) => {
     isPendingImage: (url: unknown) => url === PREVIEW,
     // Stands in for picking a QR in deferred mode: onChange receives the
     // local preview URL, and nothing is uploaded.
-    ImageUploader: ({ onChange }: { onChange: (url: string) => void }) => (
-      <button type="button" onClick={() => onChange(PREVIEW)}>
+    ImageUploader: ({
+      onChange,
+      bucket,
+    }: {
+      onChange: (url: string) => void;
+      bucket: string;
+    }) => (
+      <button
+        type="button"
+        data-bucket={bucket}
+        onClick={() => onChange(PREVIEW)}
+      >
         pick qr
       </button>
     ),
@@ -101,6 +111,20 @@ describe("PaymentConfigForm deferred QR upload", () => {
     );
     expect(saveConfigActionMock).not.toHaveBeenCalled();
     expect(removeUnsavedImagesMock).toHaveBeenCalledWith([UPLOADED]);
+  });
+
+  it("uploads the QR to the bucket paykit's own pages use, not a calling kit's", async () => {
+    const user = userEvent.setup();
+    render(<PaymentConfigForm initial={null} vendorId="v1" />);
+    await user.click(
+      screen.getByRole("radio", { name: /payment link or qr image/i }),
+    );
+    await user.click(screen.getByRole("radio", { name: "PayLah! QR" }));
+
+    expect(screen.getByRole("button", { name: "pick qr" })).toHaveAttribute(
+      "data-bucket",
+      "vendor-images",
+    );
   });
 
   it("uploads nothing when no QR is pending", async () => {

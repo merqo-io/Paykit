@@ -278,3 +278,55 @@ describe("PaymentConfigForm", () => {
     );
   });
 });
+
+describe("PaymentConfigForm way back", () => {
+  const RETURN_TO = "https://qkit.merqo.io/dashboard/booths/b1";
+
+  async function save(returnTo: string | null, status: "ok" | "error") {
+    saveConfigActionMock.mockResolvedValue(
+      status === "ok" ? { status } : { status, message: "Nope" },
+    );
+    const user = userEvent.setup();
+    render(
+      <PaymentConfigForm initial={null} vendorId="v1" returnTo={returnTo} />,
+    );
+    await user.click(
+      screen.getByRole("button", { name: /save payment config/i }),
+    );
+    await waitFor(() => expect(saveConfigActionMock).toHaveBeenCalled());
+  }
+
+  function backLink() {
+    return screen.queryByRole("link", { name: "Back to your booth" });
+  }
+
+  it("offers the way back once a save succeeds", async () => {
+    await save(RETURN_TO, "ok");
+
+    expect(
+      await screen.findByRole("link", { name: "Back to your booth" }),
+    ).toHaveAttribute("href", RETURN_TO);
+  });
+
+  it("offers no way back before a save", () => {
+    render(
+      <PaymentConfigForm initial={null} vendorId="v1" returnTo={RETURN_TO} />,
+    );
+
+    expect(backLink()).toBeNull();
+  });
+
+  it("offers no way back when the save fails", async () => {
+    await save(RETURN_TO, "error");
+
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(backLink()).toBeNull();
+  });
+
+  it("offers no way back when the page was given none", async () => {
+    await save(null, "ok");
+
+    expect(await screen.findByText("Saved.")).toBeInTheDocument();
+    expect(backLink()).toBeNull();
+  });
+});
