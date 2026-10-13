@@ -35,6 +35,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- The payment setup page accepts `return_to` and, after a save, shows a "Back to your booth" link to it. Another Merqo app can now send a vendor here to enter payment details and get them back. Only an https address on `merqo.io` or one of its subdomains is ever shown; any other value is ignored.
 - Payment-status callback: after a claim, unclaim or confirm commits, paykit
   posts `{ order_ref, transaction_id, status }` to the callback address of the
   kit that owns the transaction. A kit with no callback configured gets none,

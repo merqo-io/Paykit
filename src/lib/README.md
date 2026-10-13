@@ -88,6 +88,15 @@ vendor's object folder, including when called with the service-role client.
 External URLs and other vendors' objects are never deletion targets.
 Deferred QR uploads occur on Save; failed saves clean up unused uploads.
 Uncertain network outcomes are not proof that a metadata write did not commit.
+The config form uploads a QR image to `vendor-images`; `booth-images` stays in
+the cleanup's list for images uploaded earlier through qkit's booth form.
+
+`return-to.ts` holds `familyReturnUrl`, which decides whether a `return_to`
+query value may be shown as a way back to another Merqo app: an https address
+on `merqo.io` or a subdomain of it, with no credentials and no port (plus
+http on localhost outside production). Anything else reads as no address.
+It is separate from `@merqo/ui`'s `safeRedirectPath`, which accepts only a
+path on this app.
 
 Redirect validation and image resizing come from `@merqo/ui`; there are no
 local `safe-redirect.ts` or `image-resize.ts` copies. `utils.ts` holds local
