@@ -1,7 +1,8 @@
 import type { createServiceClient } from "@/lib/supabase/server";
 import { uuidSchema } from "@/lib/api-schemas";
 import { toLookupResponse } from "@/lib/checkout-lookup";
-import { payTokenMatches, payTokenSchema } from "@/lib/pay-token";
+import { payTokenKey, payTokenMatches, payTokenSchema } from "@/lib/pay-token";
+import { rateLimit } from "@/lib/rate-limit";
 import type { Transaction, TxStatus } from "@/lib/types";
 
 type ServiceClient = Awaited<ReturnType<typeof createServiceClient>>;
@@ -33,6 +34,22 @@ const NOT_FOUND: HostedPaymentRead = { ok: false, reason: "not_found" };
 // Compared against when a transaction has no token, so a miss costs the same
 // hashing work as a wrong token for a transaction that has one.
 const NO_TOKEN_HASH = "0".repeat(64);
+
+// The stored return address was checked against the calling kit's origin
+// when it was written. This is the last look before the page links or
+// redirects to it: only a web address is ever handed on, whatever the row
+// holds.
+function webAddress(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:"
+      ? url.href
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Reads one transaction for the hosted pay page, and only for the holder of
@@ -82,8 +99,53 @@ export async function loadHostedPayment(
       status: row.status,
       amountCents: row.amount_cents,
       title: row.pay_title ?? null,
-      returnUrl: row.return_url ?? null,
+      returnUrl: webAddress(row.return_url),
       view: toLookupResponse(row).view,
     },
   };
+}
+
+export type HostedPayAction = "view" | "status" | "claim";
+
+const WINDOW_SECONDS = 60;
+
+// Calls allowed per minute. The open page asks for its status every 5
+// seconds, which is 12 a minute for one customer. A whole queue at one stall
+// can share an address (venue wifi, a mobile carrier's gateway), so the
+// per-address numbers leave room for some 50 customers paying at once; the
+// per-token numbers are what hold one link to a sane rate.
+const LIMITS: Record<HostedPayAction, { perIp: number; perToken: number }> = {
+  view: { perIp: 120, perToken: 30 },
+  status: { perIp: 600, perToken: 30 },
+  claim: { perIp: 60, perToken: 10 },
+};
+
+/**
+ * Whether the hosted pay page may serve this call. Counted per client
+ * address first and then per pay token, so neither one address trying many
+ * links nor many addresses sharing one link can run unchecked. The token is
+ * counted under a prefix of its hash, never as itself, and only when it is
+ * well formed. Fails open with the limiter, like every other limit here.
+ */
+export async function hostedPayAllowed(
+  supabase: ServiceClient,
+  action: HostedPayAction,
+  ip: string,
+  token: string,
+): Promise<boolean> {
+  const limits = LIMITS[action];
+  const byIp = await rateLimit(
+    supabase,
+    `pay-${action}:ip:${ip}`,
+    limits.perIp,
+    WINDOW_SECONDS,
+  );
+  if (!byIp) return false;
+  if (!payTokenSchema.safeParse(token).success) return true;
+  return rateLimit(
+    supabase,
+    `pay-${action}:tok:${payTokenKey(token)}`,
+    limits.perToken,
+    WINDOW_SECONDS,
+  );
 }

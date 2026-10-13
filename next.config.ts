@@ -32,6 +32,13 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // The hosted pay page sends the customer's payment screenshot through a
+  // server action. The file may be up to 1 MB and the default limit for an
+  // action's body is 1 MB with nothing to spare for the form around it.
+  experimental: {
+    serverActions: { bodySizeLimit: "2mb" },
+  },
+
   // sharp is only next's optional peer; Vercel optimizes images itself, so keep its binary out of every function.
   outputFileTracingExcludes: {
     "*": ["node_modules/@img/**", "node_modules/sharp/**"],
@@ -97,6 +104,17 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: cspDirectives.join("; "),
           },
+        ],
+      },
+      // The pay link carries its token in the query string, so nothing the
+      // page loads or links to is told where the customer came from. Listed
+      // after the general rule: for a header both rules set, the later one
+      // is the one sent.
+      {
+        source: "/pay/:path*",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
         ],
       },
     ];

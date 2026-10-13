@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { loadHostedPayment } from "@/lib/hosted-pay";
-import { mintPayToken } from "@/lib/pay-token";
+import { hostedPayAllowed, loadHostedPayment } from "@/lib/hosted-pay";
+import { mintPayToken, payTokenKey } from "@/lib/pay-token";
 
 const TX_ID = "22222222-2222-2222-2222-222222222222";
 const OTHER_ID = "33333333-3333-3333-3333-333333333333";
@@ -175,5 +175,63 @@ describe("loadHostedPayment", () => {
       ok: false,
       reason: "unavailable",
     });
+  });
+});
+
+describe("hostedPayAllowed", () => {
+  const rpc = vi.fn();
+  const limiter = { rpc } as unknown as Client;
+  const IP = "203.0.113.5";
+
+  beforeEach(() => {
+    rpc.mockReset().mockResolvedValue({ data: true, error: null });
+  });
+
+  it("counts the address first and then the token, by a prefix of its hash", async () => {
+    expect(await hostedPayAllowed(limiter, "claim", IP, token)).toBe(true);
+    expect(rpc).toHaveBeenNthCalledWith(1, "check_rate_limit", {
+      p_key: `pay-claim:ip:${IP}`,
+      p_limit: 60,
+      p_window_seconds: 60,
+    });
+    expect(rpc).toHaveBeenNthCalledWith(2, "check_rate_limit", {
+      p_key: `pay-claim:tok:${payTokenKey(token)}`,
+      p_limit: 10,
+      p_window_seconds: 60,
+    });
+  });
+
+  it("never puts the token itself in a limiter key", async () => {
+    await hostedPayAllowed(limiter, "view", IP, token);
+    await hostedPayAllowed(limiter, "status", IP, token);
+    expect(JSON.stringify(rpc.mock.calls)).not.toContain(token);
+  });
+
+  it("refuses on the address without counting the token", async () => {
+    rpc.mockResolvedValue({ data: false, error: null });
+    expect(await hostedPayAllowed(limiter, "status", IP, token)).toBe(false);
+    expect(rpc).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses when the token has been used too often", async () => {
+    rpc
+      .mockResolvedValueOnce({ data: true, error: null })
+      .mockResolvedValueOnce({ data: false, error: null });
+    expect(await hostedPayAllowed(limiter, "view", IP, token)).toBe(false);
+  });
+
+  it("counts only the address for a malformed token", async () => {
+    expect(await hostedPayAllowed(limiter, "view", IP, "x".repeat(5000))).toBe(
+      true,
+    );
+    expect(rpc).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the three actions in separate counters", async () => {
+    await hostedPayAllowed(limiter, "view", IP, token);
+    await hostedPayAllowed(limiter, "status", IP, token);
+    await hostedPayAllowed(limiter, "claim", IP, token);
+    const keys = rpc.mock.calls.map((call) => call[1].p_key);
+    expect(new Set(keys).size).toBe(6);
   });
 });
