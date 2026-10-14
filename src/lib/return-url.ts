@@ -1,6 +1,6 @@
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
 
-/** Also the column's own length check (0023). */
+/** Also the column's own length check (0024). */
 export const RETURN_URL_MAX = 2000;
 
 function parse(value: string): URL | null {

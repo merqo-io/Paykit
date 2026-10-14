@@ -4,10 +4,7 @@ import {
   checkoutLookupQuerySchema,
   checkoutRequestSchema,
 } from "@/lib/api-schemas";
-import {
-  CHECKOUT_LOOKUP_COLUMNS,
-  toLookupResponse,
-} from "@/lib/checkout-lookup";
+import { toLookupResponse } from "@/lib/checkout-lookup";
 import { createCheckout, type HostedPayInput } from "@/lib/checkout";
 import { kitReturnUrl } from "@/lib/return-url";
 import { createServiceClient } from "@/lib/supabase/server";

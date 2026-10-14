@@ -5,12 +5,12 @@ import { hashPayToken, mintPayToken } from "@/lib/pay-token";
 import { PAY_TITLE_MAX } from "@/lib/api-schemas";
 import { RETURN_URL_MAX } from "@/lib/return-url";
 
-// Text guards on the hand-written 0023 migration. They catch drift between
+// Text guards on the hand-written 0024 migration. They catch drift between
 // the SQL and the limits the app enforces before it writes.
 const sql = readFileSync(
   fileURLToPath(
     new URL(
-      "../../supabase/migrations/0023_hosted_pay_page.sql",
+      "../../supabase/migrations/0024_hosted_pay_page.sql",
       import.meta.url,
     ),
   ),
@@ -22,7 +22,7 @@ const statements = sql
   .filter((line) => !line.trimStart().startsWith("--"))
   .join("\n");
 
-describe("0023_hosted_pay_page.sql", () => {
+describe("0024_hosted_pay_page.sql", () => {
   it("stores the pay token as a sha256 hex digest, never as given", () => {
     expect(statements).toMatch(
       /add column pay_token_hash text[\s\S]*pay_token_hash ~ '\^\[0-9a-f\]\{64\}\$'/,
