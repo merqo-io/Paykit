@@ -27,6 +27,12 @@ Both are bearer-secret authenticated (`verifyKitAuth`).
   return it, `null` when the kit sent none. It is for matching a detected
   payment and never stops a person claiming or confirming. A time already
   past is accepted.
+  `POST` also takes optional `return_url` and `title` for the hosted pay
+  page (`src/app/pay/[id]/`). A `return_url` is checked against the calling
+  kit's `kit_api_keys.return_origin` before anything is written (400 when it
+  is not on that origin or the kit has none, 503 when the origin cannot be
+  read), and the answer then carries a `pay_url` whose token is minted per
+  request: a replay replaces the earlier link. Every answer carries `status`.
 - `route.test.ts` — covers a fresh checkout, the idempotent-retry path
   (same `(kit_slug, order_ref)` returns the same transaction, no duplicate
   row), and the 503 case where the idempotent re-read itself fails.

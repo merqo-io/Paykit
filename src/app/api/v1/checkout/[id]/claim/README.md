@@ -21,6 +21,8 @@ owns the transaction (`@/lib/kit-callback`), sent after the response. An
 idempotent no-op, a lost race and every error path send none, and a failed
 or missing callback never changes this route's answer.
 
+The claim itself is `@/lib/claim`'s `claimTransaction`, which the hosted pay page's server action also calls; this route reads the transaction, hands it over and maps the outcome to a response.
+
 ## Boundary and coverage
 
 The transaction lookup and guarded write both include the authenticated kit slug as well as the transaction ID. The rate limiter runs before mutation and fails closed on an unavailable limiter. Tests assert the predicates and ensure a calling kit cannot claim another kit transaction.

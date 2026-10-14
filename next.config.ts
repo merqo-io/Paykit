@@ -1,5 +1,17 @@
 import type { NextConfig } from "next";
 
+const OCR_FILES = [
+  "./ocr-data/*",
+  "./node_modules/wasm-feature-detect/**/*",
+  "./node_modules/.pnpm/tesseract.js@5.1.1/node_modules/tesseract.js/**/*",
+  "./node_modules/.pnpm/tesseract.js-core@5.1.1/node_modules/tesseract.js-core/*",
+  "./node_modules/.pnpm/{bmp-js,is-electron,is-url,regenerator-runtime,wasm-feature-detect,zlibjs}@*/node_modules/*/**/*",
+  "./node_modules/.pnpm/node-fetch@2.7.0/node_modules/node-fetch/**/*",
+  "./node_modules/.pnpm/whatwg-url@5.0.0/node_modules/whatwg-url/**/*",
+  "./node_modules/.pnpm/tr46@0.0.3/node_modules/tr46/**/*",
+  "./node_modules/.pnpm/webidl-conversions@3.0.1/node_modules/webidl-conversions/**/*",
+];
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -12,24 +24,16 @@ const nextConfig: NextConfig = {
     "zlibjs",
     "wasm-feature-detect",
   ],
-  // The claim route reads the amount out of a payment screenshot with
-  // Tesseract (src/lib/proof-ocr.ts). Its worker thread loads these files by
-  // path at run time, which the build's own tracing cannot see. Name real
-  // package folders only: a glob that matches one of pnpm's linked folders
-  // fails the build on Windows.
+  // A claim reads the amount out of a payment screenshot with Tesseract
+  // (src/lib/proof-ocr.ts). Its worker thread loads these files by path at
+  // run time, which the build's own tracing cannot see. Name real package
+  // folders only: a glob that matches one of pnpm's linked folders fails the
+  // build on Windows. The keys are globs, so a route's [id] segment is
+  // written as *. The pay page claims through the same function, so its
+  // server action runs the same check and needs the same files.
   outputFileTracingIncludes: {
-    // The key is a glob, so the route's [id] segment is written as *.
-    "/api/v1/checkout/*/claim": [
-      "./ocr-data/*",
-      "./node_modules/wasm-feature-detect/**/*",
-      "./node_modules/.pnpm/tesseract.js@5.1.1/node_modules/tesseract.js/**/*",
-      "./node_modules/.pnpm/tesseract.js-core@5.1.1/node_modules/tesseract.js-core/*",
-      "./node_modules/.pnpm/{bmp-js,is-electron,is-url,regenerator-runtime,wasm-feature-detect,zlibjs}@*/node_modules/*/**/*",
-      "./node_modules/.pnpm/node-fetch@2.7.0/node_modules/node-fetch/**/*",
-      "./node_modules/.pnpm/whatwg-url@5.0.0/node_modules/whatwg-url/**/*",
-      "./node_modules/.pnpm/tr46@0.0.3/node_modules/tr46/**/*",
-      "./node_modules/.pnpm/webidl-conversions@3.0.1/node_modules/webidl-conversions/**/*",
-    ],
+    "/api/v1/checkout/*/claim": OCR_FILES,
+    "/pay/*": OCR_FILES,
   },
 
   // The hosted pay page sends the customer's payment screenshot through a

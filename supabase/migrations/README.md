@@ -54,6 +54,11 @@ tables, RLS policies, RPCs, and grants, applied in order.
   unpaid `qkit` transaction to 30 minutes after its creation, the window
   qkit already applies, so no stale row can match a later payment. It
   gates automatic matching only; nothing reads it yet.
+- `0023_hosted_pay_page.sql` — `pay_token_hash` (a sha256 hex digest, never
+  the token), `return_url` and `pay_title` on `transactions`, and
+  `return_origin` on `kit_api_keys`. No new grant or policy: a vendor can
+  already read their own transactions, nobody but the service role writes
+  them. A kit with no `return_origin` cannot use the pay page.
 
 ## Parent
 

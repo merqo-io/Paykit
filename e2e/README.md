@@ -14,6 +14,11 @@ Playwright end-to-end smoke tests. They need only `pnpm dev` and
   `/dashboard/transactions` redirect to `/login`. `src/proxy.ts` resolves
   `user: null` locally when there is no session cookie, so the redirect fires
   without a database.
+- `pay-page.spec.ts` — the hosted pay page's refusals: no token, an empty,
+  short, padded or repeated token and an id that is not a uuid are all a 404
+  showing no payment, a well-formed link with no database behind it shows
+  only the retry notice, and the page sends `Referrer-Policy: no-referrer`
+  and `X-Robots-Tag: noindex, nofollow`.
 
 ## Connectivity
 

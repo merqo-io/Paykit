@@ -76,8 +76,13 @@ describe("deployment packaging for the OCR worker", () => {
   );
 
   it("attaches the extra files to the claim route, with [id] written as a glob", () => {
-    expect(config).toContain('"/api/v1/checkout/*/claim": [');
+    expect(config).toContain('"/api/v1/checkout/*/claim": OCR_FILES');
     expect(config).not.toContain('"/api/v1/checkout/[id]/claim"');
+  });
+
+  it("attaches them to the pay page too, which runs the same check", () => {
+    expect(config).toContain('"/pay/*": OCR_FILES');
+    expect(config).not.toContain('"/pay/[id]"');
   });
 
   it.each([
