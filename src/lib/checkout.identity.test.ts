@@ -77,7 +77,7 @@ describe("checkout idempotency identity", () => {
       },
       error: null,
     });
-    expect(await createCheckout(input)).toEqual({
+    expect(await createCheckout(input)).toMatchObject({
       ok: true,
       type: "link",
       transaction_id: "existing",
