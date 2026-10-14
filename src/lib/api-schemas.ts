@@ -5,10 +5,24 @@ export const txStatusSchema = z.enum(["pending", "claimed", "confirmed"]);
 /** Shared UUID validator for path params (`transactions.id`, `vendor_payment_config.vendor_id`) — a malformed value is a 400, not a DB-error 503. */
 export const uuidSchema = z.string().uuid();
 
+/** Furthest ahead a calling kit may place a checkout's `expires_at`. */
+export const MAX_EXPIRES_AHEAD_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** `expires_at` is when the calling kit gives up on the order. A time already
+ *  past is accepted: a kit derives it from its order, so a late reload of a
+ *  pay page sends one, and such a checkout simply never matches a detected
+ *  payment. It never stops a person claiming or confirming. */
 export const checkoutRequestSchema = z.object({
   vendor_id: uuidSchema,
   amount_cents: z.number().int().positive(),
   order_ref: z.string().trim().min(1).max(200),
+  expires_at: z
+    .string()
+    .datetime({ offset: true, message: "expires_at must be an ISO 8601 time" })
+    .refine((v) => Date.parse(v) - Date.now() <= MAX_EXPIRES_AHEAD_MS, {
+      message: "expires_at is more than 7 days ahead",
+    })
+    .nullish(),
 });
 export type CheckoutRequest = z.infer<typeof checkoutRequestSchema>;
 
@@ -41,6 +55,7 @@ export const transactionStatusResponseSchema = z.object({
   claimed_at: z.string().nullable(),
   confirmed_at: z.string().nullable(),
   created_at: z.string(),
+  expires_at: z.string().nullable(),
 });
 export type TransactionStatusResponse = z.infer<
   typeof transactionStatusResponseSchema
@@ -146,6 +161,7 @@ type TransactionRow = {
   claimed_at: string | null;
   confirmed_at: string | null;
   created_at: string;
+  expires_at?: string | null;
 };
 
 /** Maps a `paykit.transactions` row to the `/api/v1/checkout/*` wire shape. */
@@ -161,5 +177,6 @@ export function toStatusResponse(
     claimed_at: row.claimed_at,
     confirmed_at: row.confirmed_at,
     created_at: row.created_at,
+    expires_at: row.expires_at ?? null,
   };
 }

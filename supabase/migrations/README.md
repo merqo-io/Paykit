@@ -49,6 +49,11 @@ tables, RLS policies, RPCs, and grants, applied in order.
   and kind (`screenshot` today) with the file's path, its sha256 and a
   `detail` JSON. A vendor reads their own rows through the transaction;
   the service role is the only writer and has no delete.
+- `0023_transactions_expires_at.sql` — `transactions.expires_at`
+  (nullable): when the calling kit gives up on the order. Backfills every
+  unpaid `qkit` transaction to 30 minutes after its creation, the window
+  qkit already applies, so no stale row can match a later payment. It
+  gates automatic matching only; nothing reads it yet.
 
 ## Parent
 

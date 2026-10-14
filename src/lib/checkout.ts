@@ -11,6 +11,9 @@ export type CreateCheckoutInput = {
   kitSlug: string;
   orderRef: string;
   amountCents: number;
+  /** When the calling kit gives up on the order; stored on a new checkout
+   *  only. A replay keeps what the first call stored. */
+  expiresAt?: string | null;
 };
 
 export type CheckoutResult =
@@ -68,6 +71,7 @@ export async function createCheckout({
   kitSlug,
   orderRef,
   amountCents,
+  expiresAt,
 }: CreateCheckoutInput): Promise<CheckoutResult> {
   const supabase = await createServiceClient();
 
@@ -111,6 +115,9 @@ export async function createCheckout({
       qr_payload: payloadValue,
       checkout_kind: view.type,
       checkout_label: view.type === "link" ? view.label : null,
+      // Left out when absent, so a checkout without one inserts the same
+      // row it always has.
+      ...(expiresAt ? { expires_at: new Date(expiresAt).toISOString() } : {}),
     })
     .select(
       "id, qr_payload, vendor_id, amount_cents, checkout_kind, checkout_label",

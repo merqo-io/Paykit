@@ -83,6 +83,33 @@ beforeEach(() => {
   auditInsert.mockReset().mockResolvedValue({ error: null });
 });
 
+describe("createCheckout expires_at", () => {
+  const input = {
+    vendorId: "11111111-1111-1111-1111-111111111111",
+    kitSlug: "qkit",
+    orderRef: "order-1",
+    amountCents: 450,
+  };
+
+  it("stores expires_at on a new checkout, as a UTC instant", async () => {
+    const { createCheckout } = await import("./checkout");
+    await createCheckout({ ...input, expiresAt: "2026-10-13T21:30:00+08:00" });
+    expect(transactionInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ expires_at: "2026-10-13T13:30:00.000Z" }),
+    );
+  });
+
+  it("inserts no expires_at key when the caller sends none or null", async () => {
+    const { createCheckout } = await import("./checkout");
+    await createCheckout(input);
+    await createCheckout({ ...input, expiresAt: null });
+    expect(transactionInsert).toHaveBeenCalledTimes(2);
+    for (const call of transactionInsert.mock.calls as unknown[][]) {
+      expect(Object.keys(call[0] as object)).not.toContain("expires_at");
+    }
+  });
+});
+
 describe("createCheckout", () => {
   it("creates a checkout and returns a QR payload", async () => {
     const { createCheckout } = await import("./checkout");

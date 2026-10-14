@@ -14,7 +14,7 @@ the saved shape. Route tests cover handler output; database tests cover RLS.
 - `checkout-response.sample.json` — a saved example `POST /api/v1/checkout`
   response.
 - `transaction-status.sample.json` — a saved example `GET /api/v1/checkout/{id}`
-  response.
+  response. It and the lookup sample carry `expires_at`.
 - `checkout-lookup.sample.json` — a saved example
   `GET /api/v1/checkout?order_ref=` response.
 - `vendor-config.sample.json` — a saved example vendor-config response.

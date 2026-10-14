@@ -1,7 +1,9 @@
 # Bank Auto Detect, in paykit Only: Design
 
-Date: 2026-10-13. Status: draft for the owner's review. No decision below has
-been made. No code, migration or dependency has changed in any repo.
+Date: 2026-10-13. Status: the owner took the recommendation on every decision
+that has one, on 2026-10-13 (see "Decisions for the owner"). P6.2
+(`expires_at`) is being built. Nothing from P6.3 on has started: the
+`AGENTS.md` amendment is not applied.
 
 This is phase P6 of the paykit and printkit separation. The parent spec is in
 the qkit repo:
@@ -78,9 +80,8 @@ What exists in paykit today that P6 uses:
 - The confirm route writes with `.in("status", ["pending", "claimed"])`, so a
   second writer cannot confirm twice.
 
-- `paykit.payment_evidence` (migration `0022`, merged today). Migrations are
-  applied by the owner by hand; whether `0022` is applied to the live
-  database was not checked. Its `kind` check allows only `'screenshot'`, and
+- `paykit.payment_evidence` (migration `0022`, merged and applied by the
+  owner on 2026-10-13, per the P3 session). Its `kind` check allows only `'screenshot'`, and
   it requires a `transaction_id`, so it cannot hold a payment that matched
   nothing. P6 widens the first and works around the second.
 
@@ -325,6 +326,15 @@ make it for them.
 
 ## Decisions for the owner
 
+**Outcome, 2026-10-13.** Asked which open items to act on, the owner answered
+"all that is opened", following the recommendations. That settles 1A (the
+vendor's own gateway account, HitPay first), 2A (the vendor's own account),
+3A (observe, then confirm) and 5A (a checkout with no expiry can still
+match). Decision 4 (whether auto detect is part of Pro) carries no
+recommendation and is still open. The `AGENTS.md` amendment and the
+regulatory confirmation are still the owner's to do. The options are kept
+below as the record of what was weighed.
+
 **Decision 1. Which signal is built first?**
 
 - **A (recommended): the vendor's own gateway account, HitPay first.** Exact
@@ -476,8 +486,11 @@ to the vendor's merchant account.
 ### `transactions.expires_at`
 
 - `POST /api/v1/checkout` accepts an optional `expires_at`: an ISO 8601
-  timestamp with an offset. It is refused (400) when it is in the past or
-  more than 7 days ahead.
+  timestamp with an offset. It is refused (400) when it is malformed or more
+  than 7 days ahead. A time already past is accepted: qkit derives it from
+  the order, so a pay page reloaded after 30 minutes sends one, and refusing
+  it would break a replay that ignores the value anyway. A checkout created
+  already expired simply never matches a detected payment.
 - Stored on the transaction at creation. A replay with a different value
   keeps the first; it is not a 409. qkit derives it from the order's
   `created_at`, so a reload sends the same value anyway.
@@ -934,8 +947,9 @@ return it. Nothing reads it yet.
 
 qkit PR: see "What qkit changes".
 
-Verified by: paykit contract test (accepts it, refuses past and far-future
-values, replay keeps the first, a request without it is unchanged). qkit
+Verified by: paykit tests (accepts it, accepts a past value, refuses
+malformed and far-future values, a request without it inserts the same row
+as before). qkit
 action tests and `pnpm test:e2e` against the updated mock.
 
 ### P6.3. Detection core and the HitPay provider, observe only

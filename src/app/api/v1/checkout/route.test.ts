@@ -257,6 +257,22 @@ describe("POST /api/v1/checkout", () => {
     expect(res.status).toBe(400);
   });
 
+  it("400s on an expires_at that is not a time, before any insert", async () => {
+    const res = await POST(
+      req({
+        vendor_id: "11111111-1111-1111-1111-111111111111",
+        amount_cents: 450,
+        order_ref: "A-001",
+        expires_at: "in half an hour",
+      }),
+    );
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({
+      error: "expires_at must be an ISO 8601 time",
+    });
+    expect(insertSingle).not.toHaveBeenCalled();
+  });
+
   it("503s when the config read fails", async () => {
     configMaybeSingle.mockResolvedValue({
       data: null,
