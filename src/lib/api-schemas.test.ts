@@ -113,6 +113,7 @@ describe("checkoutResponseSchema / transactionStatusResponseSchema / vendorConfi
       checkoutResponseSchema.safeParse({
         type: "qr",
         transaction_id: "11111111-1111-1111-1111-111111111111",
+        status: "pending",
         payload: "00020101...6304ABCD",
       }).success,
     ).toBe(true);

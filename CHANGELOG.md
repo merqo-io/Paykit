@@ -15,6 +15,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The amount is read on paykit's server with Tesseract, after the claim's response has gone out, so it never slows or decides a claim. It adds five dependencies (`tesseract.js`, `tesseract.js-core`, `bmp-js`, `zlibjs`, `wasm-feature-detect`, all pinned) and a 3 MB English language file under `ocr-data/`, so nothing is fetched at run time.
 - Migration `0022_payment_evidence.sql`: the private bucket `paykit-payment-proofs`, its read policy, and the `payment_evidence` table. A vendor can read their own evidence; only the service role writes. Not applied by this change: the owner runs it by hand.
 
+- A public pay page, `/pay/{transaction_id}?k=<token>`, that a calling kit sends its customer to. It shows the amount, a title the kit chose and the payment code (a PayNow QR with "Save QR image", the vendor's own QR image, or a payment link), takes the payment screenshot and the "I've paid" claim, and sends the customer back to the kit. It needs no sign-in: the token in the link is the whole authorization, paykit stores only its sha256, and a missing, malformed or wrong token, an unknown id and a transaction with no pay page all answer the same 404. Views, status polls and claims are rate limited per address and per token. The page carries `Referrer-Policy: no-referrer` and `X-Robots-Tag: noindex`, and shows no vendor id, order reference or kit name.
+- `POST /api/v1/checkout` accepts optional `return_url` and `title`. With a `return_url` on the calling kit's registered origin it answers a `pay_url` for that page; each such request replaces the transaction's earlier pay link. The origin is compared as a parsed origin, so `https://qkit.merqo.io.evil.com` and `https://qkit.merqo.io@evil.com` are refused. Every answer now also carries the transaction's `status`. A request without `return_url` answers as before, plus `status`, and writes nothing about a pay page.
+- Migration `0024_hosted_pay_page.sql`: `pay_token_hash`, `return_url` and `pay_title` on `transactions`, and `return_origin` on `kit_api_keys`. Not applied by this change: the owner runs it by hand, and sets `return_origin` for each kit that will use the page.
+
+### Changed
+
+- Internal: the claim moved out of its route into `claimTransaction` (`src/lib/claim.ts`), which the claim endpoint and the pay page both call, so storing the screenshot first, the audit row, the amount check and the callback cannot drift apart. The claim endpoint answers exactly as before. The OCR files are also traced into the pay page's function.
+
 ### Fixed
 
 - The test suite and the pre-push hook pass on a Windows checkout again. `scripts/create-kit-key.mjs` was checked out with a CRLF after its shebang line, which Vitest cannot load; `.gitattributes` now keeps `scripts/*.mjs` on LF.

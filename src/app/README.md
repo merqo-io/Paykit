@@ -22,6 +22,7 @@ for this project.
 - `icon.tsx` — `Icon` route handler; renders `brandIcon(32)` as a 32×32 PNG favicon.
 - `layout.tsx` — `RootLayout`. Loads `Fraunces`/`Inter`/`JetBrains_Mono` via `next/font/google`, sets `metadata`, wraps children in `next-themes`' `ThemeProvider` (`attribute="class"`, system default) so `@merqo/ui`'s always-on account-menu Light/Dark/System control actually toggles the `.dark` class, then `TooltipProvider` + `Toaster`.
 - `login/` — combined sign-in/sign-up page, including the "Forgot password?" flow.
+- `pay/` — the hosted pay page, `/pay/{id}?k=<token>`: paykit's one public, unauthenticated page. See its README.
 - `page.tsx` — `Home` async server component, the marketing landing page. Composes `Nav`, `Hero`, `HowItWorks`, `Benefits`, `Faq`, `ClosingCta`, `Footer`, and shared `BackToTop` from `@/components/landing/`. `ClosingCta` is the family's documented ink-band closing section, rendered between `Faq` and `Footer`. Reads the live Pro price via `getPricing()` (`@/lib/pricing`) and passes it down to `Benefits`/`Faq` as `monthlyPriceLabel` — no hardcoded price string.
 
 ## Connectivity

@@ -76,12 +76,25 @@ export async function readProofFromRequest(
 
   const parts = form.getAll("proof");
   if (parts.length !== 1) return refuse("Send exactly one proof file");
-  const part = parts[0];
-  if (typeof part === "string") return refuse("proof must be a file");
+  return readProofFile(parts[0]);
+}
+
+/**
+ * Checks one file offered as a payment screenshot: it must be a file, more
+ * than 0 bytes, at most 1 MB, and JPEG, PNG or WebP by its first bytes.
+ * The same checks whichever way the file arrived. Never throws.
+ */
+export async function readProofFile(part: unknown): Promise<ProofRead> {
+  if (!(part instanceof Blob)) return refuse("proof must be a file");
   if (part.size === 0) return refuse("The proof file is empty");
   if (part.size > PROOF_MAX_BYTES) return TOO_LARGE;
 
-  const bytes = Buffer.from(await part.arrayBuffer());
+  let bytes: Buffer;
+  try {
+    bytes = Buffer.from(await part.arrayBuffer());
+  } catch {
+    return refuse("The proof file could not be read");
+  }
   const sniffed = sniffImageType(bytes);
   if (!sniffed) return refuse("proof must be a JPEG, PNG or WebP image");
   return { ok: true, proof: { bytes, contentType: sniffed } };

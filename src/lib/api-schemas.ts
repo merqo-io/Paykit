@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RETURN_URL_MAX } from "@/lib/return-url";
 
 export const txStatusSchema = z.enum(["pending", "claimed", "confirmed"]);
 
@@ -8,10 +9,19 @@ export const uuidSchema = z.string().uuid();
 /** Furthest ahead a calling kit may place a checkout's `expires_at`. */
 export const MAX_EXPIRES_AHEAD_MS = 7 * 24 * 60 * 60 * 1000;
 
+/** Also the column's own length check (0024). */
+export const PAY_TITLE_MAX = 120;
+
 /** `expires_at` is when the calling kit gives up on the order. A time already
  *  past is accepted: a kit derives it from its order, so a late reload of a
  *  pay page sends one, and such a checkout simply never matches a detected
- *  payment. It never stops a person claiming or confirming. */
+ *  payment. It never stops a person claiming or confirming.
+ *
+ *  `return_url` and `title` are for the hosted pay page. With `return_url`
+ *  the answer carries a `pay_url` to send the customer to; paykit sends them
+ *  back to `return_url` once the payment is claimed. `return_url` must be on
+ *  the calling kit's registered origin, which the route checks. `title` is
+ *  the one line the page shows above the amount. */
 export const checkoutRequestSchema = z.object({
   vendor_id: uuidSchema,
   amount_cents: z.number().int().positive(),
@@ -23,24 +33,36 @@ export const checkoutRequestSchema = z.object({
       message: "expires_at is more than 7 days ahead",
     })
     .nullish(),
+  return_url: z.string().min(1).max(RETURN_URL_MAX).optional(),
+  title: z.string().trim().min(1).max(PAY_TITLE_MAX).optional(),
 });
 export type CheckoutRequest = z.infer<typeof checkoutRequestSchema>;
+
+// `status` is the transaction's state when the answer was made: `pending`
+// for a new checkout, anything for a replay. `pay_url` is present only when
+// the request carried a `return_url`, and each such request makes the
+// previous `pay_url` for the transaction stop working.
+const checkoutCommonFields = {
+  transaction_id: z.string().uuid(),
+  status: txStatusSchema,
+  pay_url: z.string().url().optional(),
+};
 
 export const checkoutResponseSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("qr"),
-    transaction_id: z.string().uuid(),
+    ...checkoutCommonFields,
     payload: z.string().min(1),
   }),
   z.object({
     type: z.literal("link"),
-    transaction_id: z.string().uuid(),
+    ...checkoutCommonFields,
     url: z.string().url(),
     label: z.string(),
   }),
   z.object({
     type: z.literal("image"),
-    transaction_id: z.string().uuid(),
+    ...checkoutCommonFields,
     url: z.string().url(),
   }),
 ]);

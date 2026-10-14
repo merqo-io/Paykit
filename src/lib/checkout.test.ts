@@ -6,8 +6,10 @@ const {
   insertSingle,
   existingSingle,
   auditInsert,
+  hostedUpdateSelect,
   createServiceClientMock,
 } = vi.hoisted(() => ({
+  hostedUpdateSelect: vi.fn(),
   configMaybeSingle: vi.fn(),
   insertSingle: vi.fn(),
   existingSingle: vi.fn(),
@@ -19,8 +21,15 @@ vi.mock("@/lib/supabase/server", () => ({
   createServiceClient: createServiceClientMock,
 }));
 
-const transactionInsert = vi.fn(() => ({
+const transactionInsert = vi.fn((_row: Record<string, unknown>) => ({
   select: () => ({ single: insertSingle }),
+}));
+
+const hostedUpdateEq = vi.fn((_column: string, _value: string) => ({
+  select: hostedUpdateSelect,
+}));
+const transactionUpdate = vi.fn((_patch: Record<string, unknown>) => ({
+  eq: hostedUpdateEq,
 }));
 
 function fakeSupabase() {
@@ -34,6 +43,7 @@ function fakeSupabase() {
       if (table === "transactions") {
         return {
           insert: transactionInsert,
+          update: transactionUpdate,
           select: () => ({
             eq: () => ({ eq: () => ({ single: existingSingle }) }),
           }),
@@ -49,6 +59,11 @@ function fakeSupabase() {
 
 beforeEach(() => {
   transactionInsert.mockClear();
+  transactionUpdate.mockClear();
+  hostedUpdateEq.mockClear();
+  hostedUpdateSelect
+    .mockReset()
+    .mockResolvedValue({ data: [{ id: "tx1" }], error: null });
   createServiceClientMock.mockReset().mockResolvedValue(fakeSupabase());
   configMaybeSingle.mockReset().mockResolvedValue({
     data: {
@@ -123,6 +138,7 @@ describe("createCheckout", () => {
       ok: true,
       type: "qr",
       transaction_id: "tx1",
+      status: "pending",
       payload: buildPayNowPayload({
         uen: "53312345A",
         payeeName: "Kopitiam Cart",
@@ -205,6 +221,7 @@ describe("createCheckout", () => {
       ok: true,
       type: "qr",
       transaction_id: "tx1",
+      status: "pending",
       payload: buildPayNowPayload({
         uen: "53312345A",
         payeeName: "Kopitiam Cart",
@@ -278,4 +295,130 @@ it("keeps canonical historical PayNow retries usable without a kind backfill", a
       amountCents: 450,
     }),
   ).toMatchObject({ ok: true, type: "qr", transaction_id: "legacy" });
+});
+
+describe("createCheckout for the hosted pay page", () => {
+  const INPUT = {
+    vendorId: "11111111-1111-1111-1111-111111111111",
+    kitSlug: "qkit",
+    orderRef: "booking:b1:deposit",
+    amountCents: 450,
+  };
+  const HOSTED = {
+    returnUrl: "https://qkit.merqo.io/order/b1/pay?t=abc",
+    title: "Order from Kopitiam Cart",
+  };
+  const EXISTING = {
+    id: "tx1",
+    status: "claimed",
+    checkout_kind: "qr",
+    checkout_label: null,
+    vendor_id: "11111111-1111-1111-1111-111111111111",
+    amount_cents: 450,
+    qr_payload: buildPayNowPayload({
+      uen: "53312345A",
+      payeeName: "Kopitiam Cart",
+      amountCents: 450,
+      reference: "booking:b1:deposit",
+    }),
+  };
+
+  function replay(row: Record<string, unknown> = EXISTING) {
+    insertSingle.mockResolvedValue({ data: null, error: { code: "23505" } });
+    existingSingle.mockResolvedValue({ data: row, error: null });
+  }
+
+  it("writes no pay page column and mints no token without hostedPay", async () => {
+    const { createCheckout } = await import("./checkout");
+    const result = await createCheckout(INPUT);
+    expect(result).not.toHaveProperty("payToken");
+    const inserted = transactionInsert.mock.calls[0]![0];
+    expect(inserted).not.toHaveProperty("pay_token_hash");
+    expect(inserted).not.toHaveProperty("return_url");
+    expect(inserted).not.toHaveProperty("pay_title");
+  });
+
+  it("leaves the pay page of a replayed row alone without hostedPay", async () => {
+    replay();
+    const { createCheckout } = await import("./checkout");
+    const result = await createCheckout(INPUT);
+    expect(result).toMatchObject({ ok: true, status: "claimed" });
+    expect(result).not.toHaveProperty("payToken");
+    expect(transactionUpdate).not.toHaveBeenCalled();
+  });
+
+  it("stores the hash of the token it returns, with the address and title", async () => {
+    const { createCheckout } = await import("./checkout");
+    const { hashPayToken } = await import("./pay-token");
+    const result = await createCheckout({ ...INPUT, hostedPay: HOSTED });
+    if (!result.ok || !result.payToken) throw new Error("expected a token");
+    expect(result.status).toBe("pending");
+    const inserted = transactionInsert.mock.calls[0]![0];
+    expect(inserted).toMatchObject({
+      pay_token_hash: hashPayToken(result.payToken),
+      return_url: HOSTED.returnUrl,
+      pay_title: HOSTED.title,
+    });
+    expect(JSON.stringify(inserted)).not.toContain(result.payToken);
+    expect(transactionUpdate).not.toHaveBeenCalled();
+  });
+
+  it("stores a null title when none was given", async () => {
+    const { createCheckout } = await import("./checkout");
+    await createCheckout({
+      ...INPUT,
+      hostedPay: { returnUrl: HOSTED.returnUrl, title: null },
+    });
+    expect(transactionInsert.mock.calls[0]![0]).toMatchObject({
+      pay_title: null,
+    });
+  });
+
+  it("replaces the stored hash on a replay and reports the status the row holds", async () => {
+    replay();
+    const { createCheckout } = await import("./checkout");
+    const { hashPayToken } = await import("./pay-token");
+    const first = await createCheckout({ ...INPUT, hostedPay: HOSTED });
+    const second = await createCheckout({ ...INPUT, hostedPay: HOSTED });
+    if (!first.ok || !second.ok) throw new Error("expected two checkouts");
+    if (!first.payToken || !second.payToken) throw new Error("no token");
+    expect(first.payToken).not.toBe(second.payToken);
+    expect(second.status).toBe("claimed");
+    expect(transactionUpdate).toHaveBeenLastCalledWith({
+      pay_token_hash: hashPayToken(second.payToken),
+      return_url: HOSTED.returnUrl,
+      pay_title: HOSTED.title,
+    });
+    expect(hostedUpdateEq).toHaveBeenLastCalledWith("id", "tx1");
+    expect(auditInsert).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["the write errors", { data: null, error: { message: "boom" } }],
+    ["the write matches no row", { data: [], error: null }],
+  ])("answers 503 with no token when %s", async (_name, outcome) => {
+    replay();
+    hostedUpdateSelect.mockResolvedValue(outcome);
+    const { createCheckout } = await import("./checkout");
+    const result = await createCheckout({ ...INPUT, hostedPay: HOSTED });
+    expect(result).toEqual({
+      ok: false,
+      status: 503,
+      error: "Could not create checkout",
+    });
+  });
+
+  it("writes nothing when the replay conflicts", async () => {
+    replay({ ...EXISTING, amount_cents: 999 });
+    const { createCheckout } = await import("./checkout");
+    const result = await createCheckout({ ...INPUT, hostedPay: HOSTED });
+    expect(result).toMatchObject({ ok: false, status: 409 });
+    expect(transactionUpdate).not.toHaveBeenCalled();
+  });
+
+  it("reads an unknown stored status as pending", async () => {
+    replay({ ...EXISTING, status: "refunded" });
+    const { createCheckout } = await import("./checkout");
+    expect(await createCheckout(INPUT)).toMatchObject({ status: "pending" });
+  });
 });

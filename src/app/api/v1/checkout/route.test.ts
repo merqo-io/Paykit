@@ -9,8 +9,14 @@ const {
   existingSingle,
   auditInsert,
   rateLimitMock,
+  kitKeyMaybeSingle,
+  insertMock,
+  hostedUpdateSelect,
   createServiceClientMock,
 } = vi.hoisted(() => ({
+  kitKeyMaybeSingle: vi.fn(),
+  insertMock: vi.fn(),
+  hostedUpdateSelect: vi.fn(),
   verifyKitAuthMock: vi.fn(),
   configMaybeSingle: vi.fn(),
   insertSingle: vi.fn(),
@@ -41,7 +47,11 @@ function fakeSupabase() {
       }
       if (table === "transactions") {
         return {
-          insert: () => ({ select: () => ({ single: insertSingle }) }),
+          insert: (row: Record<string, unknown>) => {
+            insertMock(row);
+            return { select: () => ({ single: insertSingle }) };
+          },
+          update: () => ({ eq: () => ({ select: hostedUpdateSelect }) }),
           select: () => ({
             eq: () => ({ eq: () => ({ single: existingSingle }) }),
           }),
@@ -49,6 +59,11 @@ function fakeSupabase() {
       }
       if (table === "payment_audit") {
         return { insert: auditInsert };
+      }
+      if (table === "kit_api_keys") {
+        return {
+          select: () => ({ eq: () => ({ maybeSingle: kitKeyMaybeSingle }) }),
+        };
       }
       throw new Error(`unexpected table ${table}`);
     },
@@ -89,6 +104,14 @@ beforeEach(() => {
   });
   existingSingle.mockReset().mockResolvedValue({ data: null, error: null });
   rateLimitMock.mockReset().mockResolvedValue(true);
+  insertMock.mockReset();
+  hostedUpdateSelect
+    .mockReset()
+    .mockResolvedValue({ data: [{ id: "tx1" }], error: null });
+  kitKeyMaybeSingle.mockReset().mockResolvedValue({
+    data: { return_origin: "https://qkit.merqo.io" },
+    error: null,
+  });
 });
 
 function req(body: unknown, authorization = "Bearer qkit:secret") {
@@ -112,6 +135,7 @@ describe("POST /api/v1/checkout", () => {
     expect(await res.json()).toEqual({
       type: "qr",
       transaction_id: "tx1",
+      status: "pending",
       payload: buildPayNowPayload({
         uen: "53312345A",
         payeeName: "Kopitiam Cart",
@@ -182,6 +206,7 @@ describe("POST /api/v1/checkout", () => {
     expect(await res.json()).toEqual({
       type: "link",
       transaction_id: "tx2",
+      status: "pending",
       url: "https://pay.example/kopitiam",
       label: "Pay with PayLah",
     });
@@ -372,5 +397,130 @@ describe("POST /api/v1/checkout", () => {
     expect(res.status).toBe(503);
     const json = await res.json();
     expect(json.error).not.toMatch(/connection reset/);
+  });
+});
+
+describe("POST /api/v1/checkout for the hosted pay page", () => {
+  const BODY = {
+    vendor_id: "11111111-1111-1111-1111-111111111111",
+    amount_cents: 450,
+    order_ref: "A-001",
+  };
+  const RETURN_URL = "https://qkit.merqo.io/order/b1/pay?t=abc";
+
+  function payReq(body: unknown) {
+    return new Request("https://paykit.example/api/v1/checkout", {
+      method: "POST",
+      headers: { authorization: "Bearer qkit:secret" },
+      body: JSON.stringify(body),
+    });
+  }
+
+  it("answers no pay_url, and reads no origin, without return_url", async () => {
+    const res = await POST(payReq(BODY));
+    expect(res.status).toBe(200);
+    expect(await res.json()).not.toHaveProperty("pay_url");
+    expect(kitKeyMaybeSingle).not.toHaveBeenCalled();
+    expect(insertMock.mock.calls[0]![0]).not.toHaveProperty("pay_token_hash");
+  });
+
+  it("answers a pay_url on its own origin whose token hashes to what was stored", async () => {
+    const { hashPayToken, payTokenSchema } = await import("@/lib/pay-token");
+    const res = await POST(
+      payReq({ ...BODY, return_url: RETURN_URL, title: "  Order from A  " }),
+    );
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.status).toBe("pending");
+    const url = new URL(json.pay_url);
+    expect(url.origin).toBe("https://paykit.example");
+    expect(url.pathname).toBe("/pay/tx1");
+    const token = url.searchParams.get("k") ?? "";
+    expect(payTokenSchema.safeParse(token).success).toBe(true);
+    expect(insertMock.mock.calls[0]![0]).toMatchObject({
+      pay_token_hash: hashPayToken(token),
+      return_url: RETURN_URL,
+      pay_title: "Order from A",
+    });
+  });
+
+  it.each([
+    ["another site", "https://evil.example/x"],
+    ["a host that only begins with it", "https://qkit.merqo.io.evil.com/"],
+    ["the origin as credentials", "https://qkit.merqo.io@evil.com/"],
+    ["a script address", "javascript:alert(1)"],
+    ["plain http", "http://qkit.merqo.io/x"],
+  ])("400s and creates nothing when return_url is %s", async (_n, value) => {
+    const res = await POST(payReq({ ...BODY, return_url: value }));
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({
+      error: "return_url is not allowed for this kit",
+    });
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it("400s for a kit with no registered origin", async () => {
+    kitKeyMaybeSingle.mockResolvedValue({
+      data: { return_origin: null },
+      error: null,
+    });
+    const res = await POST(payReq({ ...BODY, return_url: RETURN_URL }));
+    expect(res.status).toBe(400);
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it("503s and creates nothing when the origin cannot be read", async () => {
+    kitKeyMaybeSingle.mockResolvedValue({
+      data: null,
+      error: { message: "connection reset" },
+    });
+    const res = await POST(payReq({ ...BODY, return_url: RETURN_URL }));
+    expect(res.status).toBe(503);
+    expect((await res.json()).error).not.toMatch(/connection reset/);
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["an empty return_url", { return_url: "" }],
+    [
+      "a return_url over 2000 characters",
+      { return_url: `https://qkit.merqo.io/${"a".repeat(2000)}` },
+    ],
+    ["a return_url that is not text", { return_url: 5 }],
+    ["a blank title", { return_url: RETURN_URL, title: "   " }],
+    [
+      "a title over 120 characters",
+      { return_url: RETURN_URL, title: "a".repeat(121) },
+    ],
+  ])("400s on %s", async (_name, extra) => {
+    const res = await POST(payReq({ ...BODY, ...extra }));
+    expect(res.status).toBe(400);
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it("reports the real status of a replayed transaction with a fresh pay_url", async () => {
+    insertSingle.mockResolvedValue({ data: null, error: { code: "23505" } });
+    existingSingle.mockResolvedValue({
+      data: {
+        id: "tx1",
+        status: "confirmed",
+        checkout_kind: "qr",
+        checkout_label: null,
+        vendor_id: BODY.vendor_id,
+        amount_cents: 450,
+        qr_payload: buildPayNowPayload({
+          uen: "53312345A",
+          payeeName: "Kopitiam Cart",
+          amountCents: 450,
+          reference: "A-001",
+        }),
+      },
+      error: null,
+    });
+    const res = await POST(payReq({ ...BODY, return_url: RETURN_URL }));
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.status).toBe("confirmed");
+    expect(new URL(json.pay_url).pathname).toBe("/pay/tx1");
   });
 });

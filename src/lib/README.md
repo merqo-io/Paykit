@@ -31,7 +31,9 @@ provide authorization.
   `PROOF_BUCKET`, `PROOF_MAX_BYTES`, `sniffImageType(bytes)` (JPEG, PNG or
   WebP by the file's first bytes, never by the declared type) and
   `readProofFromRequest(request)`, which returns no proof for a request that
-  is not multipart, and a 400 or 413 for a bad one. No database access.
+  is not multipart, and a 400 or 413 for a bad one. `readProofFile(file)`
+  applies the same checks to a file already in hand (the pay page's server
+  action). No database access.
 - `payment-evidence.ts` — `storeScreenshotEvidence(supabase, tx, proof)`
   uploads to `{vendor_id}/{transaction_id}` and upserts the transaction's
   one `payment_evidence` row; it returns false on any failure and the claim
@@ -52,6 +54,29 @@ provide authorization.
   hash; writes nothing when the image cannot be read) and
   `scheduleProofAmountCheck(...)`, which runs it with `after()` once the
   claim's response is sent.
+- `pay-token.ts` — the hosted pay page's token: `mintPayToken()` (32 random
+  bytes as 43 base64url characters, with the sha256 hex to store),
+  `hashPayToken`, `payTokenMatches(token, storedHash)` (constant time; false
+  for no stored hash), `payTokenSchema` (the shape check) and `payTokenKey`
+  (a prefix of the hash, used in rate-limit keys so the token itself is never
+  written there).
+- `return-url.ts` — `kitReturnUrl(raw, registeredOrigin)`: the address a pay
+  page may send a customer back to, or null. Compared as parsed origins
+  against the kit's `return_origin`, never as text; no credentials, https
+  only (http on localhost outside production), at most 2000 characters. It
+  returns the parsed URL's own serialisation.
+- `claim.ts` — `claimTransaction(supabase, row, proof, audit)`: the claim
+  itself, for the endpoint and the pay page alike. Stores the screenshot
+  before the claim commits, moves `pending` to `claimed` with a guarded
+  update, writes the audit row and schedules the callback and the amount
+  check. An already claimed or confirmed transaction is answered as it
+  stands.
+- `hosted-pay.ts` — `loadHostedPayment(supabase, id, token)`: the one read of
+  a transaction on a caller's say-so alone. Not found for a bad id or token,
+  an unknown id, a transaction with no pay page or another token; the same
+  answer for all, and the payment it returns carries no vendor id, order
+  reference or kit name. `hostedPayAllowed` counts a page action per address
+  and per token.
 - `kit-callback.ts` — `notifyKitPaymentStatus(tx)` posts
   `{ order_ref, transaction_id, status }` to the `callback_url` of the kit
   that owns the transaction (`transactions.kit_slug`), with
