@@ -25,6 +25,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- `@merqo/ui` pinned to v0.34.1. Its `BackButton` dropped its button styling without a `LinkComponent`, so the plan and profile pages' "Dashboard" button showed the arrow stacked above the label.
 - The test suite and the pre-push hook pass on a Windows checkout again. `scripts/create-kit-key.mjs` was checked out with a CRLF after its shebang line, which Vitest cannot load; `.gitattributes` now keeps `scripts/*.mjs` on LF.
 
 ### Changed
