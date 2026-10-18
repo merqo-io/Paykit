@@ -272,6 +272,10 @@ subdomain of it (`familyReturnUrl` in `src/lib/return-to.ts`). This is what
 lets a calling kit send a vendor here to enter payment details instead of
 keeping a payment form of its own.
 
+`@merqo/ui` bumped to v0.34.1 (2026-10-16), which fixes `BackButton`: without
+a `LinkComponent` it dropped its button styling, so "Dashboard" on the plan
+and profile pages showed the arrow stacked above the label.
+
 `@merqo/ui` bumped to v0.31.4 (2026-09-22), for its new
 `storagePathFromPublicUrl`. Replacing or removing a profile icon now deletes the
 old image from storage (`removeReplacedAvatar` in
