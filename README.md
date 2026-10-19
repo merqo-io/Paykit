@@ -165,7 +165,8 @@ wraps `@merqo/ui`'s `Footer` (with a `Vendor sign in →` link on the landing
 page and `/about`, without it in the dashboard), and the dashboard shell keeps
 that footer at the bottom of a short page. Every page sets its own tab title
 through the root layout's `%s | Paykit` template, and an unknown route gets a
-branded `not-found.tsx` beside the existing error boundary.
+branded `not-found.tsx` beside the existing error boundary. The plan page
+compares Free and Pro with the shared `PlanComparisonTable`.
 
 Sign-in (`/login`) supports email+password (with a "Check your email"
 confirmation state and a real forgot-password flow) and Google OAuth. Once
