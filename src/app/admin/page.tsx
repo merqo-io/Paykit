@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/admin";
 import {
   platformTotals,
@@ -10,6 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { ElevatedCard } from "@merqo/ui";
 import { formatCents, pctChange } from "@/lib/utils";
 import { PricingSection } from "./pricing-section";
+
+export const metadata: Metadata = {
+  title: "Admin overview",
+};
 
 export const revalidate = 0;
 

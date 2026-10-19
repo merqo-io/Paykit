@@ -27,6 +27,10 @@ status, plan, transaction count, and a Free/Pro plan toggle.
   Server Action to flip a vendor's `vendor_payment_config.plan` between
   `free` and `pro` immediately, no confirm modal.
 
+## Tab title
+
+`page.tsx` exports `metadata.title = "Vendors"`, which the root layout's `%s | Paykit` template turns into "Vendors | Paykit". `src/app/page-titles.test.ts` checks it.
+
 ## Parent
 
 [admin](../README.md)

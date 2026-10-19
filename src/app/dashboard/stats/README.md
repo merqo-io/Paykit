@@ -46,6 +46,10 @@ Reachable from `dashboard-nav.tsx`'s "Stats" link. `page.tsx` reads via
 `@/lib/vendor-session` and `@/lib/transactions`, aggregates via
 `@/lib/revenue-report`, and renders `revenue-chart.tsx`.
 
+## Tab title
+
+`page.tsx` exports `metadata.title = "Stats"`, which the root layout's `%s | Paykit` template turns into "Stats | Paykit". `src/app/page-titles.test.ts` checks it.
+
 ## Parent
 
 [dashboard](../README.md)

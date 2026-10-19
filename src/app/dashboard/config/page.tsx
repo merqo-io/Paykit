@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { getVendorSession } from "@/lib/vendor-session";
 import { familyReturnUrl } from "@/lib/return-to";
 import { getConfig } from "./actions";
 import { PaymentConfigForm } from "./payment-config-form";
+
+export const metadata: Metadata = {
+  title: "Payment setup",
+};
 
 /**
  * Another Merqo app can send a vendor here with `return_to`, the page to go

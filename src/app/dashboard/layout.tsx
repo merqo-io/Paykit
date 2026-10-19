@@ -3,6 +3,7 @@ import { getVendorSession, getVendorPlan } from "@/lib/vendor-session";
 import { getOrCreateVendorProfile } from "@/lib/merqo-vendor-profile";
 import { signOutAction } from "@/app/actions/auth";
 import { DashboardTour } from "@/components/dashboard-tour";
+import { SiteFooter } from "@/components/site-footer";
 import { DashboardNav } from "./dashboard-nav";
 
 export default async function DashboardLayout({
@@ -27,7 +28,7 @@ export default async function DashboardLayout({
   const avatarUrl = typeof rawAvatar === "string" ? rawAvatar : null;
 
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       {/*
         @merqo/ui's DashboardNav renders its own <header> (sticky/border/
         padding already baked in) — this used to be paykit's own <header>
@@ -57,7 +58,10 @@ export default async function DashboardLayout({
           plan={config?.plan ?? "free"}
         />
       </div>
-      <main className="mx-auto w-full max-w-7xl p-6">{children}</main>
+      <main className="mx-auto w-full max-w-7xl flex-1 p-6">{children}</main>
+      <div className="contents print:hidden">
+        <SiteFooter />
+      </div>
       <DashboardTour seen={!!prefs?.tour_seen_at} />
     </div>
   );

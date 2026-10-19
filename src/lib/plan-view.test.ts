@@ -8,7 +8,6 @@ describe("resolvePlanView", () => {
     expect(view.countLabel).toBe("1 transaction this month");
     expect(view.showNudge).toBe(false);
     expect(view.showUpgrade).toBe(true);
-    expect(view.features).toEqual(["Unlimited transactions", "Revenue stats"]);
   });
 
   it("uses plural count copy for zero and for more than one", () => {
@@ -25,21 +24,21 @@ describe("resolvePlanView", () => {
     expect(resolvePlanView("free", 50, 499).showNudge).toBe(true);
   });
 
-  it("free includes revenue stats but not refund tracking", () => {
-    expect(resolvePlanView("free", 0, 499).features).toEqual([
-      "Unlimited transactions",
-      "Revenue stats",
+  it("compares Free and Pro: revenue stats on both, refund tracking on Pro only, the live price", () => {
+    expect(resolvePlanView("free", 0, 499).comparisonRows).toEqual([
+      { label: "Price", values: { free: "$0", pro: "$4.99/mo" } },
+      { label: "Unlimited transactions", values: { free: true, pro: true } },
+      { label: "Revenue stats", values: { free: true, pro: true } },
+      { label: "Refund tracking", values: { free: false, pro: true } },
     ]);
   });
 
-  it("pro includes refund tracking on top of everything free has, never nudges or upsells", () => {
+  it("pro shows the same comparison, never nudges or upsells", () => {
     const view = resolvePlanView("pro", 500, 499);
     expect(view.planLabel).toBe("Pro");
-    expect(view.features).toEqual([
-      "Unlimited transactions",
-      "Revenue stats",
-      "Refund tracking",
-    ]);
+    expect(view.comparisonRows).toEqual(
+      resolvePlanView("free", 0, 499).comparisonRows,
+    );
     expect(view.showNudge).toBe(false);
     expect(view.showUpgrade).toBe(false);
   });

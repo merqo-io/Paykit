@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import { getVendorSession, getVendorPlan } from "@/lib/vendor-session";
 import { txCountThisMonth } from "@/lib/transactions";
 import { resolvePlanView } from "@/lib/plan-view";
 import { getPricing } from "@/lib/pricing";
-import { BackButton } from "@merqo/ui";
+import { BackButton, PlanComparisonTable } from "@merqo/ui";
 import { UpgradeCta } from "./upgrade-cta";
+
+export const metadata: Metadata = {
+  title: "Plan",
+};
 
 export const revalidate = 0;
 
@@ -42,26 +47,26 @@ export default async function PlanPage() {
         )}
       </div>
 
-      <div className="rounded-xl border p-4">
-        <p className="text-sm font-medium">{view.planLabel}</p>
-        <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-          {view.features.map((feature) => (
-            <li key={feature}>{feature}</li>
-          ))}
-        </ul>
-        {view.showUpgrade && (
-          <div className="mt-3">
-            <p className="text-sm text-muted-foreground">
-              Ask us to upgrade your account to Pro for refund tracking,{" "}
-              {view.proPriceLabel}.
-            </p>
-            <UpgradeCta />
-            <p className="mt-2 text-xs text-muted-foreground">
-              We usually action this within one business day.
-            </p>
-          </div>
-        )}
-      </div>
+      <PlanComparisonTable
+        tiers={[
+          { key: "free", label: "Free" },
+          { key: "pro", label: "Pro" },
+        ]}
+        rows={view.comparisonRows}
+      />
+
+      {view.showUpgrade && (
+        <div className="rounded-xl border p-4">
+          <p className="text-sm text-muted-foreground">
+            Ask us to upgrade your account to Pro for refund tracking,{" "}
+            {view.proPriceLabel}.
+          </p>
+          <UpgradeCta />
+          <p className="mt-2 text-xs text-muted-foreground">
+            We usually action this within one business day.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

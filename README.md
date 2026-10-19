@@ -158,7 +158,15 @@ collects a typed legal name — just the agree checkbox — since a plain
 ToS/Privacy clickwrap doesn't need a signatory name for evidentiary
 strength beyond the existing acceptance record. `/about` is a public
 "Why Merqo" page rendering `@merqo/ui`'s shared `AboutMerqo` content,
-linked from the landing `Nav` and `Footer`.
+linked from the landing `Nav` and footer.
+
+The page chrome matches the other Merqo kits. `src/components/site-footer.tsx`
+wraps `@merqo/ui`'s `Footer` (with a `Vendor sign in →` link on the landing
+page and `/about`, without it in the dashboard), and the dashboard shell keeps
+that footer at the bottom of a short page. Every page sets its own tab title
+through the root layout's `%s | Paykit` template, and an unknown route gets a
+branded `not-found.tsx` beside the existing error boundary. The plan page
+compares Free and Pro with the shared `PlanComparisonTable`.
 
 Sign-in (`/login`) supports email+password (with a "Check your email"
 confirmation state and a real forgot-password flow) and Google OAuth. Once

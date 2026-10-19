@@ -24,6 +24,10 @@ Action and DOM tests cover validation, field patches, account updates and form
 failures; mocked tests do not establish database grants or live shared-session
 behavior.
 
+## Tab title
+
+`page.tsx` exports `metadata.title = "Profile"`, which the root layout's `%s | Paykit` template turns into "Profile | Paykit". `src/app/page-titles.test.ts` checks it.
+
 ## Parent
 
 [dashboard](../README.md)

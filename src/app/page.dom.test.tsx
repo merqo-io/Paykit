@@ -29,7 +29,7 @@ vi.mock("@/components/landing/how-it-works", () => ({
 vi.mock("@/components/landing/closing-cta", () => ({
   ClosingCta: () => <div />,
 }));
-vi.mock("@/components/landing/footer", () => ({ Footer: () => <div /> }));
+vi.mock("@/components/site-footer", () => ({ SiteFooter: () => <div /> }));
 vi.mock("@/components/landing/back-to-top", () => ({
   BackToTop: () => <div />,
 }));

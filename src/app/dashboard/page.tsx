@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getVendorSession } from "@/lib/vendor-session";
 import { txCountThisMonth } from "@/lib/transactions";
@@ -7,6 +8,10 @@ import { getPricing } from "@/lib/pricing";
 import { formatCents } from "@/lib/utils";
 import { getConfig } from "./config/actions";
 import type { VendorPaymentConfig } from "@/lib/types";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+};
 
 // Middle-mask an identifier (UEN/mobile) for the dashboard summary card —
 // enough for a vendor to recognize their own config at a glance without

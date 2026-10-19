@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/admin";
 import { listVendors } from "@/lib/admin-data";
 import { ElevatedCard } from "@merqo/ui";
 import { VendorsTable } from "@/app/admin/vendors/vendors-table";
+
+export const metadata: Metadata = {
+  title: "Vendors",
+};
 
 export const revalidate = 0;
 

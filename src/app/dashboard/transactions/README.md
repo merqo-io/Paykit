@@ -85,6 +85,10 @@ vendors — that dialog calls `issueRefundAction` in `actions.ts`.
 
 `transaction-table.tsx` now renders through `@merqo/ui`'s shared `DataTable` instead of a local shadcn `Table`, and is a `"use client"` module for the same reason as `bookings/booking-table.tsx`. The Pro-only Refund column is appended to the column list rather than conditionally rendered per cell, so a Free vendor's table has no empty trailing column.
 
+## Tab title
+
+`page.tsx` exports `metadata.title = "Transactions"`, which the root layout's `%s | Paykit` template turns into "Transactions | Paykit". `src/app/page-titles.test.ts` checks it.
+
 ## Parent
 
 [dashboard](../README.md)

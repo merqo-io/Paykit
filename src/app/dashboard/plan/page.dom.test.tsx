@@ -53,7 +53,7 @@ beforeEach(() => {
 });
 
 describe("PlanPage", () => {
-  it("shows the Free plan, its feature list, and the upgrade CTA below the nudge threshold", async () => {
+  it("shows the Free plan, the Free vs Pro comparison, and the upgrade CTA below the nudge threshold", async () => {
     getVendorPlanMock.mockResolvedValue({ plan: "free" });
     txCountThisMonthMock.mockResolvedValue(3);
 
@@ -63,9 +63,12 @@ describe("PlanPage", () => {
     expect(screen.getByText("Current plan:")).toBeInTheDocument();
     expect(screen.getByText("free")).toBeInTheDocument();
     expect(screen.getByText("3 transactions this month")).toBeInTheDocument();
+    expect(
+      screen.getByRole("table", { name: "Plan comparison" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Unlimited transactions")).toBeInTheDocument();
-    expect(screen.getByText("Revenue stats")).toBeInTheDocument();
-    expect(screen.queryByText("Refund tracking")).not.toBeInTheDocument();
+    expect(screen.getByText("Refund tracking")).toBeInTheDocument();
+    expect(screen.getByText("$4.99/mo")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /ask us to upgrade to pro/i }),
     ).toBeInTheDocument();
@@ -87,7 +90,7 @@ describe("PlanPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows the Pro plan, its full feature list, and no upgrade CTA", async () => {
+  it("shows the Pro plan, the same comparison, and no upgrade CTA", async () => {
     getVendorPlanMock.mockResolvedValue({ plan: "pro" });
     txCountThisMonthMock.mockResolvedValue(120);
 
@@ -95,7 +98,9 @@ describe("PlanPage", () => {
     render(jsx);
 
     expect(screen.getByText("pro")).toBeInTheDocument();
-    expect(screen.getByText("Revenue stats")).toBeInTheDocument();
+    expect(
+      screen.getByRole("table", { name: "Plan comparison" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Refund tracking")).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /ask us to upgrade to pro/i }),

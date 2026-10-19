@@ -15,16 +15,19 @@ upgrade request comes in.
 - `page.tsx` — `PlanPage()` (server, `revalidate = 0`): calls
   `getVendorSession()`/`getVendorPlan()`, `txCountThisMonth()`, and
   `getPricing()` (`@/lib/pricing`), resolves the free/pro branching through
-  `resolvePlanView()` (`@/lib/plan-view`), and renders the plan card +
-  feature list + (Free only) the nudge copy, `UpgradeCta`, and a one-line
+  `resolvePlanView()` (`@/lib/plan-view`), and renders the plan card
+  (with the Free-only nudge copy), `@merqo/ui`'s `PlanComparisonTable`
+  (Free vs Pro: price, unlimited transactions, revenue stats, refund
+  tracking; the same table qkit and loopkit show), and (Free only)
+  `UpgradeCta` and a one-line
   turnaround expectation ("We usually action this within one business
-  day.") under the CTA. Kept deliberately thin — the feature list, count-copy
+  day.") under the CTA. Kept deliberately thin — the comparison rows, count-copy
   pluralization, nudge/upgrade visibility, and the live price's display
   formatting are pure logic in `plan-view.ts`, not inline JSX branching, so
   they're unit-testable without rendering this async server component.
   Content sits in a plain `mx-auto max-w-2xl` div (not `<main>` — the parent
   `dashboard/layout.tsx` owns that landmark and the page-family's canonical
-  `max-w-7xl` outer width); the plan card + feature list read better
+  `max-w-7xl` outer width); the plan card and comparison table read better
   narrower than the full dashboard width. The "Dashboard" back-nav button is
   `@merqo/ui`'s `BackButton`, rendered with no `LinkComponent` (defaults to
   a plain `<a>` tag) — `LinkComponent={Link}` was removed 2026-09-19:
@@ -51,6 +54,10 @@ reads plan/usage state via `@/lib/vendor-session` and `@/lib/transactions`,
 formats it via `@/lib/plan-view`, and renders `upgrade-cta.tsx`, which calls
 the `requestProUpgradeAction` server action in `src/app/actions/plan.ts`
 (files into the shared `merqo.support_messages` inbox, category `billing`).
+
+## Tab title
+
+`page.tsx` exports `metadata.title = "Plan"`, which the root layout's `%s | Paykit` template turns into "Plan | Paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

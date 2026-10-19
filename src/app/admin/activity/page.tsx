@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { type AuditLogEntry } from "@merqo/ui";
 import { requireAdmin } from "@/lib/admin";
 import { auditLog, type AuditLogRow } from "@/lib/admin-data";
 import { ActivitySection } from "./activity-section";
+
+export const metadata: Metadata = {
+  title: "Activity",
+};
 
 export const revalidate = 0;
 
