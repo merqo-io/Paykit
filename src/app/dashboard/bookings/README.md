@@ -39,6 +39,10 @@ Tests cover scoped reads, validation, retained-booking recovery, guarded links,
 returned/rejected failures, cancellation/refund outcomes and dialog behavior.
 Mocked action tests do not establish database RLS, locking or trigger behavior.
 
+## Tab title
+
+`page.tsx` exports `metadata.title = "Bookings"`, which the root layout's `%s | Paykit` template turns into "Bookings | Paykit". `src/app/page-titles.test.ts` checks it.
+
 ## Parent
 
 [dashboard](../README.md)

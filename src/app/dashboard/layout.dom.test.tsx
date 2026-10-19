@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // Render the async layout to verify shared navigation landmark composition.
 import { describe, expect, it, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import DashboardLayout from "./layout";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/dashboard" }));
@@ -53,5 +53,16 @@ describe("DashboardLayout", () => {
 
     const header = container.querySelector("header");
     expect(header?.parentElement).toHaveClass("contents", "print:hidden");
+  });
+
+  it("ends with the family footer, hidden in print, without a sign-in link", async () => {
+    const jsx = await DashboardLayout({ children: <div>page content</div> });
+    const { container } = render(jsx);
+
+    const footer = container.querySelector("footer");
+    expect(footer?.parentElement).toHaveClass("contents", "print:hidden");
+    expect(
+      screen.queryByRole("link", { name: "Vendor sign in →" }),
+    ).not.toBeInTheDocument();
   });
 });

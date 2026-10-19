@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { getVendorSession } from "@/lib/vendor-session";
 import { listBookings } from "@/lib/bookings";
 import { BookingTable } from "./booking-table";
 import { NewBookingDialog } from "./new-booking-dialog";
+
+export const metadata: Metadata = {
+  title: "Bookings",
+};
 
 export default async function BookingsPage() {
   const { user } = await getVendorSession();

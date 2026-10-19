@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getVendorSession } from "@/lib/vendor-session";
 import { listAllTransactions } from "@/lib/transactions";
@@ -6,6 +7,10 @@ import { buildEarningsReport } from "@/lib/earnings-report";
 import { formatCents } from "@/lib/utils";
 import { DownloadCsvButton } from "./download-csv-button";
 import { EarningsMonthsTable, EarningsLinesTable } from "./earnings-tables";
+
+export const metadata: Metadata = {
+  title: "Earnings report",
+};
 
 function parseYear(raw: string | string[] | undefined): number {
   const currentYear = new Date().getUTCFullYear();

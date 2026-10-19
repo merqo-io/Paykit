@@ -52,6 +52,10 @@ formats it via `@/lib/plan-view`, and renders `upgrade-cta.tsx`, which calls
 the `requestProUpgradeAction` server action in `src/app/actions/plan.ts`
 (files into the shared `merqo.support_messages` inbox, category `billing`).
 
+## Tab title
+
+`page.tsx` exports `metadata.title = "Plan"`, which the root layout's `%s | Paykit` template turns into "Plan | Paykit". `src/app/page-titles.test.ts` checks it.
+
 ## Parent
 
 [dashboard](../README.md)

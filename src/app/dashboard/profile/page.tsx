@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { getVendorSession } from "@/lib/vendor-session";
 import { getOrCreateVendorProfile } from "@/lib/merqo-vendor-profile";
 import { BackButton } from "@merqo/ui";
 import { ProfileForm } from "./profile-form";
+
+export const metadata: Metadata = {
+  title: "Profile",
+};
 
 export const revalidate = 0;
 

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { checkoutKind } from "@/lib/checkout-kind";
 import { RecoverDepositButton } from "./recover-deposit-button";
 import { notFound } from "next/navigation";
@@ -13,6 +14,10 @@ import { CancelBookingDialog } from "./cancel-booking-dialog";
 import { RescheduleBookingDialog } from "./reschedule-booking-dialog";
 import { PrintBookingButton } from "./print-booking-button";
 import { CopyBookingIdButton } from "./copy-booking-id-button";
+
+export const metadata: Metadata = {
+  title: "Booking",
+};
 
 export default async function BookingDetailPage({
   params,

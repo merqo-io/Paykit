@@ -31,6 +31,10 @@ and ownership; visibility is not authorization. Dialog tests cover successful
 close/reset and failed-submit retention. Page/display tests cover missing rows,
 control eligibility, checkout kinds and legacy fallback.
 
+## Tab title
+
+`page.tsx` exports `metadata.title = "Booking"`, which the root layout's `%s | Paykit` template turns into "Booking | Paykit". `src/app/page-titles.test.ts` checks it.
+
 ## Parent
 
 [bookings](../README.md)

@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import { getVendorSession, getVendorPlan } from "@/lib/vendor-session";
 import { txCountThisMonth } from "@/lib/transactions";
 import { resolvePlanView } from "@/lib/plan-view";
 import { getPricing } from "@/lib/pricing";
 import { BackButton } from "@merqo/ui";
 import { UpgradeCta } from "./upgrade-cta";
+
+export const metadata: Metadata = {
+  title: "Plan",
+};
 
 export const revalidate = 0;
 

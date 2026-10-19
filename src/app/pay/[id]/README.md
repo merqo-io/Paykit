@@ -32,6 +32,10 @@ address and nothing else: no vendor id, order reference, kit name or hash.
 OCR files into this route, because a claim made here schedules the same
 amount check as the claim endpoint.
 
+## Tab title
+
+`page.tsx` exports `metadata.title = "Pay"`, which the root layout's `%s | Paykit` template turns into "Pay | Paykit". `src/app/page-titles.test.ts` checks it.
+
 ## Parent
 
 [pay](../README.md)

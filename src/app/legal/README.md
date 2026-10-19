@@ -49,7 +49,7 @@ gate that sends vendors here lives in `@/lib/legal-gate`
 (`@/lib/vendor-session`) — paykit's single vendor-gate entry point, called by
 every dashboard page/action. `terms/` and `privacy/` are also linked from the
 landing footer (`@merqo/ui`'s `LegalFooterLinks` in
-`src/components/landing/footer.tsx`).
+`src/components/site-footer.tsx`).
 
 ## Parent
 

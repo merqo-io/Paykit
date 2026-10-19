@@ -22,6 +22,10 @@ that, until this folder existed, no page ever read back.
   `create_balance_checkout`, `cancel_booking`, `reschedule_booking`) to a
   human-readable label.
 
+## Tab title
+
+`page.tsx` exports `metadata.title = "Activity"`, which the root layout's `%s | Paykit` template turns into "Activity | Paykit". `src/app/page-titles.test.ts` checks it.
+
 ## Parent
 
 [admin](../README.md)

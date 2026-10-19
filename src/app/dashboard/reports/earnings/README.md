@@ -61,6 +61,10 @@ aggregation lives in `@/lib/earnings-report`'s `buildEarningsReport()`
 — including formula-injection escaping for `customer_name`, real
 vendor-entered text, not app-generated — in `@/lib/earnings-csv`.
 
+## Tab title
+
+`page.tsx` exports `metadata.title = "Earnings report"`, which the root layout's `%s | Paykit` template turns into "Earnings report | Paykit". `src/app/page-titles.test.ts` checks it.
+
 ## Parent
 
 [reports](../README.md)

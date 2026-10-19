@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { AcceptForm } from "./accept-form";
 import { safeRedirectPath } from "@merqo/ui";
+
+export const metadata: Metadata = {
+  title: "Accept the updated terms",
+};
 
 export const revalidate = 0;
 

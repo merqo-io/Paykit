@@ -21,10 +21,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- The family footer now also ends every dashboard page, at the bottom of a short page and left out of print, without the sign-in link a signed-in vendor does not need. It moved from `src/components/landing/footer.tsx` to `src/components/site-footer.tsx` as `SiteFooter({ showSignIn })`, the same shape printkit uses; the landing page and `/about` show it as before.
+- Every page has its own browser-tab title ("Transactions | Paykit", "Sign in | Paykit" and so on) through a `%s | Paykit` template on the root layout. The landing page keeps "Paykit | Vendor Payments", and the pay page's "Pay | Paykit" is unchanged.
 - Internal: the claim moved out of its route into `claimTransaction` (`src/lib/claim.ts`), which the claim endpoint and the pay page both call, so storing the screenshot first, the audit row, the amount check and the callback cannot drift apart. The claim endpoint answers exactly as before. The OCR files are also traced into the pay page's function.
 
 ### Fixed
 
+- An unknown address shows a branded "Page not found" card with a way back home, instead of Next.js's bare 404.
 - `@merqo/ui` pinned to v0.34.1. Its `BackButton` dropped its button styling without a `LinkComponent`, so the plan and profile pages' "Dashboard" button showed the arrow stacked above the label.
 - The test suite and the pre-push hook pass on a Windows checkout again. `scripts/create-kit-key.mjs` was checked out with a CRLF after its shebang line, which Vitest cannot load; `.gitattributes` now keeps `scripts/*.mjs` on LF.
 

@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { getVendorSession, getVendorPlan } from "@/lib/vendor-session";
 import { listTransactions } from "@/lib/transactions";
 import { TransactionTable } from "./transaction-table";
+
+export const metadata: Metadata = {
+  title: "Transactions",
+};
 
 export default async function TransactionsPage() {
   const { supabase, user } = await getVendorSession();

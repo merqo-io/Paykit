@@ -16,6 +16,12 @@ pages may use narrower inner containers. `LinkComponent={Link}` is supplied by
 the client adapter for client-side navigation. Function props cannot be passed
 from a Server Component directly to a shared Client Component.
 
+The shell is a `flex min-h-screen flex-col` column: `main` is `flex-1`, so
+the family footer (`SiteFooter` without the sign-in link) sits at the bottom
+of a short page instead of mid-screen. The footer is wrapped in
+`contents print:hidden`, like the navigation, so a printed booking or report
+leaves it out.
+
 `loading.tsx` covers page loading inside this shell. `error.tsx` offers retry
 for page render/data failures; it cannot catch its own segment's layout errors.
 

@@ -45,18 +45,8 @@ file. Presentational only — no data fetching, no client state beyond the
   tokens in `globals.css`, previously defined but unused anywhere in
   `src/app`/`src/components`) with a headline and a "Get started"/"Go to
   dashboard" CTA (`authed`-aware, same href logic as `hero.tsx`'s primary
-  CTA). A standalone section, not a band inside `footer.tsx` — that stays
-  CTA-free, see below.
-- `footer.tsx` — thin wrapper around `@merqo/ui`'s own `Footer` (since
-  2026-09-16, promoted after qkit's/loopkit's copies were found
-  structurally identical) supplying paykit's `Wordmark`/tagline/kitName —
-  same layout order as before: wordmark, tagline, copyright line, an
-  `/about` link, `LegalFooterLinks` (Terms/Privacy), `Vendor sign in →`
-  link. No bottom call-to-action band inside the footer itself (removed to
-  match qkit, which never had one) — `closing-cta.tsx` above is a separate
-  section, not a revival of that removed footer band.
-- `footer.test.tsx` — asserts the wordmark link, tagline, copyright line,
-  sign-in link, the About link, and the Terms/Privacy links all render.
+  CTA). A standalone section, not a band inside the family footer
+  (`src/components/site-footer.tsx`), which stays CTA-free.
 - `BackToTop` — shared scroll-to-top control imported from `@merqo/ui`.
 - `wordmark.tsx` — `Wordmark`: the "Pay**kit**" mark, mint accent on "Pay"
   (distinct from qkit's ember / loopkit's gold) — visual mark only, prose
@@ -66,8 +56,10 @@ file. Presentational only — no data fetching, no client state beyond the
 ## Connectivity
 
 Assembled by `src/app/page.tsx` in the order listed above (nav → hero →
-benefits → how-it-works → faq → closing-cta → footer → back-to-top).
-`wordmark.tsx` is also used by `dashboard-nav.tsx` outside this folder.
+benefits → how-it-works → faq → closing-cta → footer → back-to-top). The
+footer is `src/components/site-footer.tsx`, outside this folder, because the
+dashboard and `/about` use it too. `wordmark.tsx` is also used by
+`dashboard-nav.tsx`, `site-footer.tsx` and the not-found and error pages.
 
 ## Shared package note
 

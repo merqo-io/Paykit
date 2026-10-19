@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 // The link is a customer's own: keep it out of search results, and out of
 // the Referer header of anything the page links to.
 export const metadata: Metadata = {
-  title: "Pay | Paykit",
+  title: "Pay",
   robots: { index: false, follow: false },
   referrer: "no-referrer",
 };

@@ -46,6 +46,10 @@ the actual auth gate this page's happy path leads into.
 
 Google branding uses `GoogleMark` from `@merqo/ui`; no local copy remains.
 
+## Tab title
+
+`layout.tsx` exports `metadata.title = "Sign in"`, which the root layout's `%s | Paykit` template turns into "Sign in | Paykit". `layout.tsx` exists only to set it, because `page.tsx` is a client component and cannot export `metadata`. `src/app/page-titles.test.ts` checks it.
+
 ## Parent
 
 [paykit](../../../README.md)

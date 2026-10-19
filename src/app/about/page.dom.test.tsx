@@ -12,7 +12,7 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 vi.mock("@/components/landing/nav", () => ({ Nav: () => <div /> }));
-vi.mock("@/components/landing/footer", () => ({ Footer: () => <div /> }));
+vi.mock("@/components/site-footer", () => ({ SiteFooter: () => <div /> }));
 
 beforeEach(() => {
   createServerClientMock.mockReset().mockResolvedValue({

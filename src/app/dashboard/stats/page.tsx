@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { getVendorSession } from "@/lib/vendor-session";
 import { listAllTransactions } from "@/lib/transactions";
 import { aggregateRevenueByDay } from "@/lib/revenue-report";
 import { RevenueChart } from "./revenue-chart";
+
+export const metadata: Metadata = {
+  title: "Stats",
+};
 
 export default async function StatsPage() {
   const { user } = await getVendorSession();

@@ -1,11 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { AboutMerqo } from "@merqo/ui";
 import { Nav } from "@/components/landing/nav";
-import { Footer } from "@/components/landing/footer";
+import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { createServerClient } from "@/lib/supabase/server";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "About",
 };
 
@@ -26,7 +27,7 @@ export default async function AboutPage() {
           </Button>
         </AboutMerqo>
       </main>
-      <Footer />
+      <SiteFooter showSignIn />
     </>
   );
 }

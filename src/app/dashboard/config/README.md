@@ -82,6 +82,10 @@ nothing.
 
 The BYO payment-QR upload's resize step now calls `@merqo/ui`'s `resizeToWebp` (v0.31.0). `payment-config-form.tsx` still renders its live preview QR with `react-qr-code`, not `qrSvg` — the preview payload is derived from form state, and `qrSvg` is async and server-only.
 
+## Tab title
+
+`page.tsx` exports `metadata.title = "Payment setup"`, which the root layout's `%s | Paykit` template turns into "Payment setup | Paykit". `src/app/page-titles.test.ts` checks it.
+
 ## Parent
 
 [dashboard](../README.md)
