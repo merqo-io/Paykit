@@ -13,6 +13,7 @@ const {
   vendorBookingMaybeSingleMock,
   vendorUpdateEqMock,
   refundsInsertMock,
+  linkInquiryMock,
 } = vi.hoisted(() => ({
   getVendorSessionMock: vi.fn(),
   createServiceClientMock: vi.fn(),
@@ -25,6 +26,7 @@ const {
   vendorBookingMaybeSingleMock: vi.fn(),
   vendorUpdateEqMock: vi.fn(),
   refundsInsertMock: vi.fn(),
+  linkInquiryMock: vi.fn(),
 }));
 
 vi.mock("@/lib/vendor-session", () => ({
@@ -35,6 +37,9 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 vi.mock("@/lib/checkout", () => ({ createCheckout: createCheckoutMock }));
 vi.mock("@/lib/admin-audit", () => ({ recordAudit: recordAuditMock }));
+vi.mock("@/lib/inquiry-link", () => ({
+  linkInquiryToBooking: linkInquiryMock,
+}));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 const VENDOR_SUPABASE = {
@@ -96,6 +101,7 @@ beforeEach(() => {
   vendorUpdateEqMock.mockReset().mockResolvedValue({ error: null });
   refundsInsertMock.mockReset().mockResolvedValue({ error: null });
   vi.mocked(revalidatePath).mockReset();
+  linkInquiryMock.mockReset().mockResolvedValue(true);
 });
 
 const VALID_BOOKING_ID = "11111111-1111-1111-1111-111111111111";
@@ -118,6 +124,46 @@ const VALID_BOOKING_FIELDS = {
 };
 
 describe("createBookingAction", () => {
+  it("links the inquiry it was converted from", async () => {
+    const { createBookingAction } = await import("./actions");
+    const inquiryId = "33333333-3333-3333-3333-333333333333";
+    const result = await createBookingAction(
+      { status: "idle" },
+      formData({ ...VALID_BOOKING_FIELDS, inquiry_id: inquiryId }),
+    );
+    expect(result.status).toBe("ok");
+    expect(linkInquiryMock).toHaveBeenCalledWith("v1", inquiryId, "b1");
+    expect(revalidatePath).toHaveBeenCalledWith(
+      `/dashboard/bookings/inquiries/${inquiryId}`,
+    );
+  });
+
+  it("ignores a malformed inquiry id and links nothing without one", async () => {
+    const { createBookingAction } = await import("./actions");
+    await createBookingAction(
+      { status: "idle" },
+      formData({ ...VALID_BOOKING_FIELDS, inquiry_id: "nope" }),
+    );
+    await createBookingAction(
+      { status: "idle" },
+      formData(VALID_BOOKING_FIELDS),
+    );
+    expect(linkInquiryMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps the booking when linking the inquiry throws", async () => {
+    const { createBookingAction } = await import("./actions");
+    linkInquiryMock.mockRejectedValue(new Error("down"));
+    const result = await createBookingAction(
+      { status: "idle" },
+      formData({
+        ...VALID_BOOKING_FIELDS,
+        inquiry_id: "33333333-3333-3333-3333-333333333333",
+      }),
+    );
+    expect(result.status).toBe("ok");
+  });
+
   it("creates a booking and its deposit checkout, linking the transaction id", async () => {
     const { createBookingAction } = await import("./actions");
     const result = await createBookingAction(

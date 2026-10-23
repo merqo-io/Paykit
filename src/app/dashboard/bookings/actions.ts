@@ -12,6 +12,8 @@ import {
   rescheduleBookingInputSchema,
 } from "@/lib/schemas";
 import { recordAudit } from "@/lib/admin-audit";
+import { linkInquiryToBooking } from "@/lib/inquiry-link";
+import { inquiryStatusUpdateSchema } from "@/lib/inquiry-schemas";
 
 export type BookingActionState = {
   status: "idle" | "ok" | "error";
@@ -59,6 +61,18 @@ export async function createBookingAction(
   if (insertError || !booking) {
     console.error("createBookingAction: insert failed", insertError?.message);
     return { status: "error", message: "Could not create booking. Try again." };
+  }
+
+  const inquiryId = inquiryStatusUpdateSchema.shape.inquiry_id.safeParse(
+    formData.get("inquiry_id"),
+  );
+  if (inquiryId.success) {
+    try {
+      await linkInquiryToBooking(user.id, inquiryId.data, booking.id);
+    } catch {
+      console.error("createBookingAction: inquiry link unavailable");
+    }
+    revalidatePath(`/dashboard/bookings/inquiries/${inquiryId.data}`);
   }
 
   const recovery: BookingActionState = {

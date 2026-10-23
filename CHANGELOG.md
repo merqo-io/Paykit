@@ -6,6 +6,21 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-10-24
+
+### Added
+
+- Booking inquiries. A vendor sets up an inquiry form on Bookings (business name, an optional `https://` link to their own booking terms with a version, on or off) and shares its public link, `/inquire/{public_id}`. The id is 16 random hex characters, so the link shows no vendor id; an unknown id and a form that is off both answer 404, and the route is `noindex` and `no-referrer`. A client gives their name, phone, an optional event date and a message, sees `@merqo/ui`'s `DataCollectionNotice`, and, when the vendor set terms, must tick "I have read and agree to {business}'s booking terms (version {v})". paykit stores the terms url, version and the time of acceptance from the form it read on the server, never from the browser. There is no marketing consent box.
+- Bot protection on the public form: a hidden honeypot field and a 3 second fill-time check (a bot is told "sent" and nothing is stored), then rate limits of 5 per address per 10 minutes and 30 per form per hour through `check_rate_limit`. The form is read again on every submit, so turning it off takes effect at once.
+- The vendor is alerted through merqo's `POST /api/merqo/notify-vendor` (the shared vendor Telegram bot) after the inquiry is stored. The message is plain text with no link. A failed alert never fails the submit. No new environment variable: it reuses `MERQO_BASE_URL` and `MERQO_CUSTOMER_SECRET`.
+- An Inquiries table on Bookings (status "Inquiry", then "Contacted", "Converted" or "Declined") and an inquiry page with tap-to-call and WhatsApp links, mark contacted, decline and delete (for a client's erasure request). "Convert to booking" opens the new-booking dialog prefilled with the client's details; the saved booking is linked back to the inquiry on the service role, matched to the vendor on both rows. A booking converted from an inquiry shows the client's terms acknowledgment.
+- Migration `0025_booking_inquiries.sql`: `inquiry_forms` and `inquiries` with RLS. A vendor cannot write `public_id`, cannot insert an inquiry, and may change only an inquiry's `status`; the public form and conversion write with the service role. Not applied by this change: the owner runs it on staging, then prod.
+- shadcn `checkbox` primitive.
+
+### Changed
+
+- Bookings page copy no longer uses an em dash, and the bookings list sits under its own "Your bookings" heading below Inquiries.
+
 ### Security
 
 - `next` and `eslint-config-next` 16.3.8 to 16.4.2. next `>=16.0.0 <=16.4.0` has two critical unauthenticated remote code execution advisories, GHSA-2464-fhr4-w9xw (Image Optimization API with SVG files) and GHSA-673q-mjm6-r5xr (`use cache` functions returning typed arrays), and a high Server Actions denial of service, GHSA-p3m5-59mp-jv5r. They failed the dependency-audit job on every open PR. `pnpm audit --prod --audit-level=high` is clean again.

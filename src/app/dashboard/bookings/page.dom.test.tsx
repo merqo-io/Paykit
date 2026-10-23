@@ -2,17 +2,29 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import BookingsPage from "./page";
-import type { Booking } from "@/lib/types";
+import type { Booking, Inquiry } from "@/lib/types";
 
-const { getVendorSessionMock, listBookingsMock } = vi.hoisted(() => ({
+const {
+  getVendorSessionMock,
+  listBookingsMock,
+  listOpenInquiriesMock,
+  getInquiryFormMock,
+} = vi.hoisted(() => ({
   getVendorSessionMock: vi.fn(),
   listBookingsMock: vi.fn(),
+  listOpenInquiriesMock: vi.fn(),
+  getInquiryFormMock: vi.fn(),
 }));
 
 vi.mock("@/lib/vendor-session", () => ({
   getVendorSession: getVendorSessionMock,
 }));
 vi.mock("@/lib/bookings", () => ({ listBookings: listBookingsMock }));
+vi.mock("@/lib/inquiry-inbox", () => ({
+  listOpenInquiries: listOpenInquiriesMock,
+  getInquiryForm: getInquiryFormMock,
+}));
+vi.mock("./inquiry-actions", () => ({ saveInquiryFormAction: vi.fn() }));
 
 const BOOKING: Booking = {
   id: "b1",
@@ -36,9 +48,65 @@ beforeEach(() => {
     .mockReset()
     .mockResolvedValue({ supabase: {}, user: { id: "v1" } });
   listBookingsMock.mockReset();
+  listOpenInquiriesMock.mockReset().mockResolvedValue([]);
+  getInquiryFormMock.mockReset().mockResolvedValue(null);
 });
 
+const INQUIRY: Inquiry = {
+  id: "i1",
+  vendor_id: "v1",
+  customer_name: "Ah Hock",
+  customer_phone: "91234567",
+  event_date: null,
+  message: "Birthday",
+  status: "new",
+  terms_url: null,
+  terms_version: null,
+  terms_accepted_at: null,
+  booking_id: null,
+  created_at: "2026-10-24T01:00:00Z",
+  updated_at: "2026-10-24T01:00:00Z",
+};
+
 describe("BookingsPage", () => {
+  it("lists open inquiries with an Inquiry badge and a set-up button", async () => {
+    listBookingsMock.mockResolvedValue([]);
+    listOpenInquiriesMock.mockResolvedValue([INQUIRY]);
+    render(await BookingsPage());
+    expect(screen.getByRole("link", { name: "Ah Hock" })).toHaveAttribute(
+      "href",
+      "/dashboard/bookings/inquiries/i1",
+    );
+    expect(screen.getByText("Inquiry")).toBeInTheDocument();
+    expect(screen.getByText("Not given")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Set up inquiry form" }),
+    ).toBeInTheDocument();
+    expect(listOpenInquiriesMock).toHaveBeenCalledWith("v1");
+  });
+
+  it("shows the copy-link button once the form is on", async () => {
+    listBookingsMock.mockResolvedValue([]);
+    getInquiryFormMock.mockResolvedValue({
+      vendor_id: "v1",
+      public_id: "0123456789abcdef",
+      business_name: "Kopi Cart Co",
+      enabled: true,
+      terms_url: null,
+      terms_version: null,
+      created_at: "",
+      updated_at: "",
+    });
+    render(await BookingsPage());
+    expect(
+      screen.getByRole("button", { name: /copy inquiry link/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Inquiry form" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("No open inquiries.")).toBeInTheDocument();
+  });
+
   it("shows the empty state with no bookings", async () => {
     listBookingsMock.mockResolvedValue([]);
     const jsx = await BookingsPage();

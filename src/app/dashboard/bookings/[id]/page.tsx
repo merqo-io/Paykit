@@ -6,8 +6,10 @@ import { qrSvg } from "@merqo/ui";
 import { getVendorSession } from "@/lib/vendor-session";
 import { getBooking } from "@/lib/bookings";
 import { getTransaction } from "@/lib/transactions";
+import { getInquiryForBooking } from "@/lib/inquiry-inbox";
 import { formatCents, formatDate } from "@/lib/utils";
 import { BookingStatusBadge, BalanceDueIndicator } from "../booking-badges";
+import { TermsSnapshot } from "../inquiry-badges";
 import { TransactionStatusCard } from "./transaction-status-card";
 import { CreateBalanceCheckoutButton } from "./create-balance-checkout-button";
 import { CancelBookingDialog } from "./cancel-booking-dialog";
@@ -29,13 +31,14 @@ export default async function BookingDetailPage({
   const booking = await getBooking(user.id, id);
   if (!booking) notFound();
 
-  const [depositTx, balanceTx] = await Promise.all([
+  const [depositTx, balanceTx, inquiry] = await Promise.all([
     booking.deposit_transaction_id
       ? getTransaction(user.id, booking.deposit_transaction_id)
       : Promise.resolve(null),
     booking.balance_transaction_id
       ? getTransaction(user.id, booking.balance_transaction_id)
       : Promise.resolve(null),
+    getInquiryForBooking(user.id, booking.id),
   ]);
 
   const [depositQr, balanceQr] = await Promise.all([
@@ -94,6 +97,14 @@ export default async function BookingDetailPage({
           <dd>{formatCents(booking.balance_amount_cents)}</dd>
           <dt className="text-muted-foreground">Balance due</dt>
           <dd>{formatDate(booking.balance_due_date)}</dd>
+          {inquiry && (
+            <>
+              <dt className="text-muted-foreground">Booking terms</dt>
+              <dd>
+                <TermsSnapshot inquiry={inquiry} />
+              </dd>
+            </>
+          )}
         </dl>
         <p className="mt-3 text-xs text-muted-foreground">
           Paste the Booking ID above into a qkit event booth&rsquo;s settings to

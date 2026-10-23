@@ -21,9 +21,31 @@ cancellation and is reported separately. Rescheduling updates dates without
 inventing a new payment state. Audit helpers live in `lib/admin-audit.ts`.
 Peer-kit checkout transitions use the separate `payment_audit` trail.
 
+## Inquiries
+
+Clients reach a vendor through the public form at `/inquire/{public_id}`
+(`src/app/inquire/`). `inquiry-form-settings.tsx` creates or edits the
+vendor's `inquiry_forms` row (business name, optional terms link and
+version, on or off) and copies the public link. `inquiry-actions.ts` holds
+`saveInquiryFormAction` (update first, insert when there is no row: an
+upsert would write `vendor_id`, which has no update grant),
+`setInquiryStatusAction` (contacted or declined, never a converted row) and
+`deleteInquiryAction`, all under the vendor session. `inquiry-table.tsx`
+lists open inquiries with `inquiry-badges.tsx`'s status badge ("Inquiry"
+for a new one); `TermsSnapshot` shows what the client accepted.
+
+Converting: the inquiry page opens `NewBookingDialog` prefilled and with a
+hidden `inquiry_id`. `createBookingAction` saves the booking as usual, then
+calls `linkInquiryToBooking` (`src/lib/inquiry-link.ts`, service role,
+vendor-matched on both rows). A failed link never loses the booking. The
+booking detail page shows the terms acknowledgment of the inquiry it came
+from.
+
 ## Views
 
-`page.tsx` renders `booking-table.tsx` and `new-booking-dialog.tsx`.
+`page.tsx` renders the Inquiries section (settings, inquiry table) above
+`booking-table.tsx`, and `new-booking-dialog.tsx`, which also takes an
+optional `prefill` and `triggerLabel` for converting an inquiry.
 The table is a client adapter for shared `DataTable` callbacks. The creation
 form derives balance until the vendor edits it; the server always validates
 that deposit plus balance equals total. `booking-badges.tsx` shares status and

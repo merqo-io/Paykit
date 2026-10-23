@@ -16,6 +16,11 @@ const PAGES: [string, () => Promise<MetadataModule>, string][] = [
     "Booking",
   ],
   [
+    "/dashboard/bookings/inquiries/[id]",
+    () => import("./dashboard/bookings/inquiries/[id]/page"),
+    "Inquiry",
+  ],
+  [
     "/dashboard/config",
     () => import("./dashboard/config/page"),
     "Payment setup",
@@ -40,6 +45,11 @@ const PAGES: [string, () => Promise<MetadataModule>, string][] = [
   ["/about", () => import("./about/page"), "About"],
   ["/login", () => import("./login/layout"), "Sign in"],
   ["/pay/[id]", () => import("./pay/[id]/page"), "Pay"],
+  [
+    "/inquire/[publicId]",
+    () => import("./inquire/[publicId]/page"),
+    "Send an inquiry",
+  ],
   [
     "/legal/accept",
     () => import("./legal/accept/page"),

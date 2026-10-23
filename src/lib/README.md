@@ -88,6 +88,31 @@ provide authorization.
   only, since its message can quote the secret. `schedulePaymentStatusCallback(tx)` registers it with
   `after`, so it runs once the response has gone out. The body is a hint: the
   receiving kit reads the status back with `GET /api/v1/checkout?order_ref=`.
+- `inquiry-schemas.ts`: Zod for booking inquiries: `inquiryFormSettingsSchema`
+  (business name, an `https://` terms link and version set together or not at
+  all), `publicInquirySchema` (the public form; same limits as migration
+  `0025`), `publicIdSchema` (16 lowercase hex) and `inquiryStatusUpdateSchema`
+  (only `contacted` or `declined`; `converted` is set by conversion).
+- `inquiries.ts`: the public form's server side, on the service client:
+  `loadPublicForm(supabase, publicId)` (enabled forms only, null for anything
+  else), `inquiryAllowed(supabase, ip, publicId)` (`INQUIRY_LIMITS`: 5 per
+  address per 10 minutes, then 30 per form per hour; fails open with the
+  limiter), `submitInquiry(supabase, form, input, now?)` (refuses
+  `terms_required`, snapshots the terms from the server-read form, alerts
+  after the insert), `MIN_FILL_MS` and `formRenderedAt()`.
+- `inquiry-alert.ts`: `sendInquiryAlert(vendorId, name, eventDate)` posts to
+  merqo's `POST /api/merqo/notify-vendor` with `MERQO_CUSTOMER_SECRET`; never
+  throws, sends nothing without the secret. `inquiryAlertText` is plain text
+  with no link, so a forged inquiry cannot put one in front of the vendor.
+- `inquiry-inbox.ts`: vendor-session reads: `getInquiryForm`,
+  `listOpenInquiries` (newest first, converted left out), `getInquiry`,
+  `getInquiryForBooking`.
+- `inquiry-link.ts`: `linkInquiryToBooking(vendorId, inquiryId, bookingId)`,
+  `server-only`: marks an unlinked inquiry converted, on the service role,
+  after checking the booking is the same vendor's. Kept out of the
+  `"use server"` actions file so it is never callable from a browser.
+- `phone-links.ts`: `whatsappLink(phone)`: a `wa.me` link, adding 65 to a
+  bare 8-digit Singapore number.
 - `rate-limit.ts` calls the database fixed-window limiter after authentication.
   Limiter failure permits the request and logs degradation; the forwarded IP is
   a fairness key, never authorization. Migration 0019 prepares the bounded atomic

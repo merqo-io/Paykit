@@ -23,7 +23,20 @@ function deriveBalance(total: string, deposit: string): string {
   return remainder > 0 ? remainder.toFixed(2) : "";
 }
 
-export function NewBookingDialog() {
+export type BookingPrefill = {
+  inquiryId: string;
+  customerName: string;
+  customerPhone: string;
+  eventDate: string | null;
+};
+
+export function NewBookingDialog({
+  prefill,
+  triggerLabel = "New booking",
+}: {
+  prefill?: BookingPrefill;
+  triggerLabel?: string;
+} = {}) {
   const [open, setOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -70,19 +83,23 @@ export function NewBookingDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>New booking</Button>
+        <Button>{triggerLabel}</Button>
       </DialogTrigger>
       <DialogContent className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>New booking</DialogTitle>
         </DialogHeader>
         <form ref={formRef} action={formAction} className="space-y-4">
+          {prefill && (
+            <input type="hidden" name="inquiry_id" value={prefill.inquiryId} />
+          )}
           <div className="space-y-2">
             <Label htmlFor="customer_name">Customer name</Label>
             <Input
               id="customer_name"
               name="customer_name"
               placeholder="Jane Tan"
+              defaultValue={prefill?.customerName}
               required
             />
           </div>
@@ -92,12 +109,19 @@ export function NewBookingDialog() {
               id="customer_phone"
               name="customer_phone"
               placeholder="+6591234567"
+              defaultValue={prefill?.customerPhone}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="event_date">Event date</Label>
-              <Input id="event_date" name="event_date" type="date" required />
+              <Input
+                id="event_date"
+                name="event_date"
+                type="date"
+                defaultValue={prefill?.eventDate ?? undefined}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="balance_due_date">Balance due date</Label>

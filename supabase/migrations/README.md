@@ -59,6 +59,15 @@ tables, RLS policies, RPCs, and grants, applied in order.
   `return_origin` on `kit_api_keys`. No new grant or policy: a vendor can
   already read their own transactions, nobody but the service role writes
   them. A kit with no `return_origin` cannot use the pay page.
+- `0025_booking_inquiries.sql`: `inquiry_forms` (one per vendor: a random
+  16-hex `public_id` the vendor cannot write, `business_name`, `enabled`,
+  an optional `https://` `terms_url` with `terms_version`) and `inquiries`
+  (client name, phone, optional event date, message, `status`
+  `new`/`contacted`/`converted`/`declined`, the terms snapshot the client
+  accepted, `booking_id` once converted). Vendors read and write their own
+  form; on inquiries they may read, delete and change `status` only. No
+  client insert: the public form writes with the service role, as does
+  conversion's `booking_id`.
 
 ## Parent
 
