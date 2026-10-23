@@ -28,6 +28,36 @@ async function fillValidForm(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("NewBookingDialog", () => {
+  it("converts an inquiry: prefilled client details and the inquiry id", async () => {
+    const user = userEvent.setup();
+    render(
+      <NewBookingDialog
+        triggerLabel="Convert to booking"
+        prefill={{
+          inquiryId: "i1",
+          customerName: "Ah Hock",
+          customerPhone: "91234567",
+          eventDate: "2026-12-12",
+        }}
+      />,
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Convert to booking" }),
+    );
+    expect(screen.getByLabelText("Customer name")).toHaveValue("Ah Hock");
+    expect(screen.getByLabelText("Customer phone (optional)")).toHaveValue(
+      "91234567",
+    );
+    expect(screen.getByLabelText("Event date")).toHaveValue("2026-12-12");
+    await user.type(screen.getByLabelText("Balance due date"), "2026-12-01");
+    await user.type(screen.getByLabelText("Total amount"), "1000");
+    await user.type(screen.getByLabelText("Deposit"), "300");
+    await user.click(screen.getByRole("button", { name: "Create booking" }));
+    await waitFor(() => expect(createBookingActionMock).toHaveBeenCalled());
+    const fd = createBookingActionMock.mock.calls[0][1] as FormData;
+    expect(fd.get("inquiry_id")).toBe("i1");
+  });
+
   it("opens the dialog and submits a booking, then closes on success", async () => {
     const user = userEvent.setup();
     render(<NewBookingDialog />);

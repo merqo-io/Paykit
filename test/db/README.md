@@ -17,6 +17,8 @@ migrations — a fast sanity check, not a substitute for `supabase/tests/rls.tes
 - `transactions-expires-at-schema.test.ts` — asserts `0023_transactions_expires_at.sql` adds a nullable `expires_at`, backfills only unpaid `qkit` rows at 30 minutes after creation, and changes no status.
 - `hosted-pay-page-schema.test.ts` — asserts `0024_hosted_pay_page.sql` stores the pay token only as a sha256 hex digest, bounds `return_url` and `pay_title` by the same limits the request schema uses, adds `kit_api_keys.return_origin`, and opens nothing (no grant, no policy).
 
+- `booking-inquiries-schema.test.ts`: asserts `0025_booking_inquiries.sql` enables RLS on both tables, keeps `public_id` out of the vendor grants, matches the limits `src/lib/inquiry-schemas.ts` enforces, allows only the four statuses, and gives vendors no insert on `inquiries` and nothing to `anon`.
+
 ## Parent
 
 See the repo root [README.md](../../README.md) for the full layout.

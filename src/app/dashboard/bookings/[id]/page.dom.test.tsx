@@ -8,7 +8,9 @@ const {
   getBookingMock,
   getTransactionMock,
   notFoundMock,
+  getInquiryForBookingMock,
 } = vi.hoisted(() => ({
+  getInquiryForBookingMock: vi.fn(),
   getVendorSessionMock: vi.fn(),
   getBookingMock: vi.fn(),
   getTransactionMock: vi.fn(),
@@ -23,6 +25,9 @@ vi.mock("@/lib/vendor-session", () => ({
 vi.mock("@/lib/bookings", () => ({ getBooking: getBookingMock }));
 vi.mock("@/lib/transactions", () => ({ getTransaction: getTransactionMock }));
 vi.mock("next/navigation", () => ({ notFound: notFoundMock }));
+vi.mock("@/lib/inquiry-inbox", () => ({
+  getInquiryForBooking: getInquiryForBookingMock,
+}));
 
 import BookingDetailPage from "./page";
 
@@ -65,9 +70,33 @@ beforeEach(() => {
   getBookingMock.mockReset();
   getTransactionMock.mockReset().mockResolvedValue(null);
   notFoundMock.mockClear();
+  getInquiryForBookingMock.mockReset().mockResolvedValue(null);
 });
 
 describe("BookingDetailPage", () => {
+  it("shows the client's terms acceptance when it came from an inquiry", async () => {
+    getBookingMock.mockResolvedValue(BOOKING);
+    getInquiryForBookingMock.mockResolvedValue({
+      terms_url: "https://example.com/terms.pdf",
+      terms_version: "v2",
+      terms_accepted_at: "2026-10-24T06:05:00Z",
+    });
+    render(await BookingDetailPage({ params: Promise.resolve({ id: "b1" }) }));
+    expect(getInquiryForBookingMock).toHaveBeenCalledWith("v1", "b1");
+    expect(screen.getByText("Booking terms")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "version v2" })).toHaveAttribute(
+      "href",
+      "https://example.com/terms.pdf",
+    );
+    expect(screen.getByText(/24 Oct 2026, 2:05/)).toBeInTheDocument();
+  });
+
+  it("shows no terms line for a booking made directly", async () => {
+    getBookingMock.mockResolvedValue(BOOKING);
+    render(await BookingDetailPage({ params: Promise.resolve({ id: "b1" }) }));
+    expect(screen.queryByText("Booking terms")).toBeNull();
+  });
+
   it("404s when the booking doesn't exist (or isn't this vendor's)", async () => {
     getBookingMock.mockResolvedValue(null);
     await expect(

@@ -4,6 +4,9 @@
 404 for missing/inaccessible records, and renders payment and booking controls.
 Next 16 route params are asynchronous.
 
+When the booking was converted from an inquiry, the details list adds
+"Booking terms" with the client's acknowledgment (`getInquiryForBooking`).
+
 ## Payment display
 
 The page renders server-generated QR markup only for QR checkouts and passes

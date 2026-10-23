@@ -13,6 +13,7 @@ Step-by-step implementation plans, one per feature, each derived from the matchi
 - `2026-08-15-paykit-byo-preset-directory.md` — "BYO Payment Preset Directory Implementation Plan": adds a four-card preset picker (Stripe Payment Link, HitPay Payment Link, PayLah! QR, Other/Custom) to the `pointer` config form's BYO branch, each preset with tailored "where to find this" copy and, for Stripe/HitPay, a soft URL-shape warning — UI/copy only, no new database column, no PSP integration.
 - `2026-08-15-paykit-pro-simplification.md` — "paykit Pro Simplification Implementation Plan": cuts Pro's price to $4/mo, un-gates the stats/revenue chart to Free, fixes the nudge/landing/FAQ copy at every call site, and syncs the cross-kit pricing plan doc's paykit row and bundle-discount math — no schema/migration/RLS change, `VendorPlan` stays a 2-value type.
 - `2026-08-15-paykit-admin-pricing.md` — "paykit Admin-Tunable Pricing Implementation Plan": adds the `paykit.pricing` table, a `setPricing` admin action, and a `PricingSection` wrapper around `@merqo/ui`'s new `PricingForm`, then switches every price call site (plan page, dashboard nudge, landing copy) from the old `PRO_PRICE` constant to a live DB read seeded at $4.99/mo.
+- `2026-10-23-booking-inquiries.md`: "Booking Inquiries Implementation Plan": the four tasks behind the booking-inquiries spec (migration and schemas, the public form, the vendor inbox and conversion, docs and verification).
 
 ## Parent
 

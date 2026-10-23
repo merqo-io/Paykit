@@ -24,7 +24,8 @@ for this project.
 - `not-found.tsx` — branded 404 for any unknown route or `notFound()` call outside a more specific boundary: `Wordmark`, an `ElevatedCard` with "Page not found" and a "Back to home" link, tab title "Page not found | Paykit". Same treatment as `error.tsx`; `not-found.dom.test.tsx` covers it.
 - `page-titles.test.ts` — imports each page's (or `login/layout.tsx`'s) `metadata` and checks its tab title, so a new page without one is noticed.
 - `login/` — combined sign-in/sign-up page, including the "Forgot password?" flow.
-- `pay/` — the hosted pay page, `/pay/{id}?k=<token>`: paykit's one public, unauthenticated page. See its README.
+- `inquire/`: a vendor's public booking inquiry form, `/inquire/{public_id}`: no session, service role only. See its README.
+- `pay/` — the hosted pay page, `/pay/{id}?k=<token>`: one of paykit's two public, unauthenticated pages (with `inquire/`). See its README.
 - `page.tsx` — `Home` async server component, the marketing landing page. Composes `Nav`, `Hero`, `HowItWorks`, `Benefits`, `Faq`, `ClosingCta` from `@/components/landing/`, `SiteFooter showSignIn` from `@/components/site-footer`, and shared `BackToTop`. `ClosingCta` is the family's documented ink-band closing section, rendered between `Faq` and the footer. Reads the live Pro price via `getPricing()` (`@/lib/pricing`) and passes it down to `Benefits`/`Faq` as `monthlyPriceLabel` — no hardcoded price string.
 
 ## Connectivity
