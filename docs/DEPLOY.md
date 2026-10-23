@@ -56,7 +56,10 @@ setup, the env model and the rollout checklist live in merqo's
 - qkit's staging caller row in `paykit.kit_api_keys` comes from
   `supabase/seed/staging-kit-keys.sql` (run in the staging SQL Editor), not
   from `scripts/create-kit-key.mjs`. Its two secrets must equal qkit's
-  Preview `PAYKIT_KIT_SECRET` and `PAYKIT_CALLBACK_SECRET`.
+  Preview `PAYKIT_KIT_SECRET` and `PAYKIT_CALLBACK_SECRET`. It also sets the
+  row's `return_origin` to `https://qkit-staging.merqo.io`: with it unset the
+  hosted pay page has no valid return address for qkit, so staging checkout
+  silently skips the hosted page.
 
 Vercel Deployment Protection must be off on this project (it still challenges
 a branch-assigned domain), and the sync workflow needs the repo secret

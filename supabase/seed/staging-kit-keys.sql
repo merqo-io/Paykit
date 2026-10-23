@@ -31,15 +31,17 @@ begin
   end if;
 end $$;
 
-insert into paykit.kit_api_keys (kit_slug, secret_hash, callback_url, callback_secret)
+insert into paykit.kit_api_keys (kit_slug, secret_hash, callback_url, callback_secret, return_origin)
 select 'qkit',
        encode(sha256(convert_to(kit_secret, 'UTF8')), 'hex'),
        'https://qkit-staging.merqo.io/api/paykit/payment-status',
-       callback_secret
+       callback_secret,
+       'https://qkit-staging.merqo.io'
 from staging_qkit_key
 on conflict (kit_slug) do update
 set secret_hash     = excluded.secret_hash,
     callback_url    = excluded.callback_url,
-    callback_secret = excluded.callback_secret;
+    callback_secret = excluded.callback_secret,
+    return_origin   = excluded.return_origin;
 
 drop table staging_qkit_key;
