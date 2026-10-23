@@ -6,6 +6,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+
+- `next` and `eslint-config-next` 16.3.8 to 16.4.2. next `>=16.0.0 <=16.4.0` has two critical unauthenticated remote code execution advisories, GHSA-2464-fhr4-w9xw (Image Optimization API with SVG files) and GHSA-673q-mjm6-r5xr (`use cache` functions returning typed arrays), and a high Server Actions denial of service, GHSA-p3m5-59mp-jv5r. They failed the dependency-audit job on every open PR. `pnpm audit --prod --audit-level=high` is clean again.
+- `@sentry/nextjs` 10.71.0 to 10.76.2 for GHSA-mchm-gjx6-7h55 (critical: middleware bypass through the Sentry tunnel route, `>=10.0.0-alpha.0 <10.75.2`). paykit sets no `tunnelRoute`, so the path was not reachable here; bumped to clear the audit.
+
 ### Added
 
 - A checkout can carry the time its order is given up on. `POST /api/v1/checkout` accepts an optional `expires_at` (ISO 8601 with an offset, at most 7 days ahead; a time already past is accepted). It is stored on a new checkout only, so a replay keeps the first value, and `GET /api/v1/checkout?order_ref=` and `GET /api/v1/checkout/{id}`, with the claim, unclaim and confirm responses, now return `expires_at` (`null` when none was sent). Nothing acts on it yet and it never stops a person claiming or confirming; it is the first step of bank auto detect (`docs/superpowers/specs/2026-10-13-bank-auto-detect-design.md`, P6.2). A request without it behaves as before.
