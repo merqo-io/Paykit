@@ -1,6 +1,7 @@
 import { readAllRows } from "@/lib/read-all-rows";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Transaction } from "@/lib/types";
+import { TRANSACTION_COLUMNS } from "@/lib/columns";
 
 export async function listTransactions(
   vendorId: string,
@@ -8,7 +9,7 @@ export async function listTransactions(
   const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("transactions")
-    .select("*")
+    .select(TRANSACTION_COLUMNS)
     .eq("vendor_id", vendorId)
     .order("created_at", { ascending: false })
     .limit(200);
@@ -26,7 +27,7 @@ export async function getTransaction(
   const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("transactions")
-    .select("*")
+    .select(TRANSACTION_COLUMNS)
     .eq("vendor_id", vendorId)
     .eq("id", transactionId)
     .maybeSingle();
@@ -57,7 +58,7 @@ export async function listAllTransactions(
   return readAllRows((from, to) =>
     supabase
       .from("transactions")
-      .select("*")
+      .select(TRANSACTION_COLUMNS)
       .eq("vendor_id", vendorId)
       .order("id")
       .range(from, to),

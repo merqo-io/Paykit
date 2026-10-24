@@ -6,6 +6,24 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-24
+
+### Security
+
+- Nonce-based CSP (`script-src` without `unsafe-inline`) on per-request routes (`/dashboard`, `/admin`, `/mfa`, `/pay`, `/inquire`, `/auth`, `/login`, `/legal/accept`), set in `proxy.ts` from `@merqo/ui/security`. Static pages get the static policy from the same builder. The `@merqo/ui` pin moves to v0.35.0.
+- `X-Robots-Tag: noindex, nofollow` and a disallow-all `robots.txt` on every non-production deployment (the pay and inquiry pages stay noindex everywhere).
+- Admin pages and actions now require a verified TOTP second factor (`aal2`); a password-only admin session is redirected to the new `/mfa` page.
+- Duplicate host-only auth cookies are cleared on every request instead of once behind a marker (a re-created duplicate sent vendors to /login).
+- The CSP allows the Vercel toolbar origin outside production. In the nonce policy the toolbar script itself stays blocked (`strict-dynamic` ignores host allow-lists), so turn the toolbar off for preview in Vercel.
+- Zod parsing for the auth callback query, the hosted pay page's id and token, and the legal-accept redirect.
+- All 24 `select("*")` calls now list columns (`src/lib/columns.ts`). Only the hosted pay page reads `pay_token_hash`.
+- `no-restricted-imports` keeps the service-role client to `src/lib` and `src/app/api`; every other import states why.
+
+### Added
+
+- CSP e2e spec and a signed-in render smoke (against a small Supabase stand-in, so it sees empty data); CI e2e serves the production build.
+- `docs/security/2026-10-24-data-inventory.md`.
+
 ## [0.1.12] - 2026-10-24
 
 ### Security

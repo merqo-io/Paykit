@@ -6,6 +6,7 @@ import { storeScreenshotEvidence } from "@/lib/payment-evidence";
 import { scheduleProofAmountCheck } from "@/lib/proof-amount-check";
 import type { ProofFile } from "@/lib/proof-file";
 import type { Json, Transaction } from "@/lib/types";
+import { TRANSACTION_COLUMNS } from "@/lib/columns";
 
 type ServiceClient = Awaited<ReturnType<typeof createServiceClient>>;
 
@@ -28,7 +29,7 @@ async function outcomeAfterLostUpdate(
 ): Promise<ClaimOutcome> {
   const { data: recheck, error: recheckError } = await supabase
     .from("transactions")
-    .select("*")
+    .select(TRANSACTION_COLUMNS)
     .eq("id", id)
     .maybeSingle();
   if (recheckError || (recheck && recheck.status === previousStatus))
@@ -78,7 +79,7 @@ export async function claimTransaction(
     .update({ status, claimed_at: new Date().toISOString() })
     .eq("id", current.id)
     .eq("status", "pending")
-    .select("*")
+    .select(TRANSACTION_COLUMNS)
     .single();
   if (updateError || !updated)
     return outcomeAfterLostUpdate(supabase, current.id, current.status);

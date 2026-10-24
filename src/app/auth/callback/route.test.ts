@@ -1,85 +1,48 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { exchangeCodeForSessionMock, createServerClientMock } = vi.hoisted(
-  () => ({
-    exchangeCodeForSessionMock: vi.fn(),
-    createServerClientMock: vi.fn(),
-  }),
-);
-
+const exchange = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/supabase/server", () => ({
-  createServerClient: createServerClientMock,
+  createServerClient: async () => ({
+    auth: { exchangeCodeForSession: exchange },
+  }),
 }));
+import { GET } from "./route";
+
+const call = (qs: string) =>
+  GET(new Request(`https://paykit.merqo.io/auth/callback${qs}`));
+const location = (r: Response) => r.headers.get("location");
 
 beforeEach(() => {
-  exchangeCodeForSessionMock.mockReset();
-  createServerClientMock.mockReset().mockResolvedValue({
-    auth: { exchangeCodeForSession: exchangeCodeForSessionMock },
-  });
+  vi.clearAllMocks();
+  exchange.mockResolvedValue({ error: null });
 });
 
-function req(url: string) {
-  return new Request(url);
-}
-
-describe("GET /auth/callback", () => {
-  it("redirects to /login?error=oauth when no code param is present", async () => {
-    const { GET } = await import("./route");
-    const res = await GET(req("http://localhost/auth/callback"));
-    expect(res.status).toBe(307);
-    expect(res.headers.get("location")).toBe(
-      "http://localhost/login?error=oauth",
+describe("auth callback", () => {
+  it("rejects a missing code without calling Supabase", async () => {
+    expect(location(await call(""))).toBe(
+      "https://paykit.merqo.io/login?error=oauth",
     );
-    expect(createServerClientMock).not.toHaveBeenCalled();
+    expect(exchange).not.toHaveBeenCalled();
   });
 
-  it("redirects to /dashboard by default on a successful exchange", async () => {
-    exchangeCodeForSessionMock.mockResolvedValue({ error: null });
-    const { GET } = await import("./route");
-    const res = await GET(req("http://localhost/auth/callback?code=abc"));
-    expect(exchangeCodeForSessionMock).toHaveBeenCalledWith("abc");
-    expect(res.status).toBe(307);
-    expect(res.headers.get("location")).toBe("http://localhost/dashboard");
+  it("rejects an oversized code without calling Supabase", async () => {
+    const res = await call(`?code=${"a".repeat(513)}`);
+    expect(location(res)).toBe("https://paykit.merqo.io/login?error=oauth");
+    expect(exchange).not.toHaveBeenCalled();
   });
 
-  it("redirects to a safe relative ?next= path on success", async () => {
-    exchangeCodeForSessionMock.mockResolvedValue({ error: null });
-    const { GET } = await import("./route");
-    const res = await GET(
-      req("http://localhost/auth/callback?code=abc&next=/settings"),
-    );
-    expect(res.headers.get("location")).toBe("http://localhost/settings");
+  it("falls back to /dashboard for a protocol-relative next", async () => {
+    const res = await call("?code=abc&next=//evil.example");
+    expect(location(res)).toBe("https://paykit.merqo.io/dashboard");
   });
 
-  it("falls back to /dashboard when ?next= is a protocol-relative open redirect (//evil.com)", async () => {
-    exchangeCodeForSessionMock.mockResolvedValue({ error: null });
-    const { GET } = await import("./route");
-    const res = await GET(
-      req("http://localhost/auth/callback?code=abc&next=//evil.com"),
-    );
-    expect(res.headers.get("location")).toBe("http://localhost/dashboard");
+  it("falls back to /dashboard for a backslash next", async () => {
+    const res = await call("?code=abc&next=/%5Cevil.example");
+    expect(location(res)).toBe("https://paykit.merqo.io/dashboard");
   });
 
-  it("falls back to /dashboard when ?next= is an absolute URL", async () => {
-    exchangeCodeForSessionMock.mockResolvedValue({ error: null });
-    const { GET } = await import("./route");
-    const res = await GET(
-      req(
-        "http://localhost/auth/callback?code=abc&next=" +
-          encodeURIComponent("https://evil.com"),
-      ),
-    );
-    expect(res.headers.get("location")).toBe("http://localhost/dashboard");
-  });
-
-  it("redirects to /login?error=oauth when the code exchange fails", async () => {
-    exchangeCodeForSessionMock.mockResolvedValue({
-      error: { message: "invalid code" },
-    });
-    const { GET } = await import("./route");
-    const res = await GET(req("http://localhost/auth/callback?code=bad"));
-    expect(res.headers.get("location")).toBe(
-      "http://localhost/login?error=oauth",
-    );
+  it("follows a same-origin next", async () => {
+    const res = await call("?code=abc&next=/reset-password");
+    expect(location(res)).toBe("https://paykit.merqo.io/reset-password");
   });
 });

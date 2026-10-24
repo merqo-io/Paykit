@@ -1,11 +1,13 @@
 "use server";
 
 import { headers } from "next/headers";
+// eslint-disable-next-line no-restricted-imports -- anonymous customer flow; the pay token or public form id is the credential
 import { createServiceClient } from "@/lib/supabase/server";
 import { claimTransaction } from "@/lib/claim";
 import { hostedPayAllowed, loadHostedPayment } from "@/lib/hosted-pay";
 import { readProofFile } from "@/lib/proof-file";
 import { clientIp } from "@/lib/rate-limit";
+import { hostedPayRefSchema } from "@/lib/schemas";
 import type { ActionResult } from "@/lib/action-result";
 import type { TxStatus } from "@/lib/types";
 
@@ -46,17 +48,17 @@ export async function claimHostedPayment(
   token: unknown,
   formData: unknown,
 ): Promise<HostedClaimResult> {
-  if (typeof id !== "string" || typeof token !== "string")
-    return { success: false, error: INVALID_LINK };
+  const ref = hostedPayRefSchema.safeParse({ id, token });
+  if (!ref.success) return { success: false, error: INVALID_LINK };
   if (!(formData instanceof FormData))
     return { success: false, error: "A payment screenshot is required." };
 
   const supabase = await createServiceClient();
   const ip = clientIp(await headers());
-  if (!(await hostedPayAllowed(supabase, "claim", ip, token)))
+  if (!(await hostedPayAllowed(supabase, "claim", ip, ref.data.token)))
     return { success: false, error: TOO_MANY };
 
-  const read = await loadHostedPayment(supabase, id, token);
+  const read = await loadHostedPayment(supabase, ref.data.id, ref.data.token);
   if (!read.ok)
     return {
       success: false,
@@ -89,13 +91,15 @@ export async function getHostedPaymentStatus(
   id: unknown,
   token: unknown,
 ): Promise<HostedPaymentStatus | null> {
-  if (typeof id !== "string" || typeof token !== "string") return null;
+  const ref = hostedPayRefSchema.safeParse({ id, token });
+  if (!ref.success) return null;
 
   const supabase = await createServiceClient();
   const ip = clientIp(await headers());
-  if (!(await hostedPayAllowed(supabase, "status", ip, token))) return null;
+  if (!(await hostedPayAllowed(supabase, "status", ip, ref.data.token)))
+    return null;
 
-  const read = await loadHostedPayment(supabase, id, token);
+  const read = await loadHostedPayment(supabase, ref.data.id, ref.data.token);
   if (!read.ok) return null;
   return { status: read.payment.status, returnUrl: read.payment.returnUrl };
 }

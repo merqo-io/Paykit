@@ -340,3 +340,7 @@ The customer can pay on a page paykit hosts. A calling kit passes `return_url` a
 ## Booking inquiries
 
 An event vendor can take inquiries before there is a booking. On Bookings they set up an inquiry form (business name, an optional link to their own booking terms with a version) and share its public link, `/inquire/{public_id}`, paykit's second public page. A client sends their name, phone, an optional event date and a message, ticks the vendor's terms when the vendor set some (paykit records the url, version and time), and sees the PDPA collection notice. There is no marketing consent box. A honeypot field, a 3 second fill-time check and per-address and per-form rate limits keep bots out. The vendor gets a Telegram alert through merqo's shared vendor bot, works the inquiry from the Inquiries table and converts it into a normal booking. Migration `0025` (applied by hand) adds the tables. Design: `docs/superpowers/specs/2026-10-23-booking-inquiries-design.md`; code: `src/app/inquire/`, `src/app/dashboard/bookings/`.
+
+## Security headers and MFA
+
+`src/proxy.ts` sets the CSP (nonce on per-request routes) and `X-Robots-Tag` off production. The admin area requires TOTP MFA; see `src/app/mfa/README.md` and `docs/security/`.

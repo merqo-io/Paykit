@@ -281,3 +281,20 @@ export const SUPPORT_CATEGORY_LABELS: Record<
   billing: "Pro plan",
   other: "Something else",
 };
+
+// Route/action boundaries
+
+export const authCallbackQuerySchema = z.object({
+  code: z.string().min(1).max(512),
+});
+
+// Same-origin relative path only: a leading "//" or backslash would leave the site.
+export const redirectPathSchema = z
+  .string()
+  .max(512)
+  .regex(/^\/(?![/\\])/);
+
+export const hostedPayRefSchema = z.object({
+  id: z.uuid(),
+  token: z.string().min(1).max(256),
+});

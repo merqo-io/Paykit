@@ -4,6 +4,7 @@ import { toLookupResponse } from "@/lib/checkout-lookup";
 import { payTokenKey, payTokenMatches, payTokenSchema } from "@/lib/pay-token";
 import { rateLimit } from "@/lib/rate-limit";
 import type { Transaction, TxStatus } from "@/lib/types";
+import { TRANSACTION_WITH_TOKEN_COLUMNS } from "@/lib/columns";
 
 type ServiceClient = Awaited<ReturnType<typeof createServiceClient>>;
 
@@ -79,7 +80,7 @@ export async function loadHostedPayment(
 
   const { data: row, error } = await supabase
     .from("transactions")
-    .select("*")
+    .select(TRANSACTION_WITH_TOKEN_COLUMNS)
     .eq("id", id)
     .maybeSingle();
   if (error) {

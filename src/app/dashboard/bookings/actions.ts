@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { dollarsToCents } from "@/lib/money";
 import { getVendorSession } from "@/lib/vendor-session";
+// eslint-disable-next-line no-restricted-imports -- RLS has no client policy for this write; the caller is verified first
 import { createServiceClient } from "@/lib/supabase/server";
 import { createCheckout } from "@/lib/checkout";
 import {

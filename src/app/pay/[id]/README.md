@@ -39,3 +39,5 @@ amount check as the claim endpoint.
 ## Parent
 
 [pay](../README.md)
+
+`claimHostedPayment` and `getHostedPaymentStatus` parse the id and token with `hostedPayRefSchema` before any read.

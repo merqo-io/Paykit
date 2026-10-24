@@ -6,6 +6,7 @@ import { getProvider } from "@/lib/payments/provider";
 import { recordPaymentAudit } from "@/lib/payment-audit";
 import { mintPayToken } from "@/lib/pay-token";
 import type { TxStatus, VendorPaymentConfig } from "@/lib/types";
+import { CONFIG_COLUMNS } from "@/lib/columns";
 
 /** What a caller that wants the hosted pay page supplies. `returnUrl` has
  *  already been checked against the calling kit's registered origin. */
@@ -191,7 +192,7 @@ export async function createCheckout({
 
   const { data: config, error: configError } = await supabase
     .from("vendor_payment_config")
-    .select("*")
+    .select(CONFIG_COLUMNS)
     .eq("vendor_id", vendorId)
     .maybeSingle();
   if (configError) {

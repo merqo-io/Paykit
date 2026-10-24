@@ -11,6 +11,7 @@ import {
   PER_ROUTE_LIMIT,
   PER_ROUTE_WINDOW_SECONDS,
 } from "@/lib/rate-limit";
+import { TRANSACTION_COLUMNS } from "@/lib/columns";
 
 export async function POST(
   request: Request,
@@ -41,7 +42,7 @@ export async function POST(
 
   const { data: current, error: readError } = await supabase
     .from("transactions")
-    .select("*")
+    .select(TRANSACTION_COLUMNS)
     .eq("id", id)
     .maybeSingle();
   if (readError) {
@@ -62,12 +63,12 @@ export async function POST(
     .update({ status, confirmed_at: new Date().toISOString() })
     .eq("id", id)
     .in("status", ["pending", "claimed"])
-    .select("*")
+    .select(TRANSACTION_COLUMNS)
     .single();
   if (updateError || !updated) {
     const { data: recheck, error: recheckError } = await supabase
       .from("transactions")
-      .select("*")
+      .select(TRANSACTION_COLUMNS)
       .eq("id", id)
       .maybeSingle();
     if (recheckError || (recheck && recheck.status === current.status)) {
