@@ -58,7 +58,7 @@ export function RescheduleBookingDialog({
           <DialogTitle>Reschedule this booking?</DialogTitle>
         </DialogHeader>
         <p className="text-sm text-muted-foreground">
-          A deposit already paid stays counted toward this booking — only the
+          A deposit already paid stays counted toward this booking. Only the
           dates change.
         </p>
         <div className="space-y-2">

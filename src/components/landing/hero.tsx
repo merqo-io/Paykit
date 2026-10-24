@@ -35,10 +35,10 @@ export function Hero({ authed = false }: { authed?: boolean }) {
             Every kit can use it.
           </h1>
           <p className="mt-5 max-w-md text-lg text-muted-foreground">
-            paykit generates your checkout — a PayNow QR, or your own payment
-            link or QR — tracks who&apos;s paid, and never touches the money.
-            Set it up once — qkit, and every kit after it, checks out through
-            the same engine.
+            paykit generates your checkout, a PayNow QR, or your own payment
+            link or QR, tracks who&apos;s paid, and never touches the money. Set
+            it up once, qkit, and every kit after it, checks out through the
+            same engine.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">

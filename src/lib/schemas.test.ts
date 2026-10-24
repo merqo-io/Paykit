@@ -40,44 +40,47 @@ describe("vendorPaymentConfigInputSchema", () => {
       expect(parsed.success).toBe(false);
     });
 
-    it("rejects neither uen nor mobile set", () => {
-      const parsed = vendorPaymentConfigInputSchema.safeParse({
-        kind: "paynow",
-        payee_name: "Kopitiam Cart",
-        uen: "",
-        mobile: "",
-      });
-      expect(parsed.success).toBe(false);
-    });
-
-    it("rejects an invalid UEN format", () => {
-      const parsed = vendorPaymentConfigInputSchema.safeParse({
-        kind: "paynow",
-        payee_name: "Kopitiam Cart",
-        uen: "!!!",
-        mobile: "",
-      });
-      expect(parsed.success).toBe(false);
-    });
-
-    it("rejects a bare 8-digit mobile number typed as a UEN", () => {
-      const parsed = vendorPaymentConfigInputSchema.safeParse({
-        kind: "paynow",
-        payee_name: "Kopitiam Cart",
-        uen: "91234567",
-        mobile: "",
-      });
-      expect(parsed.success).toBe(false);
-    });
-
-    it("rejects a UEN that does not end in a letter", () => {
-      const parsed = vendorPaymentConfigInputSchema.safeParse({
-        kind: "paynow",
-        payee_name: "Kopitiam Cart",
-        uen: "533123456",
-        mobile: "",
-      });
-      expect(parsed.success).toBe(false);
+    it.each([
+      [
+        "rejects neither uen nor mobile set",
+        {
+          kind: "paynow",
+          payee_name: "Kopitiam Cart",
+          uen: "",
+          mobile: "",
+        },
+      ],
+      [
+        "rejects an invalid UEN format",
+        {
+          kind: "paynow",
+          payee_name: "Kopitiam Cart",
+          uen: "!!!",
+          mobile: "",
+        },
+      ],
+      [
+        "rejects a bare 8-digit mobile number typed as a UEN",
+        {
+          kind: "paynow",
+          payee_name: "Kopitiam Cart",
+          uen: "91234567",
+          mobile: "",
+        },
+      ],
+      [
+        "rejects a UEN that does not end in a letter",
+        {
+          kind: "paynow",
+          payee_name: "Kopitiam Cart",
+          uen: "533123456",
+          mobile: "",
+        },
+      ],
+    ])("%s", (_name, input) => {
+      expect(vendorPaymentConfigInputSchema.safeParse(input).success).toBe(
+        false,
+      );
     });
 
     it.each(["53312345A", "201912345K", "T09LL0001B"])(
@@ -179,40 +182,43 @@ describe("vendorPaymentConfigInputSchema", () => {
       expect(parsed.success).toBe(false);
     });
 
-    it("rejects an invalid url", () => {
-      const parsed = vendorPaymentConfigInputSchema.safeParse({
-        kind: "pointer",
-        label: "Pay",
-        url: "not-a-url",
-      });
-      expect(parsed.success).toBe(false);
-    });
-
-    it("rejects a javascript: url (stored-XSS vector via the checkout link a customer clicks)", () => {
-      const parsed = vendorPaymentConfigInputSchema.safeParse({
-        kind: "pointer",
-        label: "Pay",
-        url: "javascript:alert(document.cookie)",
-      });
-      expect(parsed.success).toBe(false);
-    });
-
-    it("rejects a data: qr_image_url", () => {
-      const parsed = vendorPaymentConfigInputSchema.safeParse({
-        kind: "pointer",
-        label: "Scan our QR",
-        qr_image_url: "data:text/html,<script>alert(1)</script>",
-      });
-      expect(parsed.success).toBe(false);
-    });
-
-    it("rejects a file: url", () => {
-      const parsed = vendorPaymentConfigInputSchema.safeParse({
-        kind: "pointer",
-        label: "Pay",
-        url: "file:///etc/passwd",
-      });
-      expect(parsed.success).toBe(false);
+    it.each([
+      [
+        "rejects an invalid url",
+        {
+          kind: "pointer",
+          label: "Pay",
+          url: "not-a-url",
+        },
+      ],
+      [
+        "rejects a javascript: url (stored-XSS vector via the checkout link a customer clicks)",
+        {
+          kind: "pointer",
+          label: "Pay",
+          url: "javascript:alert(document.cookie)",
+        },
+      ],
+      [
+        "rejects a data: qr_image_url",
+        {
+          kind: "pointer",
+          label: "Scan our QR",
+          qr_image_url: "data:text/html,<script>alert(1)</script>",
+        },
+      ],
+      [
+        "rejects a file: url",
+        {
+          kind: "pointer",
+          label: "Pay",
+          url: "file:///etc/passwd",
+        },
+      ],
+    ])("%s", (_name, input) => {
+      expect(vendorPaymentConfigInputSchema.safeParse(input).success).toBe(
+        false,
+      );
     });
   });
 });

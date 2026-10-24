@@ -125,6 +125,27 @@ export type VendorHealthRow = {
   lastConfirmedAt: string | null;
 };
 
+function bump(counts: Map<string, number>, key: string): void {
+  counts.set(key, (counts.get(key) ?? 0) + 1);
+}
+
+function rollUpConfirmed(transactions: TransactionLite[], cutoff30d: number) {
+  const txVendor = new Map<string, string>();
+  const confirmedCountEver = new Map<string, number>();
+  const confirmedCount30d = new Map<string, number>();
+  const lastConfirmedAt = new Map<string, string>();
+  for (const t of transactions) {
+    txVendor.set(t.id, t.vendor_id);
+    if (t.status !== "confirmed") continue;
+    const at = t.confirmed_at ?? t.created_at;
+    bump(confirmedCountEver, t.vendor_id);
+    if (Date.parse(at) >= cutoff30d) bump(confirmedCount30d, t.vendor_id);
+    const cur = lastConfirmedAt.get(t.vendor_id);
+    if (!cur || at > cur) lastConfirmedAt.set(t.vendor_id, at);
+  }
+  return { txVendor, confirmedCountEver, confirmedCount30d, lastConfirmedAt };
+}
+
 /**
  * Roll raw admin-overview rows into a per-vendor health map. Pure: no DB, no
  * clock. Refunds are keyed to their vendor via the transaction map (`refunds`
@@ -137,35 +158,15 @@ export function buildVendorHealth(
   nowMs: number,
 ): Map<string, VendorHealthRow> {
   const cutoff30d = nowMs - ATTENTION_WINDOW_DAYS * MS_PER_DAY;
-
-  const txVendor = new Map<string, string>();
-  const confirmedCountEver = new Map<string, number>();
-  const confirmedCount30d = new Map<string, number>();
-  const lastConfirmedAt = new Map<string, string>();
-  for (const t of transactions) {
-    txVendor.set(t.id, t.vendor_id);
-    if (t.status !== "confirmed") continue;
-    const at = t.confirmed_at ?? t.created_at;
-    confirmedCountEver.set(
-      t.vendor_id,
-      (confirmedCountEver.get(t.vendor_id) ?? 0) + 1,
-    );
-    if (Date.parse(at) >= cutoff30d) {
-      confirmedCount30d.set(
-        t.vendor_id,
-        (confirmedCount30d.get(t.vendor_id) ?? 0) + 1,
-      );
-    }
-    const cur = lastConfirmedAt.get(t.vendor_id);
-    if (!cur || at > cur) lastConfirmedAt.set(t.vendor_id, at);
-  }
+  const { txVendor, confirmedCountEver, confirmedCount30d, lastConfirmedAt } =
+    rollUpConfirmed(transactions, cutoff30d);
 
   const refundCount30d = new Map<string, number>();
   for (const r of refunds) {
     if (Date.parse(r.created_at) < cutoff30d) continue;
     const vid = txVendor.get(r.transaction_id);
     if (!vid) continue;
-    refundCount30d.set(vid, (refundCount30d.get(vid) ?? 0) + 1);
+    bump(refundCount30d, vid);
   }
 
   const out = new Map<string, VendorHealthRow>();

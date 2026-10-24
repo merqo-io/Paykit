@@ -117,7 +117,8 @@ provide authorization.
   Limiter failure permits the request and logs degradation; the forwarded IP is
   a fairness key, never authorization. Migration 0019 prepares the bounded atomic
   implementation. Pending migrations require real database validation.
-- `payment-audit.ts` appends real checkout transitions; idempotent no-ops add no
+- `payment-config-row.ts` builds the full `vendor_payment_config` row from a validated input, shared by the dashboard save action and `POST /api/v1/vendors/{vendor_id}/config`.
+- `payment-audit.ts` appends real checkout transitions (`recordPaymentAudit(supabase, { transactionId, kitSlug, action, detail })`); idempotent no-ops add no
   transition row. `admin-audit.ts` records administrative and vendor operations
   without exposing its helper as a remotely callable Server Action.
 

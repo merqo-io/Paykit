@@ -26,8 +26,8 @@ importers:
   .:
     dependencies:
       '@merqo/ui':
-        specifier: github:merqo-io/merqo-ui#7b386558af36a1cbf008a9b4c4073c07ffc105ba
-        version: https://codeload.github.com/merqo-io/merqo-ui/tar.gz/7b386558af36a1cbf008a9b4c4073c07ffc105ba(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)
+        specifier: github:merqo-io/merqo-ui#5577c4cbef0ef107c351826911264d7dce0cb132
+        version: https://codeload.github.com/merqo-io/merqo-ui/tar.gz/5577c4cbef0ef107c351826911264d7dce0cb132(@eslint-community/eslint-plugin-eslint-comments@4.8.1(eslint@9.39.5(jiti@2.7.0)))(@playwright/test@1.61.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(eslint-plugin-sonarjs@4.2.2(eslint@9.39.5(jiti@2.7.0)))(eslint@9.39.5(jiti@2.7.0))(next@16.4.2(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(@types/node@24.13.3)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(zod@4.6.6)
       '@sentry/nextjs':
         specifier: 10.76.2
         version: 10.76.2(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.10.0(@opentelemetry/api@1.9.1))(next@16.4.2(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(@types/node@24.13.3)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(webpack@5.109.2(lightningcss@1.32.0))
@@ -92,6 +92,9 @@ importers:
         specifier: 4.6.6
         version: 4.6.6
     devDependencies:
+      '@eslint-community/eslint-plugin-eslint-comments':
+        specifier: 4.8.1
+        version: 4.8.1(eslint@9.39.5(jiti@2.7.0))
       '@eslint/eslintrc':
         specifier: ^3.2.0
         version: 3.3.6
@@ -141,8 +144,8 @@ importers:
         specifier: 16.4.2
         version: 16.4.2(@typescript-eslint/parser@8.71.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
       eslint-plugin-sonarjs:
-        specifier: 4.1.0
-        version: 4.1.0(eslint@9.39.5(jiti@2.7.0))
+        specifier: 4.2.2
+        version: 4.2.2(eslint@9.39.5(jiti@2.7.0))
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -166,10 +169,10 @@ importers:
         version: 5.9.3
       vite:
         specifier: 6.4.5
-        version: 6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.0)
+        version: 6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.1)
       vitest:
         specifier: 4.1.12
-        version: 4.1.12(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-v8@4.1.12)(jsdom@29.1.1(@noble/hashes@1.8.0))(vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.0))
+        version: 4.1.12(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-v8@4.1.12)(jsdom@29.1.1(@noble/hashes@1.8.0))(vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.1))
 
 packages:
 
@@ -578,6 +581,12 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@eslint-community/eslint-plugin-eslint-comments@4.8.1':
+    resolution: {integrity: sha512-vafrdi15JHBFh1qWOAucyJwlEEuhdoMof28jOdKdgnwZ7bXwd6v4wzHYSmAVLwnx0yc7bqAtfJ0EZQV1WAzV/Q==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    peerDependencies:
+      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
 
   '@eslint-community/eslint-utils@4.10.1':
     resolution: {integrity: sha512-cuadcxVFE8sDK6iWJbs8Sn0av2Nrh2QSGQhVlBW9AaAHqHwjWsZHT8LJ4hFGPh7ASBV2deFdM7H/DPjulmh8rg==}
@@ -988,14 +997,33 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@merqo/ui@https://codeload.github.com/merqo-io/merqo-ui/tar.gz/7b386558af36a1cbf008a9b4c4073c07ffc105ba':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/merqo-io/merqo-ui/tar.gz/7b386558af36a1cbf008a9b4c4073c07ffc105ba}
-    version: 0.34.2
+  '@merqo/ui@https://codeload.github.com/merqo-io/merqo-ui/tar.gz/5577c4cbef0ef107c351826911264d7dce0cb132':
+    resolution: {gitHosted: true, integrity: sha512-lri0Hj69VYSkPx42uZQo9HlFhTbDEhzH8smtE3jBEWBWf/C8SFcxaibgMse1J+YB8gsWdjM1MZJ1KqAr8VqSQw==, tarball: https://codeload.github.com/merqo-io/merqo-ui/tar.gz/5577c4cbef0ef107c351826911264d7dce0cb132}
+    version: 0.35.0
     engines: {node: '>=24'}
     peerDependencies:
+      '@eslint-community/eslint-plugin-eslint-comments': '>=4.8.1'
+      '@playwright/test': '>=1.64.1'
+      eslint: ^9.39.5
+      eslint-plugin-sonarjs: '>=4.2.2'
+      next: '>=16.4.2'
       react: ^19.2.7
       react-dom: ^19.2.7
       tailwindcss: ^4.1.0
+      zod: '>=4.6.6 <5'
+    peerDependenciesMeta:
+      '@eslint-community/eslint-plugin-eslint-comments':
+        optional: true
+      '@playwright/test':
+        optional: true
+      eslint:
+        optional: true
+      eslint-plugin-sonarjs:
+        optional: true
+      next:
+        optional: true
+      zod:
+        optional: true
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     resolution: {integrity: sha512-oTXEIha4SsuXdTA4Iyskj0kpdx2yVXdhd75c2v3xGrHFfVMsbhTPZU/nMPL4sWKo4pBHm3aucLaqGlF696dTyQ==}
@@ -2853,6 +2881,9 @@ packages:
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
 
+  '@sonarsource/analyzer-commons-configurations@2.31.0-5284':
+    resolution: {integrity: sha512-ruk3blMs9BE9RNSp9LPpWZAIjxJmq4Cp00E3cELIHz7Kym3WxdWGRlKOMYLRQ5tJg/de7jN5AtEElY3bGIfTcw==}
+
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
@@ -4056,8 +4087,8 @@ packages:
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
 
-  eslint-plugin-sonarjs@4.1.0:
-    resolution: {integrity: sha512-rh+FlVz0yfd2RNIb6WqSkuGh0addX/Qi5scwQ5FphXDFrM6fZKcxP1+attJ78yUKcyYfiu6MTaISPpAFPzqRJw==}
+  eslint-plugin-sonarjs@4.2.2:
+    resolution: {integrity: sha512-usNF9GfP89ibwhfxpZaCMW40sC7UEOusDgDCk7lyqAhh4AYdbBaAgLVL5Y/QS0jSed8eJ2ACGH6zzE8ezd/yZQ==}
     peerDependencies:
       eslint: ^8.0.0 || ^9.0.0 || ^10.0.0
 
@@ -4289,8 +4320,8 @@ packages:
     resolution: {integrity: sha512-ob/2LcVVaVGCYN+r14cnwnoDPUufjiYgSqRhiFD0Q1iI4Odora5RE8Iv1D24hAz5oMophRGkGz+yuvQmmUMnMw==}
     engines: {node: '>=18'}
 
-  globals@17.7.0:
-    resolution: {integrity: sha512-Czmyns5dUsq4seFBR/Kdydhmo8y9kC79hiSkPn0YcGtNnYWnrgt0vjrSjx9tspoDGWm2CMarffRuLjM4xUz8xg==}
+  globals@17.13.0:
+    resolution: {integrity: sha512-RwMTC61u7hrG3ZJMkZQOK4JLJrKS8QtoTii63EmWvFXHqycY9FObBJQCbsLxSO8kjKhWE5kV1GC+Vb1g3RI0Zg==}
     engines: {node: '>=18'}
 
   globalthis@1.0.4:
@@ -6138,8 +6169,8 @@ packages:
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
-  yaml@2.9.0:
-    resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
+  yaml@2.9.1:
+    resolution: {integrity: sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw==}
     engines: {node: '>= 14.6'}
     hasBin: true
 
@@ -6560,6 +6591,12 @@ snapshots:
   '@esbuild/win32-x64@0.25.12':
     optional: true
 
+  '@eslint-community/eslint-plugin-eslint-comments@4.8.1(eslint@9.39.5(jiti@2.7.0))':
+    dependencies:
+      escape-string-regexp: 4.0.0
+      eslint: 9.39.5(jiti@2.7.0)
+      ignore: 7.0.12
+
   '@eslint-community/eslint-utils@4.10.1(eslint@9.39.5(jiti@2.7.0))':
     dependencies:
       eslint: 9.39.5(jiti@2.7.0)
@@ -6902,7 +6939,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@merqo/ui@https://codeload.github.com/merqo-io/merqo-ui/tar.gz/7b386558af36a1cbf008a9b4c4073c07ffc105ba(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)':
+  '@merqo/ui@https://codeload.github.com/merqo-io/merqo-ui/tar.gz/5577c4cbef0ef107c351826911264d7dce0cb132(@eslint-community/eslint-plugin-eslint-comments@4.8.1(eslint@9.39.5(jiti@2.7.0)))(@playwright/test@1.61.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(eslint-plugin-sonarjs@4.2.2(eslint@9.39.5(jiti@2.7.0)))(eslint@9.39.5(jiti@2.7.0))(next@16.4.2(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(@types/node@24.13.3)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(zod@4.6.6)':
     dependencies:
       '@icons-pack/react-simple-icons': 13.13.0(react@19.2.7)
       '@radix-ui/react-dialog': 1.1.23(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -6923,6 +6960,12 @@ snapshots:
       remark-gfm: 4.0.0
       tailwind-merge: 2.6.1
       tailwindcss: 4.3.2
+    optionalDependencies:
+      '@eslint-community/eslint-plugin-eslint-comments': 4.8.1(eslint@9.39.5(jiti@2.7.0))
+      '@playwright/test': 1.61.1
+      eslint: 9.39.5(jiti@2.7.0)
+      eslint-plugin-sonarjs: 4.2.2(eslint@9.39.5(jiti@2.7.0))
+      next: 16.4.2(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(@types/node@24.13.3)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       zod: 4.6.6
     transitivePeerDependencies:
       - '@types/react'
@@ -8829,6 +8872,8 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
+  '@sonarsource/analyzer-commons-configurations@2.31.0-5284': {}
+
   '@standard-schema/spec@1.1.0': {}
 
   '@standard-schema/utils@0.3.0': {}
@@ -8898,7 +8943,7 @@ snapshots:
       '@stryker-mutator/util': 9.6.1
       semver: 7.8.5
       tslib: 2.8.1
-      vitest: 4.1.12(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-v8@4.1.12)(jsdom@29.1.1(@noble/hashes@1.8.0))(vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.0))
+      vitest: 4.1.12(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-v8@4.1.12)(jsdom@29.1.1(@noble/hashes@1.8.0))(vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.1))
 
   '@supabase/auth-js@2.110.4':
     dependencies:
@@ -9332,7 +9377,7 @@ snapshots:
       obug: 2.1.4
       std-env: 4.2.0
       tinyrainbow: 3.1.1
-      vitest: 4.1.12(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-v8@4.1.12)(jsdom@29.1.1(@noble/hashes@1.8.0))(vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.0))
+      vitest: 4.1.12(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-v8@4.1.12)(jsdom@29.1.1(@noble/hashes@1.8.0))(vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.1))
 
   '@vitest/expect@4.1.12':
     dependencies:
@@ -9343,13 +9388,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.1
 
-  '@vitest/mocker@4.1.12(vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.0))':
+  '@vitest/mocker@4.1.12(vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.1))':
     dependencies:
       '@vitest/spy': 4.1.12
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.0)
+      vite: 6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.1)
 
   '@vitest/pretty-format@4.1.12':
     dependencies:
@@ -10196,22 +10241,23 @@ snapshots:
       string.prototype.matchall: 4.1.0
       string.prototype.repeat: 1.0.0
 
-  eslint-plugin-sonarjs@4.1.0(eslint@9.39.5(jiti@2.7.0)):
+  eslint-plugin-sonarjs@4.2.2(eslint@9.39.5(jiti@2.7.0)):
     dependencies:
       '@eslint-community/regexpp': 4.12.2
+      '@sonarsource/analyzer-commons-configurations': 2.31.0-5284
       builtin-modules: 3.3.0
       bytes: 3.1.2
       eslint: 9.39.5(jiti@2.7.0)
       functional-red-black-tree: 1.0.1
-      globals: 17.7.0
+      globals: 17.13.0
       jsx-ast-utils-x: 0.1.0
       lodash.merge: 4.6.2
-      minimatch: 10.2.5
+      minimatch: 10.2.6
       scslre: 0.3.0
       semver: 7.8.5
       ts-api-utils: 2.5.0(typescript@5.9.3)
       typescript: 5.9.3
-      yaml: 2.9.0
+      yaml: 2.9.1
 
   eslint-scope@5.1.1:
     dependencies:
@@ -10471,7 +10517,7 @@ snapshots:
 
   globals@16.4.0: {}
 
-  globals@17.7.0: {}
+  globals@17.13.0: {}
 
   globalthis@1.0.4:
     dependencies:
@@ -12554,7 +12600,7 @@ snapshots:
       d3-time: 3.1.0
       d3-timer: 3.0.1
 
-  vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.0):
+  vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.1):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.7)
@@ -12568,12 +12614,12 @@ snapshots:
       jiti: 2.7.0
       lightningcss: 1.32.0
       terser: 5.51.2
-      yaml: 2.9.0
+      yaml: 2.9.1
 
-  vitest@4.1.12(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-v8@4.1.12)(jsdom@29.1.1(@noble/hashes@1.8.0))(vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.0)):
+  vitest@4.1.12(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-v8@4.1.12)(jsdom@29.1.1(@noble/hashes@1.8.0))(vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.1)):
     dependencies:
       '@vitest/expect': 4.1.12
-      '@vitest/mocker': 4.1.12(vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.0))
+      '@vitest/mocker': 4.1.12(vite@6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.1))
       '@vitest/pretty-format': 4.1.12
       '@vitest/runner': 4.1.12
       '@vitest/snapshot': 4.1.12
@@ -12590,7 +12636,7 @@ snapshots:
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.1
-      vite: 6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.0)
+      vite: 6.4.5(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)(yaml@2.9.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
@@ -12741,7 +12787,7 @@ snapshots:
 
   yallist@3.1.1: {}
 
-  yaml@2.9.0: {}
+  yaml@2.9.1: {}
 
   yargs-parser@18.1.3:
     dependencies:

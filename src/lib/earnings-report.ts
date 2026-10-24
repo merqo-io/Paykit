@@ -33,21 +33,13 @@ function indexBookingsByTransactionId(
 
 function addToLine(
   lineByKey: Map<string, EarningsLine>,
-  key: string,
-  label: string,
-  eventDate: string,
-  cents: number,
+  line: EarningsLine,
 ): void {
-  const existing = lineByKey.get(key);
+  const existing = lineByKey.get(line.key);
   if (existing) {
-    existing.revenue_cents += cents;
+    existing.revenue_cents += line.revenue_cents;
   } else {
-    lineByKey.set(key, {
-      key,
-      label,
-      event_date: eventDate,
-      revenue_cents: cents,
-    });
+    lineByKey.set(line.key, line);
   }
 }
 
@@ -83,7 +75,12 @@ export function buildEarningsReport(
 
     const key = booking ? `booking:${booking.id}` : `tx:${tx.id}`;
     const label = booking ? booking.customer_name : NON_BOOKING_LABEL;
-    addToLine(lineByKey, key, label, eventDate, tx.amount_cents);
+    addToLine(lineByKey, {
+      key,
+      label,
+      event_date: eventDate,
+      revenue_cents: tx.amount_cents,
+    });
 
     const monthKey = eventDate.slice(0, 7);
     monthTotals.set(
