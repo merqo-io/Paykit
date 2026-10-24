@@ -18,7 +18,7 @@ export function ClosingCta({ authed = false }: { authed?: boolean }) {
           One payment setup. Every kit can use it.
         </h2>
         <p className="mx-auto mt-3 max-w-md text-sm text-ink-foreground/70">
-          Free to start, no card required — set up PayNow or your own payment
+          Free to start, no card required. Set up PayNow or your own payment
           link once, and it&apos;s ready for every kit you run.
         </p>
         <div className="mt-8 flex justify-center">

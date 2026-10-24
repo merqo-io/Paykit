@@ -3,8 +3,18 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { verifyKitAuth } from "@/lib/kit-auth";
 import { uuidSchema } from "@/lib/api-schemas";
 import { vendorPaymentConfigInputSchema } from "@/lib/schemas";
-import type { Database } from "@/lib/types";
+import { paymentConfigRow } from "@/lib/payment-config-row";
 import { removeReplacedQrImage } from "@/lib/qr-image-cleanup";
+
+const NO_CONFIG = {
+  kind: null,
+  payee_name: null,
+  uen: null,
+  mobile: null,
+  label: null,
+  url: null,
+  qr_image_url: null,
+};
 
 export async function GET(
   request: Request,
@@ -39,13 +49,7 @@ export async function GET(
   return NextResponse.json({
     has_config: Boolean(data),
     display_name,
-    kind: data?.kind ?? null,
-    payee_name: data?.payee_name ?? null,
-    uen: data?.uen ?? null,
-    mobile: data?.mobile ?? null,
-    label: data?.label ?? null,
-    url: data?.url ?? null,
-    qr_image_url: data?.qr_image_url ?? null,
+    ...(data ?? NO_CONFIG),
   });
 }
 
@@ -71,28 +75,7 @@ export async function POST(
     );
   }
 
-  const row: Database["paykit"]["Tables"]["vendor_payment_config"]["Insert"] =
-    parsed.data.kind === "paynow"
-      ? {
-          vendor_id,
-          kind: "paynow",
-          payee_name: parsed.data.payee_name,
-          uen: parsed.data.uen ?? null,
-          mobile: parsed.data.mobile ?? null,
-          label: null,
-          url: null,
-          qr_image_url: null,
-        }
-      : {
-          vendor_id,
-          kind: "pointer",
-          payee_name: null,
-          uen: null,
-          mobile: null,
-          label: parsed.data.label,
-          url: parsed.data.url ?? null,
-          qr_image_url: parsed.data.qr_image_url ?? null,
-        };
+  const row = paymentConfigRow(vendor_id, parsed.data);
 
   const supabase = await createServiceClient();
   const { data: previous } = await supabase

@@ -41,7 +41,7 @@ export default async function PlanPage() {
         <p className="mt-2 text-sm text-muted-foreground">{view.countLabel}</p>
         {view.showNudge && (
           <p className="mt-2 text-sm text-muted-foreground">
-            You&apos;re doing real volume — Pro adds refund tracking,{" "}
+            You&apos;re doing real volume, Pro adds refund tracking,{" "}
             {view.proPriceLabel}.
           </p>
         )}

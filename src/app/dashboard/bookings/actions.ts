@@ -22,6 +22,52 @@ export type BookingActionState = {
 
 const KIT_SLUG = "paykit";
 
+/** Creates the deposit checkout and links it to the booking; false if either step fails. */
+async function linkDepositCheckout(
+  vendorId: string,
+  bookingId: string,
+  amountCents: number,
+): Promise<boolean> {
+  try {
+    const checkout = await createCheckout({
+      vendorId,
+      kitSlug: KIT_SLUG,
+      orderRef: `booking:${bookingId}:deposit`,
+      amountCents,
+    });
+    if (!checkout.ok) return false;
+    const service = await createServiceClient();
+    const { data: linked, error: linkError } = await service.rpc(
+      "link_booking_deposit",
+      {
+        p_booking_id: bookingId,
+        p_vendor_id: vendorId,
+        p_transaction_id: checkout.transaction_id,
+      },
+    );
+    return !linkError && Boolean(linked);
+  } catch {
+    console.error("createBookingAction: deposit checkout unavailable");
+    return false;
+  }
+}
+
+async function linkSourceInquiry(
+  userId: string,
+  rawInquiryId: FormDataEntryValue | null,
+  bookingId: string,
+): Promise<void> {
+  const inquiryId =
+    inquiryStatusUpdateSchema.shape.inquiry_id.safeParse(rawInquiryId);
+  if (!inquiryId.success) return;
+  try {
+    await linkInquiryToBooking(userId, inquiryId.data, bookingId);
+  } catch {
+    console.error("createBookingAction: inquiry link unavailable");
+  }
+  revalidatePath(`/dashboard/bookings/inquiries/${inquiryId.data}`);
+}
+
 export async function createBookingAction(
   _prev: BookingActionState,
   formData: FormData,
@@ -63,50 +109,19 @@ export async function createBookingAction(
     return { status: "error", message: "Could not create booking. Try again." };
   }
 
-  const inquiryId = inquiryStatusUpdateSchema.shape.inquiry_id.safeParse(
-    formData.get("inquiry_id"),
-  );
-  if (inquiryId.success) {
-    try {
-      await linkInquiryToBooking(user.id, inquiryId.data, booking.id);
-    } catch {
-      console.error("createBookingAction: inquiry link unavailable");
-    }
-    revalidatePath(`/dashboard/bookings/inquiries/${inquiryId.data}`);
-  }
+  await linkSourceInquiry(user.id, formData.get("inquiry_id"), booking.id);
 
-  const recovery: BookingActionState = {
-    status: "ok",
-    message: "Booking saved. Open it and retry the deposit checkout.",
-  };
-  try {
-    const checkout = await createCheckout({
-      vendorId: user.id,
-      kitSlug: KIT_SLUG,
-      orderRef: `booking:${booking.id}:deposit`,
-      amountCents: parsed.data.deposit_amount_cents,
-    });
-    if (!checkout.ok) {
-      revalidatePath("/dashboard/bookings");
-      return recovery;
-    }
-    const service = await createServiceClient();
-    const { data: linked, error: linkError } = await service.rpc(
-      "link_booking_deposit",
-      {
-        p_booking_id: booking.id,
-        p_vendor_id: user.id,
-        p_transaction_id: checkout.transaction_id,
-      },
-    );
-    if (linkError || !linked) {
-      revalidatePath("/dashboard/bookings");
-      return recovery;
-    }
-  } catch {
-    console.error("createBookingAction: deposit checkout unavailable");
+  const depositLinked = await linkDepositCheckout(
+    user.id,
+    booking.id,
+    parsed.data.deposit_amount_cents,
+  );
+  if (!depositLinked) {
     revalidatePath("/dashboard/bookings");
-    return recovery;
+    return {
+      status: "ok",
+      message: "Booking saved. Open it and retry the deposit checkout.",
+    };
   }
 
   try {
@@ -213,6 +228,33 @@ export async function createBalanceCheckoutAction(
 // (see `issueRefundAction`) rather than a second enforcement path.
 type BookingRefund = { transactionId: string; amountCents: number };
 
+type ServiceOrRlsClient = Awaited<
+  ReturnType<typeof getVendorSession>
+>["supabase"];
+
+/** Null when the cancellation carries no refund, else whether the insert landed. */
+async function recordCancellationRefund(
+  supabase: ServiceOrRlsClient,
+  userId: string,
+  data: {
+    refund_transaction_id?: string;
+    refund_amount_cents?: number;
+    reason?: string;
+  },
+): Promise<boolean | null> {
+  if (!data.refund_transaction_id || !data.refund_amount_cents) return null;
+  const { error } = await supabase.from("refunds").insert({
+    transaction_id: data.refund_transaction_id,
+    refunded_amount_cents: data.refund_amount_cents,
+    reason: data.reason || null,
+    created_by: userId,
+  });
+  if (error) {
+    console.error("cancelBookingAction: refund insert failed", error.message);
+  }
+  return !error;
+}
+
 export async function cancelBookingAction(
   bookingId: string,
   reason?: string,
@@ -259,22 +301,11 @@ export async function cancelBookingAction(
     return { status: "error", message: "Could not cancel booking." };
   }
 
-  let refundRecorded: boolean | null = null;
-  if (parsed.data.refund_transaction_id && parsed.data.refund_amount_cents) {
-    const { error: refundError } = await supabase.from("refunds").insert({
-      transaction_id: parsed.data.refund_transaction_id,
-      refunded_amount_cents: parsed.data.refund_amount_cents,
-      reason: parsed.data.reason || null,
-      created_by: user.id,
-    });
-    refundRecorded = !refundError;
-    if (refundError) {
-      console.error(
-        "cancelBookingAction: refund insert failed",
-        refundError.message,
-      );
-    }
-  }
+  const refundRecorded = await recordCancellationRefund(
+    supabase,
+    user.id,
+    parsed.data,
+  );
 
   await recordAudit(user.id, "cancel_booking", parsed.data.booking_id, {
     reason: parsed.data.reason || null,
@@ -289,7 +320,7 @@ export async function cancelBookingAction(
     ? {
         status: "ok",
         message:
-          "Booking cancelled, but the refund could not be recorded — check the transaction is confirmed and you're on Pro.",
+          "Booking cancelled, but the refund could not be recorded. Check the transaction is confirmed and you're on Pro.",
       }
     : { status: "ok" };
 }

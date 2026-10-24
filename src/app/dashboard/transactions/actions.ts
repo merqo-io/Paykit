@@ -42,7 +42,7 @@ export async function issueRefundAction(
     return {
       status: "error",
       message:
-        "Could not record refund — check the transaction is confirmed and you're on Pro.",
+        "Could not record refund. Check the transaction is confirmed and you're on Pro.",
     };
   }
 

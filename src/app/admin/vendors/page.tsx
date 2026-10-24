@@ -23,7 +23,7 @@ export default async function AdminVendorsPage() {
         </p>
         <h1 className="text-3xl font-bold tracking-tight">Vendors</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Every vendor with a payment config, across every kit — most urgent
+          Every vendor with a payment config, across every kit, most urgent
           first.
         </p>
       </div>

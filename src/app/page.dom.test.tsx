@@ -50,10 +50,10 @@ describe("HomePage", () => {
     render(jsx);
 
     expect(
-      screen.getByText(/pro adds refund tracking — \$4\.99\/mo/i),
+      screen.getByText(/adds refund tracking, \$4\.99\/mo, once/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/pro adds refund tracking, \$4\.99\/mo/i),
+      screen.getByText(/no cap\. pro adds refund tracking, \$4\.99\/mo\./i),
     ).toBeInTheDocument();
   });
 

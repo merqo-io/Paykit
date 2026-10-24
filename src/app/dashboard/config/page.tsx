@@ -27,7 +27,7 @@ export default async function ConfigPage({
     <div className="mx-auto max-w-lg">
       <h1 className="text-2xl font-semibold tracking-tight">Payment setup</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Set this up once — it&apos;s reused by every kit that uses paykit for
+        Set this up once. It&apos;s reused by every kit that uses paykit for
         you.
       </p>
       <div className="mt-6">
