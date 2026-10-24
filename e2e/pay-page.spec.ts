@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 // The hosted pay page is public, so what it refuses matters more than what it
 // shows. There is no database behind this run: a link that gets as far as a
 // read can only show the retry notice.
-const ID = "22222222-2222-2222-2222-222222222222";
+const ID = "22222222-2222-4222-8222-222222222222";
 const TOKEN = "A".repeat(43);
 
 test.describe("hosted pay page", () => {
