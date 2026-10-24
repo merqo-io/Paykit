@@ -21,8 +21,8 @@ import type { ProofFile } from "@/lib/proof-file";
 import type { Transaction } from "@/lib/types";
 
 const ROW: Transaction = {
-  id: "22222222-2222-2222-2222-222222222222",
-  vendor_id: "11111111-1111-1111-1111-111111111111",
+  id: "22222222-2222-2222-8222-222222222222",
+  vendor_id: "11111111-1111-1111-8111-111111111111",
   kit_slug: "qkit",
   order_ref: "A-001",
   amount_cents: 450,

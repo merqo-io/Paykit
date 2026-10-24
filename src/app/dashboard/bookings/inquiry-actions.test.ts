@@ -16,7 +16,7 @@ import {
   setInquiryStatusAction,
 } from "./inquiry-actions";
 
-const INQUIRY_ID = "33333333-3333-3333-3333-333333333333";
+const INQUIRY_ID = "33333333-3333-3333-8333-333333333333";
 
 type Result = { data?: unknown; error: { message: string } | null };
 

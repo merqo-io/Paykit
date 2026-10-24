@@ -6,7 +6,7 @@ import { recordAudit } from "@/lib/admin-audit";
 
 export const revalidate = 0;
 
-const bodySchema = z.object({ user_id: z.string().uuid() });
+const bodySchema = z.object({ user_id: z.uuid() });
 
 export async function POST(request: Request) {
   if (!provisionBearerOk(request)) {

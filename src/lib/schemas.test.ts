@@ -218,7 +218,7 @@ describe("vendorPaymentConfigInputSchema", () => {
 });
 
 describe("issueRefundInputSchema", () => {
-  const VALID_TX_ID = "11111111-1111-1111-1111-111111111111";
+  const VALID_TX_ID = "11111111-1111-1111-8111-111111111111";
 
   it("accepts a valid refund input and coerces the amount to a number", () => {
     const parsed = issueRefundInputSchema.safeParse({
@@ -359,7 +359,7 @@ describe("createBookingInputSchema", () => {
 });
 
 describe("cancelBookingInputSchema", () => {
-  const VALID_ID = "11111111-1111-1111-1111-111111111111";
+  const VALID_ID = "11111111-1111-1111-8111-111111111111";
 
   it("accepts a valid booking id with no reason", () => {
     const parsed = cancelBookingInputSchema.safeParse({
@@ -389,7 +389,7 @@ describe("cancelBookingInputSchema", () => {
 describe("createBalanceCheckoutInputSchema", () => {
   it("accepts a valid booking id", () => {
     const parsed = createBalanceCheckoutInputSchema.safeParse({
-      booking_id: "11111111-1111-1111-1111-111111111111",
+      booking_id: "11111111-1111-1111-8111-111111111111",
     });
     expect(parsed.success).toBe(true);
   });

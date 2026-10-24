@@ -36,7 +36,7 @@ function formData(fields: Record<string, string>) {
   return fd;
 }
 
-const VALID_TX_ID = "11111111-1111-1111-1111-111111111111";
+const VALID_TX_ID = "11111111-1111-1111-8111-111111111111";
 
 describe("issueRefundAction", () => {
   it("inserts a refund row for a valid dollar amount, converted to cents", async () => {

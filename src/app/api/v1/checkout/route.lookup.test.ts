@@ -29,14 +29,14 @@ vi.mock("@/lib/rate-limit", () => ({
 }));
 vi.mock("@/lib/checkout", () => ({ createCheckout: vi.fn() }));
 
-const TX_ID = "22222222-2222-2222-2222-222222222222";
+const TX_ID = "22222222-2222-2222-8222-222222222222";
 const ROW = {
   id: TX_ID,
   status: "claimed",
   amount_cents: 450,
   order_ref: "A-001",
   kit_slug: "qkit",
-  vendor_id: "11111111-1111-1111-1111-111111111111",
+  vendor_id: "11111111-1111-1111-8111-111111111111",
   claimed_at: "2026-07-15T00:01:00Z",
   confirmed_at: null,
   created_at: "2026-07-15T00:00:00Z",
@@ -78,7 +78,7 @@ describe("GET /api/v1/checkout?order_ref=", () => {
       amount_cents: 450,
       order_ref: "A-001",
       kit_slug: "qkit",
-      vendor_id: "11111111-1111-1111-1111-111111111111",
+      vendor_id: "11111111-1111-1111-8111-111111111111",
       claimed_at: "2026-07-15T00:01:00Z",
       confirmed_at: null,
       created_at: "2026-07-15T00:00:00Z",

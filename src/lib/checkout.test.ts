@@ -67,7 +67,7 @@ beforeEach(() => {
   createServiceClientMock.mockReset().mockResolvedValue(fakeSupabase());
   configMaybeSingle.mockReset().mockResolvedValue({
     data: {
-      vendor_id: "11111111-1111-1111-1111-111111111111",
+      vendor_id: "11111111-1111-1111-8111-111111111111",
       kind: "paynow",
       uen: "53312345A",
       mobile: null,
@@ -89,7 +89,7 @@ beforeEach(() => {
         amountCents: 450,
         reference: "booking:b1:deposit",
       }),
-      vendor_id: "11111111-1111-1111-1111-111111111111",
+      vendor_id: "11111111-1111-1111-8111-111111111111",
       amount_cents: 450,
     },
     error: null,
@@ -100,7 +100,7 @@ beforeEach(() => {
 
 describe("createCheckout expires_at", () => {
   const input = {
-    vendorId: "11111111-1111-1111-1111-111111111111",
+    vendorId: "11111111-1111-1111-8111-111111111111",
     kitSlug: "qkit",
     orderRef: "order-1",
     amountCents: 450,
@@ -129,7 +129,7 @@ describe("createCheckout", () => {
   it("creates a checkout and returns a QR payload", async () => {
     const { createCheckout } = await import("./checkout");
     const result = await createCheckout({
-      vendorId: "11111111-1111-1111-1111-111111111111",
+      vendorId: "11111111-1111-1111-8111-111111111111",
       kitSlug: "paykit",
       orderRef: "booking:b1:deposit",
       amountCents: 450,
@@ -158,7 +158,7 @@ describe("createCheckout", () => {
     configMaybeSingle.mockResolvedValue({ data: null, error: null });
     const { createCheckout } = await import("./checkout");
     const result = await createCheckout({
-      vendorId: "11111111-1111-1111-1111-111111111111",
+      vendorId: "11111111-1111-1111-8111-111111111111",
       kitSlug: "paykit",
       orderRef: "booking:b1:deposit",
       amountCents: 450,
@@ -177,7 +177,7 @@ describe("createCheckout", () => {
     });
     const { createCheckout } = await import("./checkout");
     const result = await createCheckout({
-      vendorId: "11111111-1111-1111-1111-111111111111",
+      vendorId: "11111111-1111-1111-8111-111111111111",
       kitSlug: "paykit",
       orderRef: "booking:b1:deposit",
       amountCents: 450,
@@ -205,14 +205,14 @@ describe("createCheckout", () => {
           amountCents: 450,
           reference: "booking:b1:deposit",
         }),
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
       },
       error: null,
     });
     const { createCheckout } = await import("./checkout");
     const result = await createCheckout({
-      vendorId: "11111111-1111-1111-1111-111111111111",
+      vendorId: "11111111-1111-1111-8111-111111111111",
       kitSlug: "paykit",
       orderRef: "booking:b1:deposit",
       amountCents: 450,
@@ -239,7 +239,7 @@ describe("createCheckout", () => {
     });
     const { createCheckout } = await import("./checkout");
     const result = await createCheckout({
-      vendorId: "11111111-1111-1111-1111-111111111111",
+      vendorId: "11111111-1111-1111-8111-111111111111",
       kitSlug: "paykit",
       orderRef: "booking:b1:deposit",
       amountCents: 450,
@@ -255,7 +255,7 @@ describe("createCheckout", () => {
 it("persists checkout representation with the original payload", async () => {
   const { createCheckout } = await import("./checkout");
   await createCheckout({
-    vendorId: "11111111-1111-1111-1111-111111111111",
+    vendorId: "11111111-1111-1111-8111-111111111111",
     kitSlug: "paykit",
     orderRef: "booking:b1:deposit",
     amountCents: 450,
@@ -273,7 +273,7 @@ it("keeps canonical historical PayNow retries usable without a kind backfill", a
   existingSingle.mockResolvedValue({
     data: {
       id: "legacy",
-      vendor_id: "11111111-1111-1111-1111-111111111111",
+      vendor_id: "11111111-1111-1111-8111-111111111111",
       amount_cents: 450,
       checkout_kind: null,
       checkout_label: null,
@@ -289,7 +289,7 @@ it("keeps canonical historical PayNow retries usable without a kind backfill", a
   const { createCheckout } = await import("./checkout");
   expect(
     await createCheckout({
-      vendorId: "11111111-1111-1111-1111-111111111111",
+      vendorId: "11111111-1111-1111-8111-111111111111",
       kitSlug: "paykit",
       orderRef: "booking:b1:deposit",
       amountCents: 450,
@@ -299,7 +299,7 @@ it("keeps canonical historical PayNow retries usable without a kind backfill", a
 
 describe("createCheckout for the hosted pay page", () => {
   const INPUT = {
-    vendorId: "11111111-1111-1111-1111-111111111111",
+    vendorId: "11111111-1111-1111-8111-111111111111",
     kitSlug: "qkit",
     orderRef: "booking:b1:deposit",
     amountCents: 450,
@@ -313,7 +313,7 @@ describe("createCheckout for the hosted pay page", () => {
     status: "claimed",
     checkout_kind: "qr",
     checkout_label: null,
-    vendor_id: "11111111-1111-1111-1111-111111111111",
+    vendor_id: "11111111-1111-1111-8111-111111111111",
     amount_cents: 450,
     qr_payload: buildPayNowPayload({
       uen: "53312345A",

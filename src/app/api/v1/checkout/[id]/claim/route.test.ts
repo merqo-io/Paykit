@@ -38,7 +38,7 @@ beforeEach(() => {
   scheduleCallbackMock.mockReset();
 });
 
-const TX_ID = "22222222-2222-2222-2222-222222222222";
+const TX_ID = "22222222-2222-2222-8222-222222222222";
 
 const ROW = {
   id: TX_ID,
@@ -285,7 +285,7 @@ describe("payment proof on claim", () => {
   const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00];
   const VENDOR_ROW = {
     ...ROW,
-    vendor_id: "00000000-0000-0000-0000-00000000000a",
+    vendor_id: "00000000-0000-4000-8000-00000000000a",
   };
 
   function proofReq(bytes: number[] = PNG, type = "image/png") {

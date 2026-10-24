@@ -27,7 +27,7 @@ vi.mock("@/lib/supabase/server", () => ({
 vi.mock("next/server", () => ({ after: afterMock }));
 
 const TX = {
-  id: "22222222-2222-2222-2222-222222222222",
+  id: "22222222-2222-2222-8222-222222222222",
   kit_slug: "qkit",
   order_ref: "A-001",
   status: "claimed",

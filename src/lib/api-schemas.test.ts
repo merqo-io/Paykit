@@ -11,7 +11,7 @@ import {
 describe("checkoutRequestSchema", () => {
   it("accepts a valid request", () => {
     const parsed = checkoutRequestSchema.safeParse({
-      vendor_id: "11111111-1111-1111-1111-111111111111",
+      vendor_id: "11111111-1111-1111-8111-111111111111",
       amount_cents: 450,
       order_ref: "A-001",
     });
@@ -19,7 +19,7 @@ describe("checkoutRequestSchema", () => {
   });
 
   const base = {
-    vendor_id: "11111111-1111-1111-1111-111111111111",
+    vendor_id: "11111111-1111-1111-8111-111111111111",
     amount_cents: 450,
     order_ref: "A-001",
   };
@@ -89,7 +89,7 @@ describe("checkoutRequestSchema", () => {
   it("rejects a non-positive amount", () => {
     expect(
       checkoutRequestSchema.safeParse({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 0,
         order_ref: "A-001",
       }).success,
@@ -99,7 +99,7 @@ describe("checkoutRequestSchema", () => {
   it("rejects an empty order_ref", () => {
     expect(
       checkoutRequestSchema.safeParse({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "",
       }).success,
@@ -112,14 +112,14 @@ describe("checkoutResponseSchema / transactionStatusResponseSchema / vendorConfi
     expect(
       checkoutResponseSchema.safeParse({
         type: "qr",
-        transaction_id: "11111111-1111-1111-1111-111111111111",
+        transaction_id: "11111111-1111-1111-8111-111111111111",
         status: "pending",
         payload: "00020101...6304ABCD",
       }).success,
     ).toBe(true);
     expect(
       transactionStatusResponseSchema.safeParse({
-        transaction_id: "11111111-1111-1111-1111-111111111111",
+        transaction_id: "11111111-1111-1111-8111-111111111111",
         status: "pending",
         amount_cents: 450,
         order_ref: "A-001",

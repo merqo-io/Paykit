@@ -7,9 +7,9 @@ import {
 } from "./payment-evidence";
 import type { ProofFile } from "./proof-file";
 
-const VENDOR = "00000000-0000-0000-0000-00000000000a";
-const TX = { id: "11111111-1111-1111-1111-111111111111", vendor_id: VENDOR };
-const OTHER_TX = "22222222-2222-2222-2222-222222222222";
+const VENDOR = "00000000-0000-4000-8000-00000000000a";
+const TX = { id: "11111111-1111-1111-8111-111111111111", vendor_id: VENDOR };
+const OTHER_TX = "22222222-2222-2222-8222-222222222222";
 const PATH = `${VENDOR}/${TX.id}`;
 const HASH = "a".repeat(64);
 

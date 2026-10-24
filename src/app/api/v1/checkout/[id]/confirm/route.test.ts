@@ -38,7 +38,7 @@ beforeEach(() => {
   scheduleCallbackMock.mockReset();
 });
 
-const TX_ID = "22222222-2222-2222-2222-222222222222";
+const TX_ID = "22222222-2222-2222-8222-222222222222";
 
 const ROW = {
   id: TX_ID,

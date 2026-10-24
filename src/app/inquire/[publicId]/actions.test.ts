@@ -26,7 +26,7 @@ import { submitInquiryAction } from "./actions";
 const PUBLIC_ID = "0123456789abcdef";
 const SUPABASE = { marker: "service-client" };
 const FORM = {
-  vendor_id: "11111111-1111-1111-1111-111111111111",
+  vendor_id: "11111111-1111-1111-8111-111111111111",
   business_name: "Kopi Cart Co",
   terms_url: null,
   terms_version: null,

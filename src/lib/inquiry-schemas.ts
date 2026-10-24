@@ -59,6 +59,6 @@ export const publicInquirySchema = z.object({
 export type PublicInquiryInput = z.infer<typeof publicInquirySchema>;
 
 export const inquiryStatusUpdateSchema = z.object({
-  inquiry_id: z.string().uuid("Invalid inquiry"),
+  inquiry_id: z.uuid("Invalid inquiry"),
   status: z.enum(["contacted", "declined"]),
 });

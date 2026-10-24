@@ -32,8 +32,8 @@ vi.mock("@/lib/payment-evidence", () => ({
   loadCheckoutEvidence: loadEvidenceMock,
 }));
 
-const TX_ID = "22222222-2222-2222-2222-222222222222";
-const VENDOR_ID = "00000000-0000-0000-0000-00000000000a";
+const TX_ID = "22222222-2222-2222-8222-222222222222";
+const VENDOR_ID = "00000000-0000-4000-8000-00000000000a";
 
 const EVIDENCE = {
   proof_url: "https://storage.example/signed?token=abc",

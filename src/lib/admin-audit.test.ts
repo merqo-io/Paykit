@@ -28,7 +28,7 @@ describe("audit action boundary", () => {
       publicActions.setPricing({ monthly_cents: 1 }),
     ).rejects.toThrow("NEXT_NOT_FOUND");
     const form = new FormData();
-    form.set("vendorId", "11111111-1111-1111-1111-111111111111");
+    form.set("vendorId", "11111111-1111-1111-8111-111111111111");
     form.set("plan", "pro");
     await expect(publicActions.setVendorPlan(form)).rejects.toThrow(
       "NEXT_NOT_FOUND",

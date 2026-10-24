@@ -104,8 +104,8 @@ beforeEach(() => {
   linkInquiryMock.mockReset().mockResolvedValue(true);
 });
 
-const VALID_BOOKING_ID = "11111111-1111-1111-1111-111111111111";
-const VALID_TX_ID = "22222222-2222-2222-2222-222222222222";
+const VALID_BOOKING_ID = "11111111-1111-1111-8111-111111111111";
+const VALID_TX_ID = "22222222-2222-2222-8222-222222222222";
 
 function formData(fields: Record<string, string>) {
   const fd = new FormData();
@@ -126,7 +126,7 @@ const VALID_BOOKING_FIELDS = {
 describe("createBookingAction", () => {
   it("links the inquiry it was converted from", async () => {
     const { createBookingAction } = await import("./actions");
-    const inquiryId = "33333333-3333-3333-3333-333333333333";
+    const inquiryId = "33333333-3333-3333-8333-333333333333";
     const result = await createBookingAction(
       { status: "idle" },
       formData({ ...VALID_BOOKING_FIELDS, inquiry_id: inquiryId }),
@@ -158,7 +158,7 @@ describe("createBookingAction", () => {
       { status: "idle" },
       formData({
         ...VALID_BOOKING_FIELDS,
-        inquiry_id: "33333333-3333-3333-3333-333333333333",
+        inquiry_id: "33333333-3333-3333-8333-333333333333",
       }),
     );
     expect(result.status).toBe("ok");
