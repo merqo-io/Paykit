@@ -3,7 +3,7 @@ import { renderCheckout, autoVerify } from "./adapter";
 import type { VendorPaymentConfig } from "@/lib/types";
 
 const BASE = {
-  vendor_id: "11111111-1111-1111-1111-111111111111",
+  vendor_id: "11111111-1111-1111-8111-111111111111",
   verification_method: "manual" as const,
   plan: "free" as const,
   created_at: "2026-01-01T00:00:00Z",

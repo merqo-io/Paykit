@@ -76,7 +76,7 @@ beforeEach(() => {
   auditInsert.mockReset().mockResolvedValue({ error: null });
   configMaybeSingle.mockReset().mockResolvedValue({
     data: {
-      vendor_id: "11111111-1111-1111-1111-111111111111",
+      vendor_id: "11111111-1111-1111-8111-111111111111",
       kind: "paynow",
       uen: "53312345A",
       mobile: null,
@@ -126,7 +126,7 @@ describe("POST /api/v1/checkout", () => {
   it("creates a checkout and returns a QR payload", async () => {
     const res = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-001",
       }),
@@ -148,7 +148,7 @@ describe("POST /api/v1/checkout", () => {
   it("creates a checkout for a free-tier vendor", async () => {
     configMaybeSingle.mockResolvedValue({
       data: {
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         kind: "paynow",
         uen: "53312345A",
         mobile: null,
@@ -163,7 +163,7 @@ describe("POST /api/v1/checkout", () => {
     });
     const res = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-501",
       }),
@@ -174,7 +174,7 @@ describe("POST /api/v1/checkout", () => {
   it("creates a link checkout for a pointer-kind vendor", async () => {
     configMaybeSingle.mockResolvedValue({
       data: {
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         kind: "pointer",
         uen: null,
         mobile: null,
@@ -197,7 +197,7 @@ describe("POST /api/v1/checkout", () => {
     });
     const res = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-002",
       }),
@@ -215,7 +215,7 @@ describe("POST /api/v1/checkout", () => {
   it("422s when a pointer-kind vendor's config is incomplete", async () => {
     configMaybeSingle.mockResolvedValue({
       data: {
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         kind: "pointer",
         uen: null,
         mobile: null,
@@ -230,7 +230,7 @@ describe("POST /api/v1/checkout", () => {
     });
     const res = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-003",
       }),
@@ -242,7 +242,7 @@ describe("POST /api/v1/checkout", () => {
     verifyKitAuthMock.mockResolvedValue(null);
     const res = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-001",
       }),
@@ -254,7 +254,7 @@ describe("POST /api/v1/checkout", () => {
     rateLimitMock.mockResolvedValue(false);
     const res = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-001",
       }),
@@ -267,7 +267,7 @@ describe("POST /api/v1/checkout", () => {
     configMaybeSingle.mockResolvedValue({ data: null, error: null });
     const res = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-001",
       }),
@@ -285,7 +285,7 @@ describe("POST /api/v1/checkout", () => {
   it("400s on an expires_at that is not a time, before any insert", async () => {
     const res = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-001",
         expires_at: "in half an hour",
@@ -305,7 +305,7 @@ describe("POST /api/v1/checkout", () => {
     });
     const res = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-001",
       }),
@@ -318,7 +318,7 @@ describe("POST /api/v1/checkout", () => {
   it("replays the original transaction after a retry hits the unique constraint", async () => {
     const first = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-901",
       }),
@@ -344,7 +344,7 @@ describe("POST /api/v1/checkout", () => {
           amountCents: 450,
           reference: "A-901",
         }),
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
       },
       error: null,
@@ -352,7 +352,7 @@ describe("POST /api/v1/checkout", () => {
 
     const retry = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-901",
       }),
@@ -372,7 +372,7 @@ describe("POST /api/v1/checkout", () => {
     });
     const res = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-901",
       }),
@@ -389,7 +389,7 @@ describe("POST /api/v1/checkout", () => {
     });
     const res = await POST(
       req({
-        vendor_id: "11111111-1111-1111-1111-111111111111",
+        vendor_id: "11111111-1111-1111-8111-111111111111",
         amount_cents: 450,
         order_ref: "A-001",
       }),
@@ -402,7 +402,7 @@ describe("POST /api/v1/checkout", () => {
 
 describe("POST /api/v1/checkout for the hosted pay page", () => {
   const BODY = {
-    vendor_id: "11111111-1111-1111-1111-111111111111",
+    vendor_id: "11111111-1111-1111-8111-111111111111",
     amount_cents: 450,
     order_ref: "A-001",
   };

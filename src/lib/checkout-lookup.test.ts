@@ -7,12 +7,12 @@ import {
 } from "./api-schemas";
 
 const BASE: CheckoutLookupRow = {
-  id: "22222222-2222-2222-2222-222222222222",
+  id: "22222222-2222-2222-8222-222222222222",
   status: "claimed",
   amount_cents: 450,
   order_ref: "A-001",
   kit_slug: "qkit",
-  vendor_id: "11111111-1111-1111-1111-111111111111",
+  vendor_id: "11111111-1111-1111-8111-111111111111",
   claimed_at: "2026-07-15T00:01:00Z",
   confirmed_at: null,
   created_at: "2026-07-15T00:00:00Z",
@@ -30,7 +30,7 @@ describe("toLookupResponse", () => {
       amount_cents: 450,
       order_ref: "A-001",
       kit_slug: "qkit",
-      vendor_id: "11111111-1111-1111-1111-111111111111",
+      vendor_id: "11111111-1111-1111-8111-111111111111",
     });
     expect(body.view).toEqual({
       type: "link",

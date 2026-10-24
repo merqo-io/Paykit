@@ -33,7 +33,7 @@ vi.mock("./pay-panel", () => ({
 
 import PayPage, { metadata } from "./page";
 
-const TX_ID = "22222222-2222-2222-2222-222222222222";
+const TX_ID = "22222222-2222-2222-8222-222222222222";
 const TOKEN = "a".repeat(43);
 const RETURN_URL = "https://qkit.merqo.io/order/b1/pay?t=abc";
 
@@ -47,7 +47,7 @@ const PAYMENT = {
 };
 const ROW = {
   id: TX_ID,
-  vendor_id: "11111111-1111-1111-1111-111111111111",
+  vendor_id: "11111111-1111-1111-8111-111111111111",
   order_ref: "order-ref-secret",
   kit_slug: "qkit",
   pay_token_hash: "f".repeat(64),

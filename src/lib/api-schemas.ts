@@ -4,7 +4,7 @@ import { RETURN_URL_MAX } from "@/lib/return-url";
 export const txStatusSchema = z.enum(["pending", "claimed", "confirmed"]);
 
 /** Shared UUID validator for path params (`transactions.id`, `vendor_payment_config.vendor_id`) — a malformed value is a 400, not a DB-error 503. */
-export const uuidSchema = z.string().uuid();
+export const uuidSchema = z.uuid();
 
 /** Furthest ahead a calling kit may place a checkout's `expires_at`. */
 export const MAX_EXPIRES_AHEAD_MS = 7 * 24 * 60 * 60 * 1000;
@@ -43,7 +43,7 @@ export type CheckoutRequest = z.infer<typeof checkoutRequestSchema>;
 // the request carried a `return_url`, and each such request makes the
 // previous `pay_url` for the transaction stop working.
 const checkoutCommonFields = {
-  transaction_id: z.string().uuid(),
+  transaction_id: z.uuid(),
   status: txStatusSchema,
   pay_url: z.string().url().optional(),
 };
@@ -142,7 +142,7 @@ export type CheckoutEvidenceResponse = z.infer<
 >;
 
 export const bookingStatusResponseSchema = z.object({
-  booking_id: z.string().uuid(),
+  booking_id: z.uuid(),
   status: z.enum([
     "pending_deposit",
     "deposit_paid",

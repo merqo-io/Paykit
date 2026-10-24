@@ -23,14 +23,14 @@ vi.mock("@/lib/claim", () => ({ claimTransaction: claimMock }));
 import { claimHostedPayment, getHostedPaymentStatus } from "./actions";
 import { PROOF_MAX_BYTES } from "@/lib/proof-file";
 
-const TX_ID = "22222222-2222-2222-2222-222222222222";
+const TX_ID = "22222222-2222-2222-8222-222222222222";
 const TOKEN = "a".repeat(43);
 const RETURN_URL = "https://qkit.merqo.io/order/b1/pay?t=abc";
 const SUPABASE = { marker: "service-client" };
 
 const ROW = {
   id: TX_ID,
-  vendor_id: "11111111-1111-1111-1111-111111111111",
+  vendor_id: "11111111-1111-1111-8111-111111111111",
   kit_slug: "qkit",
   order_ref: "order-ref-secret",
   amount_cents: 450,

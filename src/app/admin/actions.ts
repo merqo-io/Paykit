@@ -8,7 +8,7 @@ import type { ActionResult } from "@/lib/action-result";
 import { recordAudit } from "@/lib/admin-audit";
 
 const setVendorPlanSchema = z.object({
-  vendorId: z.string().uuid(),
+  vendorId: z.uuid(),
   plan: z.enum(["free", "pro"]),
 });
 

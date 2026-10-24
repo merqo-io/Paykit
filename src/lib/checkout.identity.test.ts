@@ -7,7 +7,7 @@ const { existing, client } = vi.hoisted(() => ({
 }));
 vi.mock("@/lib/supabase/server", () => ({ createServiceClient: client }));
 vi.mock("@/lib/payment-audit", () => ({ recordPaymentAudit: vi.fn() }));
-const vendorId = "11111111-1111-1111-1111-111111111111";
+const vendorId = "11111111-1111-1111-8111-111111111111";
 const input = {
   vendorId,
   kitSlug: "qkit",
@@ -47,7 +47,7 @@ beforeEach(() => {
 });
 describe("checkout idempotency identity", () => {
   it.each([
-    { vendor_id: "22222222-2222-2222-2222-222222222222", amount_cents: 450 },
+    { vendor_id: "22222222-2222-2222-8222-222222222222", amount_cents: 450 },
     { vendor_id: vendorId, amount_cents: 999 },
   ])("rejects conflicting checkout identity %j", async (identity) => {
     existing.mockResolvedValue({

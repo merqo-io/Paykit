@@ -22,9 +22,9 @@ vi.mock("@/lib/supabase/server", () => ({ createServiceClient: service }));
 vi.mock("@/lib/checkout", () => ({ createCheckout: checkout }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 import { recoverDepositCheckoutAction } from "./deposit-actions";
-const bookingId = "11111111-1111-1111-1111-111111111111";
-const vendorId = "22222222-2222-2222-2222-222222222222";
-const txId = "33333333-3333-3333-3333-333333333333";
+const bookingId = "11111111-1111-1111-8111-111111111111";
+const vendorId = "22222222-2222-2222-8222-222222222222";
+const txId = "33333333-3333-3333-8333-333333333333";
 const booking = {
   id: bookingId,
   status: "pending_deposit",

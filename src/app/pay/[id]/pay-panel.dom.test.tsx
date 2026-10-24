@@ -26,7 +26,7 @@ vi.mock("@merqo/ui", async (importOriginal) => {
 
 import { PayPanel } from "./pay-panel";
 
-const TX_ID = "22222222-2222-2222-2222-222222222222";
+const TX_ID = "22222222-2222-2222-8222-222222222222";
 const TOKEN = "a".repeat(43);
 const RETURN_URL = "https://qkit.merqo.io/order/b1/pay?t=abc";
 

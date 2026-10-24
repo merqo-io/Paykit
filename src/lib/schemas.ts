@@ -88,9 +88,9 @@ export type VendorPaymentConfigInput = z.infer<
 const PG_INT4_MAX = 2147483647;
 
 export const issueRefundInputSchema = z.object({
-  transaction_id: z.string().uuid("Invalid transaction"),
+  transaction_id: z.uuid("Invalid transaction"),
   refunded_amount_cents: z.coerce
-    .number({ invalid_type_error: "Enter a valid refund amount." })
+    .number({ error: "Enter a valid refund amount." })
     .int("Enter a valid refund amount.")
     .positive("Enter a valid refund amount.")
     .max(PG_INT4_MAX, "Amount is too large."),
@@ -121,17 +121,17 @@ export const createBookingInputSchema = z
     event_date: isoDate,
     balance_due_date: isoDate,
     total_amount_cents: z.coerce
-      .number({ invalid_type_error: "Enter a valid total amount." })
+      .number({ error: "Enter a valid total amount." })
       .int("Enter a valid total amount.")
       .positive("Enter a valid total amount.")
       .max(PG_INT4_MAX, "Amount is too large."),
     deposit_amount_cents: z.coerce
-      .number({ invalid_type_error: "Enter a valid deposit amount." })
+      .number({ error: "Enter a valid deposit amount." })
       .int("Enter a valid deposit amount.")
       .positive("Enter a valid deposit amount.")
       .max(PG_INT4_MAX, "Amount is too large."),
     balance_amount_cents: z.coerce
-      .number({ invalid_type_error: "Enter a valid balance amount." })
+      .number({ error: "Enter a valid balance amount." })
       .int("Enter a valid balance amount.")
       .positive("Enter a valid balance amount.")
       .max(PG_INT4_MAX, "Amount is too large."),
@@ -159,16 +159,16 @@ export type CreateBookingInput = z.infer<typeof createBookingInputSchema>;
 
 export const cancelBookingInputSchema = z
   .object({
-    booking_id: z.string().uuid("Invalid booking"),
+    booking_id: z.uuid("Invalid booking"),
     reason: z
       .string()
       .trim()
       .max(500, "Reason is too long")
       .optional()
       .or(z.literal("")),
-    refund_transaction_id: z.string().uuid("Invalid transaction").optional(),
+    refund_transaction_id: z.uuid("Invalid transaction").optional(),
     refund_amount_cents: z.coerce
-      .number({ invalid_type_error: "Enter a valid refund amount." })
+      .number({ error: "Enter a valid refund amount." })
       .int("Enter a valid refund amount.")
       .positive("Enter a valid refund amount.")
       .max(PG_INT4_MAX, "Amount is too large.")
@@ -186,7 +186,7 @@ export const cancelBookingInputSchema = z
 export type CancelBookingInput = z.infer<typeof cancelBookingInputSchema>;
 
 export const createBalanceCheckoutInputSchema = z.object({
-  booking_id: z.string().uuid("Invalid booking"),
+  booking_id: z.uuid("Invalid booking"),
 });
 export type CreateBalanceCheckoutInput = z.infer<
   typeof createBalanceCheckoutInputSchema
@@ -194,7 +194,7 @@ export type CreateBalanceCheckoutInput = z.infer<
 
 export const rescheduleBookingInputSchema = z
   .object({
-    booking_id: z.string().uuid("Invalid booking"),
+    booking_id: z.uuid("Invalid booking"),
     event_date: isoDate,
     balance_due_date: isoDate,
   })

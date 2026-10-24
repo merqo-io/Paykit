@@ -20,7 +20,7 @@ import {
 import { hashProof } from "./payment-evidence";
 import type { ProofFile } from "./proof-file";
 
-const TX = { id: "11111111-1111-1111-1111-111111111111", amount_cents: 1250 };
+const TX = { id: "11111111-1111-1111-8111-111111111111", amount_cents: 1250 };
 const PROOF: ProofFile = {
   bytes: Buffer.from("fake image bytes"),
   contentType: "image/webp",

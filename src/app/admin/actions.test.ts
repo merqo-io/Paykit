@@ -78,7 +78,7 @@ describe("setVendorPlan", () => {
 
     const result = await setVendorPlan(
       formData({
-        vendorId: "11111111-1111-1111-1111-111111111111",
+        vendorId: "11111111-1111-1111-8111-111111111111",
         plan: "enterprise",
       }),
     );
@@ -89,7 +89,7 @@ describe("setVendorPlan", () => {
 
   it("updates the vendor's plan, records an audit row, and revalidates on success", async () => {
     const { setVendorPlan } = await import("./actions");
-    const vendorId = "11111111-1111-1111-1111-111111111111";
+    const vendorId = "11111111-1111-1111-8111-111111111111";
 
     const result = await setVendorPlan(formData({ vendorId, plan: "pro" }));
 
@@ -115,7 +115,7 @@ describe("setVendorPlan", () => {
 
     const result = await setVendorPlan(
       formData({
-        vendorId: "11111111-1111-1111-1111-111111111111",
+        vendorId: "11111111-1111-1111-8111-111111111111",
         plan: "free",
       }),
     );
@@ -132,7 +132,7 @@ describe("setVendorPlan", () => {
 
     const result = await setVendorPlan(
       formData({
-        vendorId: "11111111-1111-1111-1111-111111111111",
+        vendorId: "11111111-1111-1111-8111-111111111111",
         plan: "pro",
       }),
     );

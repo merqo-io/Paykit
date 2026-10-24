@@ -41,7 +41,7 @@ describe("getProvider", () => {
 
 describe("directProvider", () => {
   const paynowConfig: VendorPaymentConfig = {
-    vendor_id: "11111111-1111-1111-1111-111111111111",
+    vendor_id: "11111111-1111-1111-8111-111111111111",
     kind: "paynow",
     uen: "53312345A",
     mobile: null,
