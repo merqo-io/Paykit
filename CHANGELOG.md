@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.12] - 2026-10-24
+
+### Security
+
+- Dev tooling advisories: `vitest` and `@vitest/coverage-v8` to `4.1.12` (`@vitest/mocker` GHSA-qxg6-89mg-rqv8, GHSA-xp26-3454-mjgp), `vite` pinned as a direct dev dependency at the first patched version of its major (GHSA-587h-7wmj-h5pm and five more), `undici` override raised to `>=7.30.1`, `fast-uri` override raised to `>=4.2.3`. `@supabase/supabase-js` is now an exact pin instead of a caret range.
+
 ## [0.1.11] - 2026-10-24
 
 ### Added
