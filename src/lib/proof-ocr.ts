@@ -14,14 +14,35 @@ import "tesseract.js-core/package.json";
 // one Tesseract can handle and the worker is stopped.
 const OCR_TIMEOUT_MS = 20_000;
 
+// Pure black and white with this cut-off is what made light-grey amounts with
+// raised cents (PayLah's history screen) readable; see proof-amount-check.ts.
+const HIGH_CONTRAST_THRESHOLD = 120;
+
+export type OcrMode = "plain" | "highContrast";
+
+async function highContrast(image: Buffer): Promise<Buffer> {
+  const { Jimp } = await import("jimp");
+  const picture = await Jimp.read(image);
+  return picture
+    .greyscale()
+    .threshold({ max: HIGH_CONTRAST_THRESHOLD })
+    .getBuffer("image/png");
+}
+
 /**
  * Reads the text out of an image with Tesseract, in this process. The
  * language data is the repo's own `ocr-data/eng.traineddata.gz`, so nothing
- * is fetched at run time. Throws when the image cannot be read or the read
- * takes longer than 20 seconds; the worker is stopped either way.
+ * is fetched at run time. `highContrast` reads a black and white copy as
+ * sparse text, for screenshots the plain read garbles. Throws when the image
+ * cannot be read or the read takes longer than 20 seconds; the worker is
+ * stopped either way.
  */
-export async function recognizeText(image: Buffer): Promise<string> {
-  const { createWorker } = await import("tesseract.js");
+export async function recognizeText(
+  image: Buffer,
+  mode: OcrMode = "plain",
+): Promise<string> {
+  const input = mode === "highContrast" ? await highContrast(image) : image;
+  const { createWorker, PSM } = await import("tesseract.js");
   const worker = await createWorker("eng", 1, {
     langPath: path.join(process.cwd(), "ocr-data"),
     cachePath: os.tmpdir(),
@@ -36,7 +57,9 @@ export async function recognizeText(image: Buffer): Promise<string> {
     );
   });
   try {
-    const { data } = await Promise.race([worker.recognize(image), timedOut]);
+    if (mode === "highContrast")
+      await worker.setParameters({ tessedit_pageseg_mode: PSM.SPARSE_TEXT });
+    const { data } = await Promise.race([worker.recognize(input), timedOut]);
     return data.text;
   } finally {
     clearTimeout(timer);

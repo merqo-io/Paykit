@@ -3,13 +3,29 @@ import { readFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-const { createWorkerMock, recognizeMock, terminateMock } = vi.hoisted(() => ({
+const {
+  createWorkerMock,
+  recognizeMock,
+  terminateMock,
+  setParametersMock,
+  jimpReadMock,
+  greyscaleMock,
+  thresholdMock,
+} = vi.hoisted(() => ({
   createWorkerMock: vi.fn(),
   recognizeMock: vi.fn(),
   terminateMock: vi.fn(),
+  setParametersMock: vi.fn(),
+  jimpReadMock: vi.fn(),
+  greyscaleMock: vi.fn(),
+  thresholdMock: vi.fn(),
 }));
 
-vi.mock("tesseract.js", () => ({ createWorker: createWorkerMock }));
+vi.mock("tesseract.js", () => ({
+  createWorker: createWorkerMock,
+  PSM: { SPARSE_TEXT: "11" },
+}));
+vi.mock("jimp", () => ({ Jimp: { read: jimpReadMock } }));
 vi.mock("bmp-js", () => ({}));
 vi.mock("zlibjs", () => ({}));
 vi.mock("wasm-feature-detect", () => ({}));
@@ -18,13 +34,25 @@ vi.mock("tesseract.js-core/package.json", () => ({ default: {} }));
 import { recognizeText } from "./proof-ocr";
 
 const IMAGE = Buffer.from("image bytes");
+const CONTRASTED = Buffer.from("black and white bytes");
 
 beforeEach(() => {
   recognizeMock.mockReset().mockResolvedValue({ data: { text: "SGD 12.50" } });
   terminateMock.mockReset().mockResolvedValue(undefined);
-  createWorkerMock
-    .mockReset()
-    .mockResolvedValue({ recognize: recognizeMock, terminate: terminateMock });
+  setParametersMock.mockReset().mockResolvedValue(undefined);
+  createWorkerMock.mockReset().mockResolvedValue({
+    recognize: recognizeMock,
+    terminate: terminateMock,
+    setParameters: setParametersMock,
+  });
+  const picture = {
+    greyscale: greyscaleMock,
+    threshold: thresholdMock,
+    getBuffer: vi.fn().mockResolvedValue(CONTRASTED),
+  };
+  greyscaleMock.mockReset().mockReturnValue(picture);
+  thresholdMock.mockReset().mockReturnValue(picture);
+  jimpReadMock.mockReset().mockResolvedValue(picture);
 });
 afterEach(() => {
   vi.useRealTimers();
@@ -45,6 +73,24 @@ describe("recognizeText", () => {
       cacheMethod: "none",
       gzip: true,
     });
+  });
+
+  it("reads the original image as-is by default", async () => {
+    await recognizeText(IMAGE);
+    expect(jimpReadMock).not.toHaveBeenCalled();
+    expect(setParametersMock).not.toHaveBeenCalled();
+  });
+
+  it("reads a black and white copy as sparse text in highContrast mode", async () => {
+    await recognizeText(IMAGE, "highContrast");
+    expect(jimpReadMock).toHaveBeenCalledWith(IMAGE);
+    expect(greyscaleMock).toHaveBeenCalledTimes(1);
+    expect(thresholdMock).toHaveBeenCalledWith({ max: 120 });
+    expect(setParametersMock).toHaveBeenCalledWith({
+      tessedit_pageseg_mode: "11",
+    });
+    expect(recognizeMock).toHaveBeenCalledWith(CONTRASTED);
+    expect(terminateMock).toHaveBeenCalledTimes(1);
   });
 
   it("stops the worker and rethrows when the image cannot be read", async () => {

@@ -13,6 +13,7 @@ vi.mock("next/server", () => ({ after: afterMock }));
 vi.mock("@/lib/proof-ocr", () => ({ recognizeText: recognizeTextMock }));
 
 import {
+  amountInRaisedCentsText,
   amountInText,
   checkProofAmount,
   scheduleProofAmountCheck,
@@ -76,6 +77,22 @@ describe("amountInText", () => {
   });
 });
 
+describe("amountInRaisedCentsText", () => {
+  it.each([
+    ["sGb 8-50", 850, true],
+    ["SGD 11-00", 1100, true],
+    ["$8.50", 850, true],
+    ["S$1,250-00", 125000, true],
+    ["8-90", 850, false],
+    ["2026-10-26", 1026, false],
+    ["10-26-2026", 1026, false],
+    ["112-50", 1250, false],
+    ["8-5", 850, false],
+  ])("%j for %i cents is %j", (text, cents, expected) => {
+    expect(amountInRaisedCentsText(text, cents)).toBe(expected);
+  });
+});
+
 describe("checkProofAmount", () => {
   it("reads the stored bytes and records a match on this screenshot's row", async () => {
     await checkProofAmount(fakeSupabase(), TX, PROOF);
@@ -90,8 +107,48 @@ describe("checkProofAmount", () => {
     ]);
   });
 
-  it("records a mismatch when the amount is not in the text", async () => {
+  it("records a mismatch when neither read finds the amount", async () => {
     recognizeTextMock.mockResolvedValue("SGD 2.50");
+    await checkProofAmount(fakeSupabase(), TX, PROOF);
+    expect(recognizeTextMock).toHaveBeenNthCalledWith(
+      2,
+      PROOF.bytes,
+      "highContrast",
+    );
+    expect(updateMock).toHaveBeenCalledWith("payment_evidence", {
+      detail: { amount_match: false },
+    });
+  });
+
+  it("skips the high-contrast read when the plain read finds the amount", async () => {
+    await checkProofAmount(fakeSupabase(), TX, PROOF);
+    expect(recognizeTextMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("matches raised cents through the high-contrast read", async () => {
+    recognizeTextMock
+      .mockResolvedValueOnce("SGD &-50")
+      .mockResolvedValueOnce("sGb 12-50");
+    await checkProofAmount(fakeSupabase(), TX, PROOF);
+    expect(updateMock).toHaveBeenCalledWith("payment_evidence", {
+      detail: { amount_match: true },
+    });
+  });
+
+  it("does not take a dash from the plain read", async () => {
+    recognizeTextMock
+      .mockResolvedValueOnce("SGD 12-50")
+      .mockResolvedValueOnce("nothing");
+    await checkProofAmount(fakeSupabase(), TX, PROOF);
+    expect(updateMock).toHaveBeenCalledWith("payment_evidence", {
+      detail: { amount_match: false },
+    });
+  });
+
+  it("keeps the plain read's answer when the high-contrast read fails", async () => {
+    recognizeTextMock
+      .mockResolvedValueOnce("SGD 2.50")
+      .mockRejectedValueOnce(new Error("unreadable"));
     await checkProofAmount(fakeSupabase(), TX, PROOF);
     expect(updateMock).toHaveBeenCalledWith("payment_evidence", {
       detail: { amount_match: false },
