@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-26
+
+### Added
+
+- Payment screenshot amount check: when the plain read finds no amount, a second read of a black and white copy (sparse-text mode) runs, accepting a dash for the point. DBS PayLah's history screen (large amount, small raised cents) read as "GD &-50" before and now matches. Tested locally on 7 real screenshots (DBS digibank, UOB, PayLah success and history, Google Pay dark): 7 of 7 match, up from 5. `jimp` 1.6.0 added for the black and white copy.
+
 ## [0.2.0] - 2026-10-24
 
 ### Security
