@@ -68,3 +68,5 @@ Both are bearer-secret authenticated (`verifyKitAuth`).
 ## Parent
 
 [v1](../README.md)
+
+Transaction reads list their columns (`TRANSACTION_COLUMNS` in `@/lib/columns`) instead of `select("*")`; `pay_token_hash` is left out.
