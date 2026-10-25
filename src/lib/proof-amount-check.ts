@@ -13,8 +13,8 @@ type CheckedTransaction = { id: string; amount_cents: number };
 const AMOUNT = /(?:^|[^\d.,])((?:\d{1,3}(?:,\d{3})+|\d+)\.\d{2})(?![\d.,])/g;
 
 // A large amount with small raised cents and no visible point (PayLah's
-// history screen) reads back as "8-50". A dash inside a date such as
-// "2026-10-26" or "10-26-2026" is not taken.
+// history screen) reads back as "8-50". A dash that joins more digit groups,
+// as in a date, is not taken.
 const RAISED_CENTS_AMOUNT =
   /(?:^|[^\d.,-])((?:\d{1,3}(?:,\d{3})+|\d+)[.-]\d{2})(?![\d.,-])/g;
 
