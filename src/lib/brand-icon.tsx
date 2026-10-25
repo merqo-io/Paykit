@@ -1,9 +1,7 @@
+/* eslint-disable no-restricted-syntax -- ImageResponse needs literal CSS colours */
 import type { ReactElement } from "react";
 
-// "Banknote Engrave" marks, approximated from the OKLCH theme tokens as
-// concrete hex — ImageResponse needs literal CSS colors. Uses the dark
-// theme's brighter primary (not the light theme's deep teal) so the
-// dark-ink text on top stays legible at icon scale.
+// Dark theme's brighter primary, so the dark-ink text stays legible at icon scale.
 export const BRAND_MINT = "#3E9C82";
 export const BRAND_INK = "#1A1D1B";
 

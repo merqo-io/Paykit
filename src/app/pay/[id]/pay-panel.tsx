@@ -51,6 +51,128 @@ function headingFor(view: NonNullable<HostedPayment["view"]>): string {
   return "Scan with your banking or payment app to pay";
 }
 
+async function shareOrDownloadPng(blob: Blob): Promise<void> {
+  const file = new File([blob], "payment-qr.png", { type: "image/png" });
+  if (navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file] });
+      return;
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") return;
+    }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "payment-qr.png";
+  // Some browsers need the anchor in the document for the click to start a download.
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // Revoking at once can cancel a download that is still starting.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function Notice({ heading, body }: { heading: string; body: string }) {
+  return (
+    <section className="space-y-3 px-6 py-5 text-center">
+      <h1 className="font-display text-xl font-semibold">{heading}</h1>
+      <p className="text-sm text-muted-foreground">{body}</p>
+    </section>
+  );
+}
+
+function ImageQr({ url }: { url: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <p className="mx-auto max-w-xs text-center text-sm text-muted-foreground">
+        The payment QR couldn&apos;t load. Check your connection and refresh, or
+        ask the seller to show their QR.
+      </p>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- seller-supplied QR URL, host unknown to next/image
+    <img
+      src={url}
+      alt="Payment QR"
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+      className="mx-auto w-44 rounded-xl border border-border"
+    />
+  );
+}
+
+function ProofSummary({ proof }: { proof: Proof }) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-2">
+      {proof.previewUrl && (
+        // eslint-disable-next-line @next/next/no-img-element -- local blob preview
+        <img
+          src={proof.previewUrl}
+          alt=""
+          className="h-14 w-11 shrink-0 rounded-md object-cover"
+        />
+      )}
+      <div className="min-w-0 text-left">
+        <p className="text-sm font-semibold">Screenshot attached</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {proof.file.name}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ProofUpload({
+  proof,
+  photoError,
+  highlighted,
+  onChange,
+}: {
+  proof: Proof | null;
+  photoError: string | null;
+  highlighted: boolean;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <>
+      {/* A real file input, hidden from sight and reached through its
+          label, so the phone offers the photo library as well as the
+          camera: a payment made on this phone is a saved screenshot. */}
+      <input
+        id="payment-proof"
+        type="file"
+        accept="image/*"
+        onChange={onChange}
+        aria-invalid={photoError ? true : undefined}
+        aria-describedby={photoError ? PROOF_ERROR_ID : undefined}
+        className="peer sr-only"
+      />
+      <label
+        htmlFor="payment-proof"
+        className={cn(
+          buttonVariants({ variant: highlighted ? "default" : "outline" }),
+          "h-12 w-full cursor-pointer rounded-xl peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring",
+        )}
+      >
+        <ImageUp className="size-4" aria-hidden />
+        {proof ? "Upload a different screenshot" : "Upload payment screenshot"}
+      </label>
+      {photoError && (
+        <p
+          id={PROOF_ERROR_ID}
+          role="alert"
+          className="text-center text-sm font-medium text-destructive"
+        >
+          {photoError}
+        </p>
+      )}
+    </>
+  );
+}
+
 export function PayPanel({
   id,
   token,
@@ -65,7 +187,6 @@ export function PayPanel({
   view: HostedPayment["view"];
 }) {
   const { pending: busy, run } = useAsyncAction();
-  const [imgError, setImgError] = useState(false);
   const [proof, setProof] = useState<Proof | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -111,26 +232,7 @@ export function PayPanel({
     setSaving(true);
     try {
       const blob = await renderSvgToPngBlob(svg as SVGSVGElement);
-      const file = new File([blob], "payment-qr.png", { type: "image/png" });
-      if (navigator.canShare?.({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file] });
-          return;
-        } catch (err) {
-          if (err instanceof Error && err.name === "AbortError") return;
-        }
-      }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "payment-qr.png";
-      // Some browsers need the anchor in the document for the click to
-      // start a download.
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      // Revoking at once can cancel a download that is still starting.
-      setTimeout(() => URL.revokeObjectURL(url), 0);
+      await shareOrDownloadPng(blob);
     } catch {
       toast.error("Couldn't prepare the QR to save. Screenshot it instead.");
     } finally {
@@ -180,25 +282,19 @@ export function PayPanel({
 
   if (recorded) {
     return (
-      <section className="space-y-3 px-6 py-5 text-center">
-        <h1 className="font-display text-xl font-semibold">Payment recorded</h1>
-        <p className="text-sm text-muted-foreground">
-          The seller has been told. You can close this page.
-        </p>
-      </section>
+      <Notice
+        heading="Payment recorded"
+        body="The seller has been told. You can close this page."
+      />
     );
   }
 
   if (!view) {
     return (
-      <section className="space-y-3 px-6 py-5 text-center">
-        <h1 className="font-display text-xl font-semibold">
-          Couldn&apos;t load payment right now
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Ask the seller how to pay for this order.
-        </p>
-      </section>
+      <Notice
+        heading="Couldn't load payment right now"
+        body="Ask the seller how to pay for this order."
+      />
     );
   }
 
@@ -245,22 +341,7 @@ export function PayPanel({
           </p>
         </>
       )}
-      {view.type === "image" &&
-        (imgError ? (
-          <p className="mx-auto max-w-xs text-center text-sm text-muted-foreground">
-            The payment QR couldn&apos;t load. Check your connection and
-            refresh, or ask the seller to show their QR.
-          </p>
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={view.url}
-            alt="Payment QR"
-            referrerPolicy="no-referrer"
-            onError={() => setImgError(true)}
-            className="mx-auto w-44 rounded-xl border border-border"
-          />
-        ))}
+      {view.type === "image" && <ImageQr url={view.url} />}
       {view.type === "link" && (
         <Button
           asChild
@@ -274,57 +355,13 @@ export function PayPanel({
       )}
 
       <div className="space-y-2">
-        {proof && (
-          <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-2">
-            {proof.previewUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={proof.previewUrl}
-                alt=""
-                className="h-14 w-11 shrink-0 rounded-md object-cover"
-              />
-            )}
-            <div className="min-w-0 text-left">
-              <p className="text-sm font-semibold">Screenshot attached</p>
-              <p className="truncate text-xs text-muted-foreground">
-                {proof.file.name}
-              </p>
-            </div>
-          </div>
-        )}
-        {/* A real file input, hidden from sight and reached through its
-            label, so the phone offers the photo library as well as the
-            camera: a payment made on this phone is a saved screenshot. */}
-        <input
-          id="payment-proof"
-          type="file"
-          accept="image/*"
+        {proof && <ProofSummary proof={proof} />}
+        <ProofUpload
+          proof={proof}
+          photoError={photoError}
+          highlighted={attachIsNext}
           onChange={onFileSelected}
-          aria-invalid={photoError ? true : undefined}
-          aria-describedby={photoError ? PROOF_ERROR_ID : undefined}
-          className="peer sr-only"
         />
-        <label
-          htmlFor="payment-proof"
-          className={cn(
-            buttonVariants({ variant: attachIsNext ? "default" : "outline" }),
-            "h-12 w-full cursor-pointer rounded-xl peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring",
-          )}
-        >
-          <ImageUp className="size-4" aria-hidden />
-          {proof
-            ? "Upload a different screenshot"
-            : "Upload payment screenshot"}
-        </label>
-        {photoError && (
-          <p
-            id={PROOF_ERROR_ID}
-            role="alert"
-            className="text-center text-sm font-medium text-destructive"
-          >
-            {photoError}
-          </p>
-        )}
       </div>
 
       <div className="space-y-2">

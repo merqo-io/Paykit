@@ -114,7 +114,7 @@ export default async function DashboardPage() {
       {shouldNudgePro(plan, count) && (
         <div className="rounded-xl border border-mint/30 bg-mint/10 p-4">
           <p className="text-sm font-medium">
-            You&apos;re doing real volume —{" "}
+            You&apos;re doing real volume,{" "}
             <Link
               href="/dashboard/plan"
               className="underline underline-offset-4"

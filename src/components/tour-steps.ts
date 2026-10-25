@@ -43,7 +43,7 @@ const DESKTOP: TourStep[] = [
     element: sel("nav-bookings"),
     title: "Bookings",
     description:
-      "Taking a deposit now and the rest later — for weddings, events, or anything booked in advance? Track the deposit and balance here, with reschedule and cancel built in.",
+      "Taking a deposit now and the rest later, for weddings, events, or anything booked in advance? Track the deposit and balance here, with reschedule and cancel built in.",
   },
   {
     element: sel("nav-stats"),
@@ -54,7 +54,7 @@ const DESKTOP: TourStep[] = [
     element: sel("nav-earnings"),
     title: "Earnings report",
     description:
-      "A revenue breakdown by month, tagged to the actual event date rather than when it was paid — export it as CSV whenever you need it for your own records.",
+      "A revenue breakdown by month, tagged to the actual event date rather than when it was paid. Export it as CSV whenever you need it for your own records.",
   },
   {
     element: sel("nav-account"),

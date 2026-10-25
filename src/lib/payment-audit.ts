@@ -15,10 +15,17 @@ export type PaymentAuditAction =
  */
 export async function recordPaymentAudit(
   supabase: Awaited<ReturnType<typeof createServiceClient>>,
-  transactionId: string,
-  kitSlug: string,
-  action: PaymentAuditAction,
-  detail: Json = null,
+  {
+    transactionId,
+    kitSlug,
+    action,
+    detail = null,
+  }: {
+    transactionId: string;
+    kitSlug: string;
+    action: PaymentAuditAction;
+    detail?: Json;
+  },
 ): Promise<void> {
   try {
     const { error } = await supabase.from("payment_audit").insert({

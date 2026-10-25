@@ -26,3 +26,5 @@ or missing callback never changes this route's answer.
 ## Boundary and coverage
 
 The transaction lookup and guarded write both include the authenticated kit slug as well as the transaction ID. Rate-limit failures prevent mutation, and confirmed state remains unchanged. Tests assert ownership predicates and race fallback behavior.
+
+`recordPaymentAudit` takes one object: `{ transactionId, kitSlug, action, detail? }`.

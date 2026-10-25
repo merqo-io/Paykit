@@ -24,6 +24,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - CSP e2e spec and a signed-in render smoke (against a small Supabase stand-in, so it sees empty data); CI e2e serves the production build.
 - `docs/security/2026-10-24-data-inventory.md`.
 
+## [0.1.13] - 2026-10-24
+
+### Changed
+
+- Lint config now consumes the shared `@merqo/ui/eslint` preset (`@merqo/ui` v0.35.0): comment and directive hygiene, size and complexity limits, and a ban on colour literals and the em dash in `src`. `eslint-plugin-sonarjs` 4.2.2 and `@eslint-community/eslint-plugin-eslint-comments` 4.8.1 pinned. `eslint.config.test.ts` asserts the key rules resolve to `error`. `src/lib/types.ts` (511 lines) is the only `max-lines` exception until the split-long-files task.
+- Ten oversized functions split into helpers (checkout, vendor-activity, bookings and config actions, pay panel, config and profile forms). `recordPaymentAudit` and `addToLine` take an object instead of five positional arguments. The config row builder is shared between the dashboard and the API route. No behaviour change.
+- Em dashes removed from user-facing copy.
+
 ## [0.1.12] - 2026-10-24
 
 ### Security

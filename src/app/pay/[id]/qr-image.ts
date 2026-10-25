@@ -39,7 +39,7 @@ export async function renderSvgToPngBlob(
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Canvas is not supported");
     // The QR SVG has no fill behind its modules.
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "white";
     ctx.fillRect(0, 0, size, size);
     // Inset the QR so a quiet zone (white border) survives in the PNG:
     // react-qr-code's SVG has zero margin, and a bank app scanning from a

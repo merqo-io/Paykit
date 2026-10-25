@@ -1,4 +1,4 @@
-import { createServer, type Server } from "node:http";
+import { createServer, type IncomingMessage, type Server } from "node:http";
 
 // Stands in for GoTrue and PostgREST on the CI dummy project URL, where the
 // smoke job has no database.
@@ -65,43 +65,62 @@ export function signedInCookie(
   };
 }
 
+type Send = (status: number, body: unknown, headers?: object) => void;
+
+function readRows(
+  method: string | undefined,
+  accept: string | undefined,
+  rows: unknown[],
+  send: Send,
+) {
+  const range = {
+    "content-range": `0-${Math.max(rows.length - 1, 0)}/${rows.length}`,
+  };
+  if (method === "HEAD") return send(200, undefined, range);
+  if (!accept?.includes(OBJECT_ACCEPT)) return send(200, rows, range);
+  return rows.length === 1
+    ? send(200, rows[0], range)
+    : send(406, { code: "PGRST116", message: "no single row" });
+}
+
+function handleRest(
+  req: IncomingMessage,
+  pathname: string,
+  fixtures: MockFixtures,
+  send: Send,
+) {
+  const rpc = /^\/rest\/v1\/rpc\/(.+)$/.exec(pathname);
+  if (rpc) return send(200, fixtures.rpc?.[rpc[1]] ?? null);
+
+  const table = /^\/rest\/v1\/([^/]+)$/.exec(pathname)?.[1];
+  if (!table) return send(404, { message: "not mocked" });
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    return send(204, undefined);
+  }
+  return readRows(
+    req.method,
+    req.headers.accept,
+    fixtures.tables?.[table] ?? [],
+    send,
+  );
+}
+
 export function startSupabaseMock(fixtures: MockFixtures = {}): Server {
   return createServer((req, res) => {
-    const url = new URL(req.url ?? "/", "https://mock.invalid");
-    const send = (status: number, body: unknown, headers = {}) => {
+    const { pathname } = new URL(req.url ?? "/", "https://mock.invalid");
+    const send: Send = (status, body, headers = {}) => {
       res.writeHead(status, { "content-type": "application/json", ...headers });
       res.end(body === undefined ? "" : JSON.stringify(body));
     };
 
-    if (url.pathname === "/auth/v1/user") {
+    if (pathname === "/auth/v1/user") {
       return req.headers.authorization
         ? send(200, user)
         : send(401, { code: 401, msg: "no session" });
     }
-
-    if (url.pathname === "/auth/v1/admin/users") {
+    if (pathname === "/auth/v1/admin/users") {
       return send(200, { users: [user], aud: "authenticated" });
     }
-
-    const rpc = /^\/rest\/v1\/rpc\/(.+)$/.exec(url.pathname);
-    if (rpc) return send(200, fixtures.rpc?.[rpc[1]] ?? null);
-
-    const table = /^\/rest\/v1\/([^/]+)$/.exec(url.pathname)?.[1];
-    if (!table) return send(404, { message: "not mocked" });
-
-    if (req.method !== "GET" && req.method !== "HEAD") {
-      return send(204, undefined);
-    }
-    const rows = fixtures.tables?.[table] ?? [];
-    const range = {
-      "content-range": `0-${Math.max(rows.length - 1, 0)}/${rows.length}`,
-    };
-    if (req.method === "HEAD") return send(200, undefined, range);
-    if (req.headers.accept?.includes(OBJECT_ACCEPT)) {
-      return rows.length === 1
-        ? send(200, rows[0], range)
-        : send(406, { code: "PGRST116", message: "no single row" });
-    }
-    return send(200, rows, range);
+    return handleRest(req, pathname, fixtures, send);
   });
 }

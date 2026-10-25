@@ -50,10 +50,7 @@ function replayConflict(
     qr_payload: string;
     checkout_kind?: "qr" | "link" | "image" | null;
   },
-  vendorId: string,
-  amountCents: number,
-  payload: string,
-  kind: "qr" | "link" | "image",
+  { vendorId, amountCents, payloadValue, kind }: ReplayInput,
 ): Extract<CheckoutResult, { ok: false }> | null {
   if (
     existing.vendor_id !== vendorId ||
@@ -65,7 +62,7 @@ function replayConflict(
       error: "Order reference already belongs to a different checkout",
     };
   }
-  if (checkoutKind(existing) !== kind || existing.qr_payload !== payload) {
+  if (checkoutKind(existing) !== kind || existing.qr_payload !== payloadValue) {
     return {
       ok: false,
       status: 409,
@@ -152,13 +149,7 @@ async function replayExisting(supabase: ServiceClient, input: ReplayInput) {
     );
     return CREATE_FAILED;
   }
-  const conflict = replayConflict(
-    existing,
-    input.vendorId,
-    input.amountCents,
-    input.payloadValue,
-    input.kind,
-  );
+  const conflict = replayConflict(existing, input);
   if (conflict) return conflict;
   if (
     input.hostedColumns &&
@@ -168,28 +159,14 @@ async function replayExisting(supabase: ServiceClient, input: ReplayInput) {
   return { ok: true as const, tx: existing };
 }
 
-/**
- * Creates one `transactions` row and renders its checkout view (PayNow QR or
- * BYO pointer). Shared by `POST /api/v1/checkout` (bearer-secret, another
- * kit calling in) and the dashboard's own booking-deposit/balance actions
- * (vendor session, `kitSlug: "paykit"`) — one insert path so idempotency and
- * error handling stay in one place.
- *
- * With `hostedPay` a pay token is minted and its hash stored with the return
- * address and title. A replay mints a new one and replaces the stored hash,
- * since the first token cannot be read back: the previous pay link stops
- * working. Without `hostedPay` nothing about a pay page is written or changed.
- */
-export async function createCheckout({
-  vendorId,
-  kitSlug,
-  orderRef,
-  amountCents,
-  expiresAt,
-  hostedPay,
-}: CreateCheckoutInput): Promise<CheckoutResult> {
-  const supabase = await createServiceClient();
-
+async function buildView(
+  supabase: ServiceClient,
+  vendorId: string,
+  amountCents: number,
+  orderRef: string,
+): Promise<
+  { ok: true; view: CheckoutView } | Extract<CheckoutResult, { ok: false }>
+> {
   const { data: config, error: configError } = await supabase
     .from("vendor_payment_config")
     .select(CONFIG_COLUMNS)
@@ -214,6 +191,86 @@ export async function createCheckout({
       error: "vendor payment config is incomplete",
     };
   }
+  return { ok: true, view };
+}
+
+type StoreInput = {
+  vendorId: string;
+  kitSlug: string;
+  orderRef: string;
+  amountCents: number;
+  expiresAt?: string | null;
+  view: CheckoutView;
+  payloadValue: string;
+  hostedColumns: HostedColumns | null;
+};
+
+/** Inserts the transaction, or on an idempotent retry re-reads the one the first call created. */
+async function storeTransaction(supabase: ServiceClient, input: StoreInput) {
+  const { vendorId, kitSlug, orderRef, amountCents, expiresAt, view } = input;
+  const { data: inserted, error: insertError } = await supabase
+    .from("transactions")
+    .insert({
+      vendor_id: vendorId,
+      kit_slug: kitSlug,
+      order_ref: orderRef,
+      amount_cents: amountCents,
+      qr_payload: input.payloadValue,
+      checkout_kind: view.type,
+      checkout_label: view.type === "link" ? view.label : null,
+      ...(expiresAt ? { expires_at: new Date(expiresAt).toISOString() } : {}),
+      ...input.hostedColumns,
+    })
+    .select(TX_COLUMNS)
+    .single();
+
+  // A retry of the same (kit_slug, order_ref) hits the unique constraint
+  // (0007_paykit_checkout_idempotency.sql) instead of duplicating the row.
+  if (insertError?.code === "23505") {
+    const replayed = await replayExisting(supabase, {
+      vendorId,
+      kitSlug,
+      orderRef,
+      amountCents,
+      payloadValue: input.payloadValue,
+      kind: view.type,
+      hostedColumns: input.hostedColumns,
+    });
+    if (!replayed.ok) return replayed;
+    return { ok: true as const, tx: replayed.tx, isFreshInsert: false };
+  }
+  if (insertError || !inserted) {
+    console.error("createCheckout: insert failed", insertError?.message);
+    return CREATE_FAILED;
+  }
+  return { ok: true as const, tx: inserted, isFreshInsert: true };
+}
+
+/**
+ * Creates one `transactions` row and renders its checkout view (PayNow QR or
+ * BYO pointer). Shared by `POST /api/v1/checkout` (bearer-secret, another
+ * kit calling in) and the dashboard's own booking-deposit/balance actions
+ * (vendor session, `kitSlug: "paykit"`) — one insert path so idempotency and
+ * error handling stay in one place.
+ *
+ * With `hostedPay` a pay token is minted and its hash stored with the return
+ * address and title. A replay mints a new one and replaces the stored hash,
+ * since the first token cannot be read back: the previous pay link stops
+ * working. Without `hostedPay` nothing about a pay page is written or changed.
+ */
+export async function createCheckout({
+  vendorId,
+  kitSlug,
+  orderRef,
+  amountCents,
+  expiresAt,
+  hostedPay,
+}: CreateCheckoutInput): Promise<CheckoutResult> {
+  const supabase = await createServiceClient();
+
+  const built = await buildView(supabase, vendorId, amountCents, orderRef);
+  if (!built.ok) return built;
+  const { view } = built;
 
   // qr_payload is a generic "checkout payload" store — the QR payload for
   // type "qr", the link/image URL for "link"/"image". Column name unchanged
@@ -223,51 +280,25 @@ export async function createCheckout({
   const minted = hostedPay ? mintPayToken() : null;
   const hostedColumns = hostedColumnsFor(hostedPay, minted?.hash);
 
-  const { data: inserted, error: insertError } = await supabase
-    .from("transactions")
-    .insert({
-      vendor_id: vendorId,
-      kit_slug: kitSlug,
-      order_ref: orderRef,
-      amount_cents: amountCents,
-      qr_payload: payloadValue,
-      checkout_kind: view.type,
-      checkout_label: view.type === "link" ? view.label : null,
-      // Left out when absent, so a checkout without one inserts the same
-      // row it always has.
-      ...(expiresAt ? { expires_at: new Date(expiresAt).toISOString() } : {}),
-      ...hostedColumns,
-    })
-    .select(TX_COLUMNS)
-    .single();
-
-  // A retry of the same (kit_slug, order_ref) — e.g. a caller-side timeout —
-  // hits the unique constraint (0007_paykit_checkout_idempotency.sql) rather
-  // than creating a duplicate pending transaction; re-read and return the
-  // transaction the first call already created.
-  // isFreshInsert: only a genuinely new checkout gets an audit row.
-  const isFreshInsert = !insertError && !!inserted;
-  let tx = inserted;
-  if (insertError?.code === "23505") {
-    const replayed = await replayExisting(supabase, {
-      vendorId,
-      kitSlug,
-      orderRef,
-      amountCents,
-      payloadValue,
-      kind: view.type,
-      hostedColumns,
-    });
-    if (!replayed.ok) return replayed;
-    tx = replayed.tx;
-  } else if (insertError || !inserted) {
-    console.error("createCheckout: insert failed", insertError?.message);
-    return CREATE_FAILED;
-  }
-  if (!tx) return CREATE_FAILED;
+  const stored = await storeTransaction(supabase, {
+    vendorId,
+    kitSlug,
+    orderRef,
+    amountCents,
+    expiresAt,
+    view,
+    payloadValue,
+    hostedColumns,
+  });
+  if (!stored.ok) return stored;
+  const { tx, isFreshInsert } = stored;
 
   if (isFreshInsert) {
-    await recordPaymentAudit(supabase, tx.id, kitSlug, "checkout_created");
+    await recordPaymentAudit(supabase, {
+      transactionId: tx.id,
+      kitSlug,
+      action: "checkout_created",
+    });
   }
 
   return checkoutResponse(view, tx, isFreshInsert, minted?.token);

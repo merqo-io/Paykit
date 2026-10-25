@@ -84,13 +84,12 @@ export async function claimTransaction(
   if (updateError || !updated)
     return outcomeAfterLostUpdate(supabase, current.id, current.status);
 
-  await recordPaymentAudit(
-    supabase,
-    current.id,
-    audit.kitSlug,
-    "claimed",
-    audit.detail ?? null,
-  );
+  await recordPaymentAudit(supabase, {
+    transactionId: current.id,
+    kitSlug: audit.kitSlug,
+    action: "claimed",
+    detail: audit.detail ?? null,
+  });
   schedulePaymentStatusCallback(updated);
   return { ok: true, row: updated };
 }

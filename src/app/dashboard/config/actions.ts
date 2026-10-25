@@ -3,6 +3,7 @@
 import { getVendorSession } from "@/lib/vendor-session";
 import { vendorPaymentConfigInputSchema } from "@/lib/schemas";
 import type { VendorPaymentConfig } from "@/lib/types";
+import { paymentConfigRow } from "@/lib/payment-config-row";
 import { removeReplacedQrImage } from "@/lib/qr-image-cleanup";
 import { CONFIG_COLUMNS } from "@/lib/columns";
 
@@ -16,6 +17,23 @@ export async function getConfig(): Promise<VendorPaymentConfig | null> {
   return data;
 }
 
+function configInputFromForm(formData: FormData) {
+  if (formData.get("kind") === "pointer") {
+    return {
+      kind: "pointer",
+      label: formData.get("label") ?? "",
+      url: formData.get("url") || undefined,
+      qr_image_url: formData.get("qr_image_url") || undefined,
+    };
+  }
+  return {
+    kind: "paynow",
+    payee_name: formData.get("payee_name") ?? "",
+    uen: formData.get("uen") ?? "",
+    mobile: formData.get("mobile") ?? "",
+  };
+}
+
 export type SaveConfigState = {
   status: "idle" | "ok" | "error";
   message?: string;
@@ -26,21 +44,8 @@ export async function saveConfigAction(
   formData: FormData,
 ): Promise<SaveConfigState> {
   const { supabase, user } = await getVendorSession();
-  const kind = formData.get("kind");
   const parsed = vendorPaymentConfigInputSchema.safeParse(
-    kind === "pointer"
-      ? {
-          kind: "pointer",
-          label: formData.get("label") ?? "",
-          url: formData.get("url") || undefined,
-          qr_image_url: formData.get("qr_image_url") || undefined,
-        }
-      : {
-          kind: "paynow",
-          payee_name: formData.get("payee_name") ?? "",
-          uen: formData.get("uen") ?? "",
-          mobile: formData.get("mobile") ?? "",
-        },
+    configInputFromForm(formData),
   );
   if (!parsed.success) {
     return {
@@ -49,37 +54,7 @@ export async function saveConfigAction(
     };
   }
 
-  const row: {
-    vendor_id: string;
-    kind: "paynow" | "pointer";
-    payee_name: string | null;
-    uen: string | null;
-    mobile: string | null;
-    label: string | null;
-    url: string | null;
-    qr_image_url: string | null;
-  } =
-    parsed.data.kind === "paynow"
-      ? {
-          vendor_id: user.id,
-          kind: "paynow",
-          payee_name: parsed.data.payee_name,
-          uen: parsed.data.uen ?? null,
-          mobile: parsed.data.mobile ?? null,
-          label: null,
-          url: null,
-          qr_image_url: null,
-        }
-      : {
-          vendor_id: user.id,
-          kind: "pointer",
-          payee_name: null,
-          uen: null,
-          mobile: null,
-          label: parsed.data.label,
-          url: parsed.data.url ?? null,
-          qr_image_url: parsed.data.qr_image_url ?? null,
-        };
+  const row = paymentConfigRow(user.id, parsed.data);
 
   // Not `.upsert()`: PostgREST's ON CONFLICT DO UPDATE path checks for
   // table-level UPDATE privilege regardless of column-level grants, but this

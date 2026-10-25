@@ -82,7 +82,11 @@ export async function POST(
     return NextResponse.json(toStatusResponse(recheck));
   }
 
-  await recordPaymentAudit(supabase, id, auth.kitSlug, "confirmed");
+  await recordPaymentAudit(supabase, {
+    transactionId: id,
+    kitSlug: auth.kitSlug,
+    action: "confirmed",
+  });
   schedulePaymentStatusCallback(updated);
   return NextResponse.json(toStatusResponse(updated));
 }

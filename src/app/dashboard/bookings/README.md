@@ -72,3 +72,5 @@ Mocked action tests do not establish database RLS, locking or trigger behavior.
 Booking amount conversion uses `dollarsToCents` from `@/lib/money`; the action keeps its existing schema validation and rounding behavior.
 
 Booking and transaction reads list their columns (`@/lib/columns`).
+
+`actions.ts` keeps each action short with helpers: `linkDepositCheckout` (deposit checkout plus link), `linkSourceInquiry` and `recordCancellationRefund`.
