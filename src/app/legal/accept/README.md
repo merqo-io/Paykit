@@ -41,3 +41,5 @@ folder's job is entirely to collect the vendor's consent and forward it.
 ## Parent
 
 [legal](../README.md)
+
+The `next` form field is length-checked by Zod before `safeRedirectPath` runs.

@@ -68,6 +68,7 @@ function PaymentDisplay({
     return (
       <div
         className="mt-3 w-40 [&_svg]:h-auto [&_svg]:w-full"
+        // SVG from qrSvg() over the transaction's server-built payload, never user text
         dangerouslySetInnerHTML={{ __html: qrMarkup ?? "" }}
       />
     );

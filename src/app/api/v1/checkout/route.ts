@@ -14,6 +14,7 @@ import {
   PER_ROUTE_LIMIT,
   PER_ROUTE_WINDOW_SECONDS,
 } from "@/lib/rate-limit";
+import { TRANSACTION_COLUMNS } from "@/lib/columns";
 
 /** Finds the calling kit's transaction for one of its own order references,
  *  so a kit that stores no transaction id never has to create a checkout
@@ -44,7 +45,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabase
     .from("transactions")
-    .select("*")
+    .select(TRANSACTION_COLUMNS)
     .eq("kit_slug", auth.kitSlug)
     .eq("order_ref", parsed.data.order_ref)
     .maybeSingle();

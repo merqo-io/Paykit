@@ -1,22 +1,38 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { fromMock, getUserMock, notFoundMock } = vi.hoisted(() => ({
-  fromMock: vi.fn(),
-  getUserMock: vi.fn(),
-  notFoundMock: vi.fn(() => {
-    throw new Error("NEXT_NOT_FOUND");
-  }),
-}));
+const { fromMock, getUserMock, getAalMock, redirectMock, notFoundMock } =
+  vi.hoisted(() => ({
+    fromMock: vi.fn(),
+    getUserMock: vi.fn(),
+    getAalMock: vi.fn(),
+    redirectMock: vi.fn((path: string) => {
+      throw new Error(`REDIRECT ${path}`);
+    }),
+    notFoundMock: vi.fn(() => {
+      throw new Error("NEXT_NOT_FOUND");
+    }),
+  }));
 
 vi.mock("@/lib/supabase/server", () => ({
   createServerClient: vi.fn(async () => ({
     from: fromMock,
-    auth: { getUser: getUserMock },
+    auth: {
+      getUser: getUserMock,
+      mfa: { getAuthenticatorAssuranceLevel: getAalMock },
+    },
   })),
 }));
-vi.mock("next/navigation", () => ({ notFound: notFoundMock }));
+vi.mock("next/navigation", () => ({
+  notFound: notFoundMock,
+  redirect: redirectMock,
+}));
 
-import { isAdmin, requireAdmin } from "@/lib/admin";
+import { isAdmin, requireAdmin, requireAdminMember } from "@/lib/admin";
+
+const aal = (currentLevel: string, nextLevel = "aal2") => ({
+  data: { currentLevel, nextLevel },
+  error: null,
+});
 
 function builder(data: unknown) {
   const b: Record<string, unknown> = {
@@ -42,7 +58,10 @@ describe("isAdmin", () => {
 });
 
 describe("requireAdmin", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    getAalMock.mockResolvedValue(aal("aal2"));
+  });
 
   it("returns the user when signed in and an admin", async () => {
     getUserMock.mockResolvedValue({ data: { user: { id: "u1" } } });
@@ -63,5 +82,44 @@ describe("requireAdmin", () => {
     getUserMock.mockResolvedValue({ data: { user: { id: "u1" } } });
     fromMock.mockReturnValue(builder(null));
     await expect(requireAdmin()).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
+  it("sends a password-only (aal1) admin to the MFA page", async () => {
+    getUserMock.mockResolvedValue({ data: { user: { id: "u1" } } });
+    fromMock.mockReturnValue(builder({ user_id: "u1" }));
+    getAalMock.mockResolvedValue(aal("aal1"));
+    await expect(requireAdmin()).rejects.toThrow("REDIRECT /mfa");
+  });
+
+  it("sends an admin with no factor enrolled to the MFA page", async () => {
+    getUserMock.mockResolvedValue({ data: { user: { id: "u1" } } });
+    fromMock.mockReturnValue(builder({ user_id: "u1" }));
+    getAalMock.mockResolvedValue(aal("aal1", "aal1"));
+    await expect(requireAdmin()).rejects.toThrow("REDIRECT /mfa");
+  });
+
+  it("fails closed when the assurance level cannot be read", async () => {
+    getUserMock.mockResolvedValue({ data: { user: { id: "u1" } } });
+    fromMock.mockReturnValue(builder({ user_id: "u1" }));
+    getAalMock.mockResolvedValue({ data: null, error: { message: "down" } });
+    await expect(requireAdmin()).rejects.toThrow("REDIRECT /mfa");
+  });
+
+  it("keeps a non-admin on a 404 before any MFA prompt", async () => {
+    getUserMock.mockResolvedValue({ data: { user: { id: "u1" } } });
+    fromMock.mockReturnValue(builder(null));
+    await expect(requireAdmin()).rejects.toThrow("NEXT_NOT_FOUND");
+    expect(getAalMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("requireAdminMember", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("lets the MFA page check admin membership without aal2", async () => {
+    getUserMock.mockResolvedValue({ data: { user: { id: "u1" } } });
+    fromMock.mockReturnValue(builder({ user_id: "u1" }));
+    getAalMock.mockResolvedValue(aal("aal1"));
+    expect(await requireAdminMember()).toEqual({ user: { id: "u1" } });
   });
 });

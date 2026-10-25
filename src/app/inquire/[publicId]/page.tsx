@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+// eslint-disable-next-line no-restricted-imports -- anonymous customer flow; the pay token or public form id is the credential
 import { createServiceClient } from "@/lib/supabase/server";
 import { formRenderedAt, loadPublicForm } from "@/lib/inquiries";
 import { InquiryForm } from "./inquiry-form";

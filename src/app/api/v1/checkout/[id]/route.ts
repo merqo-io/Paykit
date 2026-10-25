@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { verifyKitAuth } from "@/lib/kit-auth";
 import { toStatusResponse, uuidSchema } from "@/lib/api-schemas";
+import { TRANSACTION_COLUMNS } from "@/lib/columns";
 
 export async function GET(
   request: Request,
@@ -21,7 +22,7 @@ export async function GET(
   const supabase = await createServiceClient();
   const { data, error } = await supabase
     .from("transactions")
-    .select("*")
+    .select(TRANSACTION_COLUMNS)
     .eq("id", id)
     .maybeSingle();
   if (error) {

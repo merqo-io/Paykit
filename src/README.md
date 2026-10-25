@@ -18,3 +18,5 @@ runtime hooks and cross-cutting middleware. Everything else lives in
 ## Parent
 
 See the repo root [README.md](../README.md) for the full layout.
+
+`proxy.ts` sets the nonce CSP and, off production, `X-Robots-Tag: noindex`; see `lib/security-headers.ts`.

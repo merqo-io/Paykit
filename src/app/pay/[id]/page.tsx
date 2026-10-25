@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
+// eslint-disable-next-line no-restricted-imports -- anonymous customer flow; the pay token or public form id is the credential
 import { createServiceClient } from "@/lib/supabase/server";
 import { hostedPayAllowed, loadHostedPayment } from "@/lib/hosted-pay";
 import { clientIp } from "@/lib/rate-limit";

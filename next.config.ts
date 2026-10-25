@@ -59,35 +59,10 @@ const nextConfig: NextConfig = {
   async headers() {
     const isProd = process.env.NODE_ENV === "production";
 
-    const connectSrc = isProd
-      ? "connect-src 'self' https://*.supabase.co wss://*.supabase.co"
-      : "connect-src 'self' https://*.supabase.co wss://*.supabase.co http://127.0.0.1:54321 ws://127.0.0.1:54321";
-
-    const imgSrc = isProd
-      ? "img-src 'self' data: blob: https://*.supabase.co https://*.googleusercontent.com"
-      : "img-src 'self' data: blob: https://*.supabase.co https://*.googleusercontent.com http://127.0.0.1:54321";
-
-    const scriptSrc = isProd
-      ? "script-src 'self' 'unsafe-inline'"
-      : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
-
-    // X-Frame-Options: DENY and the CSP's frame-ancestors 'none' both block
-    // any <iframe> from rendering this app — including an IDE's embedded
-    // preview pane, which next dev serves under this same headers() config.
-    // Scoped to production only, matching connectSrc/imgSrc/scriptSrc above.
-    const cspDirectives = [
-      "default-src 'self'",
-      scriptSrc,
-      "style-src 'self' 'unsafe-inline'",
-      imgSrc,
-      "font-src 'self' data:",
-      connectSrc,
-      "object-src 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-    ];
-    if (isProd) cspDirectives.push("frame-ancestors 'none'");
-
+    // X-Frame-Options: DENY blocks any <iframe> from rendering this app,
+    // including an IDE's embedded preview pane under next dev, so it is
+    // production-only. The CSP and the non-production X-Robots-Tag are set per
+    // request in src/proxy.ts.
     return [
       {
         source: "/(.*)",
@@ -103,10 +78,6 @@ const nextConfig: NextConfig = {
           {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains",
-          },
-          {
-            key: "Content-Security-Policy",
-            value: cspDirectives.join("; "),
           },
         ],
       },

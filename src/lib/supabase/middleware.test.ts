@@ -1,18 +1,21 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 
-const { getUser, createServerClient } = vi.hoisted(() => {
-  const getUser = vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } });
-  const createServerClient = vi.fn();
-  return { getUser, createServerClient };
-});
+const { createServerClient } = vi.hoisted(() => ({
+  createServerClient: vi.fn(),
+}));
 vi.mock("@supabase/ssr", () => ({ createServerClient }));
 
 import { updateSession } from "./middleware";
 
-describe("updateSession — legacy host-only cookie cleanup", () => {
+describe("updateSession — host-only duplicate auth cookie cleanup", () => {
   beforeEach(() => {
-    createServerClient.mockImplementation(() => ({ auth: { getUser } }));
+    process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN = ".merqo.io";
+    createServerClient.mockImplementation(() => ({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }),
+      },
+    }));
   });
 
   afterEach(() => {
@@ -20,62 +23,75 @@ describe("updateSession — legacy host-only cookie cleanup", () => {
     vi.clearAllMocks();
   });
 
-  it("clears a pre-existing sb-*-auth-token cookie once when the cookie domain is enabled", async () => {
-    process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN = ".merqo.io";
-    const request = new NextRequest("https://paykit.merqo.io/dashboard", {
-      headers: { cookie: "sb-project-auth-token=stale-value" },
+  const request = (cookie: string) =>
+    new NextRequest("https://paykit.merqo.io/dashboard", {
+      headers: { cookie },
     });
+  const cleared = (
+    response: Response & {
+      cookies: {
+        getAll: () => { name: string; value: string; maxAge?: number }[];
+      };
+    },
+    name: string,
+  ) => response.cookies.getAll().find((c) => c.name === name);
 
-    const response = await updateSession(request);
-
-    const setCookies = response.cookies.getAll();
-    const cleared = setCookies.find((c) => c.name === "sb-project-auth-token");
-    expect(cleared?.value).toBe("");
-    expect(cleared?.maxAge).toBe(0);
-
-    const marker = setCookies.find(
-      (c) => c.name === "sb-auth-cookie-domain-migrated",
+  it("clears the host-only copy when the browser sends the same auth cookie twice", async () => {
+    const response = await updateSession(
+      request("sb-project-auth-token=host-only; sb-project-auth-token=domain"),
     );
-    expect(marker?.value).toBe("1");
+
+    const out = cleared(response, "sb-project-auth-token");
+    expect(out?.value).toBe("");
+    expect(out?.maxAge).toBe(0);
   });
 
-  it("does not clear again once the migration marker cookie is already present", async () => {
-    process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN = ".merqo.io";
-    const request = new NextRequest("https://paykit.merqo.io/dashboard", {
-      headers: {
-        cookie:
-          "sb-project-auth-token=fresh-value; sb-auth-cookie-domain-migrated=1",
-      },
-    });
+  it("clears chunked token names too", async () => {
+    const response = await updateSession(
+      request(
+        "sb-project-auth-token.0=a; sb-project-auth-token.0=b; sb-project-auth-token.1=a; sb-project-auth-token.1=b",
+      ),
+    );
 
-    const response = await updateSession(request);
+    expect(cleared(response, "sb-project-auth-token.0")?.maxAge).toBe(0);
+    expect(cleared(response, "sb-project-auth-token.1")?.maxAge).toBe(0);
+  });
 
-    const cleared = response.cookies
-      .getAll()
-      .find((c) => c.name === "sb-project-auth-token");
-    expect(cleared).toBeUndefined();
+  it("clears again on every request while the duplicate exists, with no marker cookie", async () => {
+    const header =
+      "sb-project-auth-token=host-only; sb-project-auth-token=domain";
+    const first = await updateSession(request(header));
+    const second = await updateSession(request(header));
+
+    expect(cleared(first, "sb-project-auth-token")?.maxAge).toBe(0);
+    expect(cleared(second, "sb-project-auth-token")?.maxAge).toBe(0);
+    expect(
+      first.cookies.getAll().find((c) => c.name.includes("migrated")),
+    ).toBeUndefined();
+  });
+
+  it("leaves a single auth cookie alone", async () => {
+    const response = await updateSession(
+      request("sb-project-auth-token=only-one"),
+    );
+
+    expect(cleared(response, "sb-project-auth-token")).toBeUndefined();
   });
 
   it("does nothing when NEXT_PUBLIC_AUTH_COOKIE_DOMAIN is unset", async () => {
-    const request = new NextRequest("https://paykit.merqo.io/dashboard", {
-      headers: { cookie: "sb-project-auth-token=stale-value" },
-    });
+    delete process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN;
+    const response = await updateSession(
+      request("sb-project-auth-token=a; sb-project-auth-token=b"),
+    );
 
-    const response = await updateSession(request);
-
-    const cleared = response.cookies
-      .getAll()
-      .find((c) => c.name === "sb-project-auth-token");
-    expect(cleared).toBeUndefined();
+    expect(cleared(response, "sb-project-auth-token")).toBeUndefined();
   });
 
-  it("does not clobber a same-request token refresh, and defers the marker to a later request", async () => {
-    process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN = ".merqo.io";
+  it("does not clobber a same-request token refresh", async () => {
     createServerClient.mockImplementation((_url, _key, options) => ({
       auth: {
         getUser: vi.fn().mockImplementation(async () => {
-          // Simulate @supabase/ssr rotating the session as a side effect of
-          // getUser(), the way it does on a real token refresh.
+          // @supabase/ssr rotates the session as a side effect of getUser().
           options.cookies.setAll([
             {
               name: "sb-project-auth-token",
@@ -87,64 +103,13 @@ describe("updateSession — legacy host-only cookie cleanup", () => {
         }),
       },
     }));
-    const request = new NextRequest("https://paykit.merqo.io/dashboard", {
-      headers: { cookie: "sb-project-auth-token=stale-host-only-value" },
-    });
 
-    const response = await updateSession(request);
-
-    const setCookies = response.cookies.getAll();
-    const authCookie = setCookies.find(
-      (c) => c.name === "sb-project-auth-token",
+    const response = await updateSession(
+      request("sb-project-auth-token=host-only; sb-project-auth-token=domain"),
     );
-    // The freshly-refreshed cookie must survive untouched — not cleared to "".
-    expect(authCookie?.value).toBe("freshly-refreshed");
 
-    // Marker must NOT be set — this pass didn't fully clear every legacy
-    // cookie, so the next request should retry.
-    const marker = setCookies.find(
-      (c) => c.name === "sb-auth-cookie-domain-migrated",
+    expect(cleared(response, "sb-project-auth-token")?.value).toBe(
+      "freshly-refreshed",
     );
-    expect(marker).toBeUndefined();
-  });
-
-  it("clears the legacy cookie on the public early-return path too", async () => {
-    process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN = ".merqo.io";
-    const request = new NextRequest("https://paykit.merqo.io/login", {
-      headers: { cookie: "sb-project-auth-token=stale-value" },
-    });
-
-    const response = await updateSession(request);
-
-    const setCookies = response.cookies.getAll();
-    const cleared = setCookies.find((c) => c.name === "sb-project-auth-token");
-    expect(cleared?.value).toBe("");
-    const marker = setCookies.find(
-      (c) => c.name === "sb-auth-cookie-domain-migrated",
-    );
-    expect(marker?.value).toBe("1");
-  });
-
-  it("clears the legacy cookie on the unauthenticated-redirect path too", async () => {
-    process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN = ".merqo.io";
-    createServerClient.mockImplementation(() => ({
-      auth: {
-        getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
-      },
-    }));
-    const request = new NextRequest("https://paykit.merqo.io/dashboard", {
-      headers: { cookie: "sb-project-auth-token=stale-value" },
-    });
-
-    const response = await updateSession(request);
-
-    expect(response.status).toBe(307);
-    const setCookies = response.cookies.getAll();
-    const cleared = setCookies.find((c) => c.name === "sb-project-auth-token");
-    expect(cleared?.value).toBe("");
-    const marker = setCookies.find(
-      (c) => c.name === "sb-auth-cookie-domain-migrated",
-    );
-    expect(marker?.value).toBe("1");
   });
 });

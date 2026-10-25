@@ -41,3 +41,5 @@ control eligibility, checkout kinds and legacy fallback.
 ## Parent
 
 [bookings](../README.md)
+
+The QR card's `dangerouslySetInnerHTML` is `qrSvg()` output over a server-built payload.

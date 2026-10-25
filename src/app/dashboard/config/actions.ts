@@ -5,12 +5,13 @@ import { vendorPaymentConfigInputSchema } from "@/lib/schemas";
 import type { VendorPaymentConfig } from "@/lib/types";
 import { paymentConfigRow } from "@/lib/payment-config-row";
 import { removeReplacedQrImage } from "@/lib/qr-image-cleanup";
+import { CONFIG_COLUMNS } from "@/lib/columns";
 
 export async function getConfig(): Promise<VendorPaymentConfig | null> {
   const { supabase, user } = await getVendorSession();
   const { data } = await supabase
     .from("vendor_payment_config")
-    .select("*")
+    .select(CONFIG_COLUMNS)
     .eq("vendor_id", user.id)
     .maybeSingle();
   return data;

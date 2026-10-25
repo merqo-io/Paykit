@@ -1,5 +1,6 @@
 import { createServerClient } from "@/lib/supabase/server";
 import type { Inquiry, InquiryForm } from "@/lib/types";
+import { INQUIRY_COLUMNS, INQUIRY_FORM_COLUMNS } from "@/lib/columns";
 
 export async function getInquiryForm(
   vendorId: string,
@@ -7,7 +8,7 @@ export async function getInquiryForm(
   const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("inquiry_forms")
-    .select("*")
+    .select(INQUIRY_FORM_COLUMNS)
     .eq("vendor_id", vendorId)
     .maybeSingle();
   if (error) {
@@ -22,7 +23,7 @@ export async function listOpenInquiries(vendorId: string): Promise<Inquiry[]> {
   const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("inquiries")
-    .select("*")
+    .select(INQUIRY_COLUMNS)
     .eq("vendor_id", vendorId)
     .neq("status", "converted")
     .order("created_at", { ascending: false })
@@ -41,7 +42,7 @@ export async function getInquiry(
   const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("inquiries")
-    .select("*")
+    .select(INQUIRY_COLUMNS)
     .eq("vendor_id", vendorId)
     .eq("id", inquiryId)
     .maybeSingle();
@@ -59,7 +60,7 @@ export async function getInquiryForBooking(
   const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("inquiries")
-    .select("*")
+    .select(INQUIRY_COLUMNS)
     .eq("vendor_id", vendorId)
     .eq("booking_id", bookingId)
     .maybeSingle();

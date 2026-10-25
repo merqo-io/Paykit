@@ -29,3 +29,7 @@ not pick these files up: its `include` covers `test/` and `src/` only.
 ## Parent
 
 [paykit](../README.md)
+
+- `csp.spec.ts`: in CI (production build) `/login` serves a nonce CSP with nonced scripts and no violations, and `/` keeps the static policy.
+- `signed-in-smoke.spec.ts`: signed in as an admin vendor with MFA cleared (`aal2`), `renderSmoke` over every dashboard and admin page, failing on a 5xx, error boundary, page error, CSP violation or 404; a password-only (`aal1`) admin session is sent to `/mfa`. It starts the stand-in below itself and runs in its own Playwright project after the others, because `pay-page.spec.ts` expects no database on that port. It sees empty data, not seeded rows.
+- `mock-supabase.ts`: not a spec; a small `http` server standing in for GoTrue and PostgREST, plus `signedInCookie()`, which builds the Supabase auth cookie for a signed-in session.

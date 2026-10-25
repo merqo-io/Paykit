@@ -1,12 +1,13 @@
 import { readAllRows } from "@/lib/read-all-rows";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Booking } from "@/lib/types";
+import { BOOKING_COLUMNS } from "@/lib/columns";
 
 export async function listBookings(vendorId: string): Promise<Booking[]> {
   const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("bookings")
-    .select("*")
+    .select(BOOKING_COLUMNS)
     .eq("vendor_id", vendorId)
     .order("created_at", { ascending: false })
     .limit(200);
@@ -24,7 +25,7 @@ export async function getBooking(
   const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("bookings")
-    .select("*")
+    .select(BOOKING_COLUMNS)
     .eq("vendor_id", vendorId)
     .eq("id", bookingId)
     .maybeSingle();
@@ -41,7 +42,7 @@ export async function listAllBookings(vendorId: string): Promise<Booking[]> {
   return readAllRows((from, to) =>
     supabase
       .from("bookings")
-      .select("*")
+      .select(BOOKING_COLUMNS)
       .eq("vendor_id", vendorId)
       .order("id")
       .range(from, to),

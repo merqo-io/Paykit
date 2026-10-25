@@ -53,3 +53,5 @@ Google branding uses `GoogleMark` from `@merqo/ui`; no local copy remains.
 ## Parent
 
 [paykit](../../../README.md)
+
+`layout.tsx` also forces per-request rendering so the nonce CSP from `proxy.ts` reaches this page's scripts.
