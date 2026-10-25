@@ -31,3 +31,5 @@ behavior.
 ## Parent
 
 [dashboard](../README.md)
+
+`profile-form.tsx` renders its inline errors through a small `FieldError` component.

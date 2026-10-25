@@ -35,3 +35,5 @@ refuses any object outside `{vendor_id}/`. A failed upsert deletes nothing.
 ## Parent
 
 [vendors](../../README.md)
+
+`POST` builds the stored row with `paymentConfigRow` (`@/lib/payment-config-row`), the same builder the dashboard save action uses; `GET` fills the response from the row, or from an all-null default when the vendor has none.

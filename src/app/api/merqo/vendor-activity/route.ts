@@ -11,6 +11,64 @@ export const revalidate = 0;
 
 const querySchema = z.object({ email: z.email() });
 
+type ServiceClient = Awaited<ReturnType<typeof createServiceClient>>;
+
+type ActivityTransaction = {
+  id: string;
+  status: TxStatus;
+  amount_cents: number;
+  created_at: string;
+  confirmed_at: string | null;
+};
+
+function upstreamUnavailable(message: string) {
+  console.error("paykit vendor-activity: read failed", message);
+  return NextResponse.json({ error: "Upstream unavailable" }, { status: 503 });
+}
+
+async function readConfigAndTransactions(
+  supabase: ServiceClient,
+  userId: string,
+) {
+  const [configRes, transactionsRes] = await Promise.all([
+    supabase
+      .from("vendor_payment_config")
+      .select("plan, created_at")
+      .eq("vendor_id", userId)
+      .maybeSingle(),
+    readAllRowsResult((from, to) =>
+      supabase
+        .from("transactions")
+        .select("id, status, amount_cents, created_at, confirmed_at")
+        .eq("vendor_id", userId)
+        .order("id")
+        .range(from, to),
+    ),
+  ]);
+  return {
+    error: configRes.error?.message ?? transactionsRes.error?.message ?? null,
+    config: configRes.data as { plan: VendorPlan; created_at: string } | null,
+    transactions: (transactionsRes.data ?? []) as ActivityTransaction[],
+  };
+}
+
+async function readRefunds(supabase: ServiceClient, txIds: string[]) {
+  const refunds: { created_at: string }[] = [];
+  for (let offset = 0; offset < txIds.length; offset += 100) {
+    const res = await readAllRowsResult((from, to) =>
+      supabase
+        .from("refunds")
+        .select("created_at")
+        .in("transaction_id", txIds.slice(offset, offset + 100))
+        .order("id")
+        .range(from, to),
+    );
+    if (res.error) return { error: res.error.message, refunds };
+    refunds.push(...(res.data ?? []));
+  }
+  return { error: null, refunds };
+}
+
 export async function GET(request: Request) {
   if (!bearerOk(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -28,14 +86,7 @@ export async function GET(request: Request) {
 
   const usersRes = await listAllUsers(supabase);
   if (usersRes.error) {
-    console.error(
-      "paykit vendor-activity: read failed",
-      usersRes.error.message,
-    );
-    return NextResponse.json(
-      { error: "Upstream unavailable" },
-      { status: 503 },
-    );
+    return upstreamUnavailable(usersRes.error.message);
   }
 
   const key = parsed.data.email.toLowerCase();
@@ -46,71 +97,18 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const [configRes, transactionsRes] = await Promise.all([
-    supabase
-      .from("vendor_payment_config")
-      .select("plan, created_at")
-      .eq("vendor_id", user.id)
-      .maybeSingle(),
-    readAllRowsResult((from, to) =>
-      supabase
-        .from("transactions")
-        .select("id, status, amount_cents, created_at, confirmed_at")
-        .eq("vendor_id", user.id)
-        .order("id")
-        .range(from, to),
-    ),
-  ]);
-  if (configRes.error || transactionsRes.error) {
-    console.error(
-      "paykit vendor-activity: read failed",
-      configRes.error?.message ?? transactionsRes.error?.message,
-    );
-    return NextResponse.json(
-      { error: "Upstream unavailable" },
-      { status: 503 },
-    );
-  }
+  const base = await readConfigAndTransactions(supabase, user.id);
+  if (base.error) return upstreamUnavailable(base.error);
 
-  const transactions = (transactionsRes.data ?? []) as {
-    id: string;
-    status: TxStatus;
-    amount_cents: number;
-    created_at: string;
-    confirmed_at: string | null;
-  }[];
-
-  // refunds has no vendor_id of its own — scope it via this vendor's own
-  // transaction ids, same join-by-hand pattern vendor-health.ts's
-  // buildVendorHealth uses across all vendors at once.
-  const txIds = transactions.map((t) => t.id);
-  let refunds: { created_at: string }[] = [];
-  for (let offset = 0; offset < txIds.length; offset += 100) {
-    const refundsRes = await readAllRowsResult((from, to) =>
-      supabase
-        .from("refunds")
-        .select("created_at")
-        .in("transaction_id", txIds.slice(offset, offset + 100))
-        .order("id")
-        .range(from, to),
-    );
-    if (refundsRes.error) {
-      console.error(
-        "paykit vendor-activity: read failed",
-        refundsRes.error.message,
-      );
-      return NextResponse.json(
-        { error: "Upstream unavailable" },
-        { status: 503 },
-      );
-    }
-    refunds.push(...(refundsRes.data ?? []));
-  }
-
-  const config = configRes.data as {
-    plan: VendorPlan;
-    created_at: string;
-  } | null;
+  // refunds has no vendor_id of its own, so scope it via this vendor's own
+  // transaction ids.
+  const refundsRes = await readRefunds(
+    supabase,
+    base.transactions.map((t) => t.id),
+  );
+  if (refundsRes.error) return upstreamUnavailable(refundsRes.error);
+  const { config, transactions } = base;
+  const refunds = refundsRes.refunds;
 
   const payload = computeVendorActivity(
     config,

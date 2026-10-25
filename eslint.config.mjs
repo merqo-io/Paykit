@@ -1,5 +1,10 @@
 import next from "eslint-config-next";
 import sonarjs from "eslint-plugin-sonarjs";
+import { merqoEslintPreset } from "@merqo/ui/eslint";
+
+const tsPlugin = next.find((c) => c.plugins?.["@typescript-eslint"]).plugins[
+  "@typescript-eslint"
+];
 
 const eslintConfig = [
   ...next,
@@ -41,40 +46,18 @@ const eslintConfig = [
   },
   sonarjs.configs.recommended,
   {
-    files: ["scripts/**"],
-    rules: { "no-inline-comments": "off" },
-  },
-  {
-    rules: {
-      "no-inline-comments": [
-        "error",
-        {
-          ignorePattern:
-            "eslint-|@ts-|prettier-|c8 |istanbul |webpackChunkName",
-        },
-      ],
-      // sonarjs.configs.recommended ships this rule off by default; this
-      // repo wants it enforced.
-      "sonarjs/no-commented-code": "error",
-    },
-  },
-  {
-    // Generated shadcn primitives — not this repo's code to restructure.
+    // Generated shadcn primitives: not this repo's code to restructure.
     files: ["src/components/ui/**"],
     rules: { "sonarjs/prefer-read-only-props": "off" },
   },
+  ...merqoEslintPreset({
+    sonarjsPlugin: sonarjs.configs.recommended.plugins.sonarjs,
+    tsPlugin,
+  }),
   {
-    files: ["**/*.test.{ts,tsx}", "**/test/**", "e2e/**"],
-    rules: {
-      "no-inline-comments": "off",
-      // Test fixtures use fake secrets/plain-http URLs on purpose.
-      "sonarjs/no-hardcoded-secrets": "off",
-      "sonarjs/no-hardcoded-passwords": "off",
-      "sonarjs/no-clear-text-protocols": "off",
-      // Mock builders for Supabase's chainable query API (.select().eq()...)
-      // are nested arrow functions by construction, not tangled logic.
-      "sonarjs/no-nested-functions": "off",
-    },
+    // Over the size limit until Task K5 (split long files) shrinks them.
+    files: ["src/lib/types.ts"],
+    rules: { "max-lines": "off" },
   },
 ];
 

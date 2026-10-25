@@ -63,7 +63,11 @@ describe("audit action boundary", () => {
       typeof recordPaymentAudit
     >[0];
     await expect(
-      recordPaymentAudit(service, "tx", "qkit", "confirmed"),
+      recordPaymentAudit(service, {
+        transactionId: "tx",
+        kitSlug: "qkit",
+        action: "confirmed",
+      }),
     ).resolves.toBeUndefined();
   });
 });

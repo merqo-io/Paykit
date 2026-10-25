@@ -81,7 +81,7 @@ export function CancelBookingDialog({
           <DialogTitle>Cancel this booking?</DialogTitle>
         </DialogHeader>
         <p className="text-sm text-muted-foreground">
-          This only marks the booking cancelled — it never changes the status of
+          This only marks the booking cancelled. It never changes the status of
           any payment already made.
         </p>
         <div className="space-y-2">

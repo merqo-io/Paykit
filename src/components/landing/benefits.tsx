@@ -19,7 +19,7 @@ export function Benefits({ monthlyPriceLabel }: { monthlyPriceLabel: string }) {
           <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
             A vendor has one payment setup, not one per kit. Connect it once in
             paykit and it&apos;s already there for qkit today, and for whatever
-            kit launches next — no re-onboarding, no second config screen to
+            kit launches next. No re-onboarding, no second config screen to
             maintain.
           </p>
         </div>
@@ -31,7 +31,7 @@ export function Benefits({ monthlyPriceLabel }: { monthlyPriceLabel: string }) {
           </h3>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Customers pay straight into your own account. paykit only renders
-            the checkout and tracks status — no funds pass through it.
+            the checkout and tracks status. No funds pass through it.
           </p>
         </div>
 
@@ -41,7 +41,7 @@ export function Benefits({ monthlyPriceLabel }: { monthlyPriceLabel: string }) {
             Proven, not brand new
           </h3>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            The QR engine is the same one already live in qkit — extracted, not
+            The QR engine is the same one already live in qkit, extracted, not
             rewritten from scratch.
           </p>
         </div>
@@ -55,7 +55,7 @@ export function Benefits({ monthlyPriceLabel }: { monthlyPriceLabel: string }) {
               </h3>
               <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
                 Unlimited transactions and revenue stats, no card required. Pro
-                adds refund tracking — {monthlyPriceLabel}, once you&apos;re
+                adds refund tracking, {monthlyPriceLabel}, once you&apos;re
                 doing enough volume to want it.
               </p>
             </div>

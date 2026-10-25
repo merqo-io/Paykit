@@ -43,7 +43,7 @@ export default async function EarningsReportPage({
             Earnings report
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Revenue from confirmed payments, tagged by event date — a record for
+            Revenue from confirmed payments, tagged by event date. A record for
             your own bookkeeping, not a computed profit figure or a Form-B-ready
             submission.
           </p>
