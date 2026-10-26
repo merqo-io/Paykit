@@ -43,8 +43,8 @@ provide authorization.
   from the row's `detail` (null until something writes it).
 - `proof-ocr.ts` — `recognizeText(image, mode)`: reads the text out of an image
   with Tesseract in this process, using the repo's own `ocr-data/` language
-  file. `mode: "highContrast"` reads a black and white copy (`jimp`,
-  threshold 120) as sparse text, which is what reads PayLah's history screen
+  file. `mode: "highContrast"` reads a copy enlarged to 3200px with its
+  contrast stretched (`sharp`) as sparse text, which is what reads PayLah's history screen
   (large amount, small raised cents). Stops its worker when done, on failure, and after 20 seconds. Its
   bare imports of `bmp-js`, `zlibjs`, `wasm-feature-detect` and
   `tesseract.js-core` are deliberate: the worker thread loads them by name,

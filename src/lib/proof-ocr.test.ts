@@ -8,24 +8,24 @@ const {
   recognizeMock,
   terminateMock,
   setParametersMock,
-  jimpReadMock,
-  greyscaleMock,
-  thresholdMock,
+  sharpMock,
+  resizeMock,
+  linearMock,
 } = vi.hoisted(() => ({
   createWorkerMock: vi.fn(),
   recognizeMock: vi.fn(),
   terminateMock: vi.fn(),
   setParametersMock: vi.fn(),
-  jimpReadMock: vi.fn(),
-  greyscaleMock: vi.fn(),
-  thresholdMock: vi.fn(),
+  sharpMock: vi.fn(),
+  resizeMock: vi.fn(),
+  linearMock: vi.fn(),
 }));
 
 vi.mock("tesseract.js", () => ({
   createWorker: createWorkerMock,
   PSM: { SPARSE_TEXT: "11" },
 }));
-vi.mock("jimp", () => ({ Jimp: { read: jimpReadMock } }));
+vi.mock("sharp", () => ({ default: sharpMock }));
 vi.mock("bmp-js", () => ({}));
 vi.mock("zlibjs", () => ({}));
 vi.mock("wasm-feature-detect", () => ({}));
@@ -34,7 +34,7 @@ vi.mock("tesseract.js-core/package.json", () => ({ default: {} }));
 import { recognizeText } from "./proof-ocr";
 
 const IMAGE = Buffer.from("image bytes");
-const CONTRASTED = Buffer.from("black and white bytes");
+const CONTRASTED = Buffer.from("enhanced bytes");
 
 beforeEach(() => {
   recognizeMock.mockReset().mockResolvedValue({ data: { text: "SGD 12.50" } });
@@ -46,13 +46,16 @@ beforeEach(() => {
     setParameters: setParametersMock,
   });
   const picture = {
-    greyscale: greyscaleMock,
-    threshold: thresholdMock,
-    getBuffer: vi.fn().mockResolvedValue(CONTRASTED),
+    resize: resizeMock,
+    greyscale: () => picture,
+    normalise: () => picture,
+    linear: linearMock,
+    png: () => picture,
+    toBuffer: vi.fn().mockResolvedValue(CONTRASTED),
   };
-  greyscaleMock.mockReset().mockReturnValue(picture);
-  thresholdMock.mockReset().mockReturnValue(picture);
-  jimpReadMock.mockReset().mockResolvedValue(picture);
+  resizeMock.mockReset().mockReturnValue(picture);
+  linearMock.mockReset().mockReturnValue(picture);
+  sharpMock.mockReset().mockReturnValue(picture);
 });
 afterEach(() => {
   vi.useRealTimers();
@@ -77,15 +80,19 @@ describe("recognizeText", () => {
 
   it("reads the original image as-is by default", async () => {
     await recognizeText(IMAGE);
-    expect(jimpReadMock).not.toHaveBeenCalled();
+    expect(sharpMock).not.toHaveBeenCalled();
     expect(setParametersMock).not.toHaveBeenCalled();
   });
 
-  it("reads a black and white copy as sparse text in highContrast mode", async () => {
+  it("reads an enlarged, contrast-stretched copy as sparse text in highContrast mode", async () => {
     await recognizeText(IMAGE, "highContrast");
-    expect(jimpReadMock).toHaveBeenCalledWith(IMAGE);
-    expect(greyscaleMock).toHaveBeenCalledTimes(1);
-    expect(thresholdMock).toHaveBeenCalledWith({ max: 120 });
+    expect(sharpMock).toHaveBeenCalledWith(IMAGE);
+    expect(resizeMock).toHaveBeenCalledWith({
+      width: 3200,
+      height: 3200,
+      fit: "inside",
+    });
+    expect(linearMock).toHaveBeenCalledWith(1.8, -100);
     expect(setParametersMock).toHaveBeenCalledWith({
       tessedit_pageseg_mode: "11",
     });

@@ -6,6 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-26
+
+### Fixed
+
+- The second read of a payment screenshot never ran on a real upload: the hosted pay page sends a WebP, which `jimp` cannot open, so the check failed silently and PayLah history screenshots got no match. The second read now uses `sharp`, which opens WebP, and reads an enlarged (3200px), contrast-stretched copy instead of a black and white one, because a fixed cut-off did not hold up at the 1600px the pay page uploads. Tested on the same 7 real screenshots, resized to the pay page's 1600px WebP: 7 of 7 match.
+
+### Security
+
+- `jimp` removed, and with it `file-type` 16.5.4 (Dependabot alert: infinite loop on a malformed ASF file).
+
 ### Changed
 
 - `.claude/skill-usage.log` is git-ignored, matching the other kits (the skill-usage hook writes it locally on every skill call).
