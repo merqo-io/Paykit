@@ -43,9 +43,15 @@ const nextConfig: NextConfig = {
     serverActions: { bodySizeLimit: "2mb" },
   },
 
-  // sharp is only next's optional peer; Vercel optimizes images itself, so keep its binary out of every function.
+  // Vercel optimizes images itself, so sharp's binary stays out of every
+  // function except the two that run the screenshot check. pnpm keeps the
+  // real files under node_modules/.pnpm, which the last two globs reach.
   outputFileTracingExcludes: {
-    "*": ["node_modules/@img/**", "node_modules/sharp/**"],
+    "!{/pay/*,/api/v1/checkout/*/claim}": [
+      "node_modules/{sharp,@img}/**",
+      "node_modules/.pnpm/{sharp,@img+*}@*/**",
+      "node_modules/**/node_modules/{sharp,@img}/**",
+    ],
   },
 
   images: {
