@@ -29,3 +29,6 @@ supabase/.temp
 /test-results
 /playwright-report
 /playwright/.cache
+
+# Written by the skill-usage hook on every skill call; local only.
+.claude/skill-usage.log
