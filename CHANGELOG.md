@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `.claude/skill-usage.log` is git-ignored, matching the other kits (the skill-usage hook writes it locally on every skill call).
+
 ## [0.3.0] - 2026-10-26
 
 ### Added
