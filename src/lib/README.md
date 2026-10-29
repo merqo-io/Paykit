@@ -90,7 +90,9 @@ provide authorization.
   only one set is skipped with a log line, an address that is not plain https
   (or carries credentials) is refused, the request is abandoned 5 seconds
   after it is sent and nothing is thrown. A request error is logged by name
-  only, since its message can quote the secret. `schedulePaymentStatusCallback(tx)` registers it with
+  only, since its message can quote the secret. A request that was sent and
+  failed is recorded through `recordOpsEvent` as `payment_callback_failed`
+  (`http_<status>`, `timeout` or `network_error`). `schedulePaymentStatusCallback(tx)` registers it with
   `after`, so it runs once the response has gone out. The body is a hint: the
   receiving kit reads the status back with `GET /api/v1/checkout?order_ref=`.
 - `inquiry-schemas.ts`: Zod for booking inquiries: `inquiryFormSettingsSchema`
@@ -137,6 +139,11 @@ partial collections on later errors; it does not provide a transaction snapshot.
 admin gate before invoking it.
 
 `metrics.ts` and `merqo-vendor-activity.ts` derive hub payloads.
+`ops-events.ts` holds `recordOpsEvent(supabase, e)`, which writes one
+`ops_events` row and never throws, and `summarizeIncidents(supabase, vendorId,
+sinceHours = 72)`, which groups written events with claims still `claimed`
+past their `expires_at` (`payment_claim_stuck`, code `expired`) into
+`incidents` per kind and the 10 newest `recent`; it throws on a failed read.
 `merqo-vendor-status.ts` resolves a known auth user to that user's config.
 `vendor-health.ts` owns triage bands. `revenue-report.ts` groups confirmed
 transactions by day; `earnings-report.ts` groups booking revenue by event date,

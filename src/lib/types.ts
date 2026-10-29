@@ -176,6 +176,16 @@ export type AuthFailure = {
   created_at: string;
 };
 
+/** A failure paykit wrote for Merqo's ops view (migration 0026). */
+export type OpsEvent = {
+  id: number;
+  vendor_id: string;
+  kind: "payment_callback_failed";
+  ref: string;
+  code: string;
+  created_at: string;
+};
+
 export type LegalCheckState = {
   email: string;
   checked_at: string;
@@ -461,6 +471,20 @@ export interface Database {
         };
         Relationships: [];
       };
+      ops_events: {
+        Row: OpsEvent;
+        Insert: {
+          vendor_id: string;
+          kind: "payment_callback_failed";
+          ref: string;
+          code: string;
+          created_at?: string;
+        };
+        Update: {
+          [_ in never]: never;
+        };
+        Relationships: [];
+      };
       auth_failures: {
         Row: AuthFailure;
         Insert: {
@@ -530,6 +554,10 @@ export interface Database {
       check_rate_limit: {
         Args: { p_key: string; p_limit: number; p_window_seconds: number };
         Returns: boolean;
+      };
+      purge_ops_events: {
+        Args: Record<string, never>;
+        Returns: undefined;
       };
     };
   };
