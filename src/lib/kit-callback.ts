@@ -1,11 +1,15 @@
 import { after } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { paymentStatusCallbackSchema } from "@/lib/api-schemas";
+import { recordOpsEvent } from "@/lib/ops-events";
 
 const CALLBACK_TIMEOUT_MS = 5000;
 
+type ServiceClient = Awaited<ReturnType<typeof createServiceClient>>;
+
 export type CallbackTransaction = {
   id: string;
+  vendor_id: string;
   kit_slug: string;
   order_ref: string;
   status: string;
@@ -31,7 +35,8 @@ function httpsUrl(value: string): URL | null {
  *
  * Best effort: a kit with no callback configured is skipped silently, every
  * failure is logged and swallowed, and the request is abandoned 5 seconds
- * after it is sent. The receiver treats the body as a hint and reads the status back,
+ * after it is sent. A request that was sent and failed is also recorded in
+ * `ops_events` for Merqo. The receiver treats the body as a hint and reads the status back,
  * so a lost or repeated call can never leave it holding a wrong status.
  */
 export async function notifyKitPaymentStatus(
@@ -49,6 +54,14 @@ export async function notifyKitPaymentStatus(
 
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let sent: ServiceClient | null = null;
+  const recordFailure = (supabase: ServiceClient, code: string) =>
+    recordOpsEvent(supabase, {
+      vendorId: tx.vendor_id,
+      kind: "payment_callback_failed",
+      ref: tx.id,
+      code,
+    });
   try {
     const supabase = await createServiceClient();
     const { data, error } = await supabase
@@ -80,6 +93,7 @@ export async function notifyKitPaymentStatus(
     }
 
     timer = setTimeout(() => controller.abort(), CALLBACK_TIMEOUT_MS);
+    sent = supabase;
     const res = await fetch(url, {
       method: "POST",
       cache: "no-store",
@@ -91,10 +105,12 @@ export async function notifyKitPaymentStatus(
       },
       body: JSON.stringify(body.data),
     });
-    if (!res.ok)
+    if (!res.ok) {
       console.error(
         `notifyKitPaymentStatus: ${tx.kit_slug} returned ${res.status}`,
       );
+      await recordFailure(supabase, `http_${res.status}`);
+    }
   } catch (err) {
     // The name only. A fetch error's message can quote the Authorization
     // header or the URL it was given.
@@ -102,6 +118,11 @@ export async function notifyKitPaymentStatus(
       "notifyKitPaymentStatus failed",
       err instanceof Error ? err.name : "unknown error",
     );
+    if (sent)
+      await recordFailure(
+        sent,
+        controller.signal.aborted ? "timeout" : "network_error",
+      );
   } finally {
     clearTimeout(timer);
   }

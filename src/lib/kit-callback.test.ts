@@ -4,30 +4,38 @@ import {
   schedulePaymentStatusCallback,
 } from "./kit-callback";
 
-const { maybeSingleMock, eqMock, selectMock, fromMock, afterMock } = vi.hoisted(
-  () => {
-    const maybeSingleMock = vi.fn();
-    const eqMock = vi.fn((..._args: unknown[]) => ({
-      maybeSingle: maybeSingleMock,
-    }));
-    const selectMock = vi.fn((..._args: unknown[]) => ({ eq: eqMock }));
-    const fromMock = vi.fn((..._args: unknown[]) => ({ select: selectMock }));
-    return {
-      maybeSingleMock,
-      eqMock,
-      selectMock,
-      fromMock,
-      afterMock: vi.fn(),
-    };
-  },
-);
+const {
+  maybeSingleMock,
+  eqMock,
+  selectMock,
+  fromMock,
+  afterMock,
+  recordOpsEventMock,
+} = vi.hoisted(() => {
+  const maybeSingleMock = vi.fn();
+  const eqMock = vi.fn((..._args: unknown[]) => ({
+    maybeSingle: maybeSingleMock,
+  }));
+  const selectMock = vi.fn((..._args: unknown[]) => ({ eq: eqMock }));
+  const fromMock = vi.fn((..._args: unknown[]) => ({ select: selectMock }));
+  return {
+    maybeSingleMock,
+    eqMock,
+    selectMock,
+    fromMock,
+    afterMock: vi.fn(),
+    recordOpsEventMock: vi.fn(),
+  };
+});
 vi.mock("@/lib/supabase/server", () => ({
   createServiceClient: () => Promise.resolve({ from: fromMock }),
 }));
 vi.mock("next/server", () => ({ after: afterMock }));
+vi.mock("@/lib/ops-events", () => ({ recordOpsEvent: recordOpsEventMock }));
 
 const TX = {
   id: "22222222-2222-2222-8222-222222222222",
+  vendor_id: "11111111-1111-4111-8111-111111111111",
   kit_slug: "qkit",
   order_ref: "A-001",
   status: "claimed",
@@ -56,6 +64,7 @@ beforeEach(() => {
   selectMock.mockClear();
   fromMock.mockClear();
   afterMock.mockReset();
+  recordOpsEventMock.mockReset();
   fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 200 });
   global.fetch = fetchMock as unknown as typeof fetch;
   errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -89,6 +98,38 @@ describe("notifyKitPaymentStatus", () => {
       transaction_id: TX.id,
       status: "claimed",
     });
+    expect(recordOpsEventMock).not.toHaveBeenCalled();
+  });
+
+  it("records a payment_callback_failed event on a non-2xx answer", async () => {
+    configured();
+    fetchMock.mockResolvedValue({ ok: false, status: 502 });
+    await notifyKitPaymentStatus(TX);
+    expect(recordOpsEventMock).toHaveBeenCalledWith(expect.anything(), {
+      vendorId: TX.vendor_id,
+      kind: "payment_callback_failed",
+      ref: TX.id,
+      code: "http_502",
+    });
+  });
+
+  it("records a network_error event when the request rejects", async () => {
+    configured();
+    fetchMock.mockRejectedValue(new Error("network down"));
+    await notifyKitPaymentStatus(TX);
+    expect(recordOpsEventMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        kind: "payment_callback_failed",
+        code: "network_error",
+      }),
+    );
+  });
+
+  it("records nothing when the kit has no callback configured", async () => {
+    maybeSingleMock.mockResolvedValue({ data: NO_CALLBACK, error: null });
+    await notifyKitPaymentStatus(TX);
+    expect(recordOpsEventMock).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -237,6 +278,12 @@ describe("notifyKitPaymentStatus", () => {
     await vi.advanceTimersByTimeAsync(5000);
     await expect(done).resolves.toBeUndefined();
     expect(fetchMock.mock.calls[0][1].signal.aborted).toBe(true);
+    expect(recordOpsEventMock).toHaveBeenCalledWith(expect.anything(), {
+      vendorId: TX.vendor_id,
+      kind: "payment_callback_failed",
+      ref: TX.id,
+      code: "timeout",
+    });
   });
 });
 

@@ -68,6 +68,13 @@ tables, RLS policies, RPCs, and grants, applied in order.
   form; on inquiries they may read, delete and change `status` only. No
   client insert: the public form writes with the service role, as does
   conversion's `booking_id`.
+- `0026_ops_events.sql`: `ops_events` (`vendor_id`, `kind`, `ref` and `code`
+  of at most 64 characters, `created_at`), the failure log behind
+  `vendor-activity`'s incidents. `kind` allows only `payment_callback_failed`,
+  the one kind paykit writes. No PII column. RLS on with no policy; the
+  service role may select and insert only. `purge_ops_events()` deletes rows
+  older than 30 days and is scheduled daily as `paykit-ops-events-purge`
+  through pg_cron where it is available (a NOTICE says when it is not).
 - `0027_fk_indexes.sql`: indexes every foreign key column the Supabase advisor flagged as unindexed (`admin_audit.admin_id`, `feedback.vendor_id`, `refunds.created_by`).
 
 ## Parent

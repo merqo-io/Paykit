@@ -5,6 +5,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { listAllUsers } from "@/lib/list-all-users";
 import { bearerOk } from "@/lib/merqo-auth";
 import { computeVendorActivity } from "@/lib/merqo-vendor-activity";
+import { summarizeIncidents } from "@/lib/ops-events";
 import type { TxStatus, VendorPlan } from "@/lib/types";
 
 export const revalidate = 0;
@@ -110,11 +111,18 @@ export async function GET(request: Request) {
   const { config, transactions } = base;
   const refunds = refundsRes.refunds;
 
+  let incidents: Awaited<ReturnType<typeof summarizeIncidents>>;
+  try {
+    incidents = await summarizeIncidents(supabase, user.id);
+  } catch {
+    return upstreamUnavailable("incidents");
+  }
+
   const payload = computeVendorActivity(
     config,
     transactions,
     refunds,
     Date.now(),
   );
-  return NextResponse.json(payload);
+  return NextResponse.json({ ...payload, ...incidents });
 }

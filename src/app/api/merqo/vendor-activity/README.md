@@ -23,9 +23,12 @@ whole card from.
   their `transactions`, and — only if they have any transactions — the
   `refunds` rows against those transaction ids (`refunds` has no
   `vendor_id` column of its own), then calls `computeVendorActivity`
-  (`src/lib/merqo-vendor-activity.ts`) and returns its result as-is.
+  (`src/lib/merqo-vendor-activity.ts`) and adds `incidents` and `recent`
+  from `summarizeIncidents` (`src/lib/ops-events.ts`, last 72 hours). The
+  body parses with `vendorActivityPayloadSchema` from `@merqo/ui/contracts`.
 - `route.test.ts` — auth/validation/404/200/upstream-failure cases for the
-  route above, including the "no transactions ⇒ never queries refunds"
+  route above (a failed incidents read is a 503 too), the incidents payload
+  checked against the shared contract, including the "no transactions ⇒ never queries refunds"
   short-circuit.
 
 ## Parent
@@ -36,4 +39,4 @@ See the repo root [README.md](../../../../../README.md) for the full layout.
 
 The email lookup validates input and rejects incomplete administrator listings. Transactions and refunds are paged through their own deterministic IDs; refund reads remain limited to the resolved vendor transaction IDs. A partial or failed read is an error, not a valid activity summary.
 
-The route reads its data through `readConfigAndTransactions` and `readRefunds`, and answers any failed read with `upstreamUnavailable`.
+The route reads its data through `readConfigAndTransactions` and `readRefunds`, and answers any failed read, incidents included, with `upstreamUnavailable`.

@@ -69,4 +69,6 @@ Focused pgTAP suites: `deposit-recovery.test.sql` validates atomic deposit linki
 
 `payment-evidence.test.sql` covers migration `0022`: a vendor reads only their own `payment_evidence` rows and only their own objects in `paykit-payment-proofs`, cannot find another vendor's row by its hash, and cannot write, edit or delete evidence; anon has no access; the service role inserts and replaces but cannot delete; and the bucket is private with its size and type limits.
 
+`ops-events.test.sql` covers migration `0026`: RLS on with no policy; an unknown kind and a 65-character `ref` or `code` are rejected; the purge deletes a 31-day-old row and keeps a 29-day-old one; the service role selects and inserts but cannot delete; `authenticated` and `anon` can neither select nor insert, and `authenticated` cannot run the purge.
+
 `booking-inquiries.test.sql` covers migration `0025`: RLS on `inquiry_forms` and `inquiries`; a form gets a random 16-hex public id the vendor cannot choose; a terms snapshot needs url, version and time together; a vendor reads only their own inquiries and form, cannot insert an inquiry or set `booking_id`, can change status, cannot delete or create another vendor's rows; anon has no access.
