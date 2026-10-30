@@ -68,7 +68,7 @@ tables, RLS policies, RPCs, and grants, applied in order.
   form; on inquiries they may read, delete and change `status` only. No
   client insert: the public form writes with the service role, as does
   conversion's `booking_id`.
-- `0026_fk_indexes.sql`: indexes every foreign key column the Supabase advisor flagged as unindexed (`admin_audit.admin_id`, `feedback.vendor_id`, `refunds.created_by`).
+- `0027_fk_indexes.sql`: indexes every foreign key column the Supabase advisor flagged as unindexed (`admin_audit.admin_id`, `feedback.vendor_id`, `refunds.created_by`).
 
 ## Parent
 
