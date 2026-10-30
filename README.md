@@ -345,6 +345,10 @@ An event vendor can take inquiries before there is a booking. On Bookings they s
 
 `src/proxy.ts` sets the CSP (nonce on per-request routes) and `X-Robots-Tag` off production. The admin area requires TOTP MFA; see `src/app/mfa/README.md` and `docs/security/`.
 
+## Database indexes
+
+Every foreign key column is indexed (migration `0027`, applied by hand), which the Supabase advisor checks. `supabase/tests/db-hygiene.test.sql` guards the indexes and RLS on every table.
+
 ## Lint
 
 `eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-icon.tsx` and `src/app/global-error.tsx`; `src/lib/types.ts` is the one `max-lines` exception until the split-long-files task.
