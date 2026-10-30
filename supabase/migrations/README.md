@@ -75,6 +75,7 @@ tables, RLS policies, RPCs, and grants, applied in order.
   service role may select and insert only. `purge_ops_events()` deletes rows
   older than 30 days and is scheduled daily as `paykit-ops-events-purge`
   through pg_cron where it is available (a NOTICE says when it is not).
+- `0027_fk_indexes.sql`: indexes every foreign key column the Supabase advisor flagged as unindexed (`admin_audit.admin_id`, `feedback.vendor_id`, `refunds.created_by`).
 
 ## Parent
 

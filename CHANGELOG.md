@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-30
+
+### Changed
+
+- Migration `0027`: indexes the foreign key columns the Supabase advisor flagged as unindexed (`admin_audit.admin_id`, `feedback.vendor_id`, `refunds.created_by`). New pgTAP file `db-hygiene.test.sql` covers the indexes, RLS on every table and server-only access to `auth_failures`.
+
 ## [0.4.0] - 2026-10-29
 
 ### Added

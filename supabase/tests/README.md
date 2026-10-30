@@ -49,6 +49,8 @@ _permits_.
   Keep `select plan(N)` in step with the number of assertions; pgTAP fails
   the run on a count mismatch.
 
+- `db-hygiene.test.sql` — the `0027` foreign key indexes, RLS on every table, admin-only `admins` reads, public `pricing` reads and no client access to `auth_failures`.
+
 ## Connectivity
 
 Run with `supabase test db` (Supabase CLI, Docker required), which applies
