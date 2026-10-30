@@ -1,8 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-const { fromMock, listUsersMock } = vi.hoisted(() => ({
+const { fromMock, listUsersMock, summarizeIncidentsMock } = vi.hoisted(() => ({
   fromMock: vi.fn(),
   listUsersMock: vi.fn(),
+  summarizeIncidentsMock: vi.fn(),
+}));
+vi.mock("@/lib/ops-events", () => ({
+  summarizeIncidents: summarizeIncidentsMock,
 }));
 vi.mock("@/lib/supabase/server", () => ({
   createServiceClient: vi.fn(async () => ({
@@ -11,6 +15,7 @@ vi.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
+import { vendorActivityPayloadSchema } from "@merqo/ui/contracts";
 import { GET } from "@/app/api/merqo/vendor-activity/route";
 
 function req(url: string, auth?: string) {
@@ -79,6 +84,7 @@ describe("GET /api/merqo/vendor-activity (paykit)", () => {
       data: { users: [{ id: "u1", email: "vendor@business.sg" }] },
       error: null,
     });
+    summarizeIncidentsMock.mockResolvedValue({ incidents: [], recent: [] });
     mockTables({});
   });
 
@@ -131,7 +137,58 @@ describe("GET /api/merqo/vendor-activity (paykit)", () => {
       status: null,
       metrics: [],
       lastActivityAt: null,
+      incidents: [],
+      recent: [],
     });
+  });
+
+  it("reports the vendor's incidents in the shared contract shape", async () => {
+    const incidents = [
+      {
+        kind: "payment_callback_failed",
+        count: 2,
+        lastAt: "2026-10-29T10:00:00.000Z",
+      },
+      {
+        kind: "payment_claim_stuck",
+        count: 1,
+        lastAt: "2026-10-29T09:00:00.000Z",
+      },
+    ];
+    const recent = [
+      {
+        kind: "payment_callback_failed",
+        ref: "t1",
+        code: "http_502",
+        at: "2026-10-29T10:00:00.000Z",
+      },
+    ];
+    summarizeIncidentsMock.mockResolvedValue({ incidents, recent });
+    const res = await GET(
+      req(
+        "http://localhost/api/merqo/vendor-activity?email=vendor@business.sg",
+        "Bearer test-secret",
+      ),
+    );
+    expect(res.status).toBe(200);
+    const body = vendorActivityPayloadSchema.parse(await res.json());
+    expect(body.incidents).toEqual(incidents);
+    expect(body.recent).toEqual(recent);
+    expect(summarizeIncidentsMock).toHaveBeenCalledWith(
+      expect.anything(),
+      "u1",
+    );
+  });
+
+  it("503 when the incidents read fails", async () => {
+    summarizeIncidentsMock.mockRejectedValue(new Error("boom"));
+    const res = await GET(
+      req(
+        "http://localhost/api/merqo/vendor-activity?email=vendor@business.sg",
+        "Bearer test-secret",
+      ),
+    );
+    expect(res.status).toBe(503);
   });
 
   it("200 with real activity for a vendor with a config row and confirmed transactions", async () => {
@@ -255,6 +312,7 @@ describe("GET /api/merqo/vendor-activity (paykit)", () => {
 it("includes all vendor activity and batches refund filters", async () => {
   process.env.MERQO_METRICS_SECRET = "test-secret";
   vi.clearAllMocks();
+  summarizeIncidentsMock.mockResolvedValue({ incidents: [], recent: [] });
   listUsersMock.mockResolvedValue({
     data: { users: [{ id: "u1", email: "vendor@business.sg" }] },
     error: null,

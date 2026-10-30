@@ -6,6 +6,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-29
+
+### Added
+
+- `ops_events` (migration `0026`): a failure log for Merqo's ops view. A payment-status callback that was sent and failed records a `payment_callback_failed` row (`ref` = transaction id, `code` = `http_<status>`, `timeout` or `network_error`). No PII: no message, name, phone or email is stored. Service role only; rows older than 30 days are purged daily by the `paykit-ops-events-purge` pg_cron job.
+- `GET /api/merqo/vendor-activity` now returns `incidents` (count and last time per kind) and `recent` (the latest 10) for the last 72 hours, in the `vendorActivityPayloadSchema` shape from `@merqo/ui/contracts`. `payment_claim_stuck` is computed from claims still unconfirmed past their `expires_at`, not stored.
+
 ## [0.3.1] - 2026-10-26
 
 ### Fixed
