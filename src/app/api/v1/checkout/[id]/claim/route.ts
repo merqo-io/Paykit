@@ -64,6 +64,7 @@ export async function POST(
 
   const outcome = await claimTransaction(supabase, current, proofRead.proof, {
     kitSlug: auth.kitSlug,
+    scopedKitSlug: auth.kitSlug,
   });
   if (!outcome.ok)
     return NextResponse.json(

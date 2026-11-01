@@ -458,10 +458,10 @@ describe("kit scoping", () => {
     expect(auditInsert).not.toHaveBeenCalled();
   });
 
-  it("filters the read by the caller's kit", async () => {
+  it("filters the read and the update by the caller's kit", async () => {
     await POST(req(), ctx());
     const kitFilters = eqCalls.filter(([col]) => col === "kit_slug");
-    expect(kitFilters).toHaveLength(1);
+    expect(kitFilters).toHaveLength(2);
     expect(kitFilters.every(([, val]) => val === "qkit")).toBe(true);
   });
 });

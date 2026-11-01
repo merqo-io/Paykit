@@ -15,7 +15,13 @@ export type ClaimOutcome =
   | { ok: false; status: 404 | 503; error: string };
 
 /** Who the claim is recorded against in `payment_audit`, and any detail. */
-export type ClaimAudit = { kitSlug: string; detail?: Json };
+// `scopedKitSlug` is set by callers authenticated as a kit, so the write
+// cannot touch another kit's row; the hosted pay page leaves it unset.
+export type ClaimAudit = {
+  kitSlug: string;
+  detail?: Json;
+  scopedKitSlug?: string;
+};
 
 /**
  * The guarded update matched no row. Either a concurrent request moved the
@@ -74,11 +80,14 @@ export async function claimTransaction(
   const { status, changed } = claimTransition(current.status);
   if (!changed) return { ok: true, row: current };
 
-  const { data: updated, error: updateError } = await supabase
+  let guarded = supabase
     .from("transactions")
     .update({ status, claimed_at: new Date().toISOString() })
     .eq("id", current.id)
-    .eq("status", "pending")
+    .eq("status", "pending");
+  if (audit.scopedKitSlug)
+    guarded = guarded.eq("kit_slug", audit.scopedKitSlug);
+  const { data: updated, error: updateError } = await guarded
     .select(TRANSACTION_COLUMNS)
     .single();
   if (updateError || !updated)
