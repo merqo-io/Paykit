@@ -14,9 +14,11 @@ export type ClaimOutcome =
   | { ok: true; row: Transaction }
   | { ok: false; status: 404 | 503; error: string };
 
-/** Who the claim is recorded against in `payment_audit`, and any detail. */
-// `scopedKitSlug` is set by callers authenticated as a kit, so the write
-// cannot touch another kit's row; the hosted pay page leaves it unset.
+/**
+ * Who the claim is recorded against in `payment_audit`, and any detail.
+ * `scopedKitSlug` is set by callers authenticated as a kit, so no write can
+ * touch another kit's row; the hosted pay page leaves it unset.
+ */
 export type ClaimAudit = {
   kitSlug: string;
   detail?: Json;
@@ -32,12 +34,14 @@ async function outcomeAfterLostUpdate(
   supabase: ServiceClient,
   id: string,
   previousStatus: string,
+  scopedKitSlug?: string,
 ): Promise<ClaimOutcome> {
-  const { data: recheck, error: recheckError } = await supabase
+  let lookup = supabase
     .from("transactions")
     .select(TRANSACTION_COLUMNS)
-    .eq("id", id)
-    .maybeSingle();
+    .eq("id", id);
+  if (scopedKitSlug) lookup = lookup.eq("kit_slug", scopedKitSlug);
+  const { data: recheck, error: recheckError } = await lookup.maybeSingle();
   if (recheckError || (recheck && recheck.status === previousStatus))
     return { ok: false, status: 503, error: "Upstream unavailable" };
   if (!recheck) return { ok: false, status: 404, error: "Not found" };
@@ -91,7 +95,12 @@ export async function claimTransaction(
     .select(TRANSACTION_COLUMNS)
     .single();
   if (updateError || !updated)
-    return outcomeAfterLostUpdate(supabase, current.id, current.status);
+    return outcomeAfterLostUpdate(
+      supabase,
+      current.id,
+      current.status,
+      audit.scopedKitSlug,
+    );
 
   await recordPaymentAudit(supabase, {
     transactionId: current.id,

@@ -36,7 +36,7 @@ append-only at the grant level (`service_role` can no longer `UPDATE`/
 payment-lifecycle API (checkout/claim/confirm/unclaim) has its own
 counterpart, `payment_audit` (`src/lib/payment-audit.ts`), attributed by
 `kit_slug` rather than a human `auth.users` actor — see
-`src/app/api/v1/checkout/README.md`. The same surface is also rate-limited
+`src/app/api/v1/checkout/README.md`. Every v1 checkout route that takes a transaction id (status, claim, confirm, unclaim, evidence) is scoped to the calling kit: another kit's id answers `404`. The same surface is also rate-limited
 (`src/lib/rate-limit.ts`, ported from qkit's own DB-backed fixed-window
 limiter, 60 requests/60s per `kit_slug`+IP), closing a real gap where a
 leaked or misbehaving kit secret could hammer any endpoint unbounded, and
