@@ -45,7 +45,7 @@ provide authorization.
   with Tesseract in this process, using the repo's own `ocr-data/` language
   file. `mode: "highContrast"` reads a copy enlarged to 3200px with its
   contrast stretched (`sharp`) as sparse text, which is what reads PayLah's history screen
-  (large amount, small raised cents). Stops its worker when done, on failure, and after 20 seconds. Its
+  (large amount, small raised cents). Reads the image header first and refuses one with no dimensions or more than 25 megapixels, and every `sharp` call carries the same input limit, so a small file cannot decode to gigabytes. Stops its worker when done, on failure, and after 20 seconds. Its
   bare imports of `bmp-js`, `zlibjs`, `wasm-feature-detect` and
   `tesseract.js-core` are deliberate: the worker thread loads them by name,
   and the imports are what put them in the deployed function.
