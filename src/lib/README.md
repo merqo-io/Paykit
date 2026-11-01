@@ -74,7 +74,7 @@ provide authorization.
   itself, for the endpoint and the pay page alike. Stores the screenshot
   before the claim commits, moves `pending` to `claimed` with a guarded
   update, writes the audit row and schedules the callback and the amount
-  check. An already claimed or confirmed transaction is answered as it
+  update (also filtered by `audit.scopedKitSlug` when the caller is a kit), writes the audit row and schedules the callback and the amount
   stands.
 - `hosted-pay.ts` — `loadHostedPayment(supabase, id, token)`: the one read of
   a transaction on a caller's say-so alone. Not found for a bad id or token,
