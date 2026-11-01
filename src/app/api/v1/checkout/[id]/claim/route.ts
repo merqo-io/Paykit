@@ -50,6 +50,7 @@ export async function POST(
     .from("transactions")
     .select(TRANSACTION_COLUMNS)
     .eq("id", id)
+    .eq("kit_slug", auth.kitSlug)
     .maybeSingle();
   if (readError) {
     console.error("claim: read failed", readError.message);

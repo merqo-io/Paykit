@@ -11,6 +11,7 @@ const {
   sharpMock,
   resizeMock,
   linearMock,
+  metadataMock,
 } = vi.hoisted(() => ({
   createWorkerMock: vi.fn(),
   recognizeMock: vi.fn(),
@@ -19,6 +20,7 @@ const {
   sharpMock: vi.fn(),
   resizeMock: vi.fn(),
   linearMock: vi.fn(),
+  metadataMock: vi.fn(),
 }));
 
 vi.mock("tesseract.js", () => ({
@@ -35,6 +37,7 @@ import { recognizeText } from "./proof-ocr";
 
 const IMAGE = Buffer.from("image bytes");
 const CONTRASTED = Buffer.from("enhanced bytes");
+const SHARP_OPTIONS = { limitInputPixels: 25_000_000, failOn: "error" };
 
 beforeEach(() => {
   recognizeMock.mockReset().mockResolvedValue({ data: { text: "SGD 12.50" } });
@@ -45,7 +48,9 @@ beforeEach(() => {
     terminate: terminateMock,
     setParameters: setParametersMock,
   });
+  metadataMock.mockReset().mockResolvedValue({ width: 1600, height: 1000 });
   const picture = {
+    metadata: metadataMock,
     resize: resizeMock,
     greyscale: () => picture,
     normalise: () => picture,
@@ -78,15 +83,16 @@ describe("recognizeText", () => {
     });
   });
 
-  it("reads the original image as-is by default", async () => {
+  it("reads the original image as-is by default, after checking its size", async () => {
     await recognizeText(IMAGE);
-    expect(sharpMock).not.toHaveBeenCalled();
+    expect(sharpMock).toHaveBeenCalledWith(IMAGE, SHARP_OPTIONS);
+    expect(resizeMock).not.toHaveBeenCalled();
     expect(setParametersMock).not.toHaveBeenCalled();
   });
 
   it("reads an enlarged, contrast-stretched copy as sparse text in highContrast mode", async () => {
     await recognizeText(IMAGE, "highContrast");
-    expect(sharpMock).toHaveBeenCalledWith(IMAGE);
+    expect(sharpMock).toHaveBeenCalledWith(IMAGE, SHARP_OPTIONS);
     expect(resizeMock).toHaveBeenCalledWith({
       width: 3200,
       height: 3200,
@@ -99,6 +105,21 @@ describe("recognizeText", () => {
     expect(recognizeMock).toHaveBeenCalledWith(CONTRASTED);
     expect(terminateMock).toHaveBeenCalledTimes(1);
   });
+
+  it.each([
+    ["too many pixels", { width: 20_000, height: 20_000 }],
+    ["no dimensions", {}],
+  ])(
+    "rejects an image with %s before any decode or OCR",
+    async (_name, size) => {
+      metadataMock.mockResolvedValue(size);
+      await expect(recognizeText(IMAGE, "highContrast")).rejects.toThrow(
+        "Image dimensions out of range",
+      );
+      expect(resizeMock).not.toHaveBeenCalled();
+      expect(createWorkerMock).not.toHaveBeenCalled();
+    },
+  );
 
   it("stops the worker and rethrows when the image cannot be read", async () => {
     recognizeMock.mockRejectedValue(new Error("unreadable"));

@@ -21,11 +21,26 @@ const ENHANCED_LONG_SIDE = 3200;
 const CONTRAST_GAIN = 1.8;
 const CONTRAST_OFFSET = -100;
 
+// A 1 MB PNG can declare dimensions that decode to gigabytes, so the header
+// is checked before any pixel is decoded. Uploads are 1600px WebP, far below.
+export const MAX_INPUT_PIXELS = 25_000_000;
+const SHARP_OPTIONS = {
+  limitInputPixels: MAX_INPUT_PIXELS,
+  failOn: "error",
+} as const;
+
 export type OcrMode = "plain" | "highContrast";
+
+async function assertDecodable(image: Buffer): Promise<void> {
+  const { default: sharp } = await import("sharp");
+  const { width, height } = await sharp(image, SHARP_OPTIONS).metadata();
+  if (!width || !height || width * height > MAX_INPUT_PIXELS)
+    throw new Error("Image dimensions out of range");
+}
 
 async function highContrast(image: Buffer): Promise<Buffer> {
   const { default: sharp } = await import("sharp");
-  return sharp(image)
+  return sharp(image, SHARP_OPTIONS)
     .resize({
       width: ENHANCED_LONG_SIDE,
       height: ENHANCED_LONG_SIDE,
@@ -50,6 +65,7 @@ export async function recognizeText(
   image: Buffer,
   mode: OcrMode = "plain",
 ): Promise<string> {
+  await assertDecodable(image);
   const input = mode === "highContrast" ? await highContrast(image) : image;
   const { createWorker, PSM } = await import("tesseract.js");
   const worker = await createWorker("eng", 1, {

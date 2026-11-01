@@ -94,6 +94,13 @@ export async function POST(
     );
   }
 
+  // No kit-to-vendor binding exists to enforce, so the writer is logged.
+  console.warn("vendor config: written", {
+    vendor_id,
+    kit_slug: auth.kitSlug,
+    kind: parsed.data.kind,
+  });
+
   await removeReplacedQrImage(
     supabase,
     vendor_id,
