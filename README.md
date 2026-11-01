@@ -323,6 +323,8 @@ Source lives in the `merqo-io` GitHub organization (`github.com/merqo-io/paykit`
 
 `e2e/` holds the Playwright public smoke and auth-guard specs, run with `pnpm test:e2e` (see its own README).
 
+The `staging-sync` workflow pushes to `staging` with the `merqo-staging-sync` GitHub App token.
+
 ## October 2026 audit status
 
 Booking deposit checkout failures now preserve the booking and expose a vendor-scoped retry action. Migration0016 adds atomic, validated deposit linking and confirmation reconciliation. It is prepared but not applied; see [the audit evidence](docs/paykit-audit-2026-10-08.md) for verification and remaining findings.
