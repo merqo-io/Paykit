@@ -4,9 +4,9 @@ description: Run typecheck + lint + test suite for this project in one pass.
 allowed-tools: "Bash(pnpm *)"
 ---
 
-Run `pnpm check && pnpm test` and report the results.
+Run `pnpm check && pnpm test && pnpm build` and report the results.
 
-- `pnpm check` = `prettier --check` + `eslint` + `tsc --noEmit`; `pnpm test` = `vitest run`.
+- `pnpm check` = `prettier --check` + `eslint` + `tsc --noEmit`; `pnpm test` = `vitest run`; `pnpm build` = `next build`, which catches client/server bundle-boundary errors the other two miss.
 - On failure, surface the failing output so it gets fixed at the root — never
   skip, `.skip`, or disable a check or test just to go green.
 
