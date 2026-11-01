@@ -51,15 +51,46 @@ const ROW = {
   created_at: "2026-07-15T00:00:00Z",
 };
 
+type Filter = [string, unknown];
+const eqCalls: Filter[] = [];
+
+type Chain = {
+  eq: (col: string, val: unknown) => Chain;
+  in: () => Chain;
+  select: () => Chain;
+  maybeSingle: () => Promise<{ data: unknown; error: unknown }>;
+  single: typeof updateSingle;
+};
+
+// Honors the kit_slug filter the way the database would, so a route that
+// forgets to scope returns the other kit's row.
+function chain(filters: Filter[] = []): Chain {
+  const c: Chain = {
+    eq: (col, val) => {
+      eqCalls.push([col, val]);
+      filters.push([col, val]);
+      return c;
+    },
+    in: () => c,
+    select: () => c,
+    maybeSingle: async () => {
+      const result = await readMaybeSingle();
+      const kit = filters.find(([col]) => col === "kit_slug");
+      const row = result.data as { kit_slug: string } | null;
+      return row && kit && row.kit_slug !== kit[1]
+        ? { data: null, error: null }
+        : result;
+    },
+    single: updateSingle,
+  };
+  return c;
+}
+
 function fakeSupabase() {
   return {
     from: () => ({
-      select: () => ({ eq: () => ({ maybeSingle: readMaybeSingle }) }),
-      update: () => ({
-        eq: () => ({
-          in: () => ({ select: () => ({ single: updateSingle }) }),
-        }),
-      }),
+      select: () => chain(),
+      update: () => chain(),
       insert: auditInsert,
     }),
   };
@@ -75,6 +106,7 @@ beforeEach(() => {
   });
   auditInsert.mockReset().mockResolvedValue({ error: null });
   rateLimitMock.mockReset().mockResolvedValue(true);
+  eqCalls.length = 0;
 });
 
 function req() {
@@ -258,5 +290,22 @@ describe("payment-status callback on confirm", () => {
     const res = await POST(req(), ctx());
     expect(res.status).toBe(503);
     expect(scheduleCallbackMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("kit scoping", () => {
+  it("answers 404 for another kit's transaction, same as an unknown id", async () => {
+    verifyKitAuthMock.mockResolvedValue({ kitSlug: "loopkit" });
+    const res = await POST(req(), ctx());
+    expect(res.status).toBe(404);
+    expect(updateSingle).not.toHaveBeenCalled();
+    expect(auditInsert).not.toHaveBeenCalled();
+  });
+
+  it("filters the read and the update by the caller's kit", async () => {
+    await POST(req(), ctx());
+    const kitFilters = eqCalls.filter(([col]) => col === "kit_slug");
+    expect(kitFilters).toHaveLength(2);
+    expect(kitFilters.every(([, val]) => val === "qkit")).toBe(true);
   });
 });

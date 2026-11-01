@@ -50,6 +50,7 @@ export async function POST(
     .from("transactions")
     .select(TRANSACTION_COLUMNS)
     .eq("id", id)
+    .eq("kit_slug", auth.kitSlug)
     .maybeSingle();
   if (readError) {
     console.error("claim: read failed", readError.message);
@@ -63,6 +64,7 @@ export async function POST(
 
   const outcome = await claimTransaction(supabase, current, proofRead.proof, {
     kitSlug: auth.kitSlug,
+    scopedKitSlug: auth.kitSlug,
   });
   if (!outcome.ok)
     return NextResponse.json(

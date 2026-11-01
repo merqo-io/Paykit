@@ -142,6 +142,24 @@ describe("GET /api/v1/vendors/[vendor_id]/config", () => {
 });
 
 describe("POST /api/v1/vendors/[vendor_id]/config", () => {
+  it("logs which kit wrote which vendor's config, without the payee details", async () => {
+    const info = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await POST(
+      postReq({
+        kind: "paynow",
+        payee_name: "Kopitiam Cart",
+        uen: "53312345A",
+      }),
+      ctx(),
+    );
+    expect(info).toHaveBeenCalledWith("vendor config: written", {
+      vendor_id: VENDOR_ID,
+      kit_slug: "qkit",
+      kind: "paynow",
+    });
+    info.mockRestore();
+  });
+
   it("upserts a paynow config and reports it back", async () => {
     const res = await POST(
       postReq({

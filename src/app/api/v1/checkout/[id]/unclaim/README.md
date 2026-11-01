@@ -6,6 +6,8 @@ routes (`../claim/route.ts`, `../confirm/route.ts`): bearer-secret
 (`verifyKitAuth`), path-param UUID validation, and the guarded-update-with-
 recheck-fallback pattern.
 
+A transaction owned by another kit answers `404`, the same as an unknown id.
+
 Idempotent and provably safe: `unclaimTransition` (`src/lib/tx-state.ts`)
 only transitions from `claimed`; a `confirmed` transaction is never
 reverted, and the response just echoes the unchanged `confirmed` status

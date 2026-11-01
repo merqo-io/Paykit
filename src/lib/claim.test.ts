@@ -45,9 +45,18 @@ const PROOF: ProofFile = {
 const updateSingle = vi.fn();
 const recheckMaybeSingle = vi.fn();
 const auditInsert = vi.fn();
-const updateMock = vi.fn((_patch: Record<string, unknown>) => ({
-  eq: () => ({ eq: () => ({ select: () => ({ single: updateSingle }) }) }),
-}));
+const recheckEqCalls: Array<[string, unknown]> = [];
+const eqCalls: Array<[string, unknown]> = [];
+const updateMock = vi.fn((_patch: Record<string, unknown>) => {
+  const c = {
+    eq: (col: string, val: unknown) => {
+      eqCalls.push([col, val]);
+      return c;
+    },
+    select: () => ({ single: updateSingle }),
+  };
+  return c;
+});
 
 type Client = Parameters<typeof claimTransaction>[0];
 const supabase = {
@@ -56,7 +65,16 @@ const supabase = {
       ? { insert: auditInsert }
       : {
           update: updateMock,
-          select: () => ({ eq: () => ({ maybeSingle: recheckMaybeSingle }) }),
+          select: () => {
+            const c = {
+              eq: (col: string, val: unknown) => {
+                recheckEqCalls.push([col, val]);
+                return c;
+              },
+              maybeSingle: recheckMaybeSingle,
+            };
+            return c;
+          },
         },
 } as unknown as Client;
 
@@ -67,12 +85,27 @@ beforeEach(() => {
   amountCheckMock.mockReset();
   callbackMock.mockReset();
   updateMock.mockClear();
+  eqCalls.length = 0;
+  recheckEqCalls.length = 0;
   updateSingle.mockReset().mockResolvedValue({ data: CLAIMED, error: null });
   recheckMaybeSingle.mockReset().mockResolvedValue({ data: ROW, error: null });
   auditInsert.mockReset().mockResolvedValue({ error: null });
 });
 
 describe("claimTransaction", () => {
+  it("filters the update by kit_slug when a scoped kit is given", async () => {
+    await claimTransaction(supabase, ROW, null, {
+      ...AUDIT,
+      scopedKitSlug: "qkit",
+    });
+    expect(eqCalls).toContainEqual(["kit_slug", "qkit"]);
+  });
+
+  it("leaves the update unscoped when none is given", async () => {
+    await claimTransaction(supabase, ROW, null, AUDIT);
+    expect(eqCalls.map(([col]) => col)).toEqual(["id", "status"]);
+  });
+
   it("claims a pending transaction, records it and schedules the callback", async () => {
     const outcome = await claimTransaction(supabase, ROW, null, AUDIT);
     expect(outcome).toEqual({ ok: true, row: CLAIMED });
@@ -148,6 +181,15 @@ describe("claimTransaction", () => {
         data: null,
         error: { code: "PGRST116" },
       });
+    });
+
+    it("scopes the recheck by kit_slug when a scoped kit is given", async () => {
+      recheckMaybeSingle.mockResolvedValue({ data: CLAIMED, error: null });
+      await claimTransaction(supabase, ROW, null, {
+        ...AUDIT,
+        scopedKitSlug: "qkit",
+      });
+      expect(recheckEqCalls).toContainEqual(["kit_slug", "qkit"]);
     });
 
     it("answers with the state a concurrent request left", async () => {

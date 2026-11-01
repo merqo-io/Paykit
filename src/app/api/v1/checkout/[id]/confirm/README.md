@@ -24,6 +24,6 @@ or missing callback never changes this route's answer.
 
 ## Boundary and coverage
 
-The transaction lookup and guarded write both include the authenticated kit slug as well as the transaction ID. Rate-limit failures prevent mutation. Tests cover kit ownership, allowed source states and failed writes; confirmation remains a human bookkeeping assertion rather than automated bank verification.
+The transaction lookup and guarded write both include the authenticated kit slug as well as the transaction ID. A transaction owned by another kit answers `404`, the same as an unknown id. Rate-limit failures prevent mutation. Tests cover kit ownership, allowed source states and failed writes; confirmation remains a human bookkeeping assertion rather than automated bank verification.
 
 `recordPaymentAudit` takes one object: `{ transactionId, kitSlug, action, detail? }`.

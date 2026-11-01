@@ -44,6 +44,7 @@ export async function POST(
     .from("transactions")
     .select(TRANSACTION_COLUMNS)
     .eq("id", id)
+    .eq("kit_slug", auth.kitSlug)
     .maybeSingle();
   if (readError) {
     console.error("unclaim: read failed", readError.message);
@@ -62,6 +63,7 @@ export async function POST(
     .from("transactions")
     .update({ status, claimed_at: null })
     .eq("id", id)
+    .eq("kit_slug", auth.kitSlug)
     .eq("status", "claimed")
     .select(TRANSACTION_COLUMNS)
     .single();
@@ -70,6 +72,7 @@ export async function POST(
       .from("transactions")
       .select(TRANSACTION_COLUMNS)
       .eq("id", id)
+      .eq("kit_slug", auth.kitSlug)
       .maybeSingle();
     if (recheckError || (recheck && recheck.status === current.status)) {
       return NextResponse.json(

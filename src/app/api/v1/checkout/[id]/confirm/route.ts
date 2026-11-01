@@ -44,6 +44,7 @@ export async function POST(
     .from("transactions")
     .select(TRANSACTION_COLUMNS)
     .eq("id", id)
+    .eq("kit_slug", auth.kitSlug)
     .maybeSingle();
   if (readError) {
     console.error("confirm: read failed", readError.message);
@@ -62,6 +63,7 @@ export async function POST(
     .from("transactions")
     .update({ status, confirmed_at: new Date().toISOString() })
     .eq("id", id)
+    .eq("kit_slug", auth.kitSlug)
     .in("status", ["pending", "claimed"])
     .select(TRANSACTION_COLUMNS)
     .single();
@@ -70,6 +72,7 @@ export async function POST(
       .from("transactions")
       .select(TRANSACTION_COLUMNS)
       .eq("id", id)
+      .eq("kit_slug", auth.kitSlug)
       .maybeSingle();
     if (recheckError || (recheck && recheck.status === current.status)) {
       return NextResponse.json(

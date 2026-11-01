@@ -10,6 +10,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - The `staging-sync` workflow pushes to `staging` with the `merqo-staging-sync` GitHub App token instead of `GITHUB_TOKEN`, because a ruleset limits `staging` pushes to that app. The job's own permissions drop to `contents: read`.
 
+## [0.4.2] - 2026-11-02
+
+### Security
+
+- `GET /api/v1/checkout/{id}` and `POST` confirm, claim and unclaim now look up and update the transaction by the calling kit's `kit_slug` as well as its id. Another kit's key gets `404`, the same as an unknown id, so it can no longer read, claim, confirm or unclaim a transaction it did not create.
+- Proof screenshots are decoded with a 25 megapixel input limit and `failOn: "error"`; the image header is read first and an image with no or oversized dimensions is refused before OCR runs, so a small PNG cannot decode to gigabytes.
+- `POST /api/v1/vendors/{vendor_id}/config` logs the writing kit and vendor (no payee details). No kit-to-vendor binding exists to enforce yet; that needs a design decision.
+
 ## [0.4.1] - 2026-10-30
 
 ### Changed

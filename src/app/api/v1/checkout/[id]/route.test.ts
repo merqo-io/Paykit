@@ -19,7 +19,24 @@ beforeEach(() => {
   verifyKitAuthMock.mockReset().mockResolvedValue({ kitSlug: "qkit" });
   createServiceClientMock.mockReset().mockResolvedValue({
     from: () => ({
-      select: () => ({ eq: () => ({ maybeSingle: maybeSingleMock }) }),
+      select: () => {
+        const filters: Array<[string, unknown]> = [];
+        const c = {
+          eq: (col: string, val: unknown) => {
+            filters.push([col, val]);
+            return c;
+          },
+          maybeSingle: async () => {
+            const result = await maybeSingleMock();
+            const kit = filters.find(([col]) => col === "kit_slug");
+            const row = result.data as { kit_slug: string } | null;
+            return row && kit && row.kit_slug !== kit[1]
+              ? { data: null, error: null }
+              : result;
+          },
+        };
+        return c;
+      },
     }),
   });
   maybeSingleMock.mockReset().mockResolvedValue({
@@ -74,5 +91,12 @@ describe("GET /api/v1/checkout/[id]", () => {
     expect(res.status).toBe(503);
     const json = await res.json();
     expect(json.error).not.toMatch(/connection reset/);
+  });
+});
+
+describe("kit scoping", () => {
+  it("answers 404 for another kit's transaction", async () => {
+    verifyKitAuthMock.mockResolvedValue({ kitSlug: "loopkit" });
+    expect((await GET(req(), ctx())).status).toBe(404);
   });
 });

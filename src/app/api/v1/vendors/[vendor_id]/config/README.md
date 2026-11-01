@@ -36,4 +36,6 @@ refuses any object outside `{vendor_id}/`. A failed upsert deletes nothing.
 
 [vendors](../../README.md)
 
+No kit-to-vendor binding exists, so any kit key can read or write any vendor's config. `POST` logs the writing kit and vendor (never the payee details) as a trail until a binding is designed.
+
 `POST` builds the stored row with `paymentConfigRow` (`@/lib/payment-config-row`), the same builder the dashboard save action uses; `GET` fills the response from the row, or from an all-null default when the vendor has none.

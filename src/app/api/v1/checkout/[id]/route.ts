@@ -24,6 +24,7 @@ export async function GET(
     .from("transactions")
     .select(TRANSACTION_COLUMNS)
     .eq("id", id)
+    .eq("kit_slug", auth.kitSlug)
     .maybeSingle();
   if (error) {
     console.error("status: read failed", error.message);

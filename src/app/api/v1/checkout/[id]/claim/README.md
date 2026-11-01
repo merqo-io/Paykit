@@ -25,7 +25,7 @@ The claim itself is `@/lib/claim`'s `claimTransaction`, which the hosted pay pag
 
 ## Boundary and coverage
 
-The transaction lookup and guarded write both include the authenticated kit slug as well as the transaction ID. The rate limiter runs before mutation and fails closed on an unavailable limiter. Tests assert the predicates and ensure a calling kit cannot claim another kit transaction.
+The transaction lookup and guarded write both include the authenticated kit slug as well as the transaction ID. The rate limiter runs before mutation and fails closed on an unavailable limiter. The route passes the slug to `claimTransaction` as `scopedKitSlug`, so its guarded write and race recheck are scoped too; another kit's transaction answers `404`. Tests assert the predicates and ensure a calling kit cannot claim another kit transaction.
 
 ## Payment screenshot
 

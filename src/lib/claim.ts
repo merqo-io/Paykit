@@ -14,8 +14,16 @@ export type ClaimOutcome =
   | { ok: true; row: Transaction }
   | { ok: false; status: 404 | 503; error: string };
 
-/** Who the claim is recorded against in `payment_audit`, and any detail. */
-export type ClaimAudit = { kitSlug: string; detail?: Json };
+/**
+ * Who the claim is recorded against in `payment_audit`, and any detail.
+ * `scopedKitSlug` is set by callers authenticated as a kit, so no write can
+ * touch another kit's row; the hosted pay page leaves it unset.
+ */
+export type ClaimAudit = {
+  kitSlug: string;
+  detail?: Json;
+  scopedKitSlug?: string;
+};
 
 /**
  * The guarded update matched no row. Either a concurrent request moved the
@@ -26,12 +34,14 @@ async function outcomeAfterLostUpdate(
   supabase: ServiceClient,
   id: string,
   previousStatus: string,
+  scopedKitSlug?: string,
 ): Promise<ClaimOutcome> {
-  const { data: recheck, error: recheckError } = await supabase
+  let lookup = supabase
     .from("transactions")
     .select(TRANSACTION_COLUMNS)
-    .eq("id", id)
-    .maybeSingle();
+    .eq("id", id);
+  if (scopedKitSlug) lookup = lookup.eq("kit_slug", scopedKitSlug);
+  const { data: recheck, error: recheckError } = await lookup.maybeSingle();
   if (recheckError || (recheck && recheck.status === previousStatus))
     return { ok: false, status: 503, error: "Upstream unavailable" };
   if (!recheck) return { ok: false, status: 404, error: "Not found" };
@@ -74,15 +84,23 @@ export async function claimTransaction(
   const { status, changed } = claimTransition(current.status);
   if (!changed) return { ok: true, row: current };
 
-  const { data: updated, error: updateError } = await supabase
+  let guarded = supabase
     .from("transactions")
     .update({ status, claimed_at: new Date().toISOString() })
     .eq("id", current.id)
-    .eq("status", "pending")
+    .eq("status", "pending");
+  if (audit.scopedKitSlug)
+    guarded = guarded.eq("kit_slug", audit.scopedKitSlug);
+  const { data: updated, error: updateError } = await guarded
     .select(TRANSACTION_COLUMNS)
     .single();
   if (updateError || !updated)
-    return outcomeAfterLostUpdate(supabase, current.id, current.status);
+    return outcomeAfterLostUpdate(
+      supabase,
+      current.id,
+      current.status,
+      audit.scopedKitSlug,
+    );
 
   await recordPaymentAudit(supabase, {
     transactionId: current.id,
