@@ -8,7 +8,8 @@ Paykit-specific client adapters and presentation. Shared controls live in
   into static markup; their HTML is authored configuration, not customer input.
 - `site-footer.tsx` — `SiteFooter({ showSignIn })`, paykit's copy of the
   family footer: `@merqo/ui`'s `Footer` with the paykit wordmark (linking to
-  `/`), tagline and `kitName`. It renders the wordmark, tagline, copyright
+  `/`), the tagline "A shared payment setup for merqo vendors." and `kitName`.
+  It renders the wordmark, tagline, copyright
   line, an `/about` link, Terms/Privacy and, with `showSignIn`, a
   `Vendor sign in →` link. The landing page and `/about` pass `showSignIn`;
   the dashboard leaves it off. Same shape as printkit's `site-footer.tsx`.
