@@ -1,10 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 
-/** Decorative checkout artifact for the hero — not a real scannable
- *  QR, a stylized stand-in for the thing paykit actually generates. The
- *  status pill is the Tabaous-inspired piece of this design: a small,
- *  honest status badge (the same pending/claimed/confirmed language the
- *  product itself uses), not a literal QR-scanning animation. */
+/** Decorative checkout stand-in for the hero, not a scannable QR. */
 export function CheckoutCard() {
   return (
     <div className="w-full max-w-sm rounded-2xl border bg-card p-5 shadow-lg shadow-foreground/5">
