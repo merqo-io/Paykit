@@ -13,6 +13,10 @@ harness.
   `git commit`, hook-bypass env vars, direct commits to `main`, force-push
   to a protected branch, `git checkout/restore` on guard-layer files, and
   recursive-force `rm` on source directories; exit 2 blocks.
+  Windows drive-letter paths (`C:\…`, `C:/…`) and quoted paths with spaces
+  are normalised before the branch is judged, so worktree commits on feature
+  branches pass.
+- `block-no-verify.test.sh` — regression tests for the hook (run `bash .claude/hooks/block-no-verify.test.sh`).
 - `post-edit-typecheck.sh` — PostToolUse(Edit|Write), `.ts`/`.tsx` files
   only: runs incremental `tsc --noEmit` and surfaces the last 5 lines;
   feedback-only, never blocks.

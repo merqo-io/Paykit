@@ -10,6 +10,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - The `staging-sync` workflow pushes to `staging` with the `merqo-staging-sync` GitHub App token instead of `GITHUB_TOKEN`, because a ruleset limits `staging` pushes to that app. The job's own permissions drop to `contents: read`.
 
+### Fixed
+
+- `block-no-verify.sh` no longer blocks commits made from a git worktree on a feature branch: Windows drive-letter paths (`C:\...`, `C:/...`) in the hook cwd, `cd` and `git -C` targets are normalised for Git Bash, and quoted paths containing spaces stay one token. Regression test: `bash .claude/hooks/block-no-verify.test.sh`.
+
 ## [0.5.0] - 2026-11-02
 
 ### Changed
