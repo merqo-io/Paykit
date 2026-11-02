@@ -11,8 +11,8 @@ const { metadata } = await import("./layout");
 describe("root layout metadata", () => {
   it("sets the browser-tab title", () => {
     expect(metadata.title).toEqual({
-      default: "Paykit | Vendor Payments",
-      template: "%s | Paykit",
+      default: "paykit | Vendor payments",
+      template: "%s | paykit",
     });
   });
 });

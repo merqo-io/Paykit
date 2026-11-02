@@ -4,7 +4,7 @@
 
 The marketing homepage (`src/app/page.tsx`), broken into one section per
 file. Presentational only — no data fetching, no client state beyond the
-`authed` prop threaded down from the page for the nav/CTA sign-in links.
+`authed` prop threaded down from the page for the nav sign-in/dashboard link.
 
 ## Contents
 
@@ -19,23 +19,21 @@ file. Presentational only — no data fetching, no client state beyond the
   from the shared shell's own `end`-row gap (`gap-2 sm:gap-4`, replacing a
   fixed `gap-3`) — a byproduct of adopting the shared component's
   contract, same as qkit's landing nav will pick up once it migrates.
-- `nav.test.tsx` — asserts the About link and the Sign in/Get
-  started/Dashboard state switch.
-- `hero.tsx` — headline, stat row, CTA, and the decorative `CheckoutCard`.
-- `checkout-card.tsx` — stylized non-functional "live checkout" artifact for
-  the hero (not a real scannable QR — a stand-in with a status pill using
-  the product's own pending/claimed/confirmed language).
-- `benefits.tsx` — the "why paykit" feature grid. Takes
-  `{ monthlyPriceLabel }` (formatted from the live admin-tunable
-  `pricing` row, `@/lib/pricing`) for the "Free while you're small" tile's
-  Pro-price mention — no hardcoded price string.
+- `nav.dom.test.tsx` — asserts the About link and the Sign in/Join the
+  waitlist/Dashboard state switch.
+- `hero.tsx` — "In build" badge with the readiness line, headline, stat row,
+  waitlist CTA, and the decorative `CheckoutCard`.
+- `waitlist.ts` — `WAITLIST_URL` (every signup CTA) and `PILOT_PRICING_LINE`
+  (the only pricing statement on public pages).
+- `checkout-card.tsx` — stylized non-functional checkout artifact for the
+  hero (not a real scannable QR, a stand-in with a status pill using the
+  product's own pending/claimed/confirmed language).
+- `benefits.tsx` — the "why paykit" feature grid; its pricing tile renders
+  `PILOT_PRICING_LINE`.
 - `how-it-works.tsx` — 3-step explainer (connect method → share checkout →
   confirm).
-- `faq.tsx` — Q&A list, including "does paykit hold my money?"; takes
-  `{ monthlyPriceLabel }` (the `FAQ` array lives in the component body, not
-  module scope, so its "what does the free plan include?" answer can
-  interpolate the live price) — same source as `benefits.tsx`'s prop, both
-  fed by `src/app/page.tsx`'s single `getPricing` call. Heading uses the
+- `faq.tsx` — Q&A list, including "does paykit hold my money?" and "what
+  will it cost?" (answered with `PILOT_PRICING_LINE`). Heading uses the
   same eyebrow (`font-mono uppercase tracking-widest`) + `font-display`
   heading pair as `how-it-works.tsx`/`benefits.tsx`, not a bespoke centered
   heading.
@@ -43,9 +41,8 @@ file. Presentational only — no data fetching, no client state beyond the
   section between `Faq` and `Footer` (the family's shared "dark
   authoritative band" convention documented on the `--ink`/`--ink-foreground`
   tokens in `globals.css`, previously defined but unused anywhere in
-  `src/app`/`src/components`) with a headline and a "Get started"/"Go to
-  dashboard" CTA (`authed`-aware, same href logic as `hero.tsx`'s primary
-  CTA). A standalone section, not a band inside the family footer
+  `src/app`/`src/components`) with a headline and a "Join the waitlist" CTA
+  (same href as `hero.tsx`'s). A standalone section, not a band inside the family footer
   (`src/components/site-footer.tsx`), which stays CTA-free.
 - `BackToTop` — shared scroll-to-top control imported from `@merqo/ui`.
 - `wordmark.tsx` — `Wordmark`: the "Pay**kit**" mark, mint accent on "Pay"

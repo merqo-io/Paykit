@@ -12,7 +12,7 @@ The public Privacy Policy page.
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Privacy Policy"`, which the root layout's `%s | Paykit` template turns into "Privacy Policy | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Privacy Policy"`, which the root layout's `%s | paykit` template turns into "Privacy Policy | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

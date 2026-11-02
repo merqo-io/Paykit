@@ -34,7 +34,7 @@ amount check as the claim endpoint.
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Pay"`, which the root layout's `%s | Paykit` template turns into "Pay | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Pay"`, which the root layout's `%s | paykit` template turns into "Pay | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

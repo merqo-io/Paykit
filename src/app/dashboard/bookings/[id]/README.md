@@ -36,7 +36,7 @@ control eligibility, checkout kinds and legacy fallback.
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Booking"`, which the root layout's `%s | Paykit` template turns into "Booking | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Booking"`, which the root layout's `%s | paykit` template turns into "Booking | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

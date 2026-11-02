@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LandingNav } from "@merqo/ui";
 import { Button } from "@/components/ui/button";
 import { Wordmark } from "./wordmark";
+import { WAITLIST_URL } from "./waitlist";
 
 export function Nav({ authed = false }: { authed?: boolean }) {
   return (
@@ -44,7 +45,7 @@ export function Nav({ authed = false }: { authed?: boolean }) {
                 Sign in
               </Link>
               <Button asChild size="sm">
-                <Link href="/login?mode=signup">Get started</Link>
+                <a href={WAITLIST_URL}>Join the waitlist</a>
               </Button>
             </>
           )}

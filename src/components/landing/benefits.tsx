@@ -1,6 +1,7 @@
 import { Link2, ShieldCheck, Gauge, History } from "lucide-react";
+import { PILOT_PRICING_LINE } from "./waitlist";
 
-export function Benefits({ monthlyPriceLabel }: { monthlyPriceLabel: string }) {
+export function Benefits() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
       <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
@@ -14,13 +15,12 @@ export function Benefits({ monthlyPriceLabel }: { monthlyPriceLabel: string }) {
         <div className="rounded-2xl border bg-card p-6 sm:col-span-2 sm:row-span-2">
           <Link2 className="size-6 text-mint" aria-hidden />
           <h3 className="mt-4 font-display text-xl font-bold">
-            One setup, every kit
+            One setup, kept in one place
           </h3>
           <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
             A vendor has one payment setup, not one per kit. Connect it once in
-            paykit and it&apos;s already there for qkit today, and for whatever
-            kit launches next. No re-onboarding, no second config screen to
-            maintain.
+            paykit and the kits built to use it, starting with qkit, read it
+            from there. No second config screen to maintain.
           </p>
         </div>
 
@@ -38,31 +38,20 @@ export function Benefits({ monthlyPriceLabel }: { monthlyPriceLabel: string }) {
         <div className="rounded-2xl border bg-card p-6">
           <History className="size-6 text-mint" aria-hidden />
           <h3 className="mt-4 font-display text-lg font-bold">
-            Proven, not brand new
+            Extracted, not rewritten
           </h3>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            The QR engine is the same one already live in qkit, extracted, not
-            rewritten from scratch.
+            The QR engine is ported from qkit&apos;s, not rewritten from
+            scratch.
           </p>
         </div>
 
         <div className="rounded-2xl border bg-card p-6 sm:col-span-3">
           <Gauge className="size-6 text-mint" aria-hidden />
-          <div className="mt-4 flex flex-wrap items-baseline justify-between gap-4">
-            <div>
-              <h3 className="font-display text-lg font-bold">
-                Free while you&apos;re small
-              </h3>
-              <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-                Unlimited transactions and revenue stats, no card required. Pro
-                adds refund tracking, {monthlyPriceLabel}, once you&apos;re
-                doing enough volume to want it.
-              </p>
-            </div>
-            <span className="font-mono text-xs text-muted-foreground">
-              gated by scale, not by feature
-            </span>
-          </div>
+          <h3 className="mt-4 font-display text-lg font-bold">Pricing</h3>
+          <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+            {PILOT_PRICING_LINE}
+          </p>
         </div>
       </div>
     </section>

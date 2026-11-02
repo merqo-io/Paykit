@@ -24,7 +24,7 @@ that, until this folder existed, no page ever read back.
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Activity"`, which the root layout's `%s | Paykit` template turns into "Activity | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Activity"`, which the root layout's `%s | paykit` template turns into "Activity | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

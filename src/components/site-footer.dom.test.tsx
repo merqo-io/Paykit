@@ -12,7 +12,7 @@ describe("SiteFooter", () => {
       "/",
     );
     expect(
-      screen.getByText("The Merqo family's shared vendor payment engine."),
+      screen.getByText("A shared payment setup for merqo vendors."),
     ).toBeInTheDocument();
     expect(
       screen.getByText(`© ${new Date().getFullYear()} paykit · a Merqo kit`),

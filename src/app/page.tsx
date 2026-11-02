@@ -7,32 +7,23 @@ import { ClosingCta } from "@/components/landing/closing-cta";
 import { SiteFooter } from "@/components/site-footer";
 import { BackToTop } from "@merqo/ui";
 import { createServerClient } from "@/lib/supabase/server";
-import { getPricing } from "@/lib/pricing";
-import { formatCents } from "@/lib/utils";
 
 export default async function HomePage() {
-  // Reflect the session in the landing CTAs: a signed-in vendor jumps
-  // straight to the dashboard instead of being sent back through /login.
   const supabase = await createServerClient();
-  const [
-    {
-      data: { user },
-    },
-    pricing,
-  ] = await Promise.all([supabase.auth.getUser(), getPricing(supabase)]);
-  const authed = !!user;
-  const monthlyPriceLabel = `${formatCents(pricing.monthly_cents)}/mo`;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <>
-      <Nav authed={authed} />
+      <Nav authed={!!user} />
       <main>
-        <Hero authed={authed} />
+        <Hero />
         <HowItWorks />
-        <Benefits monthlyPriceLabel={monthlyPriceLabel} />
-        <Faq monthlyPriceLabel={monthlyPriceLabel} />
+        <Benefits />
+        <Faq />
       </main>
-      <ClosingCta authed={authed} />
+      <ClosingCta />
       <SiteFooter showSignIn />
       <BackToTop />
     </>

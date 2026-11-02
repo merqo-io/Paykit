@@ -4,17 +4,17 @@ const STEPS = [
   {
     icon: KeyRound,
     title: "Connect your payment method",
-    body: "PayNow (UEN or mobile), or your own payment link/QR. Set it up once — reused by every kit you run.",
+    body: "PayNow (UEN or mobile), or your own payment link/QR. Set it up once and keep it in one place.",
   },
   {
     icon: QrCode,
-    title: "A kit requests a checkout",
-    body: "qkit (and later kits) asks paykit for a checkout — paykit builds it, the customer scans or taps to pay.",
+    title: "Your kit requests a checkout",
+    body: "qkit asks paykit for a checkout. paykit builds it, and the customer scans or taps to pay.",
   },
   {
     icon: CheckCheck,
     title: "You confirm, it's done",
-    body: 'Customer taps "I\'ve paid," you confirm receipt from your dashboard. paykit tracks the status — it never holds the money.',
+    body: 'Customer taps "I\'ve paid," you confirm receipt from your dashboard. paykit tracks the status and never holds the money.',
   },
 ];
 

@@ -57,7 +57,7 @@ the `requestProUpgradeAction` server action in `src/app/actions/plan.ts`
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Plan"`, which the root layout's `%s | Paykit` template turns into "Plan | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Plan"`, which the root layout's `%s | paykit` template turns into "Plan | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

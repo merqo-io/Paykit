@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 
-/** Decorative "live checkout" artifact for the hero — not a real scannable
+/** Decorative checkout artifact for the hero — not a real scannable
  *  QR, a stylized stand-in for the thing paykit actually generates. The
  *  status pill is the Tabaous-inspired piece of this design: a small,
  *  honest status badge (the same pending/claimed/confirmed language the
@@ -13,7 +13,7 @@ export function CheckoutCard() {
           Checkout
         </span>
         <Badge variant="outline" className="font-mono text-[10px]">
-          via any kit
+          preview
         </Badge>
       </div>
 
@@ -37,9 +37,9 @@ export function CheckoutCard() {
 
       <div className="mt-4 flex items-baseline justify-between">
         <span className="font-display text-2xl font-semibold tracking-tight">
-          $4.50
+          PayNow
         </span>
-        <span className="font-mono text-xs text-muted-foreground">Payment</span>
+        <span className="font-mono text-xs text-muted-foreground">Sample</span>
       </div>
 
       <div className="mt-3 flex items-center gap-2 border-t pt-3">

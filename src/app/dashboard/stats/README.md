@@ -48,7 +48,7 @@ Reachable from `dashboard-nav.tsx`'s "Stats" link. `page.tsx` reads via
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Stats"`, which the root layout's `%s | Paykit` template turns into "Stats | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Stats"`, which the root layout's `%s | paykit` template turns into "Stats | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

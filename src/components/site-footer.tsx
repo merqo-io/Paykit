@@ -11,7 +11,7 @@ export function SiteFooter({ showSignIn = false }: { showSignIn?: boolean }) {
   return (
     <Footer
       kitName="paykit"
-      tagline="The Merqo family's shared vendor payment engine."
+      tagline="A shared payment setup for merqo vendors."
       showSignIn={showSignIn}
       wordmark={
         <Link
