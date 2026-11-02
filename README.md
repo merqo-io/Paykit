@@ -1,5 +1,7 @@
 # paykit
 
+The public landing is in pre-launch mode: an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to v0.36.0.
+
 The Merqo family's shared payment engine. A vendor sets up their payment
 method once here — a generated PayNow QR, or their own BYO payment
 link/QR image — and any Merqo kit can then request a checkout + track
