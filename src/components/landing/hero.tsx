@@ -1,20 +1,19 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckoutCard } from "./checkout-card";
+import { WAITLIST_URL } from "./waitlist";
 
 const STATS = [
-  { value: "0", label: "cap on free transactions" },
-  { value: "$0", label: "to start" },
-  { value: "1", label: "payment setup, every kit" },
+  { value: "0", label: "funds held by paykit" },
+  { value: "2", label: "ways to get paid: PayNow or your own link" },
+  { value: "3", label: "checkout states: pending, claimed, confirmed" },
 ];
 
-export function Hero({ authed = false }: { authed?: boolean }) {
+export function Hero() {
   return (
     <section className="relative overflow-hidden">
-      {/* payment-flow gradient mesh — mint blending into the cooler "flow"
-          teal, standing in for money moving between kits. Quiet, not a
-          full-bleed wash, so it reads as infrastructure rather than décor. */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 -top-32 h-96 opacity-40 blur-3xl"
@@ -26,27 +25,31 @@ export function Hero({ authed = false }: { authed?: boolean }) {
 
       <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-20 sm:py-28 lg:grid-cols-2 lg:items-center">
         <div className="fade-rise">
-          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-            Payments · shared across every kit
-          </p>
-          <h1 className="mt-3 text-balance font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
+          <div className="flex flex-wrap items-center gap-3">
+            <Badge variant="outline" className="font-mono text-xs">
+              In build
+            </Badge>
+            <p className="text-sm text-muted-foreground">
+              Built, not yet tried with vendors.
+            </p>
+          </div>
+          <h1 className="mt-4 text-balance font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
             One payment setup.
             <br />
-            Every kit can use it.
+            Set it up once.
           </h1>
           <p className="mt-5 max-w-md text-lg text-muted-foreground">
             paykit generates your checkout, a PayNow QR, or your own payment
-            link or QR, tracks who&apos;s paid, and never touches the money. Set
-            it up once, qkit, and every kit after it, checks out through the
-            same engine.
+            link or QR, tracks who&apos;s paid, and never touches the money.
+            qkit is the first kit built to check out through it.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button asChild size="lg">
-              <Link href={authed ? "/dashboard" : "/login?mode=signup"}>
-                {authed ? "Go to dashboard" : "Get started"}
+              <a href={WAITLIST_URL}>
+                Join the waitlist
                 <ArrowRight className="size-4" />
-              </Link>
+              </a>
             </Button>
             <Button asChild size="lg" variant="outline">
               <Link href="#how">See how it works</Link>

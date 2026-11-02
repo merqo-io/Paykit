@@ -53,7 +53,7 @@ component calls. `activity/page.tsx` pulls `admin-data.ts`'s `auditLog()`
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Admin overview"`, which the root layout's `%s | Paykit` template turns into "Admin overview | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Admin overview"`, which the root layout's `%s | paykit` template turns into "Admin overview | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

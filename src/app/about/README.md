@@ -12,7 +12,7 @@ The public "Why Merqo" page, linked from the landing `Nav` and `Footer`.
   `AboutMerqo` component (one source, reused by merqo and every other
   kit's own `/about` page) — this page supplies only `Nav`/`SiteFooter` and a
   "See how paykit works" CTA linking to `/#how`. Its typed
-  `metadata.title` is "About", shown as "About | Paykit".
+  `metadata.title` is "About", shown as "About | paykit".
 - `page.dom.test.tsx` — covers the origin-story copy, the paykit-specific
   closing line, and the CTA link.
 

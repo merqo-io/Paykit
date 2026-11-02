@@ -24,7 +24,7 @@ const DESKTOP: TourStep[] = [
     element: sel("tx-count"),
     title: "Your transaction activity",
     description:
-      "Welcome to PayKit. Once customers start paying, this card tracks how many transactions you've processed this month." +
+      "Welcome to paykit. Once customers start paying, this card tracks how many transactions you've processed this month." +
       `<div class="tour-example"><div class="tour-example-label">Example transaction</div><div class="tour-example-row" style="margin-top:0.35rem"><strong>$4.80 &middot; via qkit</strong>${exampleClaimedBadge}</div></div>`,
   },
   {
@@ -43,7 +43,7 @@ const DESKTOP: TourStep[] = [
     element: sel("nav-bookings"),
     title: "Bookings",
     description:
-      "Taking a deposit now and the rest later, for weddings, events, or anything booked in advance? Track the deposit and balance here, with reschedule and cancel built in.",
+      "Taking a deposit first and the rest later, for weddings, events, or anything booked in advance? Track the deposit and balance here, with reschedule and cancel built in.",
   },
   {
     element: sel("nav-stats"),
@@ -60,7 +60,7 @@ const DESKTOP: TourStep[] = [
     element: sel("nav-account"),
     title: "Your account",
     description:
-      "Update your profile, check your plan, and manage billing here. Shared across every Merqo kit you use.",
+      "Update your profile and check your plan here. Shared across every merqo kit you use.",
   },
   {
     element: sel("tour-replay"),

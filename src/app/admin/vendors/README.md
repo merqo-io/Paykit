@@ -29,7 +29,7 @@ status, plan, transaction count, and a Free/Pro plan toggle.
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Vendors"`, which the root layout's `%s | Paykit` template turns into "Vendors | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Vendors"`, which the root layout's `%s | paykit` template turns into "Vendors | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

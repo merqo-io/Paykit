@@ -14,7 +14,7 @@ The public Terms of Service page.
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Terms of Service"`, which the root layout's `%s | Paykit` template turns into "Terms of Service | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Terms of Service"`, which the root layout's `%s | paykit` template turns into "Terms of Service | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

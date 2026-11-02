@@ -87,7 +87,7 @@ vendors — that dialog calls `issueRefundAction` in `actions.ts`.
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Transactions"`, which the root layout's `%s | Paykit` template turns into "Transactions | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Transactions"`, which the root layout's `%s | paykit` template turns into "Transactions | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

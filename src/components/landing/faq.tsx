@@ -1,3 +1,5 @@
+import { PILOT_PRICING_LINE } from "./waitlist";
+
 type FaqEntry = { q: string; a: string };
 
 function FaqItem({ q, a }: FaqEntry) {
@@ -21,11 +23,11 @@ function FaqItem({ q, a }: FaqEntry) {
   );
 }
 
-export function Faq({ monthlyPriceLabel }: { monthlyPriceLabel: string }) {
+export function Faq() {
   const FAQ: FaqEntry[] = [
     {
       q: "Does paykit hold my money?",
-      a: "No. paykit only renders your checkout — a PayNow QR, or your own payment link/QR — and tracks its status. Customers pay you directly — paykit never touches funds.",
+      a: "No. paykit only renders your checkout (a PayNow QR, or your own payment link/QR) and tracks its status. Customers pay you directly, and paykit never touches funds.",
     },
     {
       q: "How do I know a payment came through?",
@@ -33,11 +35,11 @@ export function Faq({ monthlyPriceLabel }: { monthlyPriceLabel: string }) {
     },
     {
       q: "Do I need a business bank account?",
-      a: "No — use PayNow with your UEN or personal mobile number, or bring your own payment link/QR (GrabPay, HitPay, Qashier, or your bank's own) instead.",
+      a: "No. Use PayNow with your UEN or personal mobile number, or bring your own payment link/QR (GrabPay, HitPay, Qashier, or your bank's own) instead.",
     },
     {
-      q: "What does the free plan include?",
-      a: `Unlimited transactions and revenue stats on the free plan, no cap. Pro adds refund tracking, ${monthlyPriceLabel}.`,
+      q: "What will it cost?",
+      a: PILOT_PRICING_LINE,
     },
   ];
 

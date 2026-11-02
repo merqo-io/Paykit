@@ -36,7 +36,7 @@ folder's job is entirely to collect the vendor's consent and forward it.
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Accept the updated terms"`, which the root layout's `%s | Paykit` template turns into "Accept the updated terms | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Accept the updated terms"`, which the root layout's `%s | paykit` template turns into "Accept the updated terms | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

@@ -27,8 +27,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Paykit | Vendor Payments", template: "%s | Paykit" },
-  description: "The Merqo family's shared vendor payment engine.",
+  title: { default: "paykit | Vendor payments", template: "%s | paykit" },
+  description: "A shared payment setup for merqo vendors.",
 };
 
 export default function RootLayout({

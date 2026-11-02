@@ -84,7 +84,7 @@ The BYO payment-QR upload's resize step now calls `@merqo/ui`'s `resizeToWebp` (
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Payment setup"`, which the root layout's `%s | Paykit` template turns into "Payment setup | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Payment setup"`, which the root layout's `%s | paykit` template turns into "Payment setup | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

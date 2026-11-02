@@ -26,7 +26,7 @@ behavior.
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Profile"`, which the root layout's `%s | Paykit` template turns into "Profile | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Profile"`, which the root layout's `%s | paykit` template turns into "Profile | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

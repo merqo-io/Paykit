@@ -1,8 +1,8 @@
 # paykit
 
-The Merqo family's shared payment engine. A vendor sets up their payment
+The merqo family's shared payment engine. A vendor sets up their payment
 method once here — a generated PayNow QR, or their own BYO payment
-link/QR image — and any Merqo kit can then request a checkout + track
+link/QR image — and any merqo kit can then request a checkout + track
 payment status for that vendor over paykit's HTTP API. paykit never
 touches funds — it renders the checkout the customer pays through in
 their own bank/payment app, and a human confirms receipt. A calling kit
@@ -16,13 +16,15 @@ their own BYO payment link/QR picks from a four-card preset directory
 "where to find this" instructions and, for Stripe/HitPay, a soft warning
 if the pasted link doesn't look right; it's UI/copy only, no PSP
 integration and no new database column. Display font is
-Fraunces (`src/app/layout.tsx`), the shared family face every Merqo kit
+Fraunces (`src/app/layout.tsx`), the shared family face every merqo kit
 now uses — see `docs/business/2026-08-13-typography-family-standard.md`
 in the workspace root for why. Brand theme is "Banknote Engrave"
 (engraved teal-green primary, warm-grey secondary — was steel-blue until
 2026-08-25, changed since it read too close to the primary's own hue) as
 of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-icon.tsx`'s
 ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
+
+The public landing is in pre-launch mode: an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to v0.36.0.
 
 `admin_audit`'s coverage now extends past the `/admin` console: a vendor's
 own refund (`issueRefundAction`) is recorded too, merqo's own
@@ -60,7 +62,7 @@ a view over existing data, not a new invoice/receipt subsystem.
 
 In production, the Supabase auth cookie is scoped to `.merqo.io`
 (`NEXT_PUBLIC_AUTH_COOKIE_DOMAIN`, `src/lib/supabase/`), so signing in on
-one Merqo kit signs you in on the rest. The dashboard's onboarding tour
+one merqo kit signs you in on the rest. The dashboard's onboarding tour
 (`src/components/dashboard-tour.tsx`) stamps its "seen" state as soon as
 it auto-runs rather than when it finishes, so a refresh mid-tour can't
 make it re-trigger on the next load — and since that client-fired stamp
@@ -160,7 +162,7 @@ strength beyond the existing acceptance record. `/about` is a public
 "Why Merqo" page rendering `@merqo/ui`'s shared `AboutMerqo` content,
 linked from the landing `Nav` and footer.
 
-The page chrome matches the other Merqo kits. `src/components/site-footer.tsx`
+The page chrome matches the other merqo kits. `src/components/site-footer.tsx`
 wraps `@merqo/ui`'s `Footer` (with a `Vendor sign in →` link on the landing
 page and `/about`, without it in the dashboard), and the dashboard shell keeps
 that footer at the bottom of a short page. Every page sets its own tab title
@@ -311,7 +313,7 @@ export is tracked in `../merqo-ui/docs/usage-matrix.md`.
 See `AGENTS.md` for stack, commands, data model, rules, and the AI
 harness/CI setup (templateCentral-based); `CHANGELOG.md`
 for what's shipped since the MVP, including the "Name | Tagline" Title Case
-browser-tab title convention shared across every Merqo kit. Folder-level `README.md`s (`src/lib/`,
+browser-tab title convention shared across every merqo kit. Folder-level `README.md`s (`src/lib/`,
 `src/components/`, and their subfolders) cover what each module does and
 how it's wired together. See
 `docs/superpowers/specs/2026-07-15-paykit-mvp-design.md` for the original

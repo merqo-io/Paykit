@@ -63,7 +63,7 @@ Mocked action tests do not establish database RLS, locking or trigger behavior.
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Bookings"`, which the root layout's `%s | Paykit` template turns into "Bookings | Paykit". `src/app/page-titles.test.ts` checks it.
+`page.tsx` exports `metadata.title = "Bookings"`, which the root layout's `%s | paykit` template turns into "Bookings | paykit". `src/app/page-titles.test.ts` checks it.
 
 ## Parent
 

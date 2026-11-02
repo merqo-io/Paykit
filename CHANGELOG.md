@@ -10,6 +10,19 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - The `staging-sync` workflow pushes to `staging` with the `merqo-staging-sync` GitHub App token instead of `GITHUB_TOKEN`, because a ruleset limits `staging` pushes to that app. The job's own permissions drop to `contents: read`.
 
+## [0.5.0] - 2026-11-02
+
+### Changed
+
+- The public landing shows an "In build" badge with "Built, not yet tried with vendors." and every signup CTA now reads "Join the waitlist" (https://merqo.io/waitlist?kit=paykit). The dashboard and login stay reachable by direct URL.
+- The landing, FAQ and footer publish no price or plan name. Pricing reads "Free during the pilot. If we start charging, you'll get at least 30 days' notice first."
+- Cross-kit claims are scoped to what exists: qkit is the only kit wired to paykit. The "proven" and "live" wording, em dashes and capitalised brand names are gone from public copy, and the dashboard tour no longer mentions billing.
+- `@merqo/ui` pinned to v0.36.0.
+
+### Added
+
+- A DOM guard test renders the real landing sections and fails on a `$`, em dash, banned word, wrong pricing line, missing badge or non-waitlist CTA.
+
 ## [0.4.2] - 2026-11-02
 
 ### Security
