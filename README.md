@@ -139,8 +139,7 @@ domains as of v0.14.1 — v0.14.0 had pointed at each kit's `-sg.vercel.app`
 deployment host instead, a different domain from the shared-session
 cookie's `.merqo.io` scope) so a signed-in vendor can jump to another
 kit's dashboard via the shared SSO cookie — see `src/app/dashboard/README.md`. The admin console's
-Pricing section wraps `@merqo/ui`'s `PricingForm` (paykit's first real
-adopter of that component). Every `/dashboard`
+Every `/dashboard`
 route shares one layout-level content-width container (`mx-auto w-full
 max-w-7xl` in `src/app/dashboard/layout.tsx`, matching qkit's canonical
 dashboard width) instead of each page setting its own, inconsistent width
@@ -173,20 +172,18 @@ page and `/about`, without it in the dashboard), and the dashboard shell keeps
 that footer at the bottom of a short page. Every page sets its own tab title
 through the root layout's `%s | Paykit` template, and an unknown route gets a
 branded `not-found.tsx` beside the existing error boundary. The plan page
-compares Free and Pro with the shared `PlanComparisonTable`.
+compares Free and Pro with the shared `PlanComparisonTable`, with no price.
 
 Sign-in (`/login`) supports email+password (with a "Check your email"
 confirmation state and a real forgot-password flow) and Google OAuth. Once
-signed in, a Free-tier vendor can file a real, one-click Pro-upgrade request
-from the dashboard's Plan page — no payment provider involved; Pro is
-granted manually, via a Merqo-team-only admin console (`/admin`, gated by
-an `admins` allow-list) with platform-wide stats, a per-vendor plan
-toggle, and a live Pro-price editor (`paykit.pricing`, `@merqo/ui`'s
-`PricingForm`) — the Pro price (seeded at $4.99/mo) can be changed with no
-redeploy, and every page that quotes it (plan page, dashboard nudge,
-landing copy) reads it live instead of a hardcoded string. Pro's one
-remaining gate is refund tracking; revenue stats are free for every
-vendor. `/api/merqo/vendor-status` (merqo hub's own vendor-active/plan
+signed in, a vendor's plan comes from merqo, which owns pricing and pushes
+each vendor's entitlement to `POST /api/merqo/entitlement`; paykit caches it
+in `paykit.vendor_entitlements` and gates Pro features on the cache (paid and
+unexpired, or an event pass running). The dashboard's Plan page shows the
+current plan and points to the Merqo account. A Merqo-team-only admin console
+(`/admin`, gated by an `admins` allow-list) shows platform-wide stats and a
+read-only per-vendor plan column. Pro's one remaining gate is refund tracking;
+revenue stats are free for every vendor. `/api/merqo/vendor-status` (merqo hub's own vendor-active/plan
 lookup) paginates the Supabase admin-users API properly, via the same
 `listAllUsers` helper the admin console uses — it no longer silently
 truncates at the first 1000 auth users. `/api/merqo/metrics` now exists too

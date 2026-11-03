@@ -4,7 +4,8 @@
 
 Merqo-facing route handlers — bearer-token-authenticated endpoints the
 Merqo hub polls for platform metrics, single-vendor status, per-vendor
-activity, and push-provisions a vendor onto paykit.
+activity, push-provisions a vendor onto paykit, and receives merqo's
+per-vendor entitlement push.
 
 ## Contents
 
@@ -18,6 +19,8 @@ activity, and push-provisions a vendor onto paykit.
   grants a vendor paykit access.
 - `vendor-status/` — `GET` endpoint resolving one vendor's `{active, plan}`
   by email.
+- `entitlement/`, `POST` endpoint caching merqo's entitlement push for a
+  vendor in `paykit.vendor_entitlements`.
 
 ## Connectivity
 
@@ -27,7 +30,12 @@ GET `route.ts` and share the same constant-time bearer-token check —
 `vendor-provision/` instead uses `provisionBearerOk(request)` (a thin
 `bearerOk` wrapper pinned to `MERQO_PROVISION_SECRET`, same file) — it can
 trigger a real audit-logged action, so it's deliberately not gated by the
-same secret as the read-only/reporting routes.
+same secret as the read-only/reporting routes. `entitlement/` writes, so it
+uses the same `provisionBearerOk` guard.
+
+The `plan` these routes report (`free`/`pro`) is derived from the entitlement
+cache by `resolvePlan` (`@/lib/vendor-entitlement`): paid and unexpired, or an
+event pass running, reads as `pro`.
 
 `vendor-status/` resolves a single vendor's `{active, plan}` by email
 (`resolveVendorStatus`, `@/lib/merqo-vendor-status.ts`) via `listAllUsers`

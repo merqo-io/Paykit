@@ -27,17 +27,30 @@ function req(body: unknown, auth?: string) {
   });
 }
 
-function configTable(
-  row: { plan: string } | null,
-  error: { message: string } | null = null,
-) {
-  return () => ({
+const PAID_ROW = {
+  tier: "paid",
+  valid_until: null,
+  event_pass_starts_at: null,
+  event_pass_ends_at: null,
+};
+
+function table(row: unknown, error: { message: string } | null = null) {
+  return {
     select: () => ({
       eq: () => ({
         maybeSingle: () => Promise.resolve({ data: row, error }),
       }),
     }),
-  });
+  };
+}
+
+function configTable(
+  config: { vendor_id: string } | null,
+  error: { message: string } | null = null,
+  entitlement: unknown = null,
+) {
+  return (name: string) =>
+    name === "vendor_entitlements" ? table(entitlement) : table(config, error);
 }
 
 describe("POST /api/merqo/vendor-provision (paykit)", () => {
@@ -101,7 +114,9 @@ describe("POST /api/merqo/vendor-provision (paykit)", () => {
   });
 
   it("reports needs_setup false with the real plan when a config row already exists, and audits it", async () => {
-    fromMock.mockImplementation(configTable({ plan: "pro" }));
+    fromMock.mockImplementation(
+      configTable({ vendor_id: USER_ID }, null, PAID_ROW),
+    );
     const res = await POST(req({ user_id: USER_ID }, "Bearer test-secret"));
     expect(await res.json()).toEqual({
       ok: true,

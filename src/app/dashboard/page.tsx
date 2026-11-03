@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getVendorSession } from "@/lib/vendor-session";
 import { txCountThisMonth } from "@/lib/transactions";
-import { shouldNudgePro } from "@/lib/usage";
 import { stampTourSeen } from "@/lib/tour-prefs";
-import { getPricing } from "@/lib/pricing";
-import { formatCents } from "@/lib/utils";
 import { getConfig } from "./config/actions";
 import type { VendorPaymentConfig } from "@/lib/types";
 
@@ -43,7 +40,7 @@ function paymentMethodSummary(config: VendorPaymentConfig): {
 export default async function DashboardPage() {
   const { supabase, user } = await getVendorSession();
 
-  const [config, count, { data: prefs }, pricing] = await Promise.all([
+  const [config, count, { data: prefs }] = await Promise.all([
     getConfig(),
     txCountThisMonth(user.id),
     supabase
@@ -51,7 +48,6 @@ export default async function DashboardPage() {
       .select("tour_seen_at")
       .eq("vendor_id", user.id)
       .maybeSingle(),
-    getPricing(supabase),
   ]);
   // Durable "start" stamp, in addition to dashboard-tour.tsx's client-fired
   // one: this route (not layout.tsx, which wraps every /dashboard/* page)
@@ -64,7 +60,6 @@ export default async function DashboardPage() {
     await stampTourSeen(supabase, user.id);
   }
 
-  const plan = config?.plan ?? "free";
   const methodSummary = config ? paymentMethodSummary(config) : null;
 
   return (
@@ -110,21 +105,6 @@ export default async function DashboardPage() {
           {count} transaction{count === 1 ? "" : "s"} this month
         </p>
       </div>
-
-      {shouldNudgePro(plan, count) && (
-        <div className="rounded-xl border border-mint/30 bg-mint/10 p-4">
-          <p className="text-sm font-medium">
-            You&apos;re doing real volume,{" "}
-            <Link
-              href="/dashboard/plan"
-              className="underline underline-offset-4"
-            >
-              Pro
-            </Link>{" "}
-            adds refund tracking, {`${formatCents(pricing.monthly_cents)}/mo`}.
-          </p>
-        </div>
-      )}
     </div>
   );
 }

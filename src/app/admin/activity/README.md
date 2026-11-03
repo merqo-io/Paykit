@@ -15,10 +15,10 @@ that, until this folder existed, no page ever read back.
   list), and hands the mapped entries to `ActivitySection`.
 - `activity-section.tsx` — `ActivitySection`: client component (function
   props, like `formatAction`, can't cross the server/client boundary
-  directly from `page.tsx` — same reasoning as `../pricing-section.tsx`)
+  directly from `page.tsx`, same reasoning as `../vendors/vendors-table.tsx`)
   wrapping `@merqo/ui`'s `AuditLogTable`, mapping every real action string
-  `recordAudit()` is actually called with today (`set_vendor_plan`,
-  `set_pricing`, `record_refund`, `create_booking`,
+  `recordAudit()` is called with today, plus the retired `set_vendor_plan` and
+  `set_pricing` so historical rows still render (`record_refund`, `create_booking`,
   `create_balance_checkout`, `cancel_booking`, `reschedule_booking`) to a
   human-readable label.
 

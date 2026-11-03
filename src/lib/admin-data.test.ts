@@ -18,7 +18,6 @@ import {
   platformTotals,
   recentActivity,
   listVendors,
-  getAdminPricing,
   auditLog,
   securityStats,
 } from "@/lib/admin-data";
@@ -53,6 +52,16 @@ function mockTables(tables: Record<string, unknown>) {
   fromMock.mockImplementation((table: string) => builder(tables[table] ?? []));
 }
 
+function paid(vendorId: string) {
+  return {
+    vendor_id: vendorId,
+    tier: "paid",
+    valid_until: null,
+    event_pass_starts_at: null,
+    event_pass_ends_at: null,
+  };
+}
+
 const users = [
   { id: "v1", email: "vendor1@x.com" },
   { id: "v2", email: "vendor2@x.com" },
@@ -70,9 +79,22 @@ describe("admin-data", () => {
       const iso = (msAgo: number) => new Date(now - msAgo).toISOString();
       mockTables({
         vendor_payment_config: [
-          { vendor_id: "v1", plan: "free" },
-          { vendor_id: "v2", plan: "pro" },
-          { vendor_id: "v3", plan: "pro" },
+          { vendor_id: "v1" },
+          { vendor_id: "v2" },
+          { vendor_id: "v3" },
+        ],
+        vendor_entitlements: [
+          paid("v2"),
+          // Expired paid row reads as free.
+          { ...paid("v1"), valid_until: "2000-01-01T00:00:00Z" },
+          // A running event pass counts as Pro.
+          {
+            ...paid("v3"),
+            tier: "free",
+            valid_until: null,
+            event_pass_starts_at: "2000-01-01T00:00:00Z",
+            event_pass_ends_at: "2999-01-01T00:00:00Z",
+          },
         ],
         transactions: [
           {
@@ -223,7 +245,6 @@ describe("admin-data", () => {
         vendor_payment_config: [
           {
             vendor_id: "v2",
-            plan: "free",
             kind: "pointer",
             payee_name: null,
             label: "Pay with PayLah",
@@ -231,13 +252,13 @@ describe("admin-data", () => {
           },
           {
             vendor_id: "v1",
-            plan: "pro",
             kind: "paynow",
             payee_name: "Kopitiam Cart",
             label: null,
             created_at: daysAgo(30),
           },
         ],
+        vendor_entitlements: [paid("v1")],
         transactions: [
           {
             id: "t1",
@@ -298,7 +319,6 @@ describe("admin-data", () => {
         vendor_payment_config: [
           {
             vendor_id: "v1",
-            plan: "free",
             kind: "paynow",
             payee_name: "Kopitiam Cart",
             label: null,
@@ -322,7 +342,6 @@ describe("admin-data", () => {
         vendor_payment_config: [
           {
             vendor_id: "healthy-old",
-            plan: "free",
             kind: "paynow",
             payee_name: "A",
             label: null,
@@ -330,7 +349,6 @@ describe("admin-data", () => {
           },
           {
             vendor_id: "attention",
-            plan: "free",
             kind: "paynow",
             payee_name: "B",
             label: null,
@@ -434,22 +452,6 @@ describe("admin-data", () => {
     it("throws when the read errors", async () => {
       fromMock.mockReturnValueOnce(builder(null, { message: "boom" }));
       await expect(auditLog()).rejects.toThrow("auditLog");
-    });
-  });
-
-  describe("getAdminPricing", () => {
-    it("reads the single pricing row via the service-role client", async () => {
-      mockTables({ pricing: { monthly_cents: 499, currency: "SGD" } });
-      await expect(getAdminPricing()).resolves.toEqual({
-        monthly_cents: 499,
-        currency: "SGD",
-      });
-    });
-
-    it("falls back to DEFAULT_PRICING when the row can't be read", async () => {
-      fromMock.mockReturnValueOnce(builder(null, null));
-      const { DEFAULT_PRICING } = await import("@/lib/pricing");
-      await expect(getAdminPricing()).resolves.toEqual(DEFAULT_PRICING);
     });
   });
 });

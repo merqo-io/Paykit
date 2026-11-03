@@ -167,10 +167,12 @@ falling back to transaction creation for unlinked checkouts. These are revenue
 records, not profit or tax submissions. `earnings-csv.ts` escapes customer text
 that could become a spreadsheet formula.
 
-`booking-status.ts` provides dashboard-only due badges. `usage.ts` and
-`plan-view.ts` derive the Free/Pro nudge and view, including the Free vs Pro
-rows the plan page passes to `@merqo/ui`'s `PlanComparisonTable`; `pricing.ts` reads the
-admin-configured price. Refund tracking is Pro-gated bookkeeping, not money
+`booking-status.ts` provides dashboard-only due badges. `plan-view.ts` derives
+the Free/Pro view, including the Free vs Pro rows the plan page passes to
+`@merqo/ui`'s `PlanComparisonTable`. `vendor-entitlement.ts` reads the
+entitlement cache merqo pushes (`resolvePlan`, `readVendorPlan`,
+`readAllVendorPlans`), and `merqo-entitlement-contract.ts` is the Zod schema of
+that push, copied from merqo. Refund tracking is Pro-gated bookkeeping, not money
 movement. Migration 0020 prepares serialized cumulative-refund enforcement;
 mocked tests do not verify its database locking.
 

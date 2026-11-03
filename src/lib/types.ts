@@ -32,7 +32,6 @@ export type VendorPaymentConfig = {
   url: string | null;
   qr_image_url: string | null;
   verification_method: VerificationMethod;
-  plan: VendorPlan;
   created_at: string;
   updated_at: string;
 };
@@ -141,10 +140,15 @@ export type AdminAudit = {
   created_at: string;
 };
 
-export type Pricing = {
-  id: number;
-  monthly_cents: number;
-  currency: string;
+export type VendorEntitlement = {
+  vendor_id: string;
+  tier: "free" | "paid";
+  founder: boolean;
+  stats_window: "24h" | "90d";
+  event_pass_starts_at: string | null;
+  event_pass_ends_at: string | null;
+  valid_until: string | null;
+  issued_at: string;
   updated_at: string;
 };
 
@@ -207,7 +211,6 @@ export interface Database {
           url?: string | null;
           qr_image_url?: string | null;
           verification_method?: VerificationMethod;
-          plan?: VendorPlan;
           created_at?: string;
           updated_at?: string;
         };
@@ -220,7 +223,6 @@ export interface Database {
           url?: string | null;
           qr_image_url?: string | null;
           verification_method?: VerificationMethod;
-          plan?: VendorPlan;
           updated_at?: string;
         };
         Relationships: [];
@@ -422,19 +424,10 @@ export interface Database {
         };
         Relationships: [];
       };
-      pricing: {
-        Row: Pricing;
-        Insert: {
-          id?: number;
-          monthly_cents?: number;
-          currency?: string;
-          updated_at?: string;
-        };
-        Update: {
-          monthly_cents?: number;
-          currency?: string;
-          updated_at?: string;
-        };
+      vendor_entitlements: {
+        Row: VendorEntitlement;
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
       payment_audit: {
@@ -527,6 +520,19 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
+      apply_vendor_entitlement: {
+        Args: {
+          p_email: string;
+          p_tier: string;
+          p_founder: boolean;
+          p_stats_window: string;
+          p_event_pass_starts_at: string | null;
+          p_event_pass_ends_at: string | null;
+          p_valid_until: string | null;
+          p_issued_at: string;
+        };
+        Returns: string;
+      };
       link_booking_balance: {
         Args: {
           p_booking_id: string;

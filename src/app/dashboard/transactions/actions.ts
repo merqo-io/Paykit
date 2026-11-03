@@ -10,7 +10,7 @@ export type RefundState = { status: "idle" | "ok" | "error"; message?: string };
 
 // Relies on the `refunds_insert_own` RLS policy (Task 4) to be the real
 // enforcement: it checks ownership, `transactions.status = 'confirmed'`, and
-// `vendor_payment_config.plan = 'pro'` at the DB layer via `with check`. This
+// `vendor_is_entitled()` (the entitlement cache) at the DB layer via `with check`. This
 // action only validates shape/UX — never trust a client-supplied "I'm Pro"
 // flag, and never widen the policy to make this insert succeed.
 export async function issueRefundAction(

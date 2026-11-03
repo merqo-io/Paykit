@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { getVendorSession, getVendorPlan } from "@/lib/vendor-session";
+import { getVendorSession } from "@/lib/vendor-session";
+import { readVendorPlan } from "@/lib/vendor-entitlement";
 import { listTransactions } from "@/lib/transactions";
 import { TransactionTable } from "./transaction-table";
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 export default async function TransactionsPage() {
   const { supabase, user } = await getVendorSession();
 
-  const config = await getVendorPlan(supabase, user.id);
+  const plan = await readVendorPlan(supabase, user.id);
   const transactions = await listTransactions(user.id);
 
   return (
@@ -21,10 +22,7 @@ export default async function TransactionsPage() {
         include your full history.
       </p>
       <div className="mt-6">
-        <TransactionTable
-          transactions={transactions}
-          isPro={config?.plan === "pro"}
-        />
+        <TransactionTable transactions={transactions} isPro={plan === "pro"} />
       </div>
     </div>
   );

@@ -9,16 +9,12 @@ Moved from AGENTS.md. Tables, constraints and RLS rules for the `paykit` schema.
   BYO payment link/QR image (`label` required, exactly one of `url`/
   `qr_image_url`) — see `docs/superpowers/specs/2026-07-22-paykit-multi-
 method-byo-design.md`. `payee_name`/`uen`/`mobile` apply only to
-  `'paynow'`; `label`/`url`/`qr_image_url` only to `'pointer'`. `plan`
-  (`free`|`pro`) gates refund tracking only — transaction history and
-  revenue stats are both free; Free tier checkout is unlimited, no
-  transaction-volume cap (see
-  `docs/superpowers/specs/2026-07-22-paykit-freemium-nudge-redesign-design.md`,
+  `'paynow'`; `label`/`url`/`qr_image_url` only to `'pointer'`. The plan
+  lives in `vendor_entitlements` below, not here: Pro gates refund tracking
+  only, transaction history and revenue stats are both free; Free tier
+  checkout is unlimited, no transaction-volume cap (see
   `docs/superpowers/specs/2026-08-15-paykit-pro-simplification-design.md`).
-  This column is a minimal addition beyond the design spec's literal table
-  listing, necessary to implement the very Pro-gate the same spec
-  describes (see the plan's Self-Review). Pro's price is admin-tunable via
-  `/admin` (seeded at $4.99/mo) — see `paykit.pricing`. `verification_method`
+  `verification_method`
   is schema-reserved (`'manual'` only is ever written).
 - `transactions`: one row per checkout, `status` `pending`→`claimed`→`confirmed`,
   `kit_slug` records which kit created it, `qr_payload` stored at creation for
@@ -45,18 +41,23 @@ status.ts`) — not a push. `rescheduleBookingAction` updates `event_date`/
   own never touches either linked transaction's own status.
 - `refunds` (Pro only): bookkeeping ledger row against a `confirmed`
   transaction — no real money movement.
-- `pricing` (single row, `id` pinned to 1): the Pro price shown on the
-  plan page, dashboard nudge, and landing site. Admin-tunable via
-  `/admin` (no redeploy needed) — see `paykit.pricing`,
-  `src/lib/pricing.ts`. Public-read RLS (the price isn't secret); writes
-  go through the service-role `setPricing` action only. Seeded at
-  `monthly_cents = 499` ($4.99).
+- `vendor_entitlements` (`0028`): cache of merqo's per-vendor entitlement,
+  keyed by `vendor_id` (FK to `auth.users`, cascade). Columns: `tier`
+  (`free`|`paid`), `founder`, `stats_window`, `event_pass_starts_at`/
+  `event_pass_ends_at`, `valid_until`, `issued_at`, `updated_at`. Own-row
+  `select` policy, no client write grant; the only writer is the
+  service-role-only `apply_vendor_entitlement()`, whose `issued_at` guard
+  makes a stale or replayed push a no-op. `vendor_is_entitled()` is the single
+  gate (paid and unexpired, or an event pass running) read by the refunds
+  insert policy and `enforce_refund_total()`. `0029` seeded a paid row
+  (`valid_until` null, `issued_at` epoch) for every vendor that was on `pro`,
+  then dropped `vendor_payment_config.plan`; `0030` dropped `pricing`.
 - `kit_api_keys`: one hashed bearer secret per calling kit, service-role only
   (no RLS policy grants any access to `authenticated`/`anon`).
 - `admin_audit` (`0006_paykit_admin.sql`): one row per admin- or
-  vendor-initiated action worth reconstructing later (`setVendorPlan`,
-  `setPricing`, a vendor's own `record_refund` — see `recordAudit()` in
-  `src/app/admin/actions.ts`). RLS is admin-read-only; the service-role
+  vendor-initiated action worth reconstructing later (a vendor's own `record_refund`, see `recordAudit()` in
+  `src/lib/admin-audit.ts`; the retired `set_vendor_plan` and `set_pricing`
+  labels remain so old rows still render). RLS is admin-read-only; the service-role
   client can `select`/`insert` but not `update`/`delete`
   (`0009_paykit_admin_audit_immutable.sql`) — the app never touches a row
   once written, and closing off `update`/`delete` at the grant level means
@@ -83,11 +84,11 @@ status.ts`) — not a push. `rescheduleBookingAction` updates `event_date`/
   without the entry the check fails silently on Vercel.
 - RLS: a vendor reads/writes only their own `vendor_payment_config`; reads
   (not writes) only their own `transactions`; reads/inserts `refunds` only for
-  their own confirmed transactions while on Pro; reads/writes only their own
+  their own confirmed transactions while entitled to Pro; reads/writes only their own
   `vendor_prefs` row; reads/inserts/updates (no delete) only their own
   `bookings` row, except its two transaction-id link columns, which are
-  service-role only (same self-escalation-shaped reasoning as `plan`
-  above — the policy only checks `vendor_id`, so an unrestricted grant
+  service-role only (same self-escalation-shaped reasoning as the
+  entitlement cache's no-client-write grant, the policy only checks `vendor_id`, so an unrestricted grant
   would let a vendor repoint a booking at another vendor's transaction).
   The cross-kit API (`/checkout`, `/claim`, `/confirm`) is service-role +
   bearer-secret, server-only.

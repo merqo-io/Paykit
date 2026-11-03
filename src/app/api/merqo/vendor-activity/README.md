@@ -20,7 +20,8 @@ whole card from.
   (paginated, `src/lib/list-all-users.ts`); 404s if no such user exists in
   this kit at all. For a known user, reads that vendor's
   `vendor_payment_config` row (may not exist — "known but inactive"),
-  their `transactions`, and — only if they have any transactions — the
+  their plan from the entitlement cache (`readVendorPlan`; a failed read is a
+  503), their `transactions`, and, only if they have any transactions, the
   `refunds` rows against those transaction ids (`refunds` has no
   `vendor_id` column of its own), then calls `computeVendorActivity`
   (`src/lib/merqo-vendor-activity.ts`) and adds `incidents` and `recent`

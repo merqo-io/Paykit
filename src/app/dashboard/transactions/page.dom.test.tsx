@@ -12,16 +12,18 @@ import { render, screen } from "@testing-library/react";
 import TransactionsPage from "./page";
 import type { Transaction } from "@/lib/types";
 
-const { getVendorSessionMock, getVendorPlanMock, listTransactionsMock } =
+const { getVendorSessionMock, readVendorPlanMock, listTransactionsMock } =
   vi.hoisted(() => ({
     getVendorSessionMock: vi.fn(),
-    getVendorPlanMock: vi.fn(),
+    readVendorPlanMock: vi.fn(),
     listTransactionsMock: vi.fn(),
   }));
 
 vi.mock("@/lib/vendor-session", () => ({
   getVendorSession: getVendorSessionMock,
-  getVendorPlan: getVendorPlanMock,
+}));
+vi.mock("@/lib/vendor-entitlement", () => ({
+  readVendorPlan: readVendorPlanMock,
 }));
 vi.mock("@/lib/transactions", () => ({
   listTransactions: listTransactionsMock,
@@ -45,13 +47,13 @@ beforeEach(() => {
     supabase: {},
     user: { id: "v1" },
   });
-  getVendorPlanMock.mockReset();
+  readVendorPlanMock.mockReset();
   listTransactionsMock.mockReset();
 });
 
 describe("TransactionsPage", () => {
   it("shows the empty state with no transactions", async () => {
-    getVendorPlanMock.mockResolvedValue({ plan: "free" });
+    readVendorPlanMock.mockResolvedValue("free");
     listTransactionsMock.mockResolvedValue([]);
 
     const jsx = await TransactionsPage();
@@ -64,7 +66,7 @@ describe("TransactionsPage", () => {
   });
 
   it("hides the Refund column for a Free vendor", async () => {
-    getVendorPlanMock.mockResolvedValue({ plan: "free" });
+    readVendorPlanMock.mockResolvedValue("free");
     listTransactionsMock.mockResolvedValue([TX]);
 
     const jsx = await TransactionsPage();
@@ -77,7 +79,7 @@ describe("TransactionsPage", () => {
   });
 
   it("shows the Refund column for a Pro vendor's confirmed transaction", async () => {
-    getVendorPlanMock.mockResolvedValue({ plan: "pro" });
+    readVendorPlanMock.mockResolvedValue("pro");
     listTransactionsMock.mockResolvedValue([TX]);
 
     const jsx = await TransactionsPage();
@@ -90,7 +92,7 @@ describe("TransactionsPage", () => {
   });
 
   it("treats a vendor with no config yet as Free (no Refund column)", async () => {
-    getVendorPlanMock.mockResolvedValue(null);
+    readVendorPlanMock.mockResolvedValue(null);
     listTransactionsMock.mockResolvedValue([TX]);
 
     const jsx = await TransactionsPage();

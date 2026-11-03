@@ -16,7 +16,8 @@ Service-role link RPCs receive the verified vendor, booking and transaction IDs.
 Balance creation follows the analogous guarded `link_booking_balance` path.
 
 Cancellation and rescheduling first read the booking under vendor RLS. Cancel
-may also request Pro-gated refund bookkeeping; a failed refund does not undo the
+may also request refund bookkeeping, allowed only while the vendor is entitled to
+Pro (`vendor_is_entitled()`, the merqo entitlement cache); a failed refund does not undo the
 cancellation and is reported separately. Rescheduling updates dates without
 inventing a new payment state. Audit helpers live in `lib/admin-audit.ts`.
 Peer-kit checkout transitions use the separate `payment_audit` trail.

@@ -3,8 +3,7 @@
 // DashboardPage is an async Server Component, same pattern as
 // layout.dom.test.tsx: await it directly and render the returned element
 // tree with RTL. Covers the empty-state prompt, the payment-method summary
-// card, the transaction count, the Pro nudge threshold (`shouldNudgePro`)
-// branches, and the durable tour-seen stamp (see page.tsx's own comment, and
+// card, the transaction count, and the durable tour-seen stamp (see page.tsx's own comment, and
 // tour-actions.ts's stampTourSeen/markTourSeen) firing exactly when it
 // should.
 import { describe, expect, it, vi, beforeEach } from "vitest";
@@ -17,13 +16,11 @@ const {
   txCountThisMonthMock,
   maybeSingleMock,
   stampTourSeenMock,
-  getPricingMock,
 } = vi.hoisted(() => ({
   getConfigMock: vi.fn(),
   txCountThisMonthMock: vi.fn(),
   maybeSingleMock: vi.fn(),
   stampTourSeenMock: vi.fn(async () => {}),
-  getPricingMock: vi.fn(),
 }));
 
 vi.mock("@/lib/vendor-session", () => ({
@@ -49,9 +46,6 @@ vi.mock("@/lib/transactions", () => ({
 vi.mock("@/lib/tour-prefs", () => ({
   stampTourSeen: stampTourSeenMock,
 }));
-vi.mock("@/lib/pricing", () => ({
-  getPricing: getPricingMock,
-}));
 
 const PAYNOW_CONFIG: VendorPaymentConfig = {
   vendor_id: "v1",
@@ -63,7 +57,6 @@ const PAYNOW_CONFIG: VendorPaymentConfig = {
   url: null,
   qr_image_url: null,
   verification_method: "manual",
-  plan: "free",
   created_at: "2026-01-01T00:00:00Z",
   updated_at: "2026-01-01T00:00:00Z",
 };
@@ -84,7 +77,6 @@ beforeEach(() => {
   });
   getConfigMock.mockResolvedValue(PAYNOW_CONFIG);
   txCountThisMonthMock.mockResolvedValue(0);
-  getPricingMock.mockResolvedValue({ monthly_cents: 499, currency: "SGD" });
 });
 
 describe("DashboardPage", () => {
@@ -106,8 +98,8 @@ describe("DashboardPage", () => {
     expect(screen.queryByText("Payment method")).not.toBeInTheDocument();
   });
 
-  it("hides the setup prompt once a config exists, and hides the nudge below threshold", async () => {
-    getConfigMock.mockResolvedValue({ ...PAYNOW_CONFIG, plan: "free" });
+  it("hides the setup prompt once a config exists", async () => {
+    getConfigMock.mockResolvedValue(PAYNOW_CONFIG);
     txCountThisMonthMock.mockResolvedValue(10);
 
     const jsx = await DashboardPage();
@@ -117,7 +109,6 @@ describe("DashboardPage", () => {
       screen.queryByText(/haven.t set up payments yet/i),
     ).not.toBeInTheDocument();
     expect(screen.getByText("10 transactions this month")).toBeInTheDocument();
-    expect(screen.queryByText(/doing real volume/i)).not.toBeInTheDocument();
   });
 
   it("shows a masked PayNow summary with an edit link into config", async () => {
@@ -141,47 +132,6 @@ describe("DashboardPage", () => {
     expect(
       screen.getByText("Payment link or QR image · Pay with PayLah"),
     ).toBeInTheDocument();
-  });
-
-  it("shows the Pro nudge once a Free vendor crosses the usage threshold", async () => {
-    getConfigMock.mockResolvedValue({ ...PAYNOW_CONFIG, plan: "free" });
-    txCountThisMonthMock.mockResolvedValue(50);
-
-    const jsx = await DashboardPage();
-    render(jsx);
-
-    expect(screen.getByText(/doing real volume/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Pro" })).toHaveAttribute(
-      "href",
-      "/dashboard/plan",
-    );
-    expect(
-      screen.getByText(/adds refund tracking, \$4\.99\/mo/i),
-    ).toBeInTheDocument();
-  });
-
-  it("shows whatever live price getPricing returns in the nudge copy", async () => {
-    getConfigMock.mockResolvedValue({ ...PAYNOW_CONFIG, plan: "free" });
-    txCountThisMonthMock.mockResolvedValue(50);
-    getPricingMock.mockResolvedValue({ monthly_cents: 1200, currency: "SGD" });
-
-    const jsx = await DashboardPage();
-    render(jsx);
-
-    expect(
-      screen.getByText(/adds refund tracking, \$12\.00\/mo/i),
-    ).toBeInTheDocument();
-  });
-
-  it("never shows the nudge for a Pro vendor, even above threshold", async () => {
-    getConfigMock.mockResolvedValue({ ...PAYNOW_CONFIG, plan: "pro" });
-    txCountThisMonthMock.mockResolvedValue(999);
-
-    const jsx = await DashboardPage();
-    render(jsx);
-
-    expect(screen.getByText("999 transactions this month")).toBeInTheDocument();
-    expect(screen.queryByText(/doing real volume/i)).not.toBeInTheDocument();
   });
 
   it("stamps tour_seen_at durably when the vendor hasn't seen the tour yet", async () => {

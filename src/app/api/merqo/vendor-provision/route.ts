@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createServiceClient } from "@/lib/supabase/server";
 import { provisionBearerOk } from "@/lib/merqo-auth";
 import { recordAudit } from "@/lib/admin-audit";
+import { readVendorPlan } from "@/lib/vendor-entitlement";
 
 export const revalidate = 0;
 
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
   // this route only reports whatever is already there.
   const { data, error } = await supabase
     .from("vendor_payment_config")
-    .select("plan")
+    .select("vendor_id")
     .eq("vendor_id", user_id)
     .maybeSingle();
   if (error) {
@@ -43,19 +44,27 @@ export async function POST(request: Request) {
     );
   }
 
+  const plan = data ? await readVendorPlan(supabase, user_id) : null;
+  if (data && plan === null) {
+    return NextResponse.json(
+      { error: "Could not read vendor entitlement" },
+      { status: 500 },
+    );
+  }
+
   // No signed-in admin here — adminId is the vendor's own id (satisfies
   // the FK) and detail.actor marks this as merqo-, not vendor-, initiated.
   await recordAudit(user_id, "merqo_vendor_provision", user_id, {
     actor: "merqo_system",
     already_existed: Boolean(data),
     needs_setup: !data,
-    plan: data?.plan ?? null,
+    plan,
   });
 
   return NextResponse.json({
     ok: true,
     already_existed: Boolean(data),
     needs_setup: !data,
-    plan: data?.plan ?? null,
+    plan,
   });
 }

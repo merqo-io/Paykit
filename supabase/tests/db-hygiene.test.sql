@@ -9,7 +9,7 @@ select is(
   (select count(*)::int from pg_tables where schemaname = 'paykit' and not rowsecurity),
   0, 'every paykit table has row level security on');
 
--- admins: admins only; pricing: public read; auth_failures: server-only.
+-- admins: admins only; vendor_entitlements: own-row read only; auth_failures: server-only.
 insert into auth.users (id, instance_id, aud, role, email) values
   ('a0000000-0000-0000-0000-00000000a301', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'hygiene-admin@test.local'),
   ('a0000000-0000-0000-0000-00000000a302', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'hygiene-vendor@test.local');
@@ -21,12 +21,12 @@ select ok(not has_table_privilege('anon', 'paykit.admins', p), 'anon has no ' ||
 from unnest(array['SELECT', 'INSERT', 'UPDATE', 'DELETE']) p;
 select ok(not has_table_privilege(r, t, p), r || ' has no ' || p || ' on ' || t)
 from unnest(array['anon', 'authenticated']) r,
-     unnest(array['paykit.pricing', 'paykit.admins']) t,
+     unnest(array['paykit.vendor_entitlements', 'paykit.admins']) t,
      unnest(array['INSERT', 'UPDATE', 'DELETE']) p;
 
 set local role anon;
 select set_config('request.jwt.claims', json_build_object('role', 'anon')::text, true);
-select is((select count(*)::int from paykit.pricing), 1, 'anyone reads the price');
+select throws_ok($$ select 1 from paykit.vendor_entitlements $$, '42501', null, 'anon cannot read paykit.vendor_entitlements');
 select throws_ok($$ select 1 from paykit.auth_failures $$, '42501', null, 'anon cannot read paykit.auth_failures');
 select throws_ok($$ select 1 from paykit.admins $$, '42501', null, 'anon cannot read paykit.admins');
 reset role;

@@ -42,21 +42,6 @@ vi.mock("@/lib/admin-data", () => ({
       created_at: "2026-07-11T00:00:00Z",
     },
   ]),
-  getAdminPricing: vi.fn(async () => ({
-    monthly_cents: 499,
-    currency: "SGD",
-  })),
-}));
-vi.mock("./pricing-section", () => ({
-  PricingSection: ({
-    initial,
-  }: {
-    initial: { monthly_cents: number; currency: string };
-  }) => (
-    <div data-testid="pricing-section">
-      {initial.monthly_cents} {initial.currency}
-    </div>
-  ),
 }));
 
 import AdminOverviewPage from "./page";
@@ -90,10 +75,9 @@ describe("AdminOverviewPage", () => {
     expect(screen.getByText("Rate-limited kits · 24h")).toBeInTheDocument();
   });
 
-  it("renders the Pricing section", async () => {
+  it("no longer renders a Pricing section", async () => {
     render(await AdminOverviewPage());
-    expect(screen.getByText(/pricing/i)).toBeInTheDocument();
-    expect(screen.getByTestId("pricing-section")).toBeInTheDocument();
+    expect(screen.queryByText(/pricing/i)).not.toBeInTheDocument();
   });
 
   it("shows an empty state when there is no activity yet", async () => {

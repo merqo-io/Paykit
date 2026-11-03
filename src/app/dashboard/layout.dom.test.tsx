@@ -20,7 +20,6 @@ vi.mock("@/lib/vendor-session", () => ({
     },
     user: { id: "v1", email: "vendor@example.com", user_metadata: {} },
   })),
-  getVendorPlan: vi.fn(async () => ({ plan: "free" })),
 }));
 vi.mock("@/lib/merqo-vendor-profile", () => ({
   getOrCreateVendorProfile: vi.fn(async () => ({

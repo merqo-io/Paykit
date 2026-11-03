@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { getVendorSession, getVendorPlan } from "@/lib/vendor-session";
+import { getVendorSession } from "@/lib/vendor-session";
+import { readVendorPlan } from "@/lib/vendor-entitlement";
 import { getOrCreateVendorProfile } from "@/lib/merqo-vendor-profile";
 import { signOutAction } from "@/app/actions/auth";
 import { DashboardTour } from "@/components/dashboard-tour";
@@ -12,8 +13,8 @@ export default async function DashboardLayout({
   children: ReactNode;
 }) {
   const { supabase, user } = await getVendorSession();
-  const [config, profile, { data: prefs }] = await Promise.all([
-    getVendorPlan(supabase, user.id),
+  const [plan, profile, { data: prefs }] = await Promise.all([
+    readVendorPlan(supabase, user.id),
     getOrCreateVendorProfile(supabase, user.id, null),
     supabase
       .from("vendor_prefs")
@@ -55,7 +56,7 @@ export default async function DashboardLayout({
           signOut={signOutAction}
           vendorName={profile.stall_name || (user.email ?? "Account")}
           avatarUrl={avatarUrl}
-          plan={config?.plan ?? "free"}
+          plan={plan ?? "free"}
         />
       </div>
       <main className="mx-auto w-full max-w-7xl flex-1 p-6">{children}</main>

@@ -3,14 +3,12 @@ import { requireAdmin } from "@/lib/admin";
 import {
   platformTotals,
   recentActivity,
-  getAdminPricing,
   securityStats,
 } from "@/lib/admin-data";
 import { Stat } from "@/app/admin/stat";
 import { Badge } from "@/components/ui/badge";
 import { ElevatedCard } from "@merqo/ui";
 import { formatCents, pctChange } from "@/lib/utils";
-import { PricingSection } from "./pricing-section";
 
 export const metadata: Metadata = {
   title: "Admin overview",
@@ -21,10 +19,9 @@ export const revalidate = 0;
 export default async function AdminOverviewPage() {
   await requireAdmin();
 
-  const [totals, activity, pricing, security] = await Promise.all([
+  const [totals, activity, security] = await Promise.all([
     platformTotals(),
     recentActivity(15),
-    getAdminPricing(),
     securityStats(),
   ]);
 
@@ -121,13 +118,6 @@ export default async function AdminOverviewPage() {
             )}
           </ul>
         </ElevatedCard>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Pricing
-        </h2>
-        <PricingSection initial={pricing} />
       </section>
     </main>
   );
