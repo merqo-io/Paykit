@@ -35,6 +35,15 @@ An enabled alternative provider requires its own documented setup.
 Preview and Production deployment behavior should be verified independently;
 this runbook does not establish which migrations or secrets are currently live.
 
+## Which branches deploy
+
+Only `main` deploys from git (`git.deploymentEnabled` in `vercel.json`, with
+`**` disabling every other branch; `*` would miss names containing `/`).
+Pull requests and other branches get no automatic preview, which keeps the
+Vercel Hobby daily deployment cap from running out. Staging deploys through
+the `staging-sync` workflow's deploy hook, which `deploymentEnabled` does not
+gate. For an ad-hoc preview, run the `vercel` CLI.
+
 ## Staging
 
 Vercel `Preview` deployments use the shared staging Supabase project
@@ -78,7 +87,8 @@ Before merging a PR that adds a file under `supabase/migrations/`:
    `STAGING_DB_URL` set to the staging session pooler URI (merqo's
    `docs/STAGING.md`, setup step 2):
    `docker run --rm -e STAGING_DB_URL -v "${PWD}:/repo:ro" postgres:17.6-alpine sh /repo/scripts/staging-migrate.sh supabase/migrations/<new-file>.sql`
-2. Check the PR's own Vercel preview end to end. It already uses the staging
-   database and the other apps' staging hosts.
+2. Check the change end to end on a preview from the `vercel` CLI (PRs get no
+   automatic preview). It uses the staging database and the other apps'
+   staging hosts.
 3. Merge the PR.
 4. Apply the same file to production the usual way (Supabase SQL Editor).

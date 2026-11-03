@@ -1,6 +1,6 @@
 # docs
 
-- `DEPLOY.md` — Supabase/Vercel deployment runbook, including the Staging section: paykit's `Preview` values on the shared staging Supabase project, qkit's staging caller key, and the staging-first gate for PRs that add a migration.
+- `DEPLOY.md` — Supabase/Vercel deployment runbook, including the Staging section: paykit's `Preview` values on the shared staging Supabase project, qkit's staging caller key, and the staging-first gate for PRs that add a migration. Also covers which branches deploy: only `main` from git, staging via its deploy hook, previews via the `vercel` CLI.
 - `SECRET_ROTATION.md` — how to safely rotate a calling kit's bearer
   secret (today's real hard-cutover constraint, using `last_used_at` to
   confirm timing), and how to rotate the separate callback secret.
