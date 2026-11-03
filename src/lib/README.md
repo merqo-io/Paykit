@@ -84,8 +84,11 @@ provide authorization.
   a transaction on a caller's say-so alone. Not found for a bad id or token,
   an unknown id, a transaction with no pay page or another token; the same
   answer for all, and the payment it returns carries no vendor id, order
-  reference or kit name. `hostedPayAllowed` counts a page action per address
-  and per token.
+  reference or kit name. `isWellFormedHostedRef(id, token)` is the shape check
+  callers run first, so a malformed link never reaches the limiter or the
+  database. `hostedPayAllowed` counts a page action per address and per token
+  and answers `allowed`, `limited` or `unavailable` (the limiter could not
+  answer; still denied, but not reported as too many tries).
 - `kit-callback.ts` — `notifyKitPaymentStatus(tx)` posts
   `{ order_ref, transaction_id, status }` to the `callback_url` of the kit
   that owns the transaction (`transactions.kit_slug`), with
@@ -128,7 +131,9 @@ provide authorization.
   `rateLimit` fails open: a limiter failure permits the request and logs
   degradation. `rateLimitStrict` fails closed and is used by `hosted-pay.ts`
   (the public pay page) and the kit claim route, so a limiter outage cannot let
-  claim traffic through unbounded; every other route (checkout, confirm,
+  claim traffic through unbounded; both are built on `rateLimitCheck`, which
+  returns `ok`, `limited` or `error` for callers that must tell a denial from
+  an outage; every other route (checkout, confirm,
   unclaim, evidence, inquiries, kit auth) uses `rateLimit`. `clientIp` trusts
   only proxy-set headers, in order `x-vercel-forwarded-for`, `x-real-ip`, then
   the last `x-forwarded-for` hop (the first hop is client-supplied and

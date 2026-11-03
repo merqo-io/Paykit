@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { clientIp, rateLimit, rateLimitStrict } from "./rate-limit";
+import {
+  clientIp,
+  rateLimit,
+  rateLimitCheck,
+  rateLimitStrict,
+} from "./rate-limit";
 
 function hdrs(init: Record<string, string>): Headers {
   return new Headers(init);
@@ -117,5 +122,33 @@ describe("rateLimitStrict", () => {
     const supabase = supabaseStub(null, { message: "down" });
     await expect(rateLimit(supabase, "k", 1, 1)).resolves.toBe(true);
     expect(console.error).toHaveBeenCalled();
+  });
+});
+
+describe("rateLimitCheck", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  it("says ok when the limiter allows", async () => {
+    await expect(rateLimitCheck(supabaseStub(true), "k", 1, 1)).resolves.toBe(
+      "ok",
+    );
+  });
+
+  it("says limited only when the limiter denies", async () => {
+    await expect(rateLimitCheck(supabaseStub(false), "k", 1, 1)).resolves.toBe(
+      "limited",
+    );
+  });
+
+  it("says error, not limited, when the limiter errors or rejects", async () => {
+    await expect(
+      rateLimitCheck(supabaseStub(null, { message: "down" }), "k", 1, 1),
+    ).resolves.toBe("error");
+    const client = {
+      rpc: vi.fn().mockRejectedValue(new Error("network")),
+    } as unknown as Parameters<typeof rateLimit>[0];
+    await expect(rateLimitCheck(client, "k", 1, 1)).resolves.toBe("error");
   });
 });

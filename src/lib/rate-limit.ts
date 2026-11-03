@@ -22,27 +22,49 @@ export function clientIp(hdrs: Headers): string {
 
 type Supabase = Awaited<ReturnType<typeof createServiceClient>>;
 
+export type RateLimitVerdict = "ok" | "limited" | "error";
+
+/**
+ * Fixed-window check via the DB limiter (`check_rate_limit`) that tells a
+ * denied call ("limited") apart from a limiter that could not answer
+ * ("error"), so a caller that fails closed can say which one happened.
+ */
+export async function rateLimitCheck(
+  supabase: Supabase,
+  key: string,
+  limit: number,
+  windowSeconds: number,
+): Promise<RateLimitVerdict> {
+  try {
+    const { data: allowed, error } = await supabase.rpc("check_rate_limit", {
+      p_key: key,
+      p_limit: limit,
+      p_window_seconds: windowSeconds,
+    });
+    if (error) {
+      console.error("rateLimit degraded", error.message);
+      return "error";
+    }
+    return allowed === false ? "limited" : "ok";
+  } catch {
+    console.error("rateLimit unavailable");
+    return "error";
+  }
+}
+
 async function check(
   supabase: Supabase,
   args: { key: string; limit: number; windowSeconds: number },
   failClosed: boolean,
 ): Promise<boolean> {
-  const mode = failClosed ? "failing closed" : "failing open";
-  try {
-    const { data: allowed, error } = await supabase.rpc("check_rate_limit", {
-      p_key: args.key,
-      p_limit: args.limit,
-      p_window_seconds: args.windowSeconds,
-    });
-    if (error) {
-      console.error(`rateLimit degraded (${mode})`, error.message);
-      return !failClosed;
-    }
-    return allowed !== false;
-  } catch {
-    console.error(`rateLimit unavailable (${mode})`);
-    return !failClosed;
-  }
+  const verdict = await rateLimitCheck(
+    supabase,
+    args.key,
+    args.limit,
+    args.windowSeconds,
+  );
+  if (verdict === "error") return !failClosed;
+  return verdict === "ok";
 }
 
 /**
