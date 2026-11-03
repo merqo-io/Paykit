@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-const { users, config, eq, from } = vi.hoisted(() => ({
+const { users, config, entitlement, eq, from } = vi.hoisted(() => ({
+  entitlement: vi.fn(),
   users: vi.fn(),
   config: vi.fn(),
   eq: vi.fn(),
@@ -25,11 +26,26 @@ beforeEach(() => {
     error: null,
   });
   config.mockReset().mockResolvedValue({
-    data: { vendor_id: "late-vendor", plan: "pro" },
+    data: { vendor_id: "late-vendor" },
+    error: null,
+  });
+  entitlement.mockReset().mockResolvedValue({
+    data: {
+      tier: "paid",
+      valid_until: null,
+      event_pass_starts_at: null,
+      event_pass_ends_at: null,
+    },
     error: null,
   });
   eq.mockReset().mockReturnValue({ maybeSingle: config });
-  from.mockReset().mockReturnValue({ select: () => ({ eq }) });
+  from
+    .mockReset()
+    .mockImplementation((table: string) =>
+      table === "vendor_entitlements"
+        ? { select: () => ({ eq: () => ({ maybeSingle: entitlement }) }) }
+        : { select: () => ({ eq }) },
+    );
 });
 describe("vendor status direct lookup", () => {
   it("requires bearer authorization", async () => {
@@ -60,10 +76,18 @@ describe("vendor status direct lookup", () => {
       plan: null,
     });
   });
-  it.each(["users", "config"])(
+  it("reports a vendor with no entitlement row as free", async () => {
+    entitlement.mockResolvedValue({ data: null, error: null });
+    expect(await (await GET(request())).json()).toEqual({
+      active: true,
+      plan: "free",
+    });
+  });
+  it.each(["users", "config", "entitlement"])(
     "fails closed when %s lookup errors",
     async (stage) => {
-      (stage === "users" ? users : config).mockResolvedValue({
+      const mock = { users, config, entitlement }[stage as "users"];
+      mock.mockResolvedValue({
         data: null,
         error: { message: "offline" },
       });

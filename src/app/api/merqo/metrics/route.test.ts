@@ -56,8 +56,19 @@ describe("GET /api/merqo/metrics (paykit)", () => {
         data: [
           {
             vendor_id: "v1",
-            plan: "pro",
             created_at: new Date().toISOString(),
+          },
+        ],
+        error: null,
+      },
+      vendor_entitlements: {
+        data: [
+          {
+            vendor_id: "v1",
+            tier: "paid",
+            valid_until: null,
+            event_pass_starts_at: null,
+            event_pass_ends_at: null,
           },
         ],
         error: null,
@@ -94,6 +105,14 @@ describe("GET /api/merqo/metrics (paykit)", () => {
   it("503 when the vendor-config read fails", async () => {
     mockTables({
       vendor_payment_config: { data: null, error: { message: "boom" } },
+    });
+    const res = await GET(req("Bearer test-secret"));
+    expect(res.status).toBe(503);
+  });
+
+  it("503 when the entitlement read fails", async () => {
+    mockTables({
+      vendor_entitlements: { data: null, error: { message: "boom" } },
     });
     const res = await GET(req("Bearer test-secret"));
     expect(res.status).toBe(503);

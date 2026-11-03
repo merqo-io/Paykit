@@ -3,8 +3,10 @@ select no_plan();
 insert into auth.users (id, instance_id, aud, role, email) values
  ('a0200000-0000-0000-0000-000000000001','00000000-0000-0000-0000-000000000000','authenticated','authenticated','refund-owner@test.local'),
  ('a0200000-0000-0000-0000-000000000002','00000000-0000-0000-0000-000000000000','authenticated','authenticated','refund-other@test.local');
-insert into paykit.vendor_payment_config (vendor_id, mobile, payee_name, plan)
-values ('a0200000-0000-0000-0000-000000000001','+6590000001','Refund owner','pro');
+insert into paykit.vendor_payment_config (vendor_id, mobile, payee_name)
+values ('a0200000-0000-0000-0000-000000000001','+6590000001','Refund owner');
+insert into paykit.vendor_entitlements (vendor_id, tier, issued_at)
+values ('a0200000-0000-0000-0000-000000000001','paid','2026-11-01T00:00:00Z');
 insert into paykit.transactions (id,vendor_id,kit_slug,order_ref,amount_cents,status,qr_payload)
 select ('b0200000-0000-0000-0000-00000000000' || n)::uuid,
  'a0200000-0000-0000-0000-000000000001','qkit','refund-' || n,

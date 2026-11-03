@@ -1,7 +1,7 @@
 # dashboard
 
 The authenticated vendor area for payment setup, transactions, bookings,
-reports, plan requests and account settings.
+reports, plan display and account settings.
 
 ## Shell
 
@@ -28,15 +28,15 @@ for page render/data failures; it cannot catch its own segment's layout errors.
 ## Routes
 
 - `page.tsx` shows a configured payment-method summary or setup prompt, monthly
-  transaction usage and a Free-tier Pro nudge. Usage does not impose a volume cap.
+  transaction usage. Usage does not impose a volume cap.
 - `config/` saves PayNow or a payment link/QR image. Deferred uploads commit on
-  Save; plan is excluded from vendor-writable columns.
+  Save.
 - `transactions/` lists vendor transactions and Pro-gated refund bookkeeping.
 - `bookings/` manages deposit/balance checkouts, recoverable deposit setup,
   cancellation, rescheduling and printing. Due reminders are dashboard badges.
 - `stats/` charts confirmed revenue; `reports/earnings/` provides the yearly
   event-date revenue record and escaped CSV. Both are available to Free vendors.
-- `plan/` shows the live price and sends an upgrade request to Merqo support.
+- `plan/` shows the current plan and points to the Merqo account; merqo owns pricing.
 - `profile/` saves shared stall name/social links and Supabase account metadata.
 
 `tour-actions.ts` and the overview's server-render stamp delegate to

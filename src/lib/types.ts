@@ -521,19 +521,19 @@ export interface Database {
     };
     Functions: {
       apply_vendor_entitlement: {
-      Args: {
-        p_email: string;
-        p_tier: string;
-        p_founder: boolean;
-        p_stats_window: string;
-        p_event_pass_starts_at: string | null;
-        p_event_pass_ends_at: string | null;
-        p_valid_until: string | null;
-        p_issued_at: string;
+        Args: {
+          p_email: string;
+          p_tier: string;
+          p_founder: boolean;
+          p_stats_window: string;
+          p_event_pass_starts_at: string | null;
+          p_event_pass_ends_at: string | null;
+          p_valid_until: string | null;
+          p_issued_at: string;
+        };
+        Returns: string;
       };
-      Returns: string;
-    };
-    link_booking_balance: {
+      link_booking_balance: {
         Args: {
           p_booking_id: string;
           p_vendor_id: string;

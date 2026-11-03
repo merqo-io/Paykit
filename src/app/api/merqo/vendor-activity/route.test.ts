@@ -39,12 +39,27 @@ function paged(result: TableResult) {
     }),
   };
 }
+const PAID_ROW = {
+  tier: "paid",
+  valid_until: null,
+  event_pass_starts_at: null,
+  event_pass_ends_at: null,
+};
+
+// The config fixtures carry a `plan` hint; it seeds the entitlement cache row
+// the route actually reads, since the plan no longer lives on the config row.
 function mockTables(overrides: {
   config?: TableResult;
+  entitlement?: TableResult;
   transactions?: TableResult;
   refunds?: TableResult;
 }) {
   const config = overrides.config ?? { data: null, error: null };
+  const hintedPlan = (config.data as { plan?: string } | null)?.plan;
+  const entitlement = overrides.entitlement ?? {
+    data: hintedPlan === "pro" ? PAID_ROW : null,
+    error: null,
+  };
   const transactions = overrides.transactions ?? { data: [], error: null };
   const refunds = overrides.refunds ?? { data: [], error: null };
 
@@ -54,6 +69,15 @@ function mockTables(overrides: {
         select: () => ({
           eq: () => ({
             maybeSingle: () => Promise.resolve(config),
+          }),
+        }),
+      };
+    }
+    if (table === "vendor_entitlements") {
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: () => Promise.resolve(entitlement),
           }),
         }),
       };
@@ -86,6 +110,43 @@ describe("GET /api/merqo/vendor-activity (paykit)", () => {
     });
     summarizeIncidentsMock.mockResolvedValue({ incidents: [], recent: [] });
     mockTables({});
+  });
+
+  it("503 when the entitlement read fails", async () => {
+    mockTables({
+      config: {
+        data: { created_at: new Date().toISOString() },
+        error: null,
+      },
+      entitlement: { data: null, error: { message: "boom" } },
+    });
+    const res = await GET(
+      req(
+        "http://localhost/api/merqo/vendor-activity?email=vendor@business.sg",
+        "Bearer test-secret",
+      ),
+    );
+    expect(res.status).toBe(503);
+  });
+
+  it("reports an expired paid entitlement as free", async () => {
+    mockTables({
+      config: {
+        data: { created_at: new Date().toISOString() },
+        error: null,
+      },
+      entitlement: {
+        data: { ...PAID_ROW, valid_until: "2000-01-01T00:00:00Z" },
+        error: null,
+      },
+    });
+    const res = await GET(
+      req(
+        "http://localhost/api/merqo/vendor-activity?email=vendor@business.sg",
+        "Bearer test-secret",
+      ),
+    );
+    expect((await res.json()).plan).toBe("free");
   });
 
   it("401 when the bearer is missing", async () => {

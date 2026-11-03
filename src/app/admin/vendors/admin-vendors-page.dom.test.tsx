@@ -6,7 +6,6 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 vi.mock("@/lib/admin", () => ({ requireAdmin: vi.fn(async () => ({})) }));
-vi.mock("@/app/admin/actions", () => ({ setVendorPlan: vi.fn() }));
 vi.mock("@/lib/admin-data", () => ({
   listVendors: vi.fn(async () => [
     {
@@ -49,12 +48,7 @@ describe("AdminVendorsPage", () => {
     expect(screen.getByText("12")).toBeInTheDocument();
     expect(screen.getByText("Needs attention")).toBeInTheDocument();
     expect(screen.getByText("New")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /make free/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /make pro/i }),
-    ).toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
   it("shows an empty state when there are no vendors", async () => {

@@ -22,10 +22,7 @@ export default async function TransactionsPage() {
         include your full history.
       </p>
       <div className="mt-6">
-        <TransactionTable
-          transactions={transactions}
-          isPro={plan === "pro"}
-        />
+        <TransactionTable transactions={transactions} isPro={plan === "pro"} />
       </div>
     </div>
   );

@@ -58,10 +58,9 @@ export async function saveConfigAction(
 
   // Not `.upsert()`: PostgREST's ON CONFLICT DO UPDATE path checks for
   // table-level UPDATE privilege regardless of column-level grants, but this
-  // table's `plan` column is deliberately excluded from the vendor's
-  // column-scoped UPDATE grant (see 0001_paykit_core.sql) so a vendor can't
-  // self-escalate to Pro. A plain update-or-insert respects column grants
-  // like every other write in this app, so the existing grant is enough.
+  // table's UPDATE grant is column-scoped (see 0001_paykit_core.sql). A plain
+  // update-or-insert respects column grants like every other write in this
+  // app, so the existing grant is enough.
   const { vendor_id, ...writableFields } = row;
   const { data: existing } = await supabase
     .from("vendor_payment_config")

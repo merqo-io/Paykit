@@ -225,7 +225,7 @@ export async function createBalanceCheckoutAction(
 
 // A booking a vendor cancels or reschedules may have had its deposit (or,
 // rarer, its balance) already confirmed — this refunds that specific
-// transaction, reusing `refunds`' own Pro/confirmed/ownership `with check`
+// transaction, reusing `refunds`' own entitlement/confirmed/ownership `with check`
 // (see `issueRefundAction`) rather than a second enforcement path.
 type BookingRefund = { transactionId: string; amountCents: number };
 

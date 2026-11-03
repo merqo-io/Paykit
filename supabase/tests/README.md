@@ -12,8 +12,8 @@ _permits_.
 ## Contents
 
 - `rls.test.sql` — one rolled-back transaction with inline fixed-UUID
-  fixtures (Vendor A: free plan, UEN PayNow config; Vendor B: pro plan,
-  mobile PayNow config). Asserts, per role:
+  fixtures (Vendor A: no entitlement, UEN PayNow config; Vendor B: paid
+  entitlement, mobile PayNow config). Asserts, per role:
   - **RLS is enabled** on every protected table (`vendor_payment_config`,
     `transactions`, `refunds`, `kit_api_keys`, `feedback`, `vendor_prefs`,
     `bookings`).
@@ -49,7 +49,7 @@ _permits_.
   Keep `select plan(N)` in step with the number of assertions; pgTAP fails
   the run on a count mismatch.
 
-- `db-hygiene.test.sql` — the `0027` foreign key indexes, RLS on every table, admin-only `admins` reads, public `pricing` reads and no client access to `auth_failures`.
+- `db-hygiene.test.sql` — the `0027` foreign key indexes, RLS on every table, admin-only `admins` reads, own-row-only `vendor_entitlements` reads and no client access to `auth_failures`.
 
 ## Connectivity
 
@@ -68,6 +68,8 @@ See the repo root [README.md](../../README.md) for the full layout.
 Focused pgTAP suites: `deposit-recovery.test.sql` validates atomic deposit linking, `balance-link.test.sql` validates balance ownership and payment identity, `checkout-snapshot.test.sql` protects stored payment destinations, and `private-rate-limiter.test.sql` checks service-only bounded counters and append-only audit privileges. Prepared security migrations and SQL fixtures require local database execution before claiming runtime validation.
 
 `payment-evidence.test.sql` covers migration `0022`: a vendor reads only their own `payment_evidence` rows and only their own objects in `paykit-payment-proofs`, cannot find another vendor's row by its hash, and cannot write, edit or delete evidence; anon has no access; the service role inserts and replaces but cannot delete; and the bucket is private with its size and type limits.
+
+`vendor-entitlements.test.sql` covers migrations `0028` to `0029`: RLS and grants on `vendor_entitlements`, execute grants on `apply_vendor_entitlement`, the `issued_at` stale guard, an unknown email, and `vendor_is_entitled` for paid, expired, open-ended, running-pass and ended-pass rows.
 
 `ops-events.test.sql` covers migration `0026`: RLS on with no policy; an unknown kind and a 65-character `ref` or `code` are rejected; the purge deletes a 31-day-old row and keeps a 29-day-old one; the service role selects and inserts but cannot delete; `authenticated` and `anon` can neither select nor insert, and `authenticated` cannot run the purge.
 

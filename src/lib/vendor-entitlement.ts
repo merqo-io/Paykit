@@ -1,5 +1,8 @@
 import { readAllRowsResult } from "@/lib/read-all-rows";
-import type { createServerClient, createServiceClient } from "@/lib/supabase/server";
+import type {
+  createServerClient,
+  createServiceClient,
+} from "@/lib/supabase/server";
 import type { VendorPlan } from "@/lib/types";
 
 type Client =
@@ -79,6 +82,7 @@ export async function readAllVendorPlans(
   );
   if (res.error) return { plans: new Map(), error: res.error.message };
   const plans = new Map<string, VendorPlan>();
-  for (const row of res.data ?? []) plans.set(row.vendor_id, resolvePlan(row, now));
+  for (const row of res.data ?? [])
+    plans.set(row.vendor_id, resolvePlan(row, now));
   return { plans, error: null };
 }

@@ -21,15 +21,24 @@ export async function POST(request: Request) {
   try {
     json = await request.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "invalid_body" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "invalid_body" },
+      { status: 400 },
+    );
   }
   const parsed = entitlementPayloadSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ ok: false, error: "invalid_body" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "invalid_body" },
+      { status: 400 },
+    );
   }
   const payload = parsed.data;
   if (payload.kit !== KIT) {
-    return NextResponse.json({ ok: false, error: "wrong_kit" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "wrong_kit" },
+      { status: 400 },
+    );
   }
 
   const supabase = await createServiceClient();
@@ -45,10 +54,16 @@ export async function POST(request: Request) {
   });
   if (error) {
     console.error("paykit entitlement: store failed", error.message);
-    return NextResponse.json({ ok: false, error: "store_failed" }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: "store_failed" },
+      { status: 500 },
+    );
   }
   if (data === "unknown_vendor") {
-    return NextResponse.json({ ok: false, error: "unknown_vendor" }, { status: 404 });
+    return NextResponse.json(
+      { ok: false, error: "unknown_vendor" },
+      { status: 404 },
+    );
   }
   return NextResponse.json({ ok: true });
 }

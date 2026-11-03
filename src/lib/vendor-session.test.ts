@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const {
   getUserMock,
   redirectMock,
-  maybeSingleMock,
   createServerClientMock,
   requireCurrentLegalAcceptanceMock,
 } = vi.hoisted(() => ({
@@ -11,7 +10,6 @@ const {
   redirectMock: vi.fn(() => {
     throw new Error("NEXT_REDIRECT");
   }),
-  maybeSingleMock: vi.fn(),
   createServerClientMock: vi.fn(),
   requireCurrentLegalAcceptanceMock: vi.fn(),
 }));
@@ -24,21 +22,17 @@ vi.mock("@/lib/legal-gate", () => ({
   requireCurrentLegalAcceptance: requireCurrentLegalAcceptanceMock,
 }));
 
-import { getVendorSession, getVendorPlan } from "@/lib/vendor-session";
+import { getVendorSession } from "@/lib/vendor-session";
 
 function fakeSupabase() {
   return {
     auth: { getUser: getUserMock },
-    from: () => ({
-      select: () => ({ eq: () => ({ maybeSingle: maybeSingleMock }) }),
-    }),
   };
 }
 
 beforeEach(() => {
   redirectMock.mockClear();
   getUserMock.mockReset();
-  maybeSingleMock.mockReset();
   createServerClientMock.mockReset().mockResolvedValue(fakeSupabase());
   requireCurrentLegalAcceptanceMock.mockReset().mockResolvedValue(undefined);
 });
@@ -81,19 +75,5 @@ describe("getVendorSession", () => {
     );
 
     await expect(getVendorSession()).rejects.toThrow("NEXT_REDIRECT");
-  });
-});
-
-describe("getVendorPlan", () => {
-  it("returns null when the vendor has no vendor_payment_config row yet", async () => {
-    maybeSingleMock.mockResolvedValue({ data: null, error: null });
-    const supabase = await createServerClientMock();
-    expect(await getVendorPlan(supabase, "v1")).toBeNull();
-  });
-
-  it("returns the vendor's plan when a config row exists", async () => {
-    maybeSingleMock.mockResolvedValue({ data: { plan: "pro" }, error: null });
-    const supabase = await createServerClientMock();
-    expect(await getVendorPlan(supabase, "v1")).toEqual({ plan: "pro" });
   });
 });

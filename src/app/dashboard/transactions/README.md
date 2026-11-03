@@ -8,7 +8,7 @@ across every kit — plus, for Pro vendors, a per-transaction refund action.
 ## Contents
 
 - `page.tsx` — `TransactionsPage()` (server): calls `getVendorSession()`/
-  `getVendorPlan()` and `listTransactions()`, renders `TransactionTable`.
+  `readVendorPlan()` (`@/lib/vendor-entitlement`) and `listTransactions()`, renders `TransactionTable`.
   Content sits in a plain `mx-auto max-w-4xl` div (not `<main>` — the
   parent `dashboard/layout.tsx` owns that landmark and the page-family's
   canonical `max-w-7xl` outer width); a 5-6 column table reads better

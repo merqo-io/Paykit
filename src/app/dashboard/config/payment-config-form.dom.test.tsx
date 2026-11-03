@@ -95,7 +95,6 @@ describe("PaymentConfigForm", () => {
           url: "https://pay.example/kopitiam",
           qr_image_url: null,
           verification_method: "manual",
-          plan: "free",
           created_at: "2026-01-01T00:00:00Z",
           updated_at: "2026-01-01T00:00:00Z",
         }}
@@ -238,7 +237,6 @@ describe("PaymentConfigForm", () => {
           url: "https://buy.stripe.com/test_abc123",
           qr_image_url: null,
           verification_method: "manual",
-          plan: "free",
           created_at: "2026-01-01T00:00:00Z",
           updated_at: "2026-01-01T00:00:00Z",
         }}
@@ -264,7 +262,6 @@ describe("PaymentConfigForm", () => {
           url: "https://pay.example/kopitiam",
           qr_image_url: null,
           verification_method: "manual",
-          plan: "free",
           created_at: "2026-01-01T00:00:00Z",
           updated_at: "2026-01-01T00:00:00Z",
         }}

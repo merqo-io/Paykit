@@ -14,7 +14,7 @@ tables, RLS policies, RPCs, and grants, applied in order.
 - `0005_paykit_vendor_prefs.sql` — `vendor_prefs` (currently just `tour_seen_at`, dashboard onboarding-tour state).
 - `0006_paykit_admin.sql` — `admins` (allow-list) + `is_admin(uid)` + `admin_audit`, backing the Merqo-team `/admin` console's gate and audit trail.
 - `0007_paykit_checkout_idempotency.sql` — unique constraint on `transactions (kit_slug, order_ref)`, so a retried `POST /api/v1/checkout` call can't create a duplicate pending transaction.
-- `0008_paykit_pricing.sql` — `pricing`, a single-row (`id` pinned to 1) admin-editable price config (`monthly_cents`, `currency`), seeded at 499 ($4.99). Public-read RLS (the price isn't secret); no write policy — writes go through the service-role `setPricing` admin action only.
+- `0008_paykit_pricing.sql` — created the single-row `pricing` table; dropped by `0030`.
 - `0009_paykit_admin_audit_immutable.sql` — revokes `UPDATE`/`DELETE` on `admin_audit` from `service_role` (remaining schema privileges removed by `0019`) — the app only ever inserts, so this closes off tampering at the grant level, independent of RLS (which never binds `service_role`).
 - `0010_paykit_bookings.sql` — `bookings` (deposit-now/balance-later event-cart bookings), linking up to two `transactions` rows by id (`deposit_transaction_id`/`balance_transaction_id`). `sync_booking_status()` is an `after update of status on transactions` trigger that flips a linked booking to `deposit_paid`/`fully_paid` once its transaction(s) confirm, regardless of which path (dashboard or bearer-secret API) did the confirming. RLS mirrors `vendor_payment_config_own`; the two transaction-id columns are excluded from the vendor's own `INSERT`/`UPDATE` grant (same instinct as `plan` in 0001) since the policy only checks `vendor_id`, not that the linked transaction is actually this vendor's own.
 
@@ -76,6 +76,9 @@ tables, RLS policies, RPCs, and grants, applied in order.
   older than 30 days and is scheduled daily as `paykit-ops-events-purge`
   through pg_cron where it is available (a NOTICE says when it is not).
 - `0027_fk_indexes.sql`: indexes every foreign key column the Supabase advisor flagged as unindexed (`admin_audit.admin_id`, `feedback.vendor_id`, `refunds.created_by`).
+- `0028_vendor_entitlements.sql`: `vendor_entitlements`, the cache of merqo's per-vendor entitlement (own-row select, no client write grant), the service-role-only `apply_vendor_entitlement()` upsert with its `issued_at` guard, and `vendor_is_entitled()`. Moves the `refunds_insert_own` policy and `enforce_refund_total()` off `vendor_payment_config.plan` onto that helper.
+- `0029_drop_vendor_plan.sql`: seeds a paid, open-ended cache row (`issued_at` epoch, so any real push wins) for every vendor that was on `pro`, then drops `vendor_payment_config.plan`.
+- `0030_drop_pricing.sql`: drops `pricing`; merqo owns pricing.
 
 ## Parent
 

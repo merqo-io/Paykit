@@ -131,8 +131,9 @@ export async function platformTotals(): Promise<PlatformTotals> {
     free_vendors: vendors.filter(
       (v) => (plansRes.plans.get(v.vendor_id) ?? "free") === "free",
     ).length,
-    pro_vendors: vendors.filter((v) => plansRes.plans.get(v.vendor_id) === "pro")
-      .length,
+    pro_vendors: vendors.filter(
+      (v) => plansRes.plans.get(v.vendor_id) === "pro",
+    ).length,
     transactions: transactions.length,
     confirmed_transactions: confirmed.length,
     confirmed_volume_cents: confirmed.reduce(

@@ -3,8 +3,8 @@ begin;
 select plan(63);
 
 -- ── Fixtures ──────────────────────────────────────────────────────────────
--- Vendor A: free plan, UEN config. Vendor B: pro plan, mobile config.
--- Vendor C: no config row yet (used to test the INSERT-time plan escalation).
+-- Vendor A: no entitlement, UEN config. Vendor B: paid entitlement, mobile config.
+-- Vendor C: no config row yet (used to test the INSERT-time entitlement escalation).
 insert into auth.users (id, instance_id, aud, role, email)
 values
   ('00000000-0000-0000-0000-00000000000a',
@@ -17,10 +17,12 @@ values
    '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
    'vendor-c@test.local');
 
-insert into paykit.vendor_payment_config (vendor_id, uen, payee_name, plan)
-values ('00000000-0000-0000-0000-00000000000a', '53312345A', 'Vendor A', 'free');
-insert into paykit.vendor_payment_config (vendor_id, mobile, payee_name, plan)
-values ('00000000-0000-0000-0000-00000000000b', '+6591234567', 'Vendor B', 'pro');
+insert into paykit.vendor_payment_config (vendor_id, uen, payee_name)
+values ('00000000-0000-0000-0000-00000000000a', '53312345A', 'Vendor A');
+insert into paykit.vendor_payment_config (vendor_id, mobile, payee_name)
+values ('00000000-0000-0000-0000-00000000000b', '+6591234567', 'Vendor B');
+insert into paykit.vendor_entitlements (vendor_id, tier, issued_at)
+values ('00000000-0000-0000-0000-00000000000b', 'paid', '2026-11-01T00:00:00Z');
 
 insert into paykit.transactions (id, vendor_id, kit_slug, order_ref, amount_cents, status, qr_payload)
 values
@@ -148,27 +150,20 @@ with upd as (
   where vendor_id = '00000000-0000-0000-0000-00000000000b' returning 1)
 select is((select count(*)::int from upd), 0, 'A cannot update B config');
 
--- Task 4's original bug: an unrestricted grant let a vendor UPDATE its own
--- `plan` column straight to 'pro' — free self-escalation. The fix is a
--- column-scoped GRANT (migration 0001, ~line 137) that excludes `plan` from
--- authenticated's UPDATE privilege on this table. Postgres denies the
--- *entire* UPDATE statement if any targeted column lacks privilege (there is
--- no per-column silent skip), so the correct behavior is a permission error,
--- not a silent no-op. Real message on PG 17 is
--- `permission denied for table vendor_payment_config`; pattern kept loose
--- ('%permission denied%') so it still matches if Postgres ever names the
--- column instead of the table.
+-- The entitlement cache has no client write grant, so a vendor cannot grant
+-- itself Pro. Postgres rejects the whole statement with a permission error,
+-- not a silent no-op; the pattern stays loose so it survives message changes.
 select throws_like(
-  $$ update paykit.vendor_payment_config set plan = 'pro'
-     where vendor_id = '00000000-0000-0000-0000-00000000000a' $$,
+  $$ insert into paykit.vendor_entitlements (vendor_id, tier, issued_at)
+     values ('00000000-0000-0000-0000-00000000000a', 'paid', now()) $$,
   '%permission denied%',
-  'A cannot self-escalate to pro via UPDATE plan (column-scoped GRANT excludes plan)');
+  'A cannot self-grant an entitlement via INSERT (no client write grant)');
 
 select throws_ok(
   $$ insert into paykit.refunds (transaction_id, refunded_amount_cents, created_by)
      values ('00000000-0000-0000-0000-0000000d0a02', 100, '00000000-0000-0000-0000-00000000000a') $$,
   '42501', null,
-  'A cannot refund its own confirmed transaction while on the free plan');
+  'A cannot refund its own confirmed transaction without an entitlement');
 select throws_ok(
   $$ insert into paykit.refunds (transaction_id, refunded_amount_cents, created_by)
      values ('00000000-0000-0000-0000-0000000d0b02', 100, '00000000-0000-0000-0000-00000000000a') $$,
@@ -260,10 +255,10 @@ select set_config(
   true);
 
 select throws_like(
-  $$ insert into paykit.vendor_payment_config (vendor_id, uen, payee_name, plan)
-     values ('00000000-0000-0000-0000-00000000000c', '53398765Z', 'Vendor C', 'pro') $$,
+  $$ update paykit.vendor_entitlements set tier = 'paid'
+     where vendor_id = '00000000-0000-0000-0000-00000000000c' $$,
   '%permission denied%',
-  'C cannot self-escalate to pro via INSERT plan (column-scoped GRANT excludes plan)');
+  'C cannot self-escalate to paid via UPDATE (no client write grant)');
 
 -- ── Act as Vendor B (pro) ────────────────────────────────────────────────────
 set local role authenticated;

@@ -54,10 +54,12 @@ export async function GET(request: Request) {
 
   const metrics = computePaykitMetrics({
     nowMs: Date.now(),
-    vendors: ((vendorsRes.data ?? []) as {
-      vendor_id: string;
-      created_at: string;
-    }[]).map((v) => ({
+    vendors: (
+      (vendorsRes.data ?? []) as {
+        vendor_id: string;
+        created_at: string;
+      }[]
+    ).map((v) => ({
       ...v,
       plan: plansRes.plans.get(v.vendor_id) ?? "free",
     })),
