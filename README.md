@@ -310,8 +310,10 @@ repo. v0.31.1 fixes a latent `resizeToWebp` bug where a dotless filename
 yielded the whole name as its extension. Which repo uses which shared
 export is tracked in `../merqo-ui/docs/usage-matrix.md`.
 
-See `AGENTS.md` for stack, commands, data model, rules, and the AI
-harness/CI setup (templateCentral-based); `CHANGELOG.md`
+See `AGENTS.md` for stack, commands, rules, and a summary of the AI
+harness (the file layout, data model, full harness reference and
+templateCentral adoption log live in `docs/FILE-LAYOUT.md`,
+`docs/DATA-MODEL.md` and `docs/meta/`); `CHANGELOG.md`
 for what's shipped since the MVP, including the "Name | Tagline" Title Case
 browser-tab title convention shared across every merqo kit. Folder-level `README.md`s (`src/lib/`,
 `src/components/`, and their subfolders) cover what each module does and

@@ -4,6 +4,8 @@
 - `SECRET_ROTATION.md` — how to safely rotate a calling kit's bearer
   secret (today's real hard-cutover constraint, using `last_used_at` to
   confirm timing), and how to rotate the separate callback secret.
+- `FILE-LAYOUT.md` — the repo file tree with one-line descriptions (moved from `AGENTS.md`).
+- `DATA-MODEL.md` — tables, constraints and RLS rules (moved from `AGENTS.md`).
 - `meta/` — standing backlog / cross-cutting project-management docs.
 - `superpowers/` — per-feature specs (`specs/`) and implementation plans
   (`plans/`). Granular per-task history for the MVP build itself lives at

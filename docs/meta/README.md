@@ -7,6 +7,9 @@ for the one MVP build; this is the standing backlog going forward).
 
 ## Contents
 
+- `ai-harness-reference.md` — full AI harness description (hooks, permissions, git hooks, CI gates), moved from `AGENTS.md`.
+- `templatecentral-adoption-log.md` — templateCentral review history and dated project notes, moved from `AGENTS.md`.
+
 - `2026-08-14-paykit-task-registry.md` — current. Supersedes the 07-17
   registry's status/priority (item numbering kept for continuity). Adds
   T6, the BYO payment preset directory.

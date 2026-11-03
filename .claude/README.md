@@ -29,6 +29,8 @@ recorded `origin_hash`.
 
 `.harness-base/` mirrors the seeded harness files and holds no READMEs; the CI README-freshness gate skips it.
 
+`AGENTS.md` keeps only a summary of this harness; the full reference is `docs/meta/ai-harness-reference.md`. After `AGENTS.md` changes, its `origin_hash` in `harness.json` must be updated.
+
 ## Parent
 
 [paykit](../README.md)
