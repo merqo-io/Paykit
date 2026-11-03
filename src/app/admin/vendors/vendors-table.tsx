@@ -3,7 +3,6 @@
 import { DataTable, type DataTableColumn } from "@merqo/ui";
 import { type VendorRow } from "@/lib/admin-data";
 import { Badge } from "@/components/ui/badge";
-import { VendorPlanToggle } from "@/app/admin/vendors/vendor-plan-toggle";
 import { VendorStatusBadge } from "@/app/admin/vendors/vendor-status";
 
 // `columns` holds `cell` render callbacks and `getRowKey` is a function, so
@@ -45,13 +44,6 @@ const columns: DataTableColumn<VendorRow>[] = [
   {
     header: "Joined",
     cell: (v) => new Date(v.created_at).toLocaleDateString("en-SG"),
-  },
-  {
-    header: "Action",
-    cell: (v) => (
-      <VendorPlanToggle vendorId={v.vendor_id} email={v.email} plan={v.plan} />
-    ),
-    className: "text-right",
   },
 ];
 

@@ -7,6 +7,7 @@ import { bearerOk } from "@/lib/merqo-auth";
 import { computeVendorActivity } from "@/lib/merqo-vendor-activity";
 import { summarizeIncidents } from "@/lib/ops-events";
 import type { TxStatus, VendorPlan } from "@/lib/types";
+import { readVendorPlan } from "@/lib/vendor-entitlement";
 
 export const revalidate = 0;
 
@@ -31,12 +32,13 @@ async function readConfigAndTransactions(
   supabase: ServiceClient,
   userId: string,
 ) {
-  const [configRes, transactionsRes] = await Promise.all([
+  const [configRes, plan, transactionsRes] = await Promise.all([
     supabase
       .from("vendor_payment_config")
-      .select("plan, created_at")
+      .select("created_at")
       .eq("vendor_id", userId)
       .maybeSingle(),
+    readVendorPlan(supabase, userId),
     readAllRowsResult((from, to) =>
       supabase
         .from("transactions")
@@ -47,8 +49,16 @@ async function readConfigAndTransactions(
     ),
   ]);
   return {
-    error: configRes.error?.message ?? transactionsRes.error?.message ?? null,
-    config: configRes.data as { plan: VendorPlan; created_at: string } | null,
+    error:
+      configRes.error?.message ??
+      transactionsRes.error?.message ??
+      (plan === null ? "entitlement read failed" : null),
+    config: configRes.data
+      ? ({ ...configRes.data, plan: plan ?? "free" } as {
+          plan: VendorPlan;
+          created_at: string;
+        })
+      : null,
     transactions: (transactionsRes.data ?? []) as ActivityTransaction[],
   };
 }

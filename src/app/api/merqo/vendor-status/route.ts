@@ -4,7 +4,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { bearerOk } from "@/lib/merqo-auth";
 import { listAllUsers } from "@/lib/list-all-users";
 import { resolveVendorStatus } from "@/lib/merqo-vendor-status";
-import type { VendorPlan } from "@/lib/types";
+import { readVendorPlan } from "@/lib/vendor-entitlement";
 
 export const revalidate = 0;
 
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
   const configsRes = matchedUser
     ? await supabase
         .from("vendor_payment_config")
-        .select("vendor_id, plan")
+        .select("vendor_id")
         .eq("vendor_id", matchedUser.id)
         .maybeSingle()
     : { data: null, error: null };
@@ -54,16 +54,23 @@ export async function GET(request: Request) {
     );
   }
 
+  const plan = matchedUser
+    ? await readVendorPlan(supabase, matchedUser.id)
+    : "free";
+  if (plan === null) {
+    return NextResponse.json(
+      { error: "Upstream unavailable" },
+      { status: 503 },
+    );
+  }
+
   const status = resolveVendorStatus(
     parsed.data.email,
     (usersRes.data?.users ?? []).map((u) => ({
       id: u.id,
       email: u.email ?? null,
     })),
-    (configsRes.data ? [configsRes.data] : []) as {
-      vendor_id: string;
-      plan: VendorPlan;
-    }[],
+    configsRes.data ? [{ vendor_id: configsRes.data.vendor_id, plan }] : [],
   );
 
   return NextResponse.json(status);

@@ -1,7 +1,7 @@
 import { readAllRows, readAllRowsResult } from "@/lib/read-all-rows";
 import { createServiceClient } from "@/lib/supabase/server";
 import { listAllUsers } from "@/lib/list-all-users";
-import { getPricing, type PricingConfig } from "@/lib/pricing";
+import { readAllVendorPlans } from "@/lib/vendor-entitlement";
 import {
   buildVendorHealth,
   statusRank,
@@ -91,11 +91,11 @@ async function emailByUserId(
 /** Platform-wide totals for the overview stat tiles. */
 export async function platformTotals(): Promise<PlatformTotals> {
   const supabase = await createServiceClient();
-  const [vendors, transactions, refunds] = await Promise.all([
+  const [vendors, transactions, refunds, plansRes] = await Promise.all([
     readAllRows((from, to) =>
       supabase
         .from("vendor_payment_config")
-        .select("vendor_id, plan")
+        .select("vendor_id")
         .order("vendor_id")
         .range(from, to),
     ),
@@ -113,7 +113,9 @@ export async function platformTotals(): Promise<PlatformTotals> {
         .order("id")
         .range(from, to),
     ),
+    readAllVendorPlans(supabase),
   ]);
+  if (plansRes.error) throw new Error(`platformTotals: ${plansRes.error}`);
   const confirmed = transactions.filter((t) => t.status === "confirmed");
 
   const now = Date.now();
@@ -126,8 +128,11 @@ export async function platformTotals(): Promise<PlatformTotals> {
 
   return {
     vendors: vendors.length,
-    free_vendors: vendors.filter((v) => v.plan === "free").length,
-    pro_vendors: vendors.filter((v) => v.plan === "pro").length,
+    free_vendors: vendors.filter(
+      (v) => (plansRes.plans.get(v.vendor_id) ?? "free") === "free",
+    ).length,
+    pro_vendors: vendors.filter((v) => plansRes.plans.get(v.vendor_id) === "pro")
+      .length,
     transactions: transactions.length,
     confirmed_transactions: confirmed.length,
     confirmed_volume_cents: confirmed.reduce(
@@ -224,11 +229,11 @@ export async function recentActivity(limit = 15): Promise<ActivityRow[]> {
  */
 export async function listVendors(): Promise<VendorRow[]> {
   const supabase = await createServiceClient();
-  const [vendors, transactions, refunds] = await Promise.all([
+  const [vendors, transactions, refunds, plansRes] = await Promise.all([
     readAllRows((from, to) =>
       supabase
         .from("vendor_payment_config")
-        .select("vendor_id, plan, kind, payee_name, label, created_at")
+        .select("vendor_id, kind, payee_name, label, created_at")
         .order("vendor_id")
         .range(from, to),
     ),
@@ -246,7 +251,9 @@ export async function listVendors(): Promise<VendorRow[]> {
         .order("id")
         .range(from, to),
     ),
+    readAllVendorPlans(supabase),
   ]);
+  if (plansRes.error) throw new Error(`listVendors: ${plansRes.error}`);
   const emails = await emailByUserId(supabase);
 
   const txCounts = new Map<string, number>();
@@ -258,7 +265,7 @@ export async function listVendors(): Promise<VendorRow[]> {
   const health = buildVendorHealth(
     vendors.map((v) => ({
       id: v.vendor_id,
-      plan: v.plan,
+      plan: plansRes.plans.get(v.vendor_id) ?? "free",
       configCreatedAt: v.created_at,
     })),
     transactions,
@@ -270,7 +277,7 @@ export async function listVendors(): Promise<VendorRow[]> {
     .map((v) => ({
       vendor_id: v.vendor_id,
       email: emails.get(v.vendor_id) ?? null,
-      plan: v.plan,
+      plan: plansRes.plans.get(v.vendor_id) ?? "free",
       kind: v.kind,
       payee_name: v.payee_name,
       label: v.label,
@@ -310,10 +317,4 @@ export async function auditLog(limit = 100): Promise<AuditLogRow[]> {
     detail: row.detail,
     created_at: row.created_at,
   }));
-}
-
-/** The single pricing row, read with the service-role client (admin console). */
-export async function getAdminPricing(): Promise<PricingConfig> {
-  const supabase = await createServiceClient();
-  return getPricing(supabase);
 }
