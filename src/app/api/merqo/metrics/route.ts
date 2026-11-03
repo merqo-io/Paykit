@@ -15,7 +15,7 @@ export async function GET(request: Request) {
 
   const supabase = await createServiceClient();
 
-  // Independent reads — issue them concurrently so endpoint latency is
+  // Independent reads, issue them concurrently so endpoint latency is
   // one round-trip, not the sum of them.
   const [vendorsRes, transactionsRes, plansRes] = await Promise.all([
     readAllRowsResult((from, to) =>

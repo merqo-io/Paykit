@@ -9,7 +9,7 @@ merqo hub is the only caller.
 
 ## Contents
 
-- `route.ts` — resolves the email to an auth user via `listAllUsers` (paginated, `src/lib/list-all-users.ts`), reads `vendor_payment_config` for that user and their plan from the entitlement cache (`readVendorPlan`), and returns `{ active, plan }` via `resolveVendorStatus`.
+- `route.ts`, resolves the email to an auth user via `listAllUsers` (paginated, `src/lib/list-all-users.ts`), reads `vendor_payment_config` for that user and their plan from the entitlement cache (`readVendorPlan`), and returns `{ active, plan }` via `resolveVendorStatus`.
 - `route.test.ts` — auth/validation/upstream-failure cases for the route above.
 
 ## Parent

@@ -8,7 +8,7 @@ cross-kit health/revenue dashboard (`/admin/products`). Bearer-secret gated
 
 ## Contents
 
-- `route.ts` — reads `vendor_payment_config`, `transactions` and the entitlement cache (`readAllVendorPlans`) concurrently, calls `computePaykitMetrics` (`src/lib/metrics.ts`), and returns the result shaped to merqo's `metricsPayloadSchema`. paykit has no `orders`/`booths` concept — `src/lib/metrics.ts`'s own header comment documents how each field maps onto paykit's payment-config/transaction domain, including the two fields with no real paykit equivalent (`pending_upgrade_requests` is always `0`; `funnel.with_booth` equals `funnel.signed_up`).
+- `route.ts`, reads `vendor_payment_config`, `transactions` and the entitlement cache (`readAllVendorPlans`) concurrently, calls `computePaykitMetrics` (`src/lib/metrics.ts`), and returns the result shaped to merqo's `metricsPayloadSchema`. paykit has no `orders`/`booths` concept, `src/lib/metrics.ts`'s own header comment documents how each field maps onto paykit's payment-config/transaction domain, including the two fields with no real paykit equivalent (`pending_upgrade_requests` is always `0`; `funnel.with_booth` equals `funnel.signed_up`).
 - `route.test.ts` — auth/success/upstream-failure cases for the route above.
 
 ## Parent

@@ -37,6 +37,10 @@ change. `buildPayNowPayload`/`crc16` are only reached through
 `renderCheckout` for `kind: "paynow"`, but are exported directly for their
 own unit tests.
 
+Test fixtures build a `VendorPaymentConfig` without a `plan`: the plan moved to
+the merqo entitlement cache (`paykit.vendor_entitlements`) and is not part of
+the config row any more.
+
 ## Parent
 
 [lib](../README.md)

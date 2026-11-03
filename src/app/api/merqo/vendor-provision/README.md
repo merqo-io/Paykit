@@ -14,7 +14,7 @@ vendor-initiated action.
 
 ## Contents
 
-- `route.ts` — validates `{ user_id }`, reads `vendor_payment_config` and, when
+- `route.ts`, validates `{ user_id }`, reads `vendor_payment_config` and, when
   it exists, the vendor's plan from the entitlement cache, records an audit row, and reports
   `{ ok, already_existed, needs_setup, plan }`.
 - `route.test.ts` — auth/validation/upstream-failure and audit-logging cases

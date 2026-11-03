@@ -15,7 +15,7 @@ price and has no upgrade action; the plan is read from the entitlement cache.
   back to Free when the read fails) and `txCountThisMonth()`, resolves the
   view through `resolvePlanView()` (`@/lib/plan-view`), and renders the plan
   card and `@merqo/ui`'s `PlanComparisonTable`. Content sits in a plain
-  `mx-auto max-w-2xl` div (not `<main>` — the parent `dashboard/layout.tsx`
+  `mx-auto max-w-2xl` div (not `<main>`, the parent `dashboard/layout.tsx`
   owns that landmark). The "Dashboard" back-nav button is `@merqo/ui`'s
   `BackButton`, rendered with no `LinkComponent`: passing a component
   reference into it as a prop from this Server Component 500'd in production

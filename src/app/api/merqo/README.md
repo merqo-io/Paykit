@@ -19,7 +19,7 @@ per-vendor entitlement push.
   grants a vendor paykit access.
 - `vendor-status/` — `GET` endpoint resolving one vendor's `{active, plan}`
   by email.
-- `entitlement/` — `POST` endpoint caching merqo's entitlement push for a
+- `entitlement/`, `POST` endpoint caching merqo's entitlement push for a
   vendor in `paykit.vendor_entitlements`.
 
 ## Connectivity

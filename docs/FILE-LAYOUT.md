@@ -19,10 +19,10 @@ src/lib/booking-status.ts         — pure balanceDueBadge(): dashboard-badge-on
 src/lib/kit-auth.ts               — bearer-secret verification for calling kits
 src/lib/schemas.ts                — Zod: vendor payment config write schema (paynow|pointer)
 src/lib/api-schemas.ts            — Zod: HTTP API request/response contracts + shared uuidSchema path-param validator
-src/lib/vendor-session.ts         — shared dashboard auth guard (getVendorSession)
-src/lib/vendor-entitlement.ts     — entitlement cache readers: resolvePlan, readVendorPlan, readAllVendorPlans
-src/lib/merqo-entitlement-contract.ts — Zod schema of merqo's entitlement push (copied from merqo)
-src/app/api/merqo/entitlement/    — POST receiver for merqo's entitlement push
+src/lib/vendor-session.ts        , shared dashboard auth guard (getVendorSession)
+src/lib/vendor-entitlement.ts    , entitlement cache readers: resolvePlan, readVendorPlan, readAllVendorPlans
+src/lib/merqo-entitlement-contract.ts, Zod schema of merqo's entitlement push (copied from merqo)
+src/app/api/merqo/entitlement/   , POST receiver for merqo's entitlement push
 src/lib/types.ts                  — DB types (mirror of supabase/migrations)
 scripts/create-kit-key.mjs        — mint + store a hashed bearer secret for a calling kit
 supabase/migrations/              — SQL schema + RLS + grants

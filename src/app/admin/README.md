@@ -11,7 +11,7 @@ figure-tile helper used by the overview and vendors screens.
   vendor's entitlement to `/api/merqo/entitlement`. `recordAudit()` lives in
   `src/lib/admin-audit.ts` so mutating actions outside `/admin` (e.g.
   `issueRefundAction` in `dashboard/transactions/actions.ts`) can append an
-  `admin_audit` row — see `admin_audit`'s own retention/immutability notes in
+  `admin_audit` row, see `admin_audit`'s own retention/immutability notes in
   the repo-root `AGENTS.md`.
 - `activity/`
 - `admin-nav.tsx` — `AdminNav` client component: the Overview/Vendors/Activity

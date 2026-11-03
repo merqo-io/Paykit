@@ -11,7 +11,7 @@ Moved from AGENTS.md. Tables, constraints and RLS rules for the `paykit` schema.
 method-byo-design.md`. `payee_name`/`uen`/`mobile` apply only to
   `'paynow'`; `label`/`url`/`qr_image_url` only to `'pointer'`. The plan
   lives in `vendor_entitlements` below, not here: Pro gates refund tracking
-  only — transaction history and revenue stats are both free; Free tier
+  only, transaction history and revenue stats are both free; Free tier
   checkout is unlimited, no transaction-volume cap (see
   `docs/superpowers/specs/2026-08-15-paykit-pro-simplification-design.md`).
   `verification_method`
@@ -55,7 +55,7 @@ status.ts`) — not a push. `rescheduleBookingAction` updates `event_date`/
 - `kit_api_keys`: one hashed bearer secret per calling kit, service-role only
   (no RLS policy grants any access to `authenticated`/`anon`).
 - `admin_audit` (`0006_paykit_admin.sql`): one row per admin- or
-  vendor-initiated action worth reconstructing later (a vendor's own `record_refund` — see `recordAudit()` in
+  vendor-initiated action worth reconstructing later (a vendor's own `record_refund`, see `recordAudit()` in
   `src/lib/admin-audit.ts`; the retired `set_vendor_plan` and `set_pricing`
   labels remain so old rows still render). RLS is admin-read-only; the service-role
   client can `select`/`insert` but not `update`/`delete`
@@ -88,7 +88,7 @@ status.ts`) — not a push. `rescheduleBookingAction` updates `event_date`/
   `vendor_prefs` row; reads/inserts/updates (no delete) only their own
   `bookings` row, except its two transaction-id link columns, which are
   service-role only (same self-escalation-shaped reasoning as the
-  entitlement cache's no-client-write grant — the policy only checks `vendor_id`, so an unrestricted grant
+  entitlement cache's no-client-write grant, the policy only checks `vendor_id`, so an unrestricted grant
   would let a vendor repoint a booking at another vendor's transaction).
   The cross-kit API (`/checkout`, `/claim`, `/confirm`) is service-role +
   bearer-secret, server-only.

@@ -49,7 +49,7 @@ _permits_.
   Keep `select plan(N)` in step with the number of assertions; pgTAP fails
   the run on a count mismatch.
 
-- `db-hygiene.test.sql` — the `0027` foreign key indexes, RLS on every table, admin-only `admins` reads, own-row-only `vendor_entitlements` reads and no client access to `auth_failures`.
+- `db-hygiene.test.sql`, the `0027` foreign key indexes, RLS on every table, admin-only `admins` reads, own-row-only `vendor_entitlements` reads and no client access to `auth_failures`.
 
 ## Connectivity
 

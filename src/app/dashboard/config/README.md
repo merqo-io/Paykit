@@ -41,8 +41,9 @@ own BYO payment link/QR image, and saves it as their `vendor_payment_config`.
   insert-or-update, not `.upsert()`: PostgREST's `ON CONFLICT DO UPDATE`
   path requires table-level `UPDATE` privilege regardless of column-level
   grants, but `vendor_payment_config`'s `UPDATE` grant is deliberately
-  column-scoped to exclude `plan` (a vendor must never self-escalate to
-  Pro) — `.upsert()` failed permission checks on every save as a result.
+  column-scoped (`0001`), so `.upsert()` failed permission checks on every
+  save. The plan no longer lives on this table; it comes from the
+  entitlement cache.
 - `actions.test.ts` — unit coverage for both config kinds, validation
   failures, and the insert-vs-update branch.
 
