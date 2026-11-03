@@ -3,7 +3,11 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 // eslint-disable-next-line no-restricted-imports -- anonymous customer flow; the pay token or public form id is the credential
 import { createServiceClient } from "@/lib/supabase/server";
-import { hostedPayAllowed, loadHostedPayment } from "@/lib/hosted-pay";
+import {
+  hostedPayAllowed,
+  isWellFormedHostedRef,
+  loadHostedPayment,
+} from "@/lib/hosted-pay";
 import { clientIp } from "@/lib/rate-limit";
 import { PayPanel } from "./pay-panel";
 
@@ -33,6 +37,15 @@ function Notice({ title, detail }: { title: string; detail: string }) {
   );
 }
 
+function RetryNotice() {
+  return (
+    <Notice
+      title="Couldn't load payment right now"
+      detail="Refresh this page in a moment. Do not pay again if you already have."
+    />
+  );
+}
+
 /**
  * The hosted pay page: where a calling kit sends its customer to pay. Public,
  * with no sign-in. The `k` token in the link is the whole authorization, so
@@ -42,27 +55,24 @@ function Notice({ title, detail }: { title: string; detail: string }) {
 export default async function PayPage({ params, searchParams }: Props) {
   const { id } = await params;
   const { k } = await searchParams;
-  if (typeof k !== "string") notFound();
+  if (typeof k !== "string" || !isWellFormedHostedRef(id, k)) notFound();
 
   const supabase = await createServiceClient();
   const ip = clientIp(await headers());
-  if (!(await hostedPayAllowed(supabase, "view", ip, k)))
+  const access = await hostedPayAllowed(supabase, "view", ip, k);
+  if (access === "limited")
     return (
       <Notice
         title="Too many tries"
         detail="Wait a minute, then refresh this page."
       />
     );
+  if (access === "unavailable") return <RetryNotice />;
 
   const read = await loadHostedPayment(supabase, id, k);
   if (!read.ok) {
     if (read.reason === "not_found") notFound();
-    return (
-      <Notice
-        title="Couldn't load payment right now"
-        detail="Refresh this page in a moment. Do not pay again if you already have."
-      />
-    );
+    return <RetryNotice />;
   }
 
   const { payment } = read;

@@ -1,13 +1,21 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { hashApiKey } from "./kit-auth";
 
-const { maybeSingleMock, updateEqMock, insertMock, createServiceClientMock } =
-  vi.hoisted(() => ({
-    maybeSingleMock: vi.fn(),
-    updateEqMock: vi.fn(),
-    insertMock: vi.fn(),
-    createServiceClientMock: vi.fn(),
-  }));
+const {
+  maybeSingleMock,
+  updateEqMock,
+  insertMock,
+  rpcMock,
+  fromMock,
+  createServiceClientMock,
+} = vi.hoisted(() => ({
+  maybeSingleMock: vi.fn(),
+  updateEqMock: vi.fn(),
+  insertMock: vi.fn(),
+  rpcMock: vi.fn(),
+  fromMock: vi.fn(),
+  createServiceClientMock: vi.fn(),
+}));
 
 vi.mock("@/lib/supabase/server", () => ({
   createServiceClient: createServiceClientMock,
@@ -17,13 +25,15 @@ beforeEach(async () => {
   maybeSingleMock.mockReset();
   updateEqMock.mockReset().mockResolvedValue({ error: null });
   insertMock.mockReset().mockResolvedValue({ error: null });
-  createServiceClientMock.mockReset().mockResolvedValue({
-    from: () => ({
-      select: () => ({ eq: () => ({ maybeSingle: maybeSingleMock }) }),
-      update: () => ({ eq: updateEqMock }),
-      insert: insertMock,
-    }),
-  });
+  rpcMock.mockReset().mockResolvedValue({ data: true, error: null });
+  fromMock.mockReset().mockImplementation(() => ({
+    select: () => ({ eq: () => ({ maybeSingle: maybeSingleMock }) }),
+    update: () => ({ eq: updateEqMock }),
+    insert: insertMock,
+  }));
+  createServiceClientMock
+    .mockReset()
+    .mockResolvedValue({ from: fromMock, rpc: rpcMock });
 });
 
 function req(authorization?: string, ip?: string) {
@@ -45,6 +55,28 @@ describe("hashApiKey", () => {
 });
 
 describe("verifyKitAuth", () => {
+  it("rate limits by client IP before any lookup", async () => {
+    rpcMock.mockResolvedValue({ data: false, error: null });
+    const { verifyKitAuth } = await import("./kit-auth");
+    expect(
+      await verifyKitAuth(req("Bearer qkit:s3cret", "6.6.6.6, 203.0.113.5")),
+    ).toBeNull();
+    expect(rpcMock).toHaveBeenCalledWith(
+      "check_rate_limit",
+      expect.objectContaining({ p_key: "kit-auth:203.0.113.5" }),
+    );
+    expect(fromMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects an over-long kit slug without touching the database", async () => {
+    const { verifyKitAuth } = await import("./kit-auth");
+    expect(
+      await verifyKitAuth(req(`Bearer ${"a".repeat(65)}:s3cret`)),
+    ).toBeNull();
+    expect(maybeSingleMock).not.toHaveBeenCalled();
+    expect(fromMock).not.toHaveBeenCalled();
+  });
+
   it("returns null with no Authorization header", async () => {
     const { verifyKitAuth } = await import("./kit-auth");
     expect(await verifyKitAuth(req())).toBeNull();

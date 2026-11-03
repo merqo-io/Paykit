@@ -6,6 +6,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+
+- The client IP for rate limiting no longer trusts the first `x-forwarded-for` hop, which a caller can spoof. It reads `x-vercel-forwarded-for`, then `x-real-ip`, then only the last forwarded hop.
+- The hosted pay page and the claim route now deny the request when the rate limiter backend errors, instead of letting it through. Other limited paths still fail open and log the error.
+- Kit bearer auth is rate limited per IP before the key lookup, and a kit slug over 64 characters is rejected before any database call, so guessing can no longer flood `auth_failures`.
+- The hosted pay page and its actions check the id and token shape before the rate limiter, so a malformed link is a plain 404 that never reaches the database. When the limiter itself is unavailable they answer with the retry notice rather than "Too many tries", which is now shown only when the caller is actually limited.
+
 ### Changed
 
 - `vercel.json` now builds from git only for `main` (`git.deploymentEnabled`, with `**` so branch names containing `/` are covered), because every PR preview was exhausting the Vercel Hobby daily deployment cap. Staging still deploys through the `staging-sync` deploy hook; ad-hoc previews come from the `vercel` CLI.

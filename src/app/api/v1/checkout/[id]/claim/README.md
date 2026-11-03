@@ -11,7 +11,8 @@ status back.
 
 A real (non-idempotent) claim writes a `claimed` `payment_audit` row
 (`@/lib/payment-audit`). Rate-limited (`@/lib/rate-limit`, 60/60s per
-`kit_slug`+IP) right after auth.
+`kit_slug`+IP) right after auth; a limiter error fails closed (`rateLimitStrict`)
+rather than letting claims through unbounded.
 
 Response shape is the shared `TransactionStatusResponse`
 (`src/lib/api-schemas.ts`'s `toStatusResponse`).

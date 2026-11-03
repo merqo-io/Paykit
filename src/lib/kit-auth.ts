@@ -1,6 +1,16 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { createServiceClient } from "@/lib/supabase/server";
-import { clientIp } from "@/lib/rate-limit";
+import {
+  clientIp,
+  rateLimit,
+  PER_ROUTE_WINDOW_SECONDS,
+} from "@/lib/rate-limit";
+
+// Longer than any real kit slug; rejecting early keeps junk out of the lookup
+// and out of auth_failures.
+const MAX_KIT_SLUG_LENGTH = 64;
+// Every attempt counts, failed or not, so key guessing is bounded per address.
+const AUTH_ATTEMPT_LIMIT = 300;
 
 export function hashApiKey(secret: string): string {
   return createHash("sha256").update(secret, "utf8").digest("hex");
@@ -36,6 +46,17 @@ export async function verifyKitAuth(
   const supabase = await createServiceClient();
   const ip = clientIp(request.headers);
 
+  const withinLimit = await rateLimit(
+    supabase,
+    `kit-auth:${ip}`,
+    AUTH_ATTEMPT_LIMIT,
+    PER_ROUTE_WINDOW_SECONDS,
+  );
+  if (!withinLimit) {
+    console.warn("paykit: verifyKitAuth rate limited");
+    return null;
+  }
+
   const header = request.headers.get("authorization") ?? "";
   const prefix = "Bearer ";
   if (!header.startsWith(prefix)) {
@@ -55,6 +76,10 @@ export async function verifyKitAuth(
   }
   const kitSlug = token.slice(0, sep);
   const secret = token.slice(sep + 1);
+  if (kitSlug.length > MAX_KIT_SLUG_LENGTH) {
+    console.warn("paykit: verifyKitAuth failed — kit_slug too long");
+    return null;
+  }
   if (!kitSlug || !secret) {
     const reason = "malformed bearer token";
     console.warn(`paykit: verifyKitAuth failed — ${reason}`);

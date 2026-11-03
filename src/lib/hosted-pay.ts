@@ -2,7 +2,7 @@ import type { createServiceClient } from "@/lib/supabase/server";
 import { uuidSchema } from "@/lib/api-schemas";
 import { toLookupResponse } from "@/lib/checkout-lookup";
 import { payTokenKey, payTokenMatches, payTokenSchema } from "@/lib/pay-token";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimitCheck } from "@/lib/rate-limit";
 import type { Transaction, TxStatus } from "@/lib/types";
 import { TRANSACTION_WITH_TOKEN_COLUMNS } from "@/lib/columns";
 
@@ -72,11 +72,7 @@ export async function loadHostedPayment(
   id: string,
   token: string,
 ): Promise<HostedPaymentRead> {
-  if (
-    !uuidSchema.safeParse(id).success ||
-    !payTokenSchema.safeParse(token).success
-  )
-    return NOT_FOUND;
+  if (!isWellFormedHostedRef(id, token)) return NOT_FOUND;
 
   const { data: row, error } = await supabase
     .from("transactions")
@@ -122,31 +118,50 @@ const LIMITS: Record<HostedPayAction, { perIp: number; perToken: number }> = {
 };
 
 /**
+ * Whether an id and token have the shape of a hosted pay link. Callers check
+ * this first so a malformed link is a plain not-found that never reaches the
+ * limiter or the database.
+ */
+export function isWellFormedHostedRef(id: string, token: string): boolean {
+  return (
+    uuidSchema.safeParse(id).success && payTokenSchema.safeParse(token).success
+  );
+}
+
+export type HostedPayAccess = "allowed" | "limited" | "unavailable";
+
+/**
  * Whether the hosted pay page may serve this call. Counted per client
  * address first and then per pay token, so neither one address trying many
  * links nor many addresses sharing one link can run unchecked. The token is
  * counted under a prefix of its hash, never as itself, and only when it is
- * well formed. Fails open with the limiter, like every other limit here.
+ * well formed. Fails closed when the limiter errors, so a limiter outage
+ * cannot let claim traffic through unbounded; "unavailable" is that case,
+ * kept apart from "limited" so the caller does not tell a customer they
+ * tried too often when the check simply could not run.
  */
 export async function hostedPayAllowed(
   supabase: ServiceClient,
   action: HostedPayAction,
   ip: string,
   token: string,
-): Promise<boolean> {
+): Promise<HostedPayAccess> {
   const limits = LIMITS[action];
-  const byIp = await rateLimit(
+  const byIp = await rateLimitCheck(
     supabase,
     `pay-${action}:ip:${ip}`,
     limits.perIp,
     WINDOW_SECONDS,
   );
-  if (!byIp) return false;
-  if (!payTokenSchema.safeParse(token).success) return true;
-  return rateLimit(
+  if (byIp === "error") return "unavailable";
+  if (byIp === "limited") return "limited";
+  if (!payTokenSchema.safeParse(token).success) return "allowed";
+  const byToken = await rateLimitCheck(
     supabase,
     `pay-${action}:tok:${payTokenKey(token)}`,
     limits.perToken,
     WINDOW_SECONDS,
   );
+  if (byToken === "error") return "unavailable";
+  return byToken === "limited" ? "limited" : "allowed";
 }

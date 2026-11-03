@@ -6,7 +6,7 @@ import { claimTransaction } from "@/lib/claim";
 import { readProofFromRequest } from "@/lib/proof-file";
 import {
   clientIp,
-  rateLimit,
+  rateLimitStrict,
   PER_ROUTE_LIMIT,
   PER_ROUTE_WINDOW_SECONDS,
 } from "@/lib/rate-limit";
@@ -22,7 +22,7 @@ export async function POST(
 
   const supabase = await createServiceClient();
   const ip = clientIp(request.headers);
-  const allowed = await rateLimit(
+  const allowed = await rateLimitStrict(
     supabase,
     `claim:${auth.kitSlug}:${ip}`,
     PER_ROUTE_LIMIT,

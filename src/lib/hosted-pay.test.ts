@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { hostedPayAllowed, loadHostedPayment } from "@/lib/hosted-pay";
+import {
+  hostedPayAllowed,
+  isWellFormedHostedRef,
+  loadHostedPayment,
+} from "@/lib/hosted-pay";
 import { mintPayToken, payTokenKey } from "@/lib/pay-token";
 
 const TX_ID = "22222222-2222-2222-8222-222222222222";
@@ -188,7 +192,7 @@ describe("hostedPayAllowed", () => {
   });
 
   it("counts the address first and then the token, by a prefix of its hash", async () => {
-    expect(await hostedPayAllowed(limiter, "claim", IP, token)).toBe(true);
+    expect(await hostedPayAllowed(limiter, "claim", IP, token)).toBe("allowed");
     expect(rpc).toHaveBeenNthCalledWith(1, "check_rate_limit", {
       p_key: `pay-claim:ip:${IP}`,
       p_limit: 60,
@@ -209,20 +213,48 @@ describe("hostedPayAllowed", () => {
 
   it("refuses on the address without counting the token", async () => {
     rpc.mockResolvedValue({ data: false, error: null });
-    expect(await hostedPayAllowed(limiter, "status", IP, token)).toBe(false);
+    expect(await hostedPayAllowed(limiter, "status", IP, token)).toBe(
+      "limited",
+    );
     expect(rpc).toHaveBeenCalledTimes(1);
+  });
+
+  it("fails closed, as unavailable rather than limited, when the limiter errors", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    rpc.mockResolvedValue({ data: null, error: { message: "down" } });
+    expect(await hostedPayAllowed(limiter, "claim", IP, token)).toBe(
+      "unavailable",
+    );
+  });
+
+  it("fails closed when the limiter throws", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    rpc.mockRejectedValue(new Error("network"));
+    expect(await hostedPayAllowed(limiter, "status", IP, token)).toBe(
+      "unavailable",
+    );
+  });
+
+  it("is unavailable when only the token count fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    rpc
+      .mockResolvedValueOnce({ data: true, error: null })
+      .mockRejectedValueOnce(new Error("network"));
+    expect(await hostedPayAllowed(limiter, "view", IP, token)).toBe(
+      "unavailable",
+    );
   });
 
   it("refuses when the token has been used too often", async () => {
     rpc
       .mockResolvedValueOnce({ data: true, error: null })
       .mockResolvedValueOnce({ data: false, error: null });
-    expect(await hostedPayAllowed(limiter, "view", IP, token)).toBe(false);
+    expect(await hostedPayAllowed(limiter, "view", IP, token)).toBe("limited");
   });
 
   it("counts only the address for a malformed token", async () => {
     expect(await hostedPayAllowed(limiter, "view", IP, "x".repeat(5000))).toBe(
-      true,
+      "allowed",
     );
     expect(rpc).toHaveBeenCalledTimes(1);
   });
@@ -233,5 +265,22 @@ describe("hostedPayAllowed", () => {
     await hostedPayAllowed(limiter, "claim", IP, token);
     const keys = rpc.mock.calls.map((call) => call[1].p_key);
     expect(new Set(keys).size).toBe(6);
+  });
+});
+
+describe("isWellFormedHostedRef", () => {
+  const ID = "22222222-2222-4222-8222-222222222222";
+
+  it("accepts a uuid and a well-formed token", () => {
+    expect(isWellFormedHostedRef(ID, token)).toBe(true);
+  });
+
+  it.each([
+    ["an id that is not a uuid", "not-a-uuid", token],
+    ["an empty token", ID, ""],
+    ["a short token", ID, token.slice(1)],
+    ["a padded token", ID, `${token.slice(1)}=`],
+  ])("rejects %s", (_name, id, t) => {
+    expect(isWellFormedHostedRef(id, t)).toBe(false);
   });
 });

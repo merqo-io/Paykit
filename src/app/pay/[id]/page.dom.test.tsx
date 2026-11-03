@@ -21,7 +21,8 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/lib/supabase/server", () => ({
   createServiceClient: async () => ({}),
 }));
-vi.mock("@/lib/hosted-pay", () => ({
+vi.mock("@/lib/hosted-pay", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/hosted-pay")>()),
   loadHostedPayment: loadMock,
   hostedPayAllowed: allowedMock,
 }));
@@ -66,7 +67,7 @@ function page(...given: [k?: string | string[]]) {
 }
 
 beforeEach(() => {
-  allowedMock.mockReset().mockResolvedValue(true);
+  allowedMock.mockReset().mockResolvedValue("allowed");
   loadMock
     .mockReset()
     .mockResolvedValue({ ok: true, row: ROW, payment: PAYMENT });
@@ -106,6 +107,7 @@ describe("PayPage", () => {
   it.each([
     ["no token", undefined],
     ["a token given twice", [TOKEN, TOKEN]],
+    ["a token that is too short", "short"],
   ])("is a 404 with %s, before anything is read", async (_name, k) => {
     await expect(page(k)).rejects.toThrow("not found");
     expect(allowedMock).not.toHaveBeenCalled();
@@ -128,11 +130,22 @@ describe("PayPage", () => {
   });
 
   it("shows a wait notice, and reads nothing, when rate limited", async () => {
-    allowedMock.mockResolvedValue(false);
+    allowedMock.mockResolvedValue("limited");
     render(await page());
     expect(
       screen.getByRole("heading", { name: "Too many tries" }),
     ).toBeInTheDocument();
+    expect(loadMock).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("pay-panel")).not.toBeInTheDocument();
+  });
+
+  it("shows the retry notice, not the wait notice, and reads nothing, when the limiter is unavailable", async () => {
+    allowedMock.mockResolvedValue("unavailable");
+    render(await page());
+    expect(
+      screen.getByRole("heading", { name: "Couldn't load payment right now" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Too many tries")).not.toBeInTheDocument();
     expect(loadMock).not.toHaveBeenCalled();
     expect(screen.queryByTestId("pay-panel")).not.toBeInTheDocument();
   });

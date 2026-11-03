@@ -14,7 +14,8 @@ vi.mock("next/headers", () => ({
 vi.mock("@/lib/supabase/server", () => ({
   createServiceClient: createServiceClientMock,
 }));
-vi.mock("@/lib/hosted-pay", () => ({
+vi.mock("@/lib/hosted-pay", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/hosted-pay")>()),
   loadHostedPayment: loadMock,
   hostedPayAllowed: allowedMock,
 }));
@@ -60,7 +61,7 @@ function image(bytes: number[] = JPEG, type = "image/jpeg") {
 
 beforeEach(() => {
   createServiceClientMock.mockReset().mockResolvedValue(SUPABASE);
-  allowedMock.mockReset().mockResolvedValue(true);
+  allowedMock.mockReset().mockResolvedValue("allowed");
   loadMock
     .mockReset()
     .mockResolvedValue({ ok: true, row: ROW, payment: PAYMENT });
@@ -127,8 +128,29 @@ describe("claimHostedPayment", () => {
     expect(loadMock).not.toHaveBeenCalled();
   });
 
+  it("refuses a malformed token before the limiter or the database", async () => {
+    const res = await claimHostedPayment(TX_ID, "short", form(image()));
+    expect(res).toEqual({
+      success: false,
+      error: "This payment link is no longer valid.",
+    });
+    expect(createServiceClientMock).not.toHaveBeenCalled();
+    expect(allowedMock).not.toHaveBeenCalled();
+  });
+
+  it("asks the customer to try again, and reads nothing, when the limiter is unavailable", async () => {
+    allowedMock.mockResolvedValue("unavailable");
+    const res = await claimHostedPayment(TX_ID, TOKEN, form(image()));
+    expect(res).toEqual({
+      success: false,
+      error: "Could not record payment. Try again.",
+    });
+    expect(loadMock).not.toHaveBeenCalled();
+    expect(claimMock).not.toHaveBeenCalled();
+  });
+
   it("refuses a rate-limited call before reading the transaction", async () => {
-    allowedMock.mockResolvedValue(false);
+    allowedMock.mockResolvedValue("limited");
     const res = await claimHostedPayment(TX_ID, TOKEN, form(image()));
     expect(res).toEqual({
       success: false,
@@ -259,11 +281,20 @@ describe("getHostedPaymentStatus", () => {
     expect(createServiceClientMock).not.toHaveBeenCalled();
   });
 
-  it("answers null when rate limited, without reading", async () => {
-    allowedMock.mockResolvedValue(false);
-    expect(await getHostedPaymentStatus(TX_ID, TOKEN)).toBeNull();
-    expect(loadMock).not.toHaveBeenCalled();
+  it("answers null for a malformed token before the limiter or the database", async () => {
+    expect(await getHostedPaymentStatus(TX_ID, "short")).toBeNull();
+    expect(createServiceClientMock).not.toHaveBeenCalled();
+    expect(allowedMock).not.toHaveBeenCalled();
   });
+
+  it.each([["limited"], ["unavailable"]])(
+    "answers null when the limiter says %s, without reading",
+    async (verdict) => {
+      allowedMock.mockResolvedValue(verdict);
+      expect(await getHostedPaymentStatus(TX_ID, TOKEN)).toBeNull();
+      expect(loadMock).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([["not_found"], ["unavailable"]])(
     "answers null when the read is %s",
