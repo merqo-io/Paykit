@@ -2,7 +2,7 @@ import type { createServiceClient } from "@/lib/supabase/server";
 import { uuidSchema } from "@/lib/api-schemas";
 import { toLookupResponse } from "@/lib/checkout-lookup";
 import { payTokenKey, payTokenMatches, payTokenSchema } from "@/lib/pay-token";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimitStrict } from "@/lib/rate-limit";
 import type { Transaction, TxStatus } from "@/lib/types";
 import { TRANSACTION_WITH_TOKEN_COLUMNS } from "@/lib/columns";
 
@@ -126,7 +126,8 @@ const LIMITS: Record<HostedPayAction, { perIp: number; perToken: number }> = {
  * address first and then per pay token, so neither one address trying many
  * links nor many addresses sharing one link can run unchecked. The token is
  * counted under a prefix of its hash, never as itself, and only when it is
- * well formed. Fails open with the limiter, like every other limit here.
+ * well formed. Fails closed when the limiter errors, so a limiter outage
+ * cannot let claim traffic through unbounded.
  */
 export async function hostedPayAllowed(
   supabase: ServiceClient,
@@ -135,7 +136,7 @@ export async function hostedPayAllowed(
   token: string,
 ): Promise<boolean> {
   const limits = LIMITS[action];
-  const byIp = await rateLimit(
+  const byIp = await rateLimitStrict(
     supabase,
     `pay-${action}:ip:${ip}`,
     limits.perIp,
@@ -143,7 +144,7 @@ export async function hostedPayAllowed(
   );
   if (!byIp) return false;
   if (!payTokenSchema.safeParse(token).success) return true;
-  return rateLimit(
+  return rateLimitStrict(
     supabase,
     `pay-${action}:tok:${payTokenKey(token)}`,
     limits.perToken,

@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+
+- The client IP for rate limiting no longer trusts the first `x-forwarded-for` hop, which a caller can spoof. It reads `x-vercel-forwarded-for`, then `x-real-ip`, then only the last forwarded hop.
+- The hosted pay page and the claim route now deny the request when the rate limiter backend errors, instead of letting it through. Other limited paths still fail open and log the error.
+- Kit bearer auth is rate limited per IP before the key lookup, and a kit slug over 64 characters is rejected before any database call, so guessing can no longer flood `auth_failures`.
+
 ### Changed
 
 - The `staging-sync` workflow pushes to `staging` with the `merqo-staging-sync` GitHub App token instead of `GITHUB_TOKEN`, because a ruleset limits `staging` pushes to that app. The job's own permissions drop to `contents: read`.

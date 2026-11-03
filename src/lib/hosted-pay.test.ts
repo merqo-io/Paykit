@@ -213,6 +213,18 @@ describe("hostedPayAllowed", () => {
     expect(rpc).toHaveBeenCalledTimes(1);
   });
 
+  it("fails closed when the limiter errors", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    rpc.mockResolvedValue({ data: null, error: { message: "down" } });
+    expect(await hostedPayAllowed(limiter, "claim", IP, token)).toBe(false);
+  });
+
+  it("fails closed when the limiter throws", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    rpc.mockRejectedValue(new Error("network"));
+    expect(await hostedPayAllowed(limiter, "status", IP, token)).toBe(false);
+  });
+
   it("refuses when the token has been used too often", async () => {
     rpc
       .mockResolvedValueOnce({ data: true, error: null })

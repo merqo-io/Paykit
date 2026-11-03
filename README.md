@@ -41,9 +41,14 @@ counterpart, `payment_audit` (`src/lib/payment-audit.ts`), attributed by
 `src/app/api/v1/checkout/README.md`. Every v1 checkout route that takes a transaction id (status, claim, confirm, unclaim, evidence) is scoped to the calling kit: another kit's id answers `404`. The same surface is also rate-limited
 (`src/lib/rate-limit.ts`, ported from qkit's own DB-backed fixed-window
 limiter, 60 requests/60s per `kit_slug`+IP), closing a real gap where a
-leaked or misbehaving kit secret could hammer any endpoint unbounded, and
-every failed bearer-auth attempt is now logged (`kit-auth.ts`), both to the
-console and durably to `paykit.auth_failures`, with the
+leaked or misbehaving kit secret could hammer any endpoint unbounded (the
+client IP comes only from proxy-set headers, so a caller cannot pick its own
+rate-limit key; the public pay page and the claim route fail closed when the
+limiter errors, and kit auth itself is limited per IP before any key lookup),
+and every failed key check is now logged (`kit-auth.ts`), both to the
+console and durably to `paykit.auth_failures` (the per-IP limit denial and
+the slug-length rejection run before the key lookup and reach the console
+only), with the
 `kit_slug` when resolvable, never the secret — surfaced on the admin
 Overview as a 24h failed-auth count alongside rate-limit pressure. Every
 vendor also gets a per-vendor health triage (`attention`/`stuck`/`quiet`/

@@ -6,44 +6,69 @@ export const PER_ROUTE_LIMIT = 60;
 export const PER_ROUTE_WINDOW_SECONDS = 60;
 
 /**
- * Resolve a best-effort client IP from request headers: the first hop of
- * `x-forwarded-for`, else `x-real-ip`, else the literal "unknown". This is NOT
- * trusted (either header is client-spoofable behind a permissive proxy) — it's
- * a coarse fairness key for the flood guard, not an authz signal. Ported
- * verbatim from qkit's own `src/lib/rate-limit.ts`.
+ * Resolve a best-effort client IP. Precedence: `x-vercel-forwarded-for` (set by
+ * Vercel's edge, overwrites anything the client sent), then `x-real-ip`, then
+ * the LAST `x-forwarded-for` hop (the one a proxy appended; earlier hops are
+ * client-controlled and never used). Falls back to the literal "unknown".
  */
 export function clientIp(hdrs: Headers): string {
-  return (
-    hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    hdrs.get("x-real-ip") ||
-    "unknown"
-  );
+  const vercel = hdrs.get("x-vercel-forwarded-for")?.split(",")[0]?.trim();
+  if (vercel) return vercel;
+  const real = hdrs.get("x-real-ip")?.trim();
+  if (real) return real;
+  const hops = hdrs.get("x-forwarded-for")?.split(",");
+  return hops?.[hops.length - 1]?.trim() || "unknown";
+}
+
+type Supabase = Awaited<ReturnType<typeof createServiceClient>>;
+
+async function check(
+  supabase: Supabase,
+  args: { key: string; limit: number; windowSeconds: number },
+  failClosed: boolean,
+): Promise<boolean> {
+  const mode = failClosed ? "failing closed" : "failing open";
+  try {
+    const { data: allowed, error } = await supabase.rpc("check_rate_limit", {
+      p_key: args.key,
+      p_limit: args.limit,
+      p_window_seconds: args.windowSeconds,
+    });
+    if (error) {
+      console.error(`rateLimit degraded (${mode})`, error.message);
+      return !failClosed;
+    }
+    return allowed !== false;
+  } catch {
+    console.error(`rateLimit unavailable (${mode})`);
+    return !failClosed;
+  }
 }
 
 /**
  * Fixed-window rate-limit check via the DB limiter (`check_rate_limit`). Returns
- * true when the call is allowed. Fails OPEN — any limiter error (infra hiccup)
- * yields `true` so a real calling kit is never blocked by a degraded limiter.
- * The limiter is defence against a leaked/misbehaving bearer secret, not a
- * correctness gate.
+ * true when the call is allowed. Fails OPEN so a degraded limiter never blocks
+ * a legitimate calling kit; the error is logged. Paths that take payment claims
+ * use `rateLimitStrict` instead.
  */
-export async function rateLimit(
-  supabase: Awaited<ReturnType<typeof createServiceClient>>,
+export function rateLimit(
+  supabase: Supabase,
   key: string,
   limit: number,
   windowSeconds: number,
 ): Promise<boolean> {
-  try {
-    const { data: allowed, error } = await supabase.rpc("check_rate_limit", {
-      p_key: key,
-      p_limit: limit,
-      p_window_seconds: windowSeconds,
-    });
-    if (error)
-      console.error("rateLimit degraded (failing open)", error.message);
-    return allowed !== false;
-  } catch {
-    console.error("rateLimit unavailable (failing open)");
-    return true;
-  }
+  return check(supabase, { key, limit, windowSeconds }, false);
+}
+
+/**
+ * Same check as `rateLimit` but fails CLOSED: a limiter error denies the call,
+ * so an outage cannot be used to bypass the limit on pay and claim paths.
+ */
+export function rateLimitStrict(
+  supabase: Supabase,
+  key: string,
+  limit: number,
+  windowSeconds: number,
+): Promise<boolean> {
+  return check(supabase, { key, limit, windowSeconds }, true);
 }

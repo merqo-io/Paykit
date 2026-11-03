@@ -25,7 +25,7 @@ vi.mock("@/lib/rate-limit", () => ({
   clientIp: () => "203.0.113.5",
   PER_ROUTE_LIMIT: 60,
   PER_ROUTE_WINDOW_SECONDS: 60,
-  rateLimit: rateLimitMock,
+  rateLimitStrict: rateLimitMock,
 }));
 
 const { scheduleCallbackMock } = vi.hoisted(() => ({
@@ -155,6 +155,16 @@ describe("POST /api/v1/checkout/[id]/claim", () => {
     const res = await POST(req(), ctx());
     expect(res.status).toBe(429);
     expect(readMaybeSingle).not.toHaveBeenCalled();
+  });
+
+  it("uses the fail-closed limiter keyed by kit and address", async () => {
+    await POST(req(), ctx());
+    expect(rateLimitMock).toHaveBeenCalledWith(
+      expect.anything(),
+      "claim:qkit:203.0.113.5",
+      60,
+      60,
+    );
   });
 
   it("404s for an unknown transaction", async () => {

@@ -25,8 +25,12 @@ provide authorization.
   concurrent winner; returned or rejected write failures are not success.
 - `kit-auth.ts` verifies peer-kit bearer secrets, records failures without logging
   credentials and touches last-use metadata best-effort. Ambiguous duplicate
-  active keys fail closed. `merqo-auth.ts` separately authenticates hub metrics
-  and provisioning routes.
+  active keys fail closed. A per-IP limit of 300/min (`kit-auth:${ip}`) and a
+  64-character kit slug cap both run before any key lookup, to bound bearer-key
+  guessing and `auth_failures` growth. Their denials are logged to the console
+  only, not to `auth_failures`. The limit counts every attempt and fails open so
+  a limiter outage never locks every kit out. `merqo-auth.ts` separately
+  authenticates hub metrics and provisioning routes.
 - `proof-file.ts` — the payment screenshot a kit may attach to a claim:
   `PROOF_BUCKET`, `PROOF_MAX_BYTES`, `sniffImageType(bytes)` (JPEG, PNG or
   WebP by the file's first bytes, never by the declared type) and
@@ -121,9 +125,16 @@ provide authorization.
 - `phone-links.ts`: `whatsappLink(phone)`: a `wa.me` link, adding 65 to a
   bare 8-digit Singapore number.
 - `rate-limit.ts` calls the database fixed-window limiter after authentication.
-  Limiter failure permits the request and logs degradation; the forwarded IP is
-  a fairness key, never authorization. Migration 0019 prepares the bounded atomic
-  implementation. Pending migrations require real database validation.
+  `rateLimit` fails open: a limiter failure permits the request and logs
+  degradation. `rateLimitStrict` fails closed and is used by `hosted-pay.ts`
+  (the public pay page) and the kit claim route, so a limiter outage cannot let
+  claim traffic through unbounded; every other route (checkout, confirm,
+  unclaim, evidence, inquiries, kit auth) uses `rateLimit`. `clientIp` trusts
+  only proxy-set headers, in order `x-vercel-forwarded-for`, `x-real-ip`, then
+  the last `x-forwarded-for` hop (the first hop is client-supplied and
+  spoofable). The IP is a fairness key, never authorization. Migration 0019
+  prepares the bounded atomic implementation. Pending migrations require real
+  database validation.
 - `payment-config-row.ts` builds the full `vendor_payment_config` row from a validated input, shared by the dashboard save action and `POST /api/v1/vendors/{vendor_id}/config`.
 - `payment-audit.ts` appends real checkout transitions (`recordPaymentAudit(supabase, { transactionId, kitSlug, action, detail })`); idempotent no-ops add no
   transition row. `admin-audit.ts` records administrative and vendor operations
