@@ -327,6 +327,8 @@ Source lives in the `merqo-io` GitHub organization (`github.com/merqo-io/paykit`
 
 The `staging-sync` workflow pushes to `staging` with the `merqo-staging-sync` GitHub App token.
 
+Vercel builds from git only for `main` (`git.deploymentEnabled` in `vercel.json`), so PRs get no automatic preview and the Hobby daily deployment cap lasts. Staging deploys through the `staging-sync` deploy hook; use the `vercel` CLI for an ad-hoc preview. See `docs/DEPLOY.md`.
+
 ## October 2026 audit status
 
 Booking deposit checkout failures now preserve the booking and expose a vendor-scoped retry action. Migration0016 adds atomic, validated deposit linking and confirmation reconciliation. It is prepared but not applied; see [the audit evidence](docs/paykit-audit-2026-10-08.md) for verification and remaining findings.

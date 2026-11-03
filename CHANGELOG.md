@@ -8,6 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- `vercel.json` now builds from git only for `main` (`git.deploymentEnabled`, with `**` so branch names containing `/` are covered), because every PR preview was exhausting the Vercel Hobby daily deployment cap. Staging still deploys through the `staging-sync` deploy hook; ad-hoc previews come from the `vercel` CLI.
 - The `staging-sync` workflow pushes to `staging` with the `merqo-staging-sync` GitHub App token instead of `GITHUB_TOKEN`, because a ruleset limits `staging` pushes to that app. The job's own permissions drop to `contents: read`.
 
 ### Fixed
