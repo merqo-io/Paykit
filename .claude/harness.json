@@ -1,14 +1,14 @@
 {
-  "templatecentral_version": "6.0.4",
+  "templatecentral_version": "7.2.2",
   "stack": "nextjs",
   "adapted": "Next 16 + Supabase (auth/db) — Supabase variant, based on qkit harness",
   "seeded_at": "2026-07-22",
-  "review_note": "2026-10-12: templateCentral 5.15 to 6.0.4. Ported the harness qkit adopted in its 6.0.1 and 6.0.4 reviews by 3-way merge, keeping this repo's local lines: project-anchored hook commands with timeouts, clean-tree Stop skip, additionalContext typecheck feedback, the Skill matcher, the per-segment block-no-verify parser with cwd-aware branch detection, protect-files path resolution, a verifier that fails on an unreadable manifest, a wider commit-msg gate, fail-closed PR doc gates in CI. Removed post-tool-failure.sh. Not adopted: exec-form hooks, the gitleaks syntax changes, ci-gates.sh, hooks/local, Azure DevOps and OpenCode items. Reasoning is in the AGENTS.md entry of the same date. Hashes below were recomputed from the LF-normalised blobs. Harness built to match the AGENTS.md 'AI Harness' section that had described it since the qkit-seeded bootstrap but was never actually built. Hooks/skills match qkit's simpler pattern; git-hook layer (lefthook) matches loopkit's, since that's this plan's chosen baseline. CI gates (changelog, readme-freshness, coverage) added to match loopkit's real working jobs. Follow-up: added the missing .claude/hooks/* Claude-Code-hook script layer (previously inline `node -e` one-liners embedded in settings.json), and fixed lefthook.yml's format-lint command, which had no exclude list and would have reformatted/drifted those scripts on first commit; version marker bumped 5.7.0 -> 5.11.0 to match sibling repo loopkit's harness architecture, which this change brings paykit's Claude Code hook layer up to.",
+  "review_note": "2026-11-04: templateCentral 6.0.4 to 7.2.2 by 3-way merge onto this repo's files (mirrors merqo-io/Merqo#128). Adopted: the 6.0.5 strict && chain fix in block-no-verify.sh with upstream's test cases, session-context.sh no longer printing head -30 AGENTS.md, engines.node >=24.22.1 with CI node-version pinned to 24.22.1, and the fail-closed deps gate as .claude/deps-gate.sh with the expiring .claude/dep-audit-allow.txt allowlist. Hashes recomputed from LF-normalised blobs. 2026-10-12: templateCentral 5.15 to 6.0.4. Ported the harness qkit adopted in its 6.0.1 and 6.0.4 reviews by 3-way merge, keeping this repo's local lines: project-anchored hook commands with timeouts, clean-tree Stop skip, additionalContext typecheck feedback, the Skill matcher, the per-segment block-no-verify parser with cwd-aware branch detection, protect-files path resolution, a verifier that fails on an unreadable manifest, a wider commit-msg gate, fail-closed PR doc gates in CI. Removed post-tool-failure.sh. Not adopted: exec-form hooks, the gitleaks syntax changes, ci-gates.sh, hooks/local, Azure DevOps and OpenCode items. Reasoning is in the AGENTS.md entry of the same date. Hashes below were recomputed from the LF-normalised blobs. Harness built to match the AGENTS.md 'AI Harness' section that had described it since the qkit-seeded bootstrap but was never actually built. Hooks/skills match qkit's simpler pattern; git-hook layer (lefthook) matches loopkit's, since that's this plan's chosen baseline. CI gates (changelog, readme-freshness, coverage) added to match loopkit's real working jobs. Follow-up: added the missing .claude/hooks/* Claude-Code-hook script layer (previously inline `node -e` one-liners embedded in settings.json), and fixed lefthook.yml's format-lint command, which had no exclude list and would have reformatted/drifted those scripts on first commit; version marker bumped 5.7.0 -> 5.11.0 to match sibling repo loopkit's harness architecture, which this change brings paykit's Claude Code hook layer up to.",
   "adoWiki": false,
   "richReadme": true,
   "seeded_files": {
     "AGENTS.md": {
-      "origin_hash": "6473aa805db12ba07d22adb1e384aa3065253997d10dc9c5bafcca71fbe284f1",
+      "origin_hash": "53de25f2a349f66621a97c2e62b8c7c45a39c4430505d99ba9a4d33bc06019c7",
       "path": "AGENTS.md"
     },
     ".claude/settings.json": {
@@ -16,11 +16,11 @@
       "path": ".claude/settings.json"
     },
     ".claude/hooks/block-no-verify.sh": {
-      "origin_hash": "00ccbbd921a8233f086be173d37f32046c1adcb95a39104d655d64af466c9301",
+      "origin_hash": "f946e5872fc18d0fce24634d4e441bf6307eaac63cd865c3f3f6aff4f1098328",
       "path": ".claude/hooks/block-no-verify.sh"
     },
     ".claude/hooks/protect-files.sh": {
-      "origin_hash": "3b828581fc1123e27d325401212f295cfbfc6cde34c7f06e36a2dc3f7955e382",
+      "origin_hash": "a682c2c259a098ec41ff69894def6d3d2246bf8db69b3f233c598f3987c4c75b",
       "path": ".claude/hooks/protect-files.sh"
     },
     ".claude/hooks/user-prompt-guard.cjs": {
@@ -44,7 +44,7 @@
       "path": ".claude/hooks/post-edit-typecheck.sh"
     },
     ".claude/hooks/session-context.sh": {
-      "origin_hash": "9bc0b18f5f4d9c90921bcf84c52ae01e479f8cdf82847431c32081a865e8f6ec",
+      "origin_hash": "038362dfce87e6128e5d4e333ae492b794c7af77c24a3df62774172c7f1cd087",
       "path": ".claude/hooks/session-context.sh"
     },
     ".claude/hooks/skill-usage-log.sh": {
@@ -100,7 +100,7 @@
       "path": ".gitleaks.toml"
     },
     ".github/workflows/ci.yml": {
-      "origin_hash": "dab239bf1ba5448ea5fe278aef4a66e2605b99c71810646b9e171fef20092000",
+      "origin_hash": "4f31125c53758cb393cfbe3d241683ced00467027b12584a55813e56c6029ed4",
       "path": ".github/workflows/ci.yml"
     },
     ".claude/verify-harness.sh": {
@@ -110,6 +110,15 @@
     ".claude/regen-harness.sh": {
       "origin_hash": "888ee29fd7a5312d2662abdb447ca94feaed57249287510d8227ec8a6ee186ee",
       "path": ".claude/regen-harness.sh"
+    },
+    ".claude/deps-gate.sh": {
+      "origin_hash": "ddfd9aa43a84429f576a38c7bda5eb754c95eea186baeb27f28c8b71479bf195",
+      "path": ".claude/deps-gate.sh"
+    },
+    ".claude/dep-audit-allow.txt": {
+      "origin_hash": "1b1aa7ce946db18b417352ed016f5329c70d90b382fc735af395de58143de0b2",
+      "path": ".claude/dep-audit-allow.txt"
     }
-  }
+  },
+  "reviewed_at": "2026-11-04"
 }
