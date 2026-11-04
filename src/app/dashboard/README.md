@@ -23,7 +23,7 @@ of a short page instead of mid-screen. The footer is wrapped in
 leaves it out.
 
 `loading.tsx` covers page loading inside this shell. `error.tsx` offers retry
-for page render/data failures; it cannot catch its own segment's layout errors.
+for page render/data failures; it offers "Try again" and a "Back to dashboard" link; it cannot catch its own segment's layout errors.
 
 ## Routes
 
