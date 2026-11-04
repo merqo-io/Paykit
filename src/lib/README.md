@@ -168,7 +168,7 @@ records, not profit or tax submissions. `earnings-csv.ts` escapes customer text
 that could become a spreadsheet formula.
 
 `booking-status.ts` provides dashboard-only due badges. `plan-view.ts` derives
-the Free/Pro label and transaction-count copy; the plan page renders merqo's
+the Free/Pro label (a local map, because `@merqo/ui`'s `tierLabel` is client-only) and transaction-count copy; the plan page renders merqo's
 catalog separately. `merqo-url.ts` exports `merqoBaseUrl()` (`MERQO_BASE_URL`,
 default `https://www.merqo.io`), shared by the merqo callers. `vendor-entitlement.ts` reads the
 entitlement cache merqo pushes (`resolvePlan`, `readVendorPlan`,
