@@ -3,7 +3,11 @@ import { Wordmark } from "@/components/landing/wordmark";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { DashboardNav as SharedDashboardNav, getSwitchKits } from "@merqo/ui";
+import {
+  DashboardNav as SharedDashboardNav,
+  getSwitchKits,
+  tierLabel,
+} from "@merqo/ui";
 import { cn } from "@/lib/utils";
 import type { SupportMessageInput } from "@/lib/schemas";
 import { SUPPORT_CATEGORY_LABELS } from "@/lib/schemas";
@@ -32,11 +36,11 @@ function tourAnchor(href: string): string {
 // lookup rather than qkit's 3-rung logic.
 const TIER_BADGE: Record<Tier, { label: string; className: string }> = {
   free: {
-    label: "Free",
+    label: tierLabel("free"),
     className: "bg-secondary text-muted-foreground ring-border",
   },
   pro: {
-    label: "Pro",
+    label: tierLabel("pro"),
     className: "bg-mint/15 text-mint ring-mint/30",
   },
 };

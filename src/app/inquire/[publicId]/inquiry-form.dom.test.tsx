@@ -36,7 +36,7 @@ describe("InquiryForm", () => {
     expect(screen.queryByText(/marketing|promotion|newsletter/i)).toBeNull();
   });
 
-  it("asks for the vendor's terms with a link and the version", () => {
+  it("asks for the vendor's terms with a link and no version jargon", () => {
     render(
       <InquiryForm
         {...base}
@@ -48,7 +48,7 @@ describe("InquiryForm", () => {
       "href",
       "https://example.com/terms.pdf",
     );
-    expect(screen.getByText(/\(version v2\)/)).toBeInTheDocument();
+    expect(screen.queryByText(/version/i)).not.toBeInTheDocument();
   });
 
   it("carries the render time and a hidden honeypot", () => {

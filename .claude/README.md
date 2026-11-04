@@ -8,6 +8,7 @@ and its verifier.
 
 ## Contents
 
+- `deps-gate.sh` + `dep-audit-allow.txt` — the fail-closed dependency-audit gate run by `security.yml`, and its expiring advisory allowlist.
 - `harness.json` — seeded file paths and SHA-256 baselines. The verifier compares its guarded subset against committed HEAD blobs; it does not inspect uncommitted guard edits. Of the workflows, only `ci.yml` is listed.
 - `.harness-base/` — as-seeded mirror of every enforcement-layer file (hooks, `settings.json`, husky, `.gitleaks.toml`, `ci.yml`, the verifier scripts, project skills), used as the 3-way-merge base when a future templateCentral re-sync needs to combine upstream changes with this repo's own edits without clobbering either. Deliberately excludes `AGENTS.md` — it's genuinely customized for this repo's Supabase stack with no legitimate seeded baseline to snapshot.
 - `comment-hygiene-patterns.txt` — the shared change-narration/oversized-comment pattern list read at runtime by `hooks/post-edit-comment-check.sh`, `.husky/lib/comment-hygiene.sh`, and the `comment-hygiene` CI job — one canonical copy instead of three

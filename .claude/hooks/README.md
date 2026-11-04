@@ -15,7 +15,10 @@ harness.
   recursive-force `rm` on source directories; exit 2 blocks.
   Windows drive-letter paths (`C:\…`, `C:/…`) and quoted paths with spaces
   are normalised before the branch is judged, so worktree commits on feature
-  branches pass.
+  branches pass. A strict `&&` chain (`cd <repo> && git commit`) is judged only
+  by the directories git actually runs in, so it passes from a `main` checkout
+  when the `cd` lands on a feature branch; anything looser keeps the starting
+  directory as a candidate.
 - `block-no-verify.test.sh` — regression tests for the hook (run `bash .claude/hooks/block-no-verify.test.sh`).
 - `post-edit-typecheck.sh` — PostToolUse(Edit|Write), `.ts`/`.tsx` files
   only: runs incremental `tsc --noEmit` and surfaces the last 5 lines;
@@ -26,7 +29,8 @@ harness.
   feedback-only, never blocks.
 - `protect-files.sh` — checks reads and writes, normalizes Windows paths, and hard-blocks secret/credential access except blank environment templates. Governance and CI workflow writes require approval; ordinary application code, skills and specs are unrestricted.
 - `session-context.sh` — SessionStart(startup|resume|clear|compact):
-  re-injects the first 30 lines of `AGENTS.md`.
+  re-injects the always-on invariants (`AGENTS.md` is already loaded through
+  the `CLAUDE.md` import).
 - `skill-usage-log.sh` — PostToolUse(`Skill`): appends a
   `timestamp\tskill-name` line to `.claude/skill-usage.log`; always exits 0.
 - `stop-checks.sh` — Stop: runs `pnpm test`; on failure, tails the last 20

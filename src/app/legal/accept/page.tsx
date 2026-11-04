@@ -21,11 +21,11 @@ export default async function LegalAcceptPage({
 
   return (
     <div className="mx-auto max-w-md px-5 py-16">
-      <h1 className="mb-4 text-xl font-semibold">
-        Our terms have been updated
+      <h1 className="mb-3 font-display text-2xl font-bold tracking-tight">
+        Our terms have changed
       </h1>
       <p className="mb-6 text-sm text-muted-foreground">
-        Please review and accept before continuing.
+        Read and accept them to continue.
       </p>
       <AcceptForm next={safeRedirectPath(next, "/dashboard")} />
     </div>

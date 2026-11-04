@@ -13,7 +13,7 @@ answer 404. The route carries `noindex` and `no-referrer` (metadata and the
 - `page.tsx`: reads the enabled form with `loadPublicForm` and renders
   `InquiryForm` with the business name, the vendor's terms (if set) and the
   render time from `formRenderedAt()`.
-- `inquiry-form.tsx`: client form: name, phone, optional event date and a
+- `inquiry-form.tsx`: client form: inputs are 44px tall with 16px text; the terms checkbox links the booking terms without showing the version number; name, phone, optional event date and a
   message, the terms tick box (only when the vendor set terms) and
   `@merqo/ui`'s `DataCollectionNotice`. It has no marketing consent box.
   Also renders the hidden `started_at` and the off-screen `website`

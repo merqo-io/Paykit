@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `@merqo/ui` pinned to commit e641d602cd1f4e4a1e7a4d6fd463ba26661de9ad (tag v0.41.0 pending). Tier labels (Free / Starter / Pro) in the client navigation now come from its shared `tierLabel` helper, and the account menu moves "Payment setup" to the top.
+
 ### Added
 
 - Local `PageHeader` and `EmptyState` components for dashboard pages. The dashboard home is now a status hub (payment method or "Not set", payments to confirm, this month's count).
@@ -17,6 +21,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - The dashboard nav bar shows only Payments, Bookings and Reports. Payment setup moved into the avatar menu next to Profile and Plan, the tier chip is readable, and the shell uses qkit's page width and padding. The onboarding tour now points Payment setup at the avatar menu. The plan page uses `PageHeader` and no longer has a back button.
+- Sign-in, two-step sign-in, terms acceptance, inquiry form and error pages use flatter, smaller qkit-style layouts with 44px controls and plain copy. Sign-in errors are mapped to short sentences (for example "Wrong email or password. Try again.") instead of raw Supabase messages, a missing email on "Forgot password?" shows an inline field error, and the dashboard error page links back to the dashboard.
 
 ### Removed
 

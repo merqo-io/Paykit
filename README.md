@@ -24,7 +24,7 @@ in the workspace root for why. Brand theme is "Banknote Engrave"
 of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-icon.tsx`'s
 ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
-The public landing is in pre-launch mode: an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to v0.39.0, whose `PricingLadder` the vendor plan page renders from merqo's public plan catalog (paykit stores no prices).
+The public landing is in pre-launch mode: an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to merqo-ui commit e641d602 (v0.41.0, tag pending), whose `PricingLadder` the vendor plan page renders (the navigation tier badge uses its `tierLabel`) from merqo's public plan catalog (paykit stores no prices).
 
 The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amount (the vendor's payee name, falling back to their inquiry-form business name), reports claim and upload failures inline instead of in toasts, and shows a plain retry notice when the payment cannot be loaded.
 
@@ -114,7 +114,7 @@ provider implementation, not a route rewrite. `pnpm-workspace.yaml`'s
 `overrides` pins several transitive dependencies (`postcss`, `undici`,
 `vite`, `qs`, `sharp`, `nanoid`, `fast-uri`, `js-yaml`, `brace-expansion`)
 past known-vulnerable versions Next.js itself and dev tooling still
-bundle; `pnpm audit --prod --audit-level=high` is CI's hard gate — bump
+bundle; `.claude/deps-gate.sh` (a fail-closed `pnpm audit --prod` high/critical gate) is CI's hard gate — bump
 the relevant floor here when a new advisory lands, and re-check after any
 `next` upgrade in case it's safe to drop one. `next`/`eslint-config-next` versions are pinned in `package.json`; check that manifest for the current security release. Isolated build validation and its limitations are recorded in the audit evidence. The dashboard nav, account
 menu, profile-page layout, image upload, onboarding tour, and landing nav
@@ -343,7 +343,7 @@ The shared UI dependency is pinned to immutable commit 7b386558af36a1cbf008a9b4c
 
 Component consolidation is documented in [the cleanup spec](docs/meta/2026-10-10-component-reuse-spec.md). Shared presentation components retain payment configuration boundaries and monetary input validation.
 
-The AI harness follows templateCentral 6.0.4: hook commands are anchored on the project directory, and the guard against committing to `main` reads the branch of the directory a command runs in. The dated entry in `AGENTS.md` lists what was adopted.
+The AI harness follows templateCentral 7.2.2: hook commands are anchored on the project directory, and the guard against committing to `main` reads the branch of the directory a command runs in. The dated entry in `AGENTS.md` lists what was adopted.
 
 Payment screenshots belong to the transaction. A calling kit may attach the customer's screenshot to `POST /api/v1/checkout/{id}/claim` as a `multipart/form-data` `proof` file; paykit keeps it in the private `paykit-payment-proofs` bucket with one `payment_evidence` row (migration `0022`, applied by hand). `GET /api/v1/checkout/{id}/evidence` returns a 300-second link to it plus two hints, `duplicate_of` and `amount_match`. The amount is read out of the screenshot on the server with Tesseract (`src/lib/proof-ocr.ts`, language data in `ocr-data/`), after the claim has answered. Neither hint ever changes a transaction's status. `ocr-data/` and the `outputFileTracingIncludes` entry in `next.config.ts` must stay together: without the entry the amount check fails silently on Vercel. See `src/app/api/v1/checkout/[id]/evidence/README.md` and the `payment_evidence` entry in `AGENTS.md`'s data model section.
 
@@ -351,7 +351,7 @@ The customer can pay on a page paykit hosts. A calling kit passes `return_url` a
 
 ## Booking inquiries
 
-An event vendor can take inquiries before there is a booking. On Bookings they set up an inquiry form (business name, an optional link to their own booking terms with a version) and share its public link, `/inquire/{public_id}`, paykit's second public page. A client sends their name, phone, an optional event date and a message, ticks the vendor's terms when the vendor set some (paykit records the url, version and time), and sees the PDPA collection notice. There is no marketing consent box. A honeypot field, a 3 second fill-time check and per-address and per-form rate limits keep bots out. The vendor gets a Telegram alert through merqo's shared vendor bot, works the inquiry from the Inquiries table and converts it into a normal booking. Migration `0025` (applied by hand) adds the tables. Design: `docs/superpowers/specs/2026-10-23-booking-inquiries-design.md`; code: `src/app/inquire/`, `src/app/dashboard/bookings/`.
+An event vendor can take inquiries before there is a booking. On Bookings they set up an inquiry form (business name, an optional link to their own booking terms with a version) and share its public link, `/inquire/{public_id}`, paykit's second public page. A client sends their name, phone, an optional event date and a message, ticks the vendor's terms when the vendor set some (paykit records the url, version and time), and sees the PDPA collection notice. There is no marketing consent box. The form shows the terms link without the version number; paykit still records the version. A honeypot field, a 3 second fill-time check and per-address and per-form rate limits keep bots out. The vendor gets a Telegram alert through merqo's shared vendor bot, works the inquiry from the Inquiries table and converts it into a normal booking. Migration `0025` (applied by hand) adds the tables. Design: `docs/superpowers/specs/2026-10-23-booking-inquiries-design.md`; code: `src/app/inquire/`, `src/app/dashboard/bookings/`.
 
 ## Security headers and MFA
 

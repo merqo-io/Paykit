@@ -22,9 +22,7 @@ describe("DashboardError", () => {
     expect(
       screen.getByRole("heading", { name: /something went wrong/i }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/we hit a snag loading this page/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/could not load this page/i)).toBeInTheDocument();
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       "Dashboard error boundary caught",
       error,
@@ -38,5 +36,13 @@ describe("DashboardError", () => {
 
     await user.click(screen.getByRole("button", { name: /try again/i }));
     expect(reset).toHaveBeenCalledTimes(1);
+  });
+
+  it("links back to the dashboard", () => {
+    render(<DashboardError error={new Error("boom")} reset={vi.fn()} />);
+
+    expect(
+      screen.getByRole("link", { name: /back to dashboard/i }),
+    ).toHaveAttribute("href", "/dashboard");
   });
 });

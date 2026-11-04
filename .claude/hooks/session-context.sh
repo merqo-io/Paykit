@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# SessionStart(startup|resume|clear|compact) — re-inject routing context + universal invariants.
+# SessionStart(startup|resume|clear|compact) — re-inject the universal invariants.
+# AGENTS.md is not printed here: CLAUDE.md imports it (@AGENTS.md), so it is already in context.
 cd "${CLAUDE_PROJECT_DIR:-.}" 2>/dev/null || exit 0
-echo "=== paykit routing context (AGENTS.md) ==="
-head -30 AGENTS.md 2>/dev/null
 
 cat <<'EOF'
 

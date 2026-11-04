@@ -7,7 +7,7 @@ reports, plan display and account settings.
 
 `layout.tsx` obtains the vendor session, shared profile and plan, then composes
 `dashboard-nav.tsx` and the shared dashboard tour. The navigation adapter owns
-Paykit's routes, brand and tier display, and adapts feedback/support results to
+Paykit's routes, brand and tier display (labels from `tierLabel`), and adapts feedback/support results to
 the shared account menu's rejecting-promise contract. The bar links only to
 daily-work places (Payments, Bookings, Reports); Payment setup, Profile and Plan
 live in the avatar menu.
@@ -25,7 +25,7 @@ of a short page instead of mid-screen. The footer is wrapped in
 leaves it out.
 
 `loading.tsx` covers page loading inside this shell. `error.tsx` offers retry
-for page render/data failures; it cannot catch its own segment's layout errors.
+for page render/data failures; it offers "Try again" and a "Back to dashboard" link; it cannot catch its own segment's layout errors.
 
 ## Routes
 

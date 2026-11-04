@@ -75,7 +75,7 @@ export function MfaForm({ verifiedFactorId, staleFactorIds }: Props) {
         <Button
           onClick={startEnrol}
           disabled={busy}
-          className="h-11 w-full rounded-xl"
+          className="h-11 w-full rounded-lg"
         >
           Set up authenticator
         </Button>
@@ -111,6 +111,8 @@ export function MfaForm({ verifiedFactorId, staleFactorIds }: Props) {
         <Input
           id="mfa-code"
           inputMode="numeric"
+          placeholder="123456"
+          className="h-11 rounded-lg text-base"
           autoComplete="one-time-code"
           maxLength={6}
           value={code}
@@ -122,7 +124,7 @@ export function MfaForm({ verifiedFactorId, staleFactorIds }: Props) {
           {error}
         </p>
       )}
-      <Button type="submit" disabled={busy} className="h-11 w-full rounded-xl">
+      <Button type="submit" disabled={busy} className="h-11 w-full rounded-lg">
         Verify
       </Button>
     </form>
