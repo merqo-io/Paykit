@@ -20,8 +20,11 @@ route; mode is a client-side toggle on this one page.
     dashboard the unconfirmed user can't reach yet; "Back to sign in"
     returns to the normal form in sign-in mode.
   - "Forgot password?" (sign-in mode only) calls
-    `supabase.auth.resetPasswordForEmail`, toasting an error if the email
-    field is empty or the call fails, and a success toast otherwise. The
+    `supabase.auth.resetPasswordForEmail`, showing an inline field error if
+    the email is empty, a plain sentence if the call fails, and a success
+    toast otherwise. Every Supabase error goes through `auth-errors.ts`
+    (`friendlyAuthError`), which maps known codes to plain sentences and
+    never echoes the raw message. The
     reset link lands on `/auth/callback`, which establishes a recovery
     session and forwards to `/dashboard/profile`, where "Change password"
     already lets a signed-in (recovery counts) user set a new one — no

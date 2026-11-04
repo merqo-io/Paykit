@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ElevatedCard } from "@merqo/ui";
 import { Wordmark } from "@/components/landing/wordmark";
@@ -31,16 +32,20 @@ export default function DashboardError({
           Something went wrong
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          We hit a snag loading this page. Try again, or reload if it keeps
-          happening.
+          Could not load this page. Try again, or go back to your dashboard.
         </p>
-        <Button
-          type="button"
-          onClick={() => reset()}
-          className="mt-7 h-11 w-full rounded-xl"
-        >
-          Try again
-        </Button>
+        <div className="mt-7 flex flex-col gap-2.5">
+          <Button
+            type="button"
+            onClick={() => reset()}
+            className="h-11 w-full rounded-lg"
+          >
+            Try again
+          </Button>
+          <Button asChild variant="outline" className="h-11 w-full rounded-lg">
+            <Link href="/dashboard">Back to dashboard</Link>
+          </Button>
+        </div>
       </ElevatedCard>
     </div>
   );

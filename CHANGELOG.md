@@ -17,6 +17,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `POST /api/merqo/entitlement` receives merqo's per-vendor entitlement push (bearer `MERQO_PROVISION_SECRET`) and caches it in `paykit.vendor_entitlements`. A stale or replayed `issued_at` is a successful no-op, decided atomically in the new `apply_vendor_entitlement` function.
 - `paykit.vendor_is_entitled` is the single gate for Pro-only features: paid and unexpired, or an event pass currently running. The refunds insert policy and the refund-total trigger now read it.
 
+### Changed
+
+- Sign-in, two-step sign-in, terms acceptance, inquiry form and error pages use flatter, smaller qkit-style layouts with 44px controls and plain copy. Sign-in errors are mapped to short sentences (for example "Wrong email or password. Try again.") instead of raw Supabase messages, a missing email on "Forgot password?" shows an inline field error, and the dashboard error page links back to the dashboard.
+
 ### Removed
 
 - Paykit no longer owns pricing. The `vendor_payment_config.plan` column, the `pricing` table, `lib/pricing.ts`, the admin pricing form and plan toggle, the plan-page upgrade request, the dashboard Pro nudge and their server actions are gone. Vendors on Pro were migrated to open-ended paid cache rows that merqo's next push replaces. The plan page now shows the current plan and points to the Merqo account.

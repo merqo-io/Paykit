@@ -14,6 +14,7 @@ password alone.
   to the form.
 - `mfa-form.tsx` — client form: enrol an authenticator (QR plus manual key) or
   verify a 6-digit code with `challengeAndVerify`, then enter `/admin`.
+- The card is a flat surface with a 2px bottom border (no blurred shadow); the code input and button are 44px tall with 16px text.
 - `mfa-form.dom.test.tsx` — verify, wrong code, enrol-then-verify, bad input.
 
 ## Connectivity
