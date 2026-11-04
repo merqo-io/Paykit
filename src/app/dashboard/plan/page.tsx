@@ -28,7 +28,7 @@ export default async function PlanPage() {
 
       <div className="rounded-xl border p-4">
         <p className="text-sm font-medium">
-          Current plan: {view.plan === "pro" ? "Pro" : "Free"}
+          Current plan: <span>{view.plan === "pro" ? "Pro" : "Free"}</span>
         </p>
         <p className="mt-2 text-sm text-muted-foreground">{view.countLabel}</p>
         <p className="mt-2 text-sm text-muted-foreground">

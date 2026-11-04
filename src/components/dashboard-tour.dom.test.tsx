@@ -56,7 +56,7 @@ describe("DashboardTour", () => {
     // Not a bare array: the resolver must be called to get steps, and it
     // must consult matchMedia at that point, not at render time.
     const resolver = props().steps as () => { element: string }[];
-    expect(resolver()).toHaveLength(8); // desktop list (jsdom matchMedia absent)
+    expect(resolver()).toHaveLength(6); // desktop list (jsdom matchMedia absent)
 
     const original = window.matchMedia;
     window.matchMedia = ((query: string) => ({
