@@ -12,7 +12,11 @@ export function AcceptForm({ next }: { next: string }) {
     <form action={acceptLegalTerms} className="space-y-4">
       <input type="hidden" name="next" value={next} />
       <TermsAcceptanceCheckbox checked={checked} onCheckedChange={setChecked} />
-      <Button type="submit" className="w-full" disabled={!checked}>
+      <Button
+        type="submit"
+        className="h-11 w-full rounded-lg"
+        disabled={!checked}
+      >
         Continue
       </Button>
     </form>

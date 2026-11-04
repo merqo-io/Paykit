@@ -10,11 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Wordmark } from "@/components/landing/wordmark";
 import { ElevatedCard } from "@merqo/ui";
 import { GoogleMark } from "@merqo/ui";
+import { friendlyAuthError } from "./auth-errors";
 
 type Mode = "signin" | "signup";
 
-const OAUTH_ERROR_MESSAGE =
-  "Something went wrong signing in with Google. Please try again.";
+const OAUTH_ERROR_MESSAGE = "Could not sign in with Google. Try again.";
 
 export default function LoginPage() {
   return (
@@ -35,6 +35,7 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(
     searchParams.get("error") === "oauth" ? OAUTH_ERROR_MESSAGE : null,
   );
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   // Set once signUp() succeeds without a session (email confirmation on) —
   // shows a "check your email" state instead of bouncing to a dashboard the
@@ -55,11 +56,11 @@ function LoginForm() {
         },
       });
       if (error) {
-        setError(error.message);
+        setError(friendlyAuthError(error, "oauth"));
         setBusy(false);
       }
     } catch {
-      setError("Could not connect. Please try again.");
+      setError("Could not connect. Try again.");
       setBusy(false);
     }
   }
@@ -71,9 +72,11 @@ function LoginForm() {
   // reset-password page needed.
   async function sendReset() {
     if (!email) {
-      toast.error("Enter your email first");
+      setEmailError("Enter your email first");
+      document.getElementById("email")?.focus();
       return;
     }
+    setEmailError(null);
     setBusy(true);
     setError(null);
     try {
@@ -82,12 +85,12 @@ function LoginForm() {
         redirectTo: `${window.location.origin}/auth/callback?next=/dashboard/profile`,
       });
       if (error) {
-        toast.error(error.message);
+        setError(friendlyAuthError(error, "reset"));
         return;
       }
-      toast.success(`Password reset link sent to ${email}.`);
+      toast.success(`Password reset link sent to ${email}`);
     } catch {
-      setError("Could not connect. Please try again.");
+      setError("Could not connect. Try again.");
     } finally {
       setBusy(false);
     }
@@ -97,6 +100,7 @@ function LoginForm() {
     e.preventDefault();
     setBusy(true);
     setError(null);
+    setEmailError(null);
     try {
       const supabase = createClient();
 
@@ -109,7 +113,7 @@ function LoginForm() {
           },
         });
         if (error) {
-          setError(error.message);
+          setError(friendlyAuthError(error, "signup"));
           return;
         }
         // Email confirmation on -> no session yet. Show a "check your email"
@@ -129,13 +133,13 @@ function LoginForm() {
         password,
       });
       if (error) {
-        setError(error.message);
+        setError(friendlyAuthError(error, "signin"));
         return;
       }
       router.push("/dashboard");
       router.refresh();
     } catch {
-      setError("Could not connect. Please try again.");
+      setError("Could not connect. Try again.");
     } finally {
       setBusy(false);
     }
@@ -153,12 +157,12 @@ function LoginForm() {
             <p className="mt-3 text-sm text-muted-foreground">
               We sent a confirmation link to{" "}
               <span className="font-medium text-foreground">{checkEmail}</span>.
-              Click it to activate your account, then sign in.
+              Open it to activate your account, then sign in.
             </p>
             <Button
               type="button"
               variant="outline"
-              className="mt-7 h-11 w-full rounded-xl"
+              className="mt-7 h-11 w-full rounded-lg"
               onClick={() => {
                 setCheckEmail(null);
                 setMode("signin");
@@ -179,7 +183,7 @@ function LoginForm() {
     <main className="flex min-h-screen items-center justify-center p-5">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <Wordmark className="text-3xl" />
+          <Wordmark className="text-xl" />
           <p className="mt-1 text-sm text-muted-foreground">
             Manage your payment setup and transactions.
           </p>
@@ -187,7 +191,7 @@ function LoginForm() {
 
         <ElevatedCard>
           <div className="px-7 pt-9 pb-8">
-            <h1 className="font-display text-3xl font-bold tracking-tight">
+            <h1 className="font-display text-2xl font-bold tracking-tight">
               {isSignin ? "Welcome back" : "Create your account"}
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
@@ -201,7 +205,7 @@ function LoginForm() {
               variant="outline"
               onClick={signInWithGoogle}
               disabled={busy}
-              className="mt-7 h-12 w-full gap-2.5 rounded-xl text-[0.95rem] font-medium"
+              className="mt-7 h-11 w-full gap-2.5 rounded-lg text-base font-medium"
             >
               <GoogleMark />
               Continue with Google
@@ -217,10 +221,7 @@ function LoginForm() {
 
             <form onSubmit={submit} className="space-y-5">
               <div className="space-y-2">
-                <Label
-                  htmlFor="email"
-                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                >
+                <Label htmlFor="email" className="text-sm font-medium">
                   Email
                 </Label>
                 <Input
@@ -229,17 +230,27 @@ function LoginForm() {
                   required
                   autoComplete="email"
                   placeholder="you@business.sg"
-                  className="h-11 rounded-xl"
+                  className="h-11 rounded-lg text-base"
+                  aria-invalid={emailError ? true : undefined}
+                  aria-describedby={emailError ? "email-error" : undefined}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError(null);
+                  }}
                 />
+                {emailError && (
+                  <p
+                    id="email-error"
+                    className="text-sm font-medium text-destructive"
+                  >
+                    {emailError}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
-                  <Label
-                    htmlFor="password"
-                    className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                  >
+                  <Label htmlFor="password" className="text-sm font-medium">
                     Password
                   </Label>
                   {isSignin && (
@@ -247,7 +258,7 @@ function LoginForm() {
                       type="button"
                       onClick={sendReset}
                       disabled={busy}
-                      className="text-xs font-semibold text-primary underline-offset-4 hover:underline disabled:opacity-50"
+                      className="-my-3 inline-flex min-h-11 items-center text-sm font-medium text-primary underline-offset-4 hover:underline disabled:opacity-50"
                     >
                       Forgot password?
                     </button>
@@ -259,7 +270,7 @@ function LoginForm() {
                   required
                   autoComplete={isSignin ? "current-password" : "new-password"}
                   placeholder="••••••••"
-                  className="h-11 rounded-xl"
+                  className="h-11 rounded-lg text-base"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -275,7 +286,7 @@ function LoginForm() {
               <Button
                 type="submit"
                 size="lg"
-                className="h-12 w-full rounded-xl text-base font-semibold"
+                className="h-11 w-full rounded-lg text-base font-semibold"
                 disabled={busy}
               >
                 {submitLabel}
@@ -288,10 +299,11 @@ function LoginForm() {
             {isSignin ? "New to paykit? " : "Already have an account? "}
             <button
               type="button"
-              className="font-semibold text-primary underline-offset-4 hover:underline"
+              className="inline-flex min-h-11 items-center font-semibold text-primary underline-offset-4 hover:underline"
               onClick={() => {
                 setMode(isSignin ? "signup" : "signin");
                 setError(null);
+                setEmailError(null);
               }}
             >
               {isSignin ? "Create an account" : "Sign in"}

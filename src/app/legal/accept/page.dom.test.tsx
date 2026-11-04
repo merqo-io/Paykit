@@ -10,7 +10,7 @@ describe("LegalAcceptPage", () => {
         searchParams: Promise.resolve({ next: "/admin" }),
       }),
     );
-    expect(screen.getByText("Our terms have been updated")).toBeInTheDocument();
+    expect(screen.getByText("Our terms have changed")).toBeInTheDocument();
     const nextField = document.querySelector('input[name="next"]');
     expect(nextField).toHaveValue("/admin");
   });

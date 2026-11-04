@@ -28,28 +28,27 @@ export default function RootError({
     <main className="flex min-h-screen items-center justify-center p-5">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <Wordmark className="text-3xl" />
+          <Wordmark className="text-xl" />
         </div>
         <ElevatedCard className="px-7 py-10 text-center">
           <h1 className="font-display text-2xl font-bold tracking-tight">
             Something went wrong
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            We hit a snag loading this page. Try again, or head back home if it
-            keeps happening.
+            Could not load this page. Try again, or go back home.
           </p>
           <div className="mt-7 flex flex-col gap-2.5">
             <Button
               type="button"
               onClick={() => reset()}
-              className="h-11 w-full rounded-xl"
+              className="h-11 w-full rounded-lg"
             >
               Try again
             </Button>
             <Button
               asChild
               variant="outline"
-              className="h-11 w-full rounded-xl"
+              className="h-11 w-full rounded-lg"
             >
               <Link href="/">Back to home</Link>
             </Button>

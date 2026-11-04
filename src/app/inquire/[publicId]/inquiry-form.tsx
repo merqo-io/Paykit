@@ -63,6 +63,7 @@ export function InquiryForm({
           id="customer_name"
           name="customer_name"
           autoComplete="name"
+          className="h-11 rounded-lg text-base"
           maxLength={80}
           required
         />
@@ -75,13 +76,19 @@ export function InquiryForm({
           type="tel"
           autoComplete="tel"
           placeholder="+65 9123 4567"
+          className="h-11 rounded-lg text-base"
           maxLength={20}
           required
         />
       </div>
       <div className="space-y-2">
         <Label htmlFor="event_date">Event date (optional)</Label>
-        <Input id="event_date" name="event_date" type="date" />
+        <Input
+          id="event_date"
+          name="event_date"
+          type="date"
+          className="h-11 rounded-lg text-base"
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="message">About your event</Label>
@@ -89,6 +96,7 @@ export function InquiryForm({
           id="message"
           name="message"
           rows={5}
+          className="rounded-lg text-base"
           maxLength={2000}
           placeholder="Type of event, number of guests, venue, what you need."
           required
@@ -113,8 +121,8 @@ export function InquiryForm({
                 className="underline"
               >
                 booking terms
-              </a>{" "}
-              (version {terms.version}).
+              </a>
+              .
             </span>
           </Label>
         </div>
@@ -130,7 +138,11 @@ export function InquiryForm({
         </p>
       )}
 
-      <Button type="submit" className="w-full" disabled={pending}>
+      <Button
+        type="submit"
+        className="h-11 w-full rounded-lg"
+        disabled={pending}
+      >
         {pending ? "Sending…" : "Send inquiry"}
       </Button>
     </form>
