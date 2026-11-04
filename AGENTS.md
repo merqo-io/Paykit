@@ -1,4 +1,4 @@
-<!-- templateCentral: nextjs@6.0.4 (Supabase variant — shared project, schema per kit) -->
+<!-- templateCentral: nextjs@7.2.2 (Supabase variant — shared project, schema per kit) -->
 
 # AGENTS.md — paykit
 
@@ -34,7 +34,7 @@ later as config, not a redesign.
 ## Stack
 
 Next.js 16 · App Router · Turbopack · TypeScript strict · Tailwind v4 · shadcn/ui
-(new-york) · Zod · Supabase (`@supabase/ssr`) · Vitest · pnpm 11 · Node ≥24 ·
+(new-york) · Zod · Supabase (`@supabase/ssr`) · Vitest · pnpm 11 · Node ≥24.22.1 ·
 deploy target: Vercel
 
 ## Commands
@@ -109,7 +109,7 @@ no realtime). Use only the stack-agnostic ones here:
 Do **not** run `templatecentral:add (auth)` or `(database)` — they install
 better-auth / Drizzle and will break RLS.
 
-templateCentral 6.0.4 review history (what was adopted and not): [`docs/meta/templatecentral-adoption-log.md`](docs/meta/templatecentral-adoption-log.md).
+templateCentral 7.2.2 review history (what was adopted and not): [`docs/meta/templatecentral-adoption-log.md`](docs/meta/templatecentral-adoption-log.md).
 
 ## Skills Security
 
@@ -125,7 +125,7 @@ Full reference (hooks, permissions, git hooks, CI gates): [`docs/meta/ai-harness
 - The Bash guard blocks hook bypasses (`--no-verify`), protected-branch force pushes and destructive guard edits; `deny` rules cover `rm -rf`, force push, `reset --hard`, `clean`, `filter-branch`, ref delete.
 - Credential-shaped prompts are blocked; injection phrases only add advisory context.
 - PostToolUse runs `tsc --noEmit` and a comment-hygiene scan (feedback only). The Stop hook runs the test suite and feeds failures back.
-- SessionStart re-injects the first 30 lines of this file, so keep lines 1-30 stable.
+- SessionStart prints the always-on invariants only (this file is loaded through the `CLAUDE.md` import).
 - Husky: pre-commit format/lint/typecheck/gitleaks, commit-msg Conventional Commits, pre-push harness integrity check + quality gate. CI adds coverage, build, e2e, db (pgTAP), mutation, lockfile, changelog, readme-freshness, comment-hygiene and security gates.
 - After editing `AGENTS.md` or other seeded files, a human runs `bash .claude/regen-harness.sh` (or updates the hash in `.claude/harness.json`); `bash .claude/verify-harness.sh` must pass.
 
