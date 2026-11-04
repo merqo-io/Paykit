@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `@merqo/ui` pinned to commit e641d602cd1f4e4a1e7a4d6fd463ba26661de9ad (tag v0.41.0 pending). Tier labels (Free / Starter / Pro) now come from its shared `tierLabel` helper, and the account menu moves "Payment setup" to the top.
+
 ### Added
 
 - The vendor plan page renders the shared `PricingLadder` (`@merqo/ui` v0.39.0) from merqo's public plan catalog, highlighting All Access, and shows a calm "Prices are unavailable right now" line when the catalog cannot be fetched. `merqoBaseUrl()` in `src/lib/merqo-url.ts` replaces three duplicated base-URL helpers.

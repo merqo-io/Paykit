@@ -1,8 +1,9 @@
+import { tierLabel } from "@merqo/ui";
 import type { VendorPlan } from "@/lib/types";
 
 export interface PlanView {
   plan: VendorPlan;
-  planLabel: "Free" | "Pro";
+  planLabel: string;
   countLabel: string;
 }
 
@@ -17,7 +18,7 @@ export function resolvePlanView(
 ): PlanView {
   return {
     plan,
-    planLabel: plan === "pro" ? "Pro" : "Free",
+    planLabel: tierLabel(plan),
     countLabel: `${countThisMonth} transaction${countThisMonth === 1 ? "" : "s"} this month`,
   };
 }

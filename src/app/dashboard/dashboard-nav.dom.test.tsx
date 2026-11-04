@@ -80,7 +80,7 @@ describe("DashboardNav", () => {
     expect(menuItems.map((item) => item.textContent)).toEqual([
       "Switch products",
       "Profile",
-      "Plan · free",
+      "Plan · Free",
       "Get help",
       "Feedback",
       "Theme · System",
