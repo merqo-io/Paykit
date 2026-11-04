@@ -17,7 +17,8 @@ comments (`was`/`added`/dated/ticket-ref-shaped openers, per
 edited file. Both feedback-only, never block.
 Stop: exits 0 when `stop_hook_active` (no re-entry loop); else runs the test
 suite, exit 2 feeds failures back, exit 0 on pass.
-SessionStart (startup|resume|compact): re-injects first 30 lines of this file.
+SessionStart (startup|resume|compact): re-injects the always-on invariants (this file is already loaded through the
+`CLAUDE.md` import).
 `permissions`: max-privilege — bare-tool `allow` (Bash/Read/Edit/Write/web/Skill/
 Task) so common work doesn't prompt; `deny` covers secret reads/edits (`.env.local`
 and other `.env.<env>` variants, `./secrets/**` — `.env.example` is the one
@@ -48,7 +49,14 @@ to added lines only, against the first 10 lines of
 `.claude/comment-hygiene-patterns.txt` — the narration-keyword patterns, not
 the lower-precision date/ticket-ref ones; `skip-comment-check` label
 bypasses), harness integrity, and (via `security.yml`) a full-history
-gitleaks scan + `pnpm audit` + CodeQL.
+gitleaks scan + the dependency gate `.claude/deps-gate.sh` + CodeQL.
+The gate runs `pnpm audit --prod` on `pnpm-lock.yaml` and fails closed on
+high/critical advisories, a missing tool, no network or an unparseable report.
+pnpm-native suppressions (`auditConfig`, `ignoreGhsas`, `ignoreCves`,
+`audit.ignore`) are rejected in `package.json`, `pnpm-workspace.yaml` and
+`.npmrc`; the only suppression path is `.claude/dep-audit-allow.txt`
+(`<id> <YYYY-MM-DD> <reason>`, entries expire and may not be more than 180 days
+out; `protect-files.sh` asks before edits to it).
 RLS isolation: `supabase/tests/rls.test.sql` via `supabase test db`.
 Project skills (directory form, `<name>/SKILL.md`): `.claude/skills/` |
 Manifest: `.claude/harness.json`. Fully armed: every `.claude/harness.json`

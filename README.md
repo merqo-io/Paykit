@@ -112,7 +112,7 @@ provider implementation, not a route rewrite. `pnpm-workspace.yaml`'s
 `overrides` pins several transitive dependencies (`postcss`, `undici`,
 `vite`, `qs`, `sharp`, `nanoid`, `fast-uri`, `js-yaml`, `brace-expansion`)
 past known-vulnerable versions Next.js itself and dev tooling still
-bundle; `pnpm audit --prod --audit-level=high` is CI's hard gate — bump
+bundle; `.claude/deps-gate.sh` (a fail-closed `pnpm audit --prod` high/critical gate) is CI's hard gate — bump
 the relevant floor here when a new advisory lands, and re-check after any
 `next` upgrade in case it's safe to drop one. `next`/`eslint-config-next` versions are pinned in `package.json`; check that manifest for the current security release. Isolated build validation and its limitations are recorded in the audit evidence. The dashboard nav, account
 menu, profile-page layout, image upload, onboarding tour, and landing nav
@@ -341,7 +341,7 @@ The shared UI dependency is pinned to immutable commit 7b386558af36a1cbf008a9b4c
 
 Component consolidation is documented in [the cleanup spec](docs/meta/2026-10-10-component-reuse-spec.md). Shared presentation components retain payment configuration boundaries and monetary input validation.
 
-The AI harness follows templateCentral 6.0.4: hook commands are anchored on the project directory, and the guard against committing to `main` reads the branch of the directory a command runs in. The dated entry in `AGENTS.md` lists what was adopted.
+The AI harness follows templateCentral 7.2.2: hook commands are anchored on the project directory, and the guard against committing to `main` reads the branch of the directory a command runs in. The dated entry in `AGENTS.md` lists what was adopted.
 
 Payment screenshots belong to the transaction. A calling kit may attach the customer's screenshot to `POST /api/v1/checkout/{id}/claim` as a `multipart/form-data` `proof` file; paykit keeps it in the private `paykit-payment-proofs` bucket with one `payment_evidence` row (migration `0022`, applied by hand). `GET /api/v1/checkout/{id}/evidence` returns a 300-second link to it plus two hints, `duplicate_of` and `amount_match`. The amount is read out of the screenshot on the server with Tesseract (`src/lib/proof-ocr.ts`, language data in `ocr-data/`), after the claim has answered. Neither hint ever changes a transaction's status. `ocr-data/` and the `outputFileTracingIncludes` entry in `next.config.ts` must stay together: without the entry the amount check fails silently on Vercel. See `src/app/api/v1/checkout/[id]/evidence/README.md` and the `payment_evidence` entry in `AGENTS.md`'s data model section.
 
