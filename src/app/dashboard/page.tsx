@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getVendorSession } from "@/lib/vendor-session";
-import { listTransactions, txCountThisMonth } from "@/lib/transactions";
+import { claimedTxCount, txCountThisMonth } from "@/lib/transactions";
 import { stampTourSeen } from "@/lib/tour-prefs";
 import { getConfig } from "./config/actions";
 import type { VendorPaymentConfig } from "@/lib/types";
@@ -43,10 +43,10 @@ function paymentMethodSummary(config: VendorPaymentConfig): {
 export default async function DashboardPage() {
   const { supabase, user } = await getVendorSession();
 
-  const [config, count, recent, { data: prefs }] = await Promise.all([
+  const [config, count, toConfirm, { data: prefs }] = await Promise.all([
     getConfig(),
     txCountThisMonth(user.id),
-    listTransactions(user.id),
+    claimedTxCount(user.id),
     supabase
       .from("vendor_prefs")
       .select("tour_seen_at")
@@ -65,13 +65,6 @@ export default async function DashboardPage() {
   }
 
   const methodSummary = config ? paymentMethodSummary(config) : null;
-  const toConfirm = recent.filter((t) => t.status === "claimed").length;
-
-  let toConfirmLabel = "None";
-  if (toConfirm > 0) {
-    toConfirmLabel = `${toConfirm} payment${toConfirm === 1 ? "" : "s"} to confirm`;
-  }
-
   return (
     <div>
       <PageHeader
@@ -107,7 +100,10 @@ export default async function DashboardPage() {
 
         <div className="rounded-xl border bg-card p-5">
           <p className={FORM_LABEL_CLASS}>To confirm</p>
-          <p className="mt-2 text-sm font-medium">{toConfirmLabel}</p>
+          <p className="mt-2 text-2xl font-semibold">{toConfirm}</p>
+          <p className="text-sm text-muted-foreground">
+            {toConfirm === 1 ? "payment" : "payments"} waiting for you
+          </p>
           <Link
             href="/dashboard/transactions"
             className="mt-3 inline-block text-sm underline underline-offset-4"

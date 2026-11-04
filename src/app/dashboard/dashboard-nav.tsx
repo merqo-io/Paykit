@@ -22,7 +22,7 @@ function isActive(path: string, href: string): boolean {
   return href === "/dashboard" ? path === "/dashboard" : path.startsWith(href);
 }
 
-/** Stable anchor id for the onboarding tour, e.g. "/dashboard/config" -> "nav-config". */
+/** Stable anchor id for the onboarding tour, e.g. "/dashboard/transactions" -> "nav-transactions". */
 function tourAnchor(href: string): string {
   return `nav-${href === "/dashboard" ? "dashboard" : href.split("/").pop()}`;
 }

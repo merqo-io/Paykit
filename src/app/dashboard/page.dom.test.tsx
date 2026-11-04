@@ -14,13 +14,13 @@ import type { VendorPaymentConfig } from "@/lib/types";
 const {
   getConfigMock,
   txCountThisMonthMock,
-  listTransactionsMock,
+  claimedTxCountMock,
   maybeSingleMock,
   stampTourSeenMock,
 } = vi.hoisted(() => ({
   getConfigMock: vi.fn(),
   txCountThisMonthMock: vi.fn(),
-  listTransactionsMock: vi.fn(),
+  claimedTxCountMock: vi.fn(),
   maybeSingleMock: vi.fn(),
   stampTourSeenMock: vi.fn(async () => {}),
 }));
@@ -44,7 +44,7 @@ vi.mock("./config/actions", () => ({
 }));
 vi.mock("@/lib/transactions", () => ({
   txCountThisMonth: txCountThisMonthMock,
-  listTransactions: listTransactionsMock,
+  claimedTxCount: claimedTxCountMock,
 }));
 vi.mock("@/lib/tour-prefs", () => ({
   stampTourSeen: stampTourSeenMock,
@@ -80,7 +80,7 @@ beforeEach(() => {
   });
   getConfigMock.mockResolvedValue(PAYNOW_CONFIG);
   txCountThisMonthMock.mockResolvedValue(0);
-  listTransactionsMock.mockResolvedValue([]);
+  claimedTxCountMock.mockResolvedValue(0);
 });
 
 describe("DashboardPage", () => {
@@ -134,27 +134,24 @@ describe("DashboardPage", () => {
   });
 
   it("links to payments to confirm when customers have claimed payment", async () => {
-    listTransactionsMock.mockResolvedValue([
-      { id: "a", status: "claimed" },
-      { id: "b", status: "confirmed" },
-      { id: "c", status: "claimed" },
-    ]);
+    claimedTxCountMock.mockResolvedValue(2);
 
     const jsx = await DashboardPage();
     render(jsx);
 
-    expect(screen.getByText("2 payments to confirm")).toBeInTheDocument();
+    expect(screen.getByText("2")).toBeInTheDocument();
+    expect(screen.getByText("payments waiting for you")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View payments" })).toHaveAttribute(
       "href",
       "/dashboard/transactions",
     );
   });
 
-  it("says None when nothing is waiting to be confirmed", async () => {
+  it("shows zero when nothing is waiting to be confirmed", async () => {
     const jsx = await DashboardPage();
     render(jsx);
 
-    expect(screen.getByText("None")).toBeInTheDocument();
+    expect(screen.getByText("0")).toBeInTheDocument();
   });
 
   it("stamps tour_seen_at durably when the vendor hasn't seen the tour yet", async () => {

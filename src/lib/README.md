@@ -148,7 +148,8 @@ provide authorization.
 ## Reads and reports
 
 `transactions.ts` and `bookings.ts` read vendor-owned records with the session
-client. `read-all-rows.ts` follows ordered numeric ranges to an empty page and rejects
+client; `claimedTxCount` is an RLS-scoped head/count of claimed (awaiting
+confirmation) transactions for the dashboard home. `read-all-rows.ts` follows ordered numeric ranges to an empty page and rejects
 partial collections on later errors; it does not provide a transaction snapshot.
 `list-all-users.ts` paginates auth users and reports its safety ceiling as failure.
 `admin-data.ts` performs team-console service-role reads; callers must apply the

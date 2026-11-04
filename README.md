@@ -86,8 +86,8 @@ tap-to-open hint (`@merqo/ui`'s `InfoTooltip`, `trigger="tap"`) explaining
 what `claimed`/`confirmed` mean, so that distinction survives past the
 one-time tour — tap, not the component's hover default, since a native
 hover hint has no touch equivalent and most vendors check this on a
-phone. The tour now also covers Bookings and
-Earnings, both live nav items that previously had no tour step at all.
+phone. The tour covers Payments, Bookings and Reports in the nav, and
+points Payment setup at the avatar menu.
 `@merqo/ui`'s `DashboardNav`
 (v0.10.0+) is now wired with `LinkComponent={Link}`
 (`src/app/dashboard/dashboard-nav.tsx`), so its nav links do a
