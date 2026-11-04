@@ -13,12 +13,9 @@ import { submitSupportMessageAction } from "@/app/actions/support";
 type Tier = "free" | "pro";
 
 const LINKS = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/dashboard/config", label: "Payment setup" },
-  { href: "/dashboard/transactions", label: "Transactions" },
+  { href: "/dashboard/transactions", label: "Payments" },
   { href: "/dashboard/bookings", label: "Bookings" },
-  { href: "/dashboard/stats", label: "Stats" },
-  { href: "/dashboard/reports/earnings", label: "Earnings" },
+  { href: "/dashboard/stats", label: "Reports" },
 ];
 
 function isActive(path: string, href: string): boolean {
@@ -49,7 +46,7 @@ function TierBadge({ tier }: { tier: Tier }) {
   return (
     <span
       className={cn(
-        "shrink-0 rounded-full px-1.5 py-0.5 font-mono text-[0.6rem] font-semibold uppercase tracking-wider ring-1 ring-inset",
+        "shrink-0 rounded-full px-1.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wider ring-1 ring-inset",
         className,
       )}
     >
@@ -131,6 +128,8 @@ export function DashboardNav({
       }}
       signOutAction={signOut}
       tierBadge={<TierBadge tier={plan} />}
+      showPlanItem
+      extraLink={{ href: "/dashboard/config", label: "Payment setup" }}
       switchKits={getSwitchKits("paykit")}
       getHelp={{
         type: "form",

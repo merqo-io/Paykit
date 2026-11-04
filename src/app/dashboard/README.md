@@ -8,7 +8,9 @@ reports, plan display and account settings.
 `layout.tsx` obtains the vendor session, shared profile and plan, then composes
 `dashboard-nav.tsx` and the shared dashboard tour. The navigation adapter owns
 Paykit's routes, brand and tier display, and adapts feedback/support results to
-the shared account menu's rejecting-promise contract.
+the shared account menu's rejecting-promise contract. The bar links only to
+daily-work places (Payments, Bookings, Reports); Payment setup, Profile and Plan
+live in the avatar menu.
 
 The navigation wrapper uses `contents print:hidden` so it does not constrain the
 shared sticky header. One layout-level `main` owns the outer content width;
@@ -27,8 +29,9 @@ for page render/data failures; it cannot catch its own segment's layout errors.
 
 ## Routes
 
-- `page.tsx` shows a configured payment-method summary or setup prompt, monthly
-  transaction usage. Usage does not impose a volume cap.
+- `page.tsx` is a status hub: payment method (or "Not set"), payments waiting
+  to be confirmed and this month's payment count. Usage does not impose a volume
+  cap.
 - `config/` saves PayNow or a payment link/QR image. Deferred uploads commit on
   Save.
 - `transactions/` lists vendor transactions and Pro-gated refund bookkeeping.

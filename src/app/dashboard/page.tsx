@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getVendorSession } from "@/lib/vendor-session";
-import { txCountThisMonth } from "@/lib/transactions";
+import { listTransactions, txCountThisMonth } from "@/lib/transactions";
 import { stampTourSeen } from "@/lib/tour-prefs";
 import { getConfig } from "./config/actions";
 import type { VendorPaymentConfig } from "@/lib/types";
+import { PageHeader } from "@/components/page-header";
+import { buttonVariants } from "@/components/ui/button";
+import { FORM_LABEL_CLASS } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -28,21 +31,22 @@ function paymentMethodSummary(config: VendorPaymentConfig): {
     const raw = config.uen ?? config.mobile ?? "";
     return {
       kindLabel: "PayNow QR",
-      identifier: raw ? maskIdentifier(raw) : "—",
+      identifier: raw ? maskIdentifier(raw) : "Not set",
     };
   }
   return {
     kindLabel: "Payment link or QR image",
-    identifier: config.label ?? "—",
+    identifier: config.label ?? "Not set",
   };
 }
 
 export default async function DashboardPage() {
   const { supabase, user } = await getVendorSession();
 
-  const [config, count, { data: prefs }] = await Promise.all([
+  const [config, count, recent, { data: prefs }] = await Promise.all([
     getConfig(),
     txCountThisMonth(user.id),
+    listTransactions(user.id),
     supabase
       .from("vendor_prefs")
       .select("tour_seen_at")
@@ -61,49 +65,63 @@ export default async function DashboardPage() {
   }
 
   const methodSummary = config ? paymentMethodSummary(config) : null;
+  const toConfirm = recent.filter((t) => t.status === "claimed").length;
+
+  let toConfirmLabel = "None";
+  if (toConfirm > 0) {
+    toConfirmLabel = `${toConfirm} payment${toConfirm === 1 ? "" : "s"} to confirm`;
+  }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-
-      {!config && (
-        <p className="rounded-xl border bg-secondary/50 p-4 text-sm">
-          You haven&apos;t set up payments yet.{" "}
-          <Link
-            href="/dashboard/config"
-            className="underline underline-offset-4"
-          >
-            Set it up
-          </Link>
-          .
-        </p>
-      )}
-
-      {methodSummary && (
-        <div className="rounded-xl border bg-card p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Payment method
-              </p>
-              <p className="mt-1 truncate text-sm font-medium">
-                {methodSummary.kindLabel} · {methodSummary.identifier}
-              </p>
-            </div>
+    <div>
+      <PageHeader
+        eyebrow="Overview"
+        title="Payments at a glance"
+        actions={
+          !config ? (
             <Link
               href="/dashboard/config"
-              className="shrink-0 text-sm underline underline-offset-4"
+              className={buttonVariants({ size: "lg" })}
             >
-              Edit
+              Set up payments
             </Link>
-          </div>
-        </div>
-      )}
+          ) : undefined
+        }
+      />
 
-      <div className="rounded-xl border p-4" data-tour="tx-count">
-        <p className="text-sm font-medium">
-          {count} transaction{count === 1 ? "" : "s"} this month
-        </p>
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-xl border bg-card p-5">
+          <p className={FORM_LABEL_CLASS}>Payment method</p>
+          <p className="mt-2 truncate text-sm font-medium">
+            {methodSummary
+              ? `${methodSummary.kindLabel} · ${methodSummary.identifier}`
+              : "Not set"}
+          </p>
+          <Link
+            href="/dashboard/config"
+            className="mt-3 inline-block text-sm underline underline-offset-4"
+          >
+            {methodSummary ? "Edit payment setup" : "Open payment setup"}
+          </Link>
+        </div>
+
+        <div className="rounded-xl border bg-card p-5">
+          <p className={FORM_LABEL_CLASS}>To confirm</p>
+          <p className="mt-2 text-sm font-medium">{toConfirmLabel}</p>
+          <Link
+            href="/dashboard/transactions"
+            className="mt-3 inline-block text-sm underline underline-offset-4"
+          >
+            View payments
+          </Link>
+        </div>
+
+        <div className="rounded-xl border bg-card p-5" data-tour="tx-count">
+          <p className={FORM_LABEL_CLASS}>This month</p>
+          <p className="mt-2 text-sm font-medium">
+            {count} payment{count === 1 ? "" : "s"} this month
+          </p>
+        </div>
       </div>
     </div>
   );

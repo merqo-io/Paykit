@@ -4,23 +4,25 @@ import { render } from "@testing-library/react";
 import DashboardLoading from "./loading";
 
 describe("DashboardLoading", () => {
-  it("renders the title-plus-cards skeleton shape", () => {
-    const { container } = render(<DashboardLoading />);
-    const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
-    // 2 title-line skeletons + 3 card-block skeletons, matching the
-    // title + card-block shape every dashboard page shares.
-    expect(skeletons).toHaveLength(5);
-  });
-
-  it("sizes the title-line skeletons ahead of the card-block ones", () => {
+  it("renders a header skeleton followed by three card skeletons", () => {
     const { container } = render(<DashboardLoading />);
     const skeletons = Array.from(
       container.querySelectorAll('[data-slot="skeleton"]'),
     );
-    expect(skeletons[0]).toHaveClass("h-8", "w-48");
-    expect(skeletons[1]).toHaveClass("h-4", "w-72");
-    expect(skeletons[2]).toHaveClass("h-20", "w-full", "rounded-xl");
-    expect(skeletons[3]).toHaveClass("h-20", "w-full", "rounded-xl");
-    expect(skeletons[4]).toHaveClass("h-20", "w-full", "rounded-xl");
+    expect(skeletons).toHaveLength(5);
+    expect(skeletons[0]).toHaveClass("h-3", "w-24");
+    expect(skeletons[1]).toHaveClass("h-10", "w-72");
+    for (const card of skeletons.slice(2)) {
+      expect(card).toHaveClass("h-28", "w-full", "rounded-xl");
+    }
+  });
+
+  it("matches the page width and respects reduced motion", () => {
+    const { container } = render(<DashboardLoading />);
+    expect(container.firstElementChild).toHaveClass(
+      "max-w-7xl",
+      "animate-pulse",
+      "motion-reduce:animate-none",
+    );
   });
 });

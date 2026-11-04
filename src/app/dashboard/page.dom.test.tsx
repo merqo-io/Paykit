@@ -14,11 +14,13 @@ import type { VendorPaymentConfig } from "@/lib/types";
 const {
   getConfigMock,
   txCountThisMonthMock,
+  listTransactionsMock,
   maybeSingleMock,
   stampTourSeenMock,
 } = vi.hoisted(() => ({
   getConfigMock: vi.fn(),
   txCountThisMonthMock: vi.fn(),
+  listTransactionsMock: vi.fn(),
   maybeSingleMock: vi.fn(),
   stampTourSeenMock: vi.fn(async () => {}),
 }));
@@ -42,6 +44,7 @@ vi.mock("./config/actions", () => ({
 }));
 vi.mock("@/lib/transactions", () => ({
   txCountThisMonth: txCountThisMonthMock,
+  listTransactions: listTransactionsMock,
 }));
 vi.mock("@/lib/tour-prefs", () => ({
   stampTourSeen: stampTourSeenMock,
@@ -77,6 +80,7 @@ beforeEach(() => {
   });
   getConfigMock.mockResolvedValue(PAYNOW_CONFIG);
   txCountThisMonthMock.mockResolvedValue(0);
+  listTransactionsMock.mockResolvedValue([]);
 });
 
 describe("DashboardPage", () => {
@@ -88,14 +92,10 @@ describe("DashboardPage", () => {
     render(jsx);
 
     expect(
-      screen.getByText(/haven.t set up payments yet/i),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Set it up" })).toHaveAttribute(
-      "href",
-      "/dashboard/config",
-    );
-    expect(screen.getByText("5 transactions this month")).toBeInTheDocument();
-    expect(screen.queryByText("Payment method")).not.toBeInTheDocument();
+      screen.getByRole("link", { name: "Set up payments" }),
+    ).toHaveAttribute("href", "/dashboard/config");
+    expect(screen.getByText("Not set")).toBeInTheDocument();
+    expect(screen.getByText("5 payments this month")).toBeInTheDocument();
   });
 
   it("hides the setup prompt once a config exists", async () => {
@@ -106,9 +106,9 @@ describe("DashboardPage", () => {
     render(jsx);
 
     expect(
-      screen.queryByText(/haven.t set up payments yet/i),
+      screen.queryByRole("link", { name: "Set up payments" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText("10 transactions this month")).toBeInTheDocument();
+    expect(screen.getByText("10 payments this month")).toBeInTheDocument();
   });
 
   it("shows a masked PayNow summary with an edit link into config", async () => {
@@ -117,10 +117,9 @@ describe("DashboardPage", () => {
 
     expect(screen.getByText("Payment method")).toBeInTheDocument();
     expect(screen.getByText("PayNow QR · 53••••5A")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Edit" })).toHaveAttribute(
-      "href",
-      "/dashboard/config",
-    );
+    expect(
+      screen.getByRole("link", { name: "Edit payment setup" }),
+    ).toHaveAttribute("href", "/dashboard/config");
   });
 
   it("shows the pointer label (unmasked) for a BYO payment link/QR config", async () => {
@@ -132,6 +131,30 @@ describe("DashboardPage", () => {
     expect(
       screen.getByText("Payment link or QR image · Pay with PayLah"),
     ).toBeInTheDocument();
+  });
+
+  it("links to payments to confirm when customers have claimed payment", async () => {
+    listTransactionsMock.mockResolvedValue([
+      { id: "a", status: "claimed" },
+      { id: "b", status: "confirmed" },
+      { id: "c", status: "claimed" },
+    ]);
+
+    const jsx = await DashboardPage();
+    render(jsx);
+
+    expect(screen.getByText("2 payments to confirm")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View payments" })).toHaveAttribute(
+      "href",
+      "/dashboard/transactions",
+    );
+  });
+
+  it("says None when nothing is waiting to be confirmed", async () => {
+    const jsx = await DashboardPage();
+    render(jsx);
+
+    expect(screen.getByText("None")).toBeInTheDocument();
   });
 
   it("stamps tour_seen_at durably when the vendor hasn't seen the tour yet", async () => {

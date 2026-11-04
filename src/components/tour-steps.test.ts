@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import { tourSteps } from "./tour-steps";
 
 describe("tourSteps", () => {
-  it("returns 8 steps on desktop, 3 on mobile", () => {
-    expect(tourSteps(false)).toHaveLength(8);
+  it("returns 6 steps on desktop, 3 on mobile", () => {
+    expect(tourSteps(false)).toHaveLength(6);
     expect(tourSteps(true)).toHaveLength(3);
   });
 
@@ -36,11 +36,9 @@ describe("tourSteps", () => {
     const desktop = tourSteps(false).map((s) => s.element);
     expect(desktop).toEqual([
       '[data-tour="tx-count"]',
-      '[data-tour="nav-config"]',
       '[data-tour="nav-transactions"]',
       '[data-tour="nav-bookings"]',
       '[data-tour="nav-stats"]',
-      '[data-tour="nav-earnings"]',
       '[data-tour="nav-account"]',
       '[data-tour="tour-replay"]',
     ]);
@@ -50,15 +48,17 @@ describe("tourSteps", () => {
     expect(mobile).not.toContain('[data-tour="nav-config"]');
   });
 
-  it("covers Bookings and Earnings, both live nav items with no tour step until now", () => {
+  it("covers Bookings and Reports, and points Payment setup at the account menu", () => {
     const steps = tourSteps(false);
     const bookings = steps.find(
       (s) => s.element === '[data-tour="nav-bookings"]',
     );
-    const earnings = steps.find(
-      (s) => s.element === '[data-tour="nav-earnings"]',
+    const reports = steps.find((s) => s.element === '[data-tour="nav-stats"]');
+    const account = steps.find(
+      (s) => s.element === '[data-tour="nav-account"]',
     );
     expect(bookings?.description).toMatch(/deposit|balance/i);
-    expect(earnings?.description).toMatch(/revenue|earnings|report/i);
+    expect(reports?.description).toMatch(/revenue|earnings/i);
+    expect(account?.description).toMatch(/Payment setup/);
   });
 });
