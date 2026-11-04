@@ -1,8 +1,5 @@
 import { formatDate } from "@/lib/utils";
-
-function merqoBaseUrl(): string {
-  return process.env.MERQO_BASE_URL ?? "https://www.merqo.io";
-}
+import { merqoBaseUrl } from "@/lib/merqo-url";
 
 /** Plain text: merqo sends it with no parse mode. No link, so a forged inquiry cannot carry one. */
 export function inquiryAlertText(

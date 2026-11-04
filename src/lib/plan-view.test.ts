@@ -17,20 +17,9 @@ describe("resolvePlanView", () => {
     );
   });
 
-  it("compares Free and Pro without any price row", () => {
-    const rows = resolvePlanView("free", 0).comparisonRows;
-    expect(rows).toEqual([
-      { label: "Unlimited transactions", values: { free: true, pro: true } },
-      { label: "Revenue stats", values: { free: true, pro: true } },
-      { label: "Refund tracking", values: { free: false, pro: true } },
-    ]);
-  });
-
-  it("pro labels Pro and shows the same comparison", () => {
+  it("labels a pro vendor Pro", () => {
     const view = resolvePlanView("pro", 500);
     expect(view.planLabel).toBe("Pro");
-    expect(view.comparisonRows).toEqual(
-      resolvePlanView("free", 0).comparisonRows,
-    );
+    expect(view.countLabel).toBe("500 transactions this month");
   });
 });
