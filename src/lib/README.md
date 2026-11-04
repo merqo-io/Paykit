@@ -84,7 +84,9 @@ provide authorization.
   a transaction on a caller's say-so alone. Not found for a bad id or token,
   an unknown id, a transaction with no pay page or another token; the same
   answer for all, and the payment it returns carries no vendor id, order
-  reference or kit name. `isWellFormedHostedRef(id, token)` is the shape check
+  reference or kit name, only the seller's public name (`sellerName`: the
+  PayNow payee name, else the inquiry form's business name).
+  `isWellFormedHostedRef(id, token)` is the shape check
   callers run first, so a malformed link never reaches the limiter or the
   database. `hostedPayAllowed` counts a page action per address and per token
   and answers `allowed`, `limited` or `unavailable` (the limiter could not

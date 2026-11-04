@@ -3,22 +3,18 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-const { claimMock, statusMock, leaveMock, resizeMock, toastError } = vi.hoisted(
-  () => ({
-    claimMock: vi.fn(),
-    statusMock: vi.fn(),
-    leaveMock: vi.fn(),
-    resizeMock: vi.fn(),
-    toastError: vi.fn(),
-  }),
-);
+const { claimMock, statusMock, leaveMock, resizeMock } = vi.hoisted(() => ({
+  claimMock: vi.fn(),
+  statusMock: vi.fn(),
+  leaveMock: vi.fn(),
+  resizeMock: vi.fn(),
+}));
 
 vi.mock("./actions", () => ({
   claimHostedPayment: claimMock,
   getHostedPaymentStatus: statusMock,
 }));
 vi.mock("./leave", () => ({ leaveTo: leaveMock }));
-vi.mock("sonner", () => ({ toast: { error: toastError } }));
 vi.mock("@merqo/ui", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@merqo/ui")>();
   return { ...actual, resizeToWebp: resizeMock };
@@ -45,6 +41,7 @@ function panel(view: View = QR, title: string | null = "Order from Kopi") {
       id={TX_ID}
       token={TOKEN}
       title={title}
+      sellerName="Kopitiam Cart"
       amountCents={450}
       view={view}
     />,
@@ -72,7 +69,6 @@ beforeEach(() => {
     .mockReset()
     .mockResolvedValue({ status: "pending", returnUrl: RETURN_URL });
   leaveMock.mockReset();
-  toastError.mockReset();
   resizeMock.mockReset().mockImplementation(async (file: File) => ({
     blob: file,
     type: file.type,
@@ -88,10 +84,11 @@ describe("PayPanel", () => {
     const { container } = panel();
     expect(
       screen.getByRole("heading", {
-        name: "Scan with your PayNow banking app to pay",
+        name: "Scan to pay with PayNow",
       }),
     ).toBeInTheDocument();
     expect(screen.getByText("Order from Kopi")).toBeInTheDocument();
+    expect(screen.getByText("Paying Kopitiam Cart")).toBeInTheDocument();
     expect(screen.getByText("$4.50")).toBeInTheDocument();
     expect(container.querySelector("svg")).not.toBeNull();
     expect(
@@ -124,14 +121,14 @@ describe("PayPanel", () => {
       img.dispatchEvent(new Event("error"));
     });
     expect(
-      screen.getByText(/The payment QR couldn't load/),
+      screen.getByText(/Could not load the payment QR/),
     ).toBeInTheDocument();
   });
 
-  it("says payment could not load when the checkout has no stored view", () => {
+  it("says payment could not load when there is no stored view", () => {
     panel(null);
     expect(
-      screen.getByRole("heading", { name: "Couldn't load payment right now" }),
+      screen.getByRole("heading", { name: "Could not load payment" }),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "I've paid" }),
@@ -171,7 +168,7 @@ describe("PayPanel", () => {
     expect(leaveMock).not.toHaveBeenCalled();
   });
 
-  it("shows the server's error and stays on the page when the claim fails", async () => {
+  it("shows the server's error inline and stays on the page when the claim fails", async () => {
     claimMock.mockResolvedValue({
       success: false,
       error: "Could not record payment. Try again.",
@@ -179,13 +176,45 @@ describe("PayPanel", () => {
     panel();
     await attach(shot());
     await userEvent.click(screen.getByRole("button", { name: "I've paid" }));
-    await waitFor(() =>
-      expect(toastError).toHaveBeenCalledWith(
-        "Could not record payment. Try again.",
-      ),
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Could not record payment. Try again.",
     );
     expect(leaveMock).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "I've paid" })).toBeEnabled();
+  });
+
+  it("shows an inline error when the claim call itself throws", async () => {
+    claimMock.mockRejectedValue(new Error("offline"));
+    panel();
+    await attach(shot());
+    await userEvent.click(screen.getByRole("button", { name: "I've paid" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Could not mark as paid. Try again.",
+    );
+  });
+
+  it("shows an inline error, and attaches nothing, when the resize fails", async () => {
+    resizeMock.mockRejectedValue(new Error("decode failed"));
+    panel();
+    await attach(shot());
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Could not read that image. Try another screenshot.",
+    );
+    expect(screen.queryByText("Screenshot attached")).not.toBeInTheDocument();
+  });
+
+  it("has exactly one filled button, and no em dashes, at each step", async () => {
+    const { container } = panel();
+    expect(container.textContent).not.toContain("—");
+    const filled = () =>
+      screen
+        .getAllByRole("button")
+        .concat(Array.from(container.querySelectorAll<HTMLElement>("label")))
+        .filter((el) => el.className.includes("bg-primary"));
+    expect(filled()).toHaveLength(1);
+    await attach(shot());
+    await screen.findByText("Screenshot attached");
+    expect(filled()).toHaveLength(1);
   });
 
   it.each([
