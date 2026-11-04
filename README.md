@@ -26,6 +26,8 @@ ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
 The public landing is in pre-launch mode: an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to v0.39.0, whose `PricingLadder` the vendor plan page renders from merqo's public plan catalog (paykit stores no prices).
 
+The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amount (the vendor's payee name, falling back to their inquiry-form business name), reports claim and upload failures inline instead of in toasts, and shows a plain retry notice when the payment cannot be loaded.
+
 `admin_audit`'s coverage now extends past the `/admin` console: a vendor's
 own refund (`issueRefundAction`) is recorded too, merqo's own
 `POST /api/merqo/vendor-provision` push-provisioning call is logged under a
