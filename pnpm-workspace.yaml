@@ -3,7 +3,7 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
-  "@merqo/ui@https://codeload.github.com/merqo-io/merqo-ui/tar.gz/06e51555e57689f912c3e90b5dd5a76e93e9e344": true
+  "@merqo/ui@https://codeload.github.com/merqo-io/merqo-ui/tar.gz/fc3fba01da8c9922846509bea0c6da315444295c": true
   "@sentry/cli": false
   tesseract.js: false
 

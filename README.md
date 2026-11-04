@@ -24,7 +24,7 @@ in the workspace root for why. Brand theme is "Banknote Engrave"
 of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-icon.tsx`'s
 ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
-The public landing is in pre-launch mode: an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to v0.36.0.
+The public landing is in pre-launch mode: an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to v0.39.0, whose `PricingLadder` the vendor plan page renders from merqo's public plan catalog (paykit stores no prices).
 
 `admin_audit`'s coverage now extends past the `/admin` console: a vendor's
 own refund (`issueRefundAction`) is recorded too, merqo's own

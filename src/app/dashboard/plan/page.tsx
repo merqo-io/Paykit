@@ -3,7 +3,8 @@ import { getVendorSession } from "@/lib/vendor-session";
 import { txCountThisMonth } from "@/lib/transactions";
 import { resolvePlanView } from "@/lib/plan-view";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
-import { BackButton, PlanComparisonTable } from "@merqo/ui";
+import { merqoBaseUrl } from "@/lib/merqo-url";
+import { BackButton, PricingLadder, fetchPlanCatalog } from "@merqo/ui";
 
 export const metadata: Metadata = {
   title: "Plan",
@@ -13,9 +14,10 @@ export const revalidate = 0;
 
 export default async function PlanPage() {
   const { supabase, user } = await getVendorSession();
-  const [plan, count] = await Promise.all([
+  const [plan, count, catalog] = await Promise.all([
     readVendorPlan(supabase, user.id),
     txCountThisMonth(user.id),
+    fetchPlanCatalog(merqoBaseUrl()).catch(() => null),
   ]);
   const view = resolvePlanView(plan ?? "free", count);
 
@@ -41,13 +43,13 @@ export default async function PlanPage() {
         </p>
       </div>
 
-      <PlanComparisonTable
-        tiers={[
-          { key: "free", label: "Free" },
-          { key: "pro", label: "Pro" },
-        ]}
-        rows={view.comparisonRows}
-      />
+      {catalog ? (
+        <PricingLadder catalog={catalog} highlight="all_access" />
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          Prices are unavailable right now. Your plan is unaffected.
+        </p>
+      )}
     </div>
   );
 }

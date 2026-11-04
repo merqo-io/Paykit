@@ -168,8 +168,9 @@ records, not profit or tax submissions. `earnings-csv.ts` escapes customer text
 that could become a spreadsheet formula.
 
 `booking-status.ts` provides dashboard-only due badges. `plan-view.ts` derives
-the Free/Pro view, including the Free vs Pro rows the plan page passes to
-`@merqo/ui`'s `PlanComparisonTable`. `vendor-entitlement.ts` reads the
+the Free/Pro label and transaction-count copy; the plan page renders merqo's
+catalog separately. `merqo-url.ts` exports `merqoBaseUrl()` (`MERQO_BASE_URL`,
+default `https://www.merqo.io`), shared by the merqo callers. `vendor-entitlement.ts` reads the
 entitlement cache merqo pushes (`resolvePlan`, `readVendorPlan`,
 `readAllVendorPlans`), and `merqo-entitlement-contract.ts` is the Zod schema of
 that push, copied from merqo. Refund tracking is Pro-gated bookkeeping, not money

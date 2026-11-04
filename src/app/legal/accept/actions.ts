@@ -8,16 +8,13 @@ import { z } from "zod";
 import { createServerClient, createServiceClient } from "@/lib/supabase/server";
 import { safeRedirectPath } from "@merqo/ui";
 import { clientIp } from "@/lib/rate-limit";
+import { merqoBaseUrl } from "@/lib/merqo-url";
 import { getLegalDocSource, LEGAL_VERSIONS } from "@merqo/ui/legal";
 
 const DOC_TYPES = ["terms", "privacy"] as const;
 
 function sha256(input: string): string {
   return createHash("sha256").update(input).digest("hex");
-}
-
-function merqoBaseUrl(): string {
-  return process.env.MERQO_BASE_URL ?? "https://www.merqo.io";
 }
 
 /**
