@@ -1,8 +1,15 @@
 import type { VendorPlan } from "@/lib/types";
 
+// merqo-ui exports tierLabel from a client-only module, which a Server Component
+// importing this file cannot load; the labels mirror its output.
+const TIER_LABEL: Record<VendorPlan, string> = {
+  free: "Free",
+  pro: "Pro",
+};
+
 export interface PlanView {
   plan: VendorPlan;
-  planLabel: "Free" | "Pro";
+  planLabel: string;
   countLabel: string;
 }
 
@@ -17,7 +24,7 @@ export function resolvePlanView(
 ): PlanView {
   return {
     plan,
-    planLabel: plan === "pro" ? "Pro" : "Free",
+    planLabel: TIER_LABEL[plan],
     countLabel: `${countThisMonth} transaction${countThisMonth === 1 ? "" : "s"} this month`,
   };
 }

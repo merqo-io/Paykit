@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `@merqo/ui` pinned to commit e641d602cd1f4e4a1e7a4d6fd463ba26661de9ad (tag v0.41.0 pending). Tier labels (Free / Starter / Pro) in the client navigation now come from its shared `tierLabel` helper, and the account menu moves "Payment setup" to the top.
+
 ### Added
 
 - The hosted pay page shows "Paying <seller name>" above the amount (the vendor's PayNow payee name, else their inquiry form business name) and shows claim, upload, resize and save errors inline instead of in toasts. Recovery and heading copy is plainer ("Scan to pay with PayNow"; "If you have already paid, do not pay again.").

@@ -7,7 +7,7 @@ reports, plan display and account settings.
 
 `layout.tsx` obtains the vendor session, shared profile and plan, then composes
 `dashboard-nav.tsx` and the shared dashboard tour. The navigation adapter owns
-Paykit's routes, brand and tier display, and adapts feedback/support results to
+Paykit's routes, brand and tier display (labels from `tierLabel`), and adapts feedback/support results to
 the shared account menu's rejecting-promise contract.
 
 The navigation wrapper uses `contents print:hidden` so it does not constrain the
