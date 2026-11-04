@@ -9,6 +9,7 @@ import {
   loadHostedPayment,
 } from "@/lib/hosted-pay";
 import { clientIp } from "@/lib/rate-limit";
+import { Notice } from "./notice";
 import { PayPanel } from "./pay-panel";
 
 interface Props {
@@ -26,22 +27,19 @@ export const metadata: Metadata = {
   referrer: "no-referrer",
 };
 
-function Notice({ title, detail }: { title: string; detail: string }) {
+function PageNotice(props: { title: string; detail: string }) {
   return (
-    <main className="mx-auto max-w-sm space-y-3 px-5 py-10 text-center">
-      <h1 className="font-display text-2xl font-semibold text-balance">
-        {title}
-      </h1>
-      <p className="text-sm text-muted-foreground">{detail}</p>
+    <main>
+      <Notice {...props} />
     </main>
   );
 }
 
 function RetryNotice() {
   return (
-    <Notice
-      title="Couldn't load payment right now"
-      detail="Refresh this page in a moment. Do not pay again if you already have."
+    <PageNotice
+      title="Could not load payment"
+      detail="Refresh this page in a moment. If you have already paid, do not pay again."
     />
   );
 }
@@ -62,7 +60,7 @@ export default async function PayPage({ params, searchParams }: Props) {
   const access = await hostedPayAllowed(supabase, "view", ip, k);
   if (access === "limited")
     return (
-      <Notice
+      <PageNotice
         title="Too many tries"
         detail="Wait a minute, then refresh this page."
       />
@@ -79,7 +77,7 @@ export default async function PayPage({ params, searchParams }: Props) {
   if (payment.status !== "pending") {
     if (payment.returnUrl) redirect(payment.returnUrl);
     return (
-      <Notice
+      <PageNotice
         title="Payment recorded"
         detail="The seller has been told. You can close this page."
       />
@@ -92,6 +90,7 @@ export default async function PayPage({ params, searchParams }: Props) {
         id={payment.id}
         token={k}
         title={payment.title}
+        sellerName={payment.sellerName}
         amountCents={payment.amountCents}
         view={payment.view}
       />

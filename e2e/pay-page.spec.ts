@@ -30,7 +30,7 @@ test.describe("hosted pay page", () => {
     const response = await page.goto(`/pay/${ID}?k=${TOKEN}`);
     expect(response?.status()).toBe(200);
     await expect(
-      page.getByRole("heading", { name: "Couldn't load payment right now" }),
+      page.getByRole("heading", { name: "Could not load payment" }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "I've paid" })).toHaveCount(
       0,

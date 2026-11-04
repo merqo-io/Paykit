@@ -43,6 +43,7 @@ const PAYMENT = {
   status: "pending",
   amountCents: 450,
   title: "Order from Kopitiam Cart",
+  sellerName: "Kopitiam Cart",
   returnUrl: RETURN_URL,
   view: { type: "qr", payload: "PAYLOAD" },
 };
@@ -92,6 +93,7 @@ describe("PayPage", () => {
       id: TX_ID,
       token: TOKEN,
       title: "Order from Kopitiam Cart",
+      sellerName: "Kopitiam Cart",
       amountCents: 450,
       view: { type: "qr", payload: "PAYLOAD" },
     });
@@ -102,6 +104,7 @@ describe("PayPage", () => {
     expect(container.innerHTML).not.toContain(ROW.vendor_id);
     expect(container.innerHTML).not.toContain("order-ref-secret");
     expect(container.innerHTML).not.toContain(ROW.pay_token_hash);
+    expect(container.innerHTML).not.toContain(ROW.kit_slug);
   });
 
   it.each([
@@ -143,7 +146,7 @@ describe("PayPage", () => {
     allowedMock.mockResolvedValue("unavailable");
     render(await page());
     expect(
-      screen.getByRole("heading", { name: "Couldn't load payment right now" }),
+      screen.getByRole("heading", { name: "Could not load payment" }),
     ).toBeInTheDocument();
     expect(screen.queryByText("Too many tries")).not.toBeInTheDocument();
     expect(loadMock).not.toHaveBeenCalled();
@@ -154,7 +157,12 @@ describe("PayPage", () => {
     loadMock.mockResolvedValue({ ok: false, reason: "unavailable" });
     render(await page());
     expect(
-      screen.getByRole("heading", { name: "Couldn't load payment right now" }),
+      screen.getByRole("heading", { name: "Could not load payment" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Refresh this page in a moment. If you have already paid, do not pay again.",
+      ),
     ).toBeInTheDocument();
     expect(screen.queryByTestId("pay-panel")).not.toBeInTheDocument();
     expect(notFoundMock).not.toHaveBeenCalled();

@@ -22,7 +22,8 @@ import type { TxStatus } from "@/lib/types";
 
 const INVALID_LINK = "This payment link is no longer valid.";
 const TRY_AGAIN = "Could not record payment. Try again.";
-const TOO_MANY = "Too many attempts. Wait a moment.";
+const TOO_MANY =
+  "Could not record payment. Too many attempts, wait a minute and try again.";
 
 export type HostedClaimResult = ActionResult<{ returnUrl: string | null }>;
 

@@ -13,17 +13,22 @@ sends the customer back to the `return_url`.
 There is no sign-in. The `k` token is the whole authorization, and
 `@/lib/hosted-pay`'s `loadHostedPayment` checks it on every read and action:
 the stored sha256 is compared in constant time. A missing, malformed or wrong
-token, an unknown id and a transaction with no pay page all answer the same 404. The browser is sent the amount, title, status, payment code and return
-address and nothing else: no vendor id, order reference, kit name or hash.
+token, an unknown id and a transaction with no pay page all answer the same 404. The browser is sent the amount, title, seller name, status, payment code and
+return address and nothing else: no vendor id, order reference, kit name or
+hash. The seller name is the vendor's PayNow payee name, else the business name
+on their inquiry form, else none.
 
 ## Contents
 
-- `page.tsx` — the server page. Answers 404 for a malformed id or token before any limiter or database call, rate limits the view by address and token ("Too many tries" only when actually limited; a limiter outage shows the same retry notice as a failed read), reads the payment, and shows the panel while it is `pending`. A `claimed` or `confirmed` payment goes straight to the return address (or says it is recorded when there is none). `noindex` and `no-referrer`.
-- `pay-panel.tsx` — the client panel (image QR, proof summary and screenshot upload are sub-components in the same file): the title and amount, the code (a PayNow QR with "Save QR image", the vendor's own QR image, or a payment link button), the screenshot picker (resized in the browser, then checked against the same type and size limits as the server), and "I've paid". Polls the status every 5 seconds, so a payment confirmed from elsewhere moves the customer on.
-- `actions.ts` — `claimHostedPayment` and `getHostedPaymentStatus`, the page's whole write and read surface. Each checks its arguments (including the id and token shape, before the limiter), rate limits by address then token (a limiter outage is treated like a failed read), and reads the payment by token. The claim requires exactly one screenshot (`@/lib/proof-file`'s `readProofFile`) and runs `@/lib/claim`'s `claimTransaction`, so it stores the screenshot before the claim commits and a failure leaves the transaction pending.
-- `leave.ts` — `leaveTo(url)`, the full-page navigation to the return address, in its own module so a test can replace it.
-- `qr-image.ts` — `renderSvgToPngBlob`, for "Save QR image".
-- `*.test.ts(x)` — actions, page and panel tests.
+- `page.tsx`: the server page. Answers 404 for a malformed id or token before any limiter or database call, rate limits the view by address and token ("Too many tries" only when actually limited; a limiter outage shows the same retry notice as a failed read), reads the payment, and shows the panel while it is `pending`. A `claimed` or `confirmed` payment goes straight to the return address (or says it is recorded when there is none). `noindex` and `no-referrer`.
+- `pay-panel.tsx`: the client panel (image QR, proof summary and screenshot upload are sub-components in the same file): the title and amount, the code (a PayNow QR with "Save QR image", the vendor's own QR image, or a payment link button), the screenshot picker (resized in the browser, then checked against the same type and size limits as the server), and "I've paid". Polls the status every 5 seconds, so a payment confirmed from elsewhere moves the customer on.
+- `actions.ts`: `claimHostedPayment` and `getHostedPaymentStatus`, the page's whole write and read surface. Each checks its arguments (including the id and token shape, before the limiter), rate limits by address then token (a limiter outage is treated like a failed read), and reads the payment by token. The claim requires exactly one screenshot (`@/lib/proof-file`'s `readProofFile`) and runs `@/lib/claim`'s `claimTransaction`, so it stores the screenshot before the claim commits and a failure leaves the transaction pending.
+- `notice.tsx`: the single `Notice` (heading plus one line) used by the page and the panel for recorded, too many tries and could not load.
+- No route-level `loading.tsx`: it would stream a 200 shell before `notFound()` runs, and a bad link must stay a real 404.
+- Errors (claim, resize, save QR, upload) render inline with `role="alert"` next to the control that caused them. Toasts are for success only.
+- `leave.ts`: `leaveTo(url)`, the full-page navigation to the return address, in its own module so a test can replace it.
+- `qr-image.ts`: `renderSvgToPngBlob`, for "Save QR image".
+- `*.test.ts(x)`: actions, page and panel tests.
 
 ## Connectivity
 

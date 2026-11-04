@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import { toast } from "sonner";
 import QRCode from "react-qr-code";
 import { Download, ImageUp } from "lucide-react";
 import { resizeToWebp } from "@merqo/ui";
@@ -11,6 +10,7 @@ import { cn, formatCents } from "@/lib/utils";
 import type { HostedPayment } from "@/lib/hosted-pay";
 import { claimHostedPayment, getHostedPaymentStatus } from "./actions";
 import { leaveTo } from "./leave";
+import { Notice } from "./notice";
 import { renderSvgToPngBlob } from "./qr-image";
 
 const POLL_MS = 5000;
@@ -46,9 +46,9 @@ function proofProblem(file: File): string | null {
 }
 
 function headingFor(view: NonNullable<HostedPayment["view"]>): string {
-  if (view.type === "link") return "Pay to complete your order";
-  if (view.type === "qr") return "Scan with your PayNow banking app to pay";
-  return "Scan with your banking or payment app to pay";
+  if (view.type === "link") return "Pay online";
+  if (view.type === "qr") return "Scan to pay with PayNow";
+  return "Scan to pay";
 }
 
 async function shareOrDownloadPng(blob: Blob): Promise<void> {
@@ -73,12 +73,15 @@ async function shareOrDownloadPng(blob: Blob): Promise<void> {
   setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
-function Notice({ heading, body }: { heading: string; body: string }) {
+function InlineError({ id, message }: { id?: string; message: string }) {
   return (
-    <section className="space-y-3 px-6 py-5 text-center">
-      <h1 className="font-display text-xl font-semibold">{heading}</h1>
-      <p className="text-sm text-muted-foreground">{body}</p>
-    </section>
+    <p
+      id={id}
+      role="alert"
+      className="text-center text-sm font-medium text-destructive"
+    >
+      {message}
+    </p>
   );
 }
 
@@ -86,9 +89,12 @@ function ImageQr({ url }: { url: string }) {
   const [failed, setFailed] = useState(false);
   if (failed) {
     return (
-      <p className="mx-auto max-w-xs text-center text-sm text-muted-foreground">
-        The payment QR couldn&apos;t load. Check your connection and refresh, or
-        ask the seller to show their QR.
+      <p
+        role="alert"
+        className="mx-auto max-w-xs text-center text-sm text-muted-foreground"
+      >
+        Could not load the payment QR. Check your connection and refresh, or ask
+        the seller to show their QR.
       </p>
     );
   }
@@ -99,14 +105,14 @@ function ImageQr({ url }: { url: string }) {
       alt="Payment QR"
       referrerPolicy="no-referrer"
       onError={() => setFailed(true)}
-      className="mx-auto w-44 rounded-xl border border-border"
+      className="mx-auto w-44 rounded-2xl border border-border"
     />
   );
 }
 
 function ProofSummary({ proof }: { proof: Proof }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-2">
+    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-2">
       {proof.previewUrl && (
         // eslint-disable-next-line @next/next/no-img-element -- local blob preview
         <img
@@ -154,21 +160,13 @@ function ProofUpload({
         htmlFor="payment-proof"
         className={cn(
           buttonVariants({ variant: highlighted ? "default" : "outline" }),
-          "h-12 w-full cursor-pointer rounded-xl peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring",
+          "h-12 w-full cursor-pointer rounded-lg peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring",
         )}
       >
         <ImageUp className="size-4" aria-hidden />
         {proof ? "Upload a different screenshot" : "Upload payment screenshot"}
       </label>
-      {photoError && (
-        <p
-          id={PROOF_ERROR_ID}
-          role="alert"
-          className="text-center text-sm font-medium text-destructive"
-        >
-          {photoError}
-        </p>
-      )}
+      {photoError && <InlineError id={PROOF_ERROR_ID} message={photoError} />}
     </>
   );
 }
@@ -177,12 +175,14 @@ export function PayPanel({
   id,
   token,
   title,
+  sellerName,
   amountCents,
   view,
 }: {
   id: string;
   token: string;
   title: string | null;
+  sellerName: string | null;
   amountCents: number;
   view: HostedPayment["view"];
 }) {
@@ -190,6 +190,8 @@ export function PayPanel({
   const [proof, setProof] = useState<Proof | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [claimError, setClaimError] = useState<string | null>(null);
   const [recorded, setRecorded] = useState(false);
   const qrWrapperRef = useRef<HTMLDivElement>(null);
   const proofRef = useRef<Proof | null>(null);
@@ -225,8 +227,9 @@ export function PayPanel({
 
   async function saveQrImage() {
     const svg = qrWrapperRef.current?.querySelector("svg");
+    setSaveError(null);
     if (!svg) {
-      toast.error("Couldn't prepare the QR to save.");
+      setSaveError("Could not save the QR. Take a screenshot instead.");
       return;
     }
     setSaving(true);
@@ -234,7 +237,7 @@ export function PayPanel({
       const blob = await renderSvgToPngBlob(svg as SVGSVGElement);
       await shareOrDownloadPng(blob);
     } catch {
-      toast.error("Couldn't prepare the QR to save. Screenshot it instead.");
+      setSaveError("Could not save the QR. Take a screenshot instead.");
     } finally {
       setSaving(false);
     }
@@ -244,15 +247,23 @@ export function PayPanel({
     const selected = e.target.files?.[0];
     if (!selected) return;
     setPhotoError(null);
-    // The only resize the screenshot gets: the server cannot run a canvas.
-    const resized = await resizeToWebp(selected, 1600);
-    const file =
-      resized.blob instanceof File
-        ? resized.blob
-        : new File([resized.blob], selected.name, {
-            type: resized.type,
-            lastModified: selected.lastModified,
-          });
+    setClaimError(null);
+    let file: File;
+    try {
+      // The only resize the screenshot gets: the server cannot run a canvas.
+      const resized = await resizeToWebp(selected, 1600);
+      file =
+        resized.blob instanceof File
+          ? resized.blob
+          : new File([resized.blob], selected.name, {
+              type: resized.type,
+              lastModified: selected.lastModified,
+            });
+    } catch {
+      replaceProof(null);
+      setPhotoError("Could not read that image. Try another screenshot.");
+      return;
+    }
     const problem = proofProblem(file);
     if (problem) {
       replaceProof(null);
@@ -267,24 +278,29 @@ export function PayPanel({
       setPhotoError("A payment screenshot is required.");
       return;
     }
+    setClaimError(null);
     return run(async () => {
-      const body = new FormData();
-      body.append("proof", proof.file, "proof");
-      const res = await claimHostedPayment(id, token, body);
-      if (!res.success) {
-        toast.error(res.error);
-        return;
+      try {
+        const body = new FormData();
+        body.append("proof", proof.file, "proof");
+        const res = await claimHostedPayment(id, token, body);
+        if (!res.success) {
+          setClaimError(res.error);
+          return;
+        }
+        if (res.returnUrl) leaveTo(res.returnUrl);
+        else setRecorded(true);
+      } catch {
+        setClaimError("Could not mark as paid. Try again.");
       }
-      if (res.returnUrl) leaveTo(res.returnUrl);
-      else setRecorded(true);
     });
   }
 
   if (recorded) {
     return (
       <Notice
-        heading="Payment recorded"
-        body="The seller has been told. You can close this page."
+        title="Payment recorded"
+        detail="The seller has been told. You can close this page."
       />
     );
   }
@@ -292,8 +308,8 @@ export function PayPanel({
   if (!view) {
     return (
       <Notice
-        heading="Couldn't load payment right now"
-        body="Ask the seller how to pay for this order."
+        title="Could not load payment"
+        detail="Ask the seller how to pay for this order."
       />
     );
   }
@@ -314,27 +330,35 @@ export function PayPanel({
         )}
       </header>
 
-      <p className="text-center font-mono text-3xl font-bold">
-        {formatCents(amountCents)}
-      </p>
+      <div className="space-y-1 text-center">
+        {sellerName && (
+          <p className="break-words text-lg font-semibold">
+            Paying {sellerName}
+          </p>
+        )}
+        <p className="font-mono text-3xl font-bold">
+          {formatCents(amountCents)}
+        </p>
+      </div>
 
       {view.type === "qr" && (
         <>
           <div
             ref={qrWrapperRef}
-            className="mx-auto w-fit rounded-xl bg-white p-4"
+            className="mx-auto w-fit rounded-2xl border border-border bg-white p-4"
           >
             <QRCode value={view.payload} size={220} />
           </div>
           <Button
             variant="outline"
-            className="mx-auto flex h-11 w-fit items-center gap-2 rounded-xl"
+            className="mx-auto flex h-12 w-fit items-center gap-2 rounded-lg"
             disabled={saving}
             onClick={saveQrImage}
           >
             <Download className="size-4" aria-hidden />
             Save QR image
           </Button>
+          {saveError && <InlineError message={saveError} />}
           <p className="mx-auto max-w-xs text-center text-xs text-muted-foreground">
             On this phone? Save the QR, then open your banking app and scan it
             from your photos.
@@ -346,7 +370,7 @@ export function PayPanel({
         <Button
           asChild
           variant={payIsNext ? "default" : "outline"}
-          className="h-12 w-full rounded-xl"
+          className="h-12 w-full rounded-lg"
         >
           <a href={view.url} target="_blank" rel="noopener noreferrer">
             {view.label}
@@ -367,12 +391,13 @@ export function PayPanel({
       <div className="space-y-2">
         <Button
           variant={proof ? "default" : "outline"}
-          className="h-12 w-full rounded-xl"
+          className="h-12 w-full rounded-lg"
           disabled={busy}
           onClick={submit}
         >
           I&apos;ve paid
         </Button>
+        {claimError && <InlineError message={claimError} />}
         <p className="text-center text-xs text-muted-foreground">
           The seller checks your screenshot, then you go back to your order.
         </p>

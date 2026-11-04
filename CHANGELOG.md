@@ -9,6 +9,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Local `PageHeader` and `EmptyState` components for dashboard pages. The dashboard home is now a status hub (payment method or "Not set", payments to confirm, this month's count).
+- The hosted pay page shows "Paying <seller name>" above the amount (the vendor's PayNow payee name, else their inquiry form business name) and shows claim, upload, resize and save errors inline instead of in toasts. Recovery and heading copy is plainer ("Scan to pay with PayNow"; "If you have already paid, do not pay again.").
 - The vendor plan page renders the shared `PricingLadder` (`@merqo/ui` v0.39.0) from merqo's public plan catalog, highlighting All Access, and shows a calm "Prices are unavailable right now" line when the catalog cannot be fetched. `merqoBaseUrl()` in `src/lib/merqo-url.ts` replaces three duplicated base-URL helpers.
 - `POST /api/merqo/entitlement` receives merqo's per-vendor entitlement push (bearer `MERQO_PROVISION_SECRET`) and caches it in `paykit.vendor_entitlements`. A stale or replayed `issued_at` is a successful no-op, decided atomically in the new `apply_vendor_entitlement` function.
 - `paykit.vendor_is_entitled` is the single gate for Pro-only features: paid and unexpired, or an event pass currently running. The refunds insert policy and the refund-total trigger now read it.
