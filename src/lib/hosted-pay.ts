@@ -9,7 +9,8 @@ import { TRANSACTION_WITH_TOKEN_COLUMNS } from "@/lib/columns";
 type ServiceClient = Awaited<ReturnType<typeof createServiceClient>>;
 
 /**
- * Everything the hosted pay page may show or act on. It carries no vendor
+ * Everything the hosted pay page may show or act on. It carries the seller's
+ * public name so the customer can see who they are paying, but no vendor
  * id, order reference or kit name: the page is public, and the customer
  * needs none of them to pay.
  */
@@ -18,6 +19,7 @@ export type HostedPayment = {
   status: TxStatus;
   amountCents: number;
   title: string | null;
+  sellerName: string | null;
   returnUrl: string | null;
   view:
     | { type: "qr"; payload: string }
@@ -50,6 +52,29 @@ function webAddress(value: string | null | undefined): string | null {
   } catch {
     return null;
   }
+}
+
+// The name the customer sees in their banking app comes first, so what the
+// page says matches what they are about to pay. A failed lookup only costs
+// the name; the payment itself still loads.
+async function sellerNameFor(
+  supabase: ServiceClient,
+  vendorId: string,
+): Promise<string | null> {
+  const config = await supabase
+    .from("vendor_payment_config")
+    .select("payee_name")
+    .eq("vendor_id", vendorId)
+    .maybeSingle();
+  const payee = config.data?.payee_name?.trim();
+  if (payee) return payee;
+
+  const form = await supabase
+    .from("inquiry_forms")
+    .select("business_name")
+    .eq("vendor_id", vendorId)
+    .maybeSingle();
+  return form.data?.business_name?.trim() || null;
 }
 
 /**
@@ -88,6 +113,8 @@ export async function loadHostedPayment(
   const matches = payTokenMatches(token, storedHash ?? NO_TOKEN_HASH);
   if (!row || !storedHash || !matches) return NOT_FOUND;
 
+  const sellerName = await sellerNameFor(supabase, row.vendor_id);
+
   return {
     ok: true,
     row,
@@ -96,6 +123,7 @@ export async function loadHostedPayment(
       status: row.status,
       amountCents: row.amount_cents,
       title: row.pay_title ?? null,
+      sellerName,
       returnUrl: webAddress(row.return_url),
       view: toLookupResponse(row).view,
     },

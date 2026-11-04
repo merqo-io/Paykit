@@ -154,7 +154,8 @@ describe("claimHostedPayment", () => {
     const res = await claimHostedPayment(TX_ID, TOKEN, form(image()));
     expect(res).toEqual({
       success: false,
-      error: "Too many attempts. Wait a moment.",
+      error:
+        "Could not record payment. Too many attempts, wait a minute and try again.",
     });
     expect(loadMock).not.toHaveBeenCalled();
     expect(claimMock).not.toHaveBeenCalled();

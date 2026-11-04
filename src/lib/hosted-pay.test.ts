@@ -32,7 +32,18 @@ const ROW = {
 
 const maybeSingle = vi.fn();
 const eq = vi.fn((_column: string, _value: string) => ({ maybeSingle }));
-const from = vi.fn((_table: string) => ({ select: () => ({ eq }) }));
+const sellerRows: Record<string, { data: unknown; error: null }> = {};
+const from = vi.fn((table: string) => ({
+  select: () => ({
+    eq:
+      table === "transactions"
+        ? eq
+        : () => ({
+            maybeSingle: async () =>
+              sellerRows[table] ?? { data: null, error: null },
+          }),
+  }),
+}));
 
 type Client = Parameters<typeof loadHostedPayment>[0];
 const supabase = { from } as unknown as Client;
@@ -40,6 +51,11 @@ const supabase = { from } as unknown as Client;
 beforeEach(() => {
   from.mockClear();
   eq.mockClear();
+  for (const key of Object.keys(sellerRows)) delete sellerRows[key];
+  sellerRows["vendor_payment_config"] = {
+    data: { payee_name: "Kopitiam Cart Pte Ltd" },
+    error: null,
+  };
   maybeSingle.mockReset().mockResolvedValue({ data: ROW, error: null });
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -55,11 +71,29 @@ describe("loadHostedPayment", () => {
         status: "pending",
         amountCents: 450,
         title: "Order from Kopitiam Cart",
+        sellerName: "Kopitiam Cart Pte Ltd",
         returnUrl: "https://qkit.merqo.io/order/b1/pay?t=abc",
         view: { type: "qr", payload: "00020101PAYLOAD" },
       },
     });
     expect(eq).toHaveBeenCalledWith("id", TX_ID);
+  });
+
+  it("falls back to the inquiry form's business name, then to no name", async () => {
+    sellerRows["vendor_payment_config"] = {
+      data: { payee_name: null },
+      error: null,
+    };
+    sellerRows["inquiry_forms"] = {
+      data: { business_name: "Kopi Cart" },
+      error: null,
+    };
+    const named = await loadHostedPayment(supabase, TX_ID, token);
+    expect(named).toMatchObject({ payment: { sellerName: "Kopi Cart" } });
+
+    delete sellerRows["inquiry_forms"];
+    const none = await loadHostedPayment(supabase, TX_ID, token);
+    expect(none).toMatchObject({ payment: { sellerName: null } });
   });
 
   it("puts nothing about the vendor, the order or the kit in the payment", async () => {
@@ -71,7 +105,15 @@ describe("loadHostedPayment", () => {
     expect(sent).not.toContain('qkit"');
     expect(sent).not.toContain(hash);
     expect(Object.keys(read.payment).sort()).toEqual(
-      ["amountCents", "id", "returnUrl", "status", "title", "view"].sort(),
+      [
+        "amountCents",
+        "id",
+        "returnUrl",
+        "sellerName",
+        "status",
+        "title",
+        "view",
+      ].sort(),
     );
   });
 
