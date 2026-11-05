@@ -84,6 +84,24 @@ describe("AdminOverviewPage", () => {
     expect(screen.queryByText(/pricing/i)).not.toBeInTheDocument();
   });
 
+  it("falls back to Not set when a row has no email", async () => {
+    const { recentActivity } = await import("@/lib/admin-data");
+    vi.mocked(recentActivity).mockResolvedValueOnce([
+      {
+        id: "t3",
+        vendor_id: "v3",
+        email: null,
+        kit_slug: "qkit",
+        amount_cents: 100,
+        status: "claimed",
+        created_at: "2026-07-12T00:00:00Z",
+      },
+    ] as Awaited<ReturnType<typeof recentActivity>>);
+    render(await AdminOverviewPage());
+    expect(screen.getByText("Not set")).toBeInTheDocument();
+    expect(screen.getByText("Marked paid")).toBeInTheDocument();
+  });
+
   it("shows an empty state when there is no activity yet", async () => {
     const { recentActivity } = await import("@/lib/admin-data");
     vi.mocked(recentActivity).mockResolvedValueOnce([]);

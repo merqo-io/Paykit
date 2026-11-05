@@ -9,6 +9,7 @@ import { Stat } from "@/app/admin/stat";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
+import type { TxStatus } from "@/lib/types";
 import { formatCents, pctChange } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 export const revalidate = 0;
 
 // API status values are unchanged; only the displayed wording differs.
-const STATUS_LABELS: Record<string, string> = {
+const STATUS_LABELS: Record<TxStatus, string> = {
   pending: "Awaiting payment",
   claimed: "Marked paid",
   confirmed: "Received",
@@ -102,7 +103,7 @@ export default async function AdminOverviewPage() {
                         tx.status === "confirmed" ? "default" : "secondary"
                       }
                     >
-                      {STATUS_LABELS[tx.status] ?? tx.status}
+                      {STATUS_LABELS[tx.status]}
                     </Badge>
                   </span>
                   <span className="flex shrink-0 items-center gap-3">

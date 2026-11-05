@@ -53,6 +53,25 @@ describe("AdminVendorsPage", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
+  it("shows Not set for a vendor without an email", async () => {
+    const { listVendors } = await import("@/lib/admin-data");
+    vi.mocked(listVendors).mockResolvedValueOnce([
+      {
+        vendor_id: "v3",
+        email: null,
+        plan: "free",
+        kind: "paynow",
+        payee_name: null,
+        label: null,
+        transaction_count: 0,
+        created_at: "2026-07-03T00:00:00Z",
+        status: "healthy",
+      },
+    ] as Awaited<ReturnType<typeof listVendors>>);
+    render(await AdminVendorsPage());
+    expect(screen.getByText("Not set")).toBeInTheDocument();
+  });
+
   it("shows an empty state when there are no vendors", async () => {
     const { listVendors } = await import("@/lib/admin-data");
     vi.mocked(listVendors).mockResolvedValueOnce([]);
