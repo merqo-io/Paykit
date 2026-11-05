@@ -28,14 +28,8 @@ const DESKTOP: TourStep[] = [
       `<div class="tour-example"><div class="tour-example-label">Example transaction</div><div class="tour-example-row" style="margin-top:0.35rem"><strong>$4.80 &middot; via qkit</strong>${exampleClaimedBadge}</div></div>`,
   },
   {
-    element: sel("nav-config"),
-    title: "Start here: Payment setup",
-    description:
-      "Add your PayNow details or your own payment link and QR. This is step one to accepting payments.",
-  },
-  {
     element: sel("nav-transactions"),
-    title: "Transactions",
+    title: "Payments",
     description:
       "Every checkout shows up here. When a customer pays, confirm it once you've checked the money actually landed.",
   },
@@ -47,26 +41,21 @@ const DESKTOP: TourStep[] = [
   },
   {
     element: sel("nav-stats"),
-    title: "Stats",
-    description: "Track your revenue and transaction volume over time.",
-  },
-  {
-    element: sel("nav-earnings"),
-    title: "Earnings report",
+    title: "Reports",
     description:
-      "A revenue breakdown by month, tagged to the actual event date rather than when it was paid. Export it as CSV whenever you need it for your own records.",
+      "Track your revenue and payment volume over time, and see earnings by month.",
   },
   {
     element: sel("nav-account"),
     title: "Your account",
     description:
-      "Update your profile and check your plan here. Shared across every merqo kit you use.",
+      "Start here: open Payment setup to add your PayNow details or your own payment link and QR. Your profile, plan and help are in this menu too.",
   },
   {
     element: sel("tour-replay"),
     title: "Replay anytime",
     description:
-      "Tap here to run this tour again whenever you like. Ready? Go set up your payment method.",
+      "Tap here to run this tour again whenever you like. Ready? Open the account menu and set up your payment method.",
   },
 ];
 
@@ -78,7 +67,7 @@ const MOBILE: TourStep[] = [
     element: sel("nav-menu"),
     title: "Your sections",
     description:
-      "Payment setup, Transactions, Stats, and your account menu all live in here. Start with Payment setup to accept your first payment.",
+      "Payments, Bookings and Reports live in here. Open your account menu and choose Payment setup to accept your first payment.",
   },
   DESKTOP[DESKTOP.length - 1],
 ];

@@ -71,7 +71,7 @@ describe("PlanPage", () => {
     render(await PlanPage());
 
     expect(screen.getByText("Current plan:")).toBeInTheDocument();
-    expect(screen.getByText("free")).toBeInTheDocument();
+    expect(screen.getByText("Free")).toBeInTheDocument();
     expect(screen.getByText("3 transactions this month")).toBeInTheDocument();
     expect(
       screen.getByText("Change plan from your Merqo account."),
@@ -89,7 +89,7 @@ describe("PlanPage", () => {
 
     render(await PlanPage());
 
-    expect(screen.getByText("free")).toBeInTheDocument();
+    expect(screen.getByText("Free")).toBeInTheDocument();
     expect(
       screen.getByText(
         "Prices are unavailable right now. Your plan is unaffected.",
@@ -115,7 +115,7 @@ describe("PlanPage", () => {
 
     render(await PlanPage());
 
-    expect(screen.getByText("pro")).toBeInTheDocument();
+    expect(screen.getByText("Pro")).toBeInTheDocument();
     expect(
       screen.getByText("Change plan from your Merqo account."),
     ).toBeInTheDocument();
@@ -127,7 +127,7 @@ describe("PlanPage", () => {
 
     render(await PlanPage());
 
-    expect(screen.getByText("free")).toBeInTheDocument();
+    expect(screen.getByText("Free")).toBeInTheDocument();
     expect(screen.getByText("0 transactions this month")).toBeInTheDocument();
   });
 });

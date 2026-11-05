@@ -4,7 +4,8 @@ import { txCountThisMonth } from "@/lib/transactions";
 import { resolvePlanView } from "@/lib/plan-view";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
 import { merqoBaseUrl } from "@/lib/merqo-url";
-import { BackButton, PricingLadder, fetchPlanCatalog } from "@merqo/ui";
+import { PricingLadder, fetchPlanCatalog } from "@merqo/ui";
+import { PageHeader } from "@/components/page-header";
 
 export const metadata: Metadata = {
   title: "Plan",
@@ -23,19 +24,11 @@ export default async function PlanPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <BackButton href="/dashboard" label="Dashboard" />
-      </div>
-      <header>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Your account
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight">Plan</h1>
-      </header>
+      <PageHeader eyebrow="Billing" title="Plan" className="mb-0" />
 
       <div className="rounded-xl border p-4">
         <p className="text-sm font-medium">
-          Current plan: <span className="capitalize">{view.plan}</span>
+          Current plan: <span>{view.plan === "pro" ? "Pro" : "Free"}</span>
         </p>
         <p className="mt-2 text-sm text-muted-foreground">{view.countLabel}</p>
         <p className="mt-2 text-sm text-muted-foreground">

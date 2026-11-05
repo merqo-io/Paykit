@@ -59,7 +59,9 @@ export default async function DashboardLayout({
           plan={plan ?? "free"}
         />
       </div>
-      <main className="mx-auto w-full max-w-7xl flex-1 p-6">{children}</main>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-7">
+        {children}
+      </main>
       <div className="contents print:hidden">
         <SiteFooter />
       </div>

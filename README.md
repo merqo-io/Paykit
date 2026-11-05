@@ -26,6 +26,8 @@ ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
 The public landing is in pre-launch mode: an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to merqo-ui commit e641d602 (v0.41.0, tag pending), whose `PricingLadder` the vendor plan page renders (the navigation tier badge uses its `tierLabel`) from merqo's public plan catalog (paykit stores no prices).
 
+The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amount (the vendor's payee name, falling back to their inquiry-form business name), reports claim and upload failures inline instead of in toasts, and shows a plain retry notice when the payment cannot be loaded.
+
 `admin_audit`'s coverage now extends past the `/admin` console: a vendor's
 own refund (`issueRefundAction`) is recorded too, merqo's own
 `POST /api/merqo/vendor-provision` push-provisioning call is logged under a
@@ -86,8 +88,8 @@ tap-to-open hint (`@merqo/ui`'s `InfoTooltip`, `trigger="tap"`) explaining
 what `claimed`/`confirmed` mean, so that distinction survives past the
 one-time tour — tap, not the component's hover default, since a native
 hover hint has no touch equivalent and most vendors check this on a
-phone. The tour now also covers Bookings and
-Earnings, both live nav items that previously had no tour step at all.
+phone. The tour covers Payments, Bookings and Reports in the nav, and
+points Payment setup at the avatar menu.
 `@merqo/ui`'s `DashboardNav`
 (v0.10.0+) is now wired with `LinkComponent={Link}`
 (`src/app/dashboard/dashboard-nav.tsx`), so its nav links do a

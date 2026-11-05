@@ -30,17 +30,9 @@ describe("DashboardNav", () => {
     plan: "free" as const,
   };
 
-  it("renders the inline page links", () => {
+  it("renders exactly Payments, Bookings and Reports as page links", () => {
     render(<DashboardNav {...baseProps} />);
-    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
-      "href",
-      "/dashboard",
-    );
-    expect(screen.getByRole("link", { name: "Payment setup" })).toHaveAttribute(
-      "href",
-      "/dashboard/config",
-    );
-    expect(screen.getByRole("link", { name: "Transactions" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Payments" })).toHaveAttribute(
       "href",
       "/dashboard/transactions",
     );
@@ -48,14 +40,23 @@ describe("DashboardNav", () => {
       "href",
       "/dashboard/bookings",
     );
-    expect(screen.getByRole("link", { name: "Stats" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Reports" })).toHaveAttribute(
       "href",
       "/dashboard/stats",
     );
-    expect(screen.getByRole("link", { name: "Earnings" })).toHaveAttribute(
-      "href",
-      "/dashboard/reports/earnings",
-    );
+    expect(
+      screen.queryByRole("link", { name: "Payment setup" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Dashboard" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("links the wordmark to the dashboard home", () => {
+    render(<DashboardNav {...baseProps} />);
+    expect(
+      screen.getByRole("link", { name: "paykit dashboard home" }),
+    ).toHaveAttribute("href", "/dashboard");
   });
 
   it("exposes data-tour anchors for the onboarding tour", () => {
@@ -66,13 +67,17 @@ describe("DashboardNav", () => {
     expect(
       screen.getByRole("button", { name: /account menu/i }),
     ).toHaveAttribute("data-tour", "nav-account");
-    expect(screen.getByRole("link", { name: "Payment setup" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Payments" })).toHaveAttribute(
       "data-tour",
-      "nav-config",
+      "nav-transactions",
+    );
+    expect(screen.getByRole("link", { name: "Reports" })).toHaveAttribute(
+      "data-tour",
+      "nav-stats",
     );
   });
 
-  it("account menu has Switch products, Profile, Plan, Get help, Feedback, Theme, then Sign out, in order", async () => {
+  it("account menu holds Payment setup, Profile, Plan, help and feedback, theme, then Sign out", async () => {
     const user = userEvent.setup();
     render(<DashboardNav {...baseProps} />);
     await user.click(screen.getByRole("button", { name: /account menu/i }));
@@ -83,6 +88,7 @@ describe("DashboardNav", () => {
       "Plan · Free",
       "Get help",
       "Feedback",
+      "Payment setup",
       "Theme · System",
       "Sign out",
     ]);
@@ -90,6 +96,9 @@ describe("DashboardNav", () => {
       "href",
       "/dashboard/plan",
     );
+    expect(
+      screen.getByRole("menuitem", { name: "Payment setup" }),
+    ).toHaveAttribute("href", "/dashboard/config");
   });
 
   it("calls the signOut action when Sign out is selected", async () => {
@@ -116,15 +125,11 @@ describe("DashboardNav", () => {
     expect(screen.getByText("Pro")).toBeInTheDocument();
   });
 
-  it("marks the active nav link via aria-current", () => {
+  it("marks no page link current on the dashboard home", () => {
     render(<DashboardNav {...baseProps} />);
-    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Payments" })).not.toHaveAttribute(
       "aria-current",
-      "page",
     );
-    expect(
-      screen.getByRole("link", { name: "Payment setup" }),
-    ).not.toHaveAttribute("aria-current");
   });
 
   it("Get help opens a form Sheet (not a mailto link) and maps its message to submitSupportMessage's body field", async () => {

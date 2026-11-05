@@ -50,6 +50,21 @@ export async function txCountThisMonth(vendorId: string): Promise<number> {
   return data ?? 0;
 }
 
+/** Count of the vendor's transactions a customer has marked paid and the vendor has not yet confirmed. */
+export async function claimedTxCount(vendorId: string): Promise<number> {
+  const supabase = await createServerClient();
+  const { count, error } = await supabase
+    .from("transactions")
+    .select("id", { count: "exact", head: true })
+    .eq("vendor_id", vendorId)
+    .eq("status", "claimed");
+  if (error) {
+    console.error("claimedTxCount failed", error.message);
+    return 0;
+  }
+  return count ?? 0;
+}
+
 /** Complete vendor-scoped records for reports, separate from the recent-items UI. */
 export async function listAllTransactions(
   vendorId: string,

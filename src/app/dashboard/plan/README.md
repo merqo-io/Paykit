@@ -18,10 +18,7 @@ plan is read from the entitlement cache.
   `resolvePlanView()` (`@/lib/plan-view`), and renders the plan card and
   `<PricingLadder highlight="all_access" />` (or the unavailable line). Content sits in a plain
   `mx-auto max-w-2xl` div (not `<main>`, the parent `dashboard/layout.tsx`
-  owns that landmark). The "Dashboard" back-nav button is `@merqo/ui`'s
-  `BackButton`, rendered with no `LinkComponent`: passing a component
-  reference into it as a prop from this Server Component 500'd in production
-  (invisible to `next build`/jsdom tests).
+  owns that landmark). The header is the local `PageHeader` (eyebrow "Billing"); there is no back button, since the avatar menu and wordmark lead home.
 - `page.dom.test.tsx` — awaits `PlanPage()` directly and renders the result
   (same pattern as `dashboard/layout.dom.test.tsx`): Free and Pro plan copy,
   the Merqo account pointer, prices only from a mocked catalog, and the
