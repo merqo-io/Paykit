@@ -192,10 +192,16 @@ describe("PaymentConfigForm", () => {
     );
     await user.click(screen.getByRole("radio", { name: "Other / custom" }));
 
+    const group = screen.getByRole("group", { name: "How customers pay" });
     expect(
-      screen.getByRole("radio", { name: "Payment link" }),
+      within(group).getByRole("radio", { name: "Payment link" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("radio", { name: "QR image" })).toBeInTheDocument();
+    expect(
+      within(group).getByRole("radio", { name: "QR image" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("group", { name: "Payment method" }),
+    ).toHaveLength(1);
     expect(screen.getByText(/GrabPay, ShopeePay, Qashier/)).toBeInTheDocument();
   });
 

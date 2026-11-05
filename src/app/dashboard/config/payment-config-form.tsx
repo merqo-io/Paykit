@@ -457,7 +457,7 @@ export function PaymentConfigForm({
 
           {preset === "other" && (
             <fieldset className="space-y-2">
-              <legend className="text-sm font-medium">Payment method</legend>
+              <legend className="text-sm font-medium">How customers pay</legend>
               <RadioGroup
                 value={pointerMode}
                 onValueChange={(v) => setPointerMode(v as PointerMode)}
