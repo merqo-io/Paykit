@@ -74,7 +74,7 @@ describe("AdminOverviewPage", () => {
   it("renders the Security stat block", async () => {
     render(await AdminOverviewPage());
     expect(screen.getByText("Security")).toBeInTheDocument();
-    expect(screen.getByText("Failed auth · 24h")).toBeInTheDocument();
+    expect(screen.getByText("Failed sign-ins, last 24h")).toBeInTheDocument();
     expect(screen.getByText("5")).toBeInTheDocument();
     expect(screen.getByText("Rate-limited kits · 24h")).toBeInTheDocument();
   });

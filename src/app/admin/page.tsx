@@ -67,7 +67,10 @@ export default async function AdminOverviewPage() {
       <section className="space-y-3">
         <h2 className="text-sm font-medium text-muted-foreground">Security</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <Stat label="Failed auth · 24h" value={security.failed_auth_24h} />
+          <Stat
+            label="Failed sign-ins, last 24h"
+            value={security.failed_auth_24h}
+          />
           <Stat
             label="Rate-limited kits · 24h"
             value={security.rate_limited_kits_24h}
