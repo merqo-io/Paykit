@@ -8,6 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Stats and Earnings are now one Reports page (`/dashboard/reports`) with Overview and Earnings tabs. The old `/dashboard/stats` and `/dashboard/reports/earnings` URLs redirect to the matching tab and keep `year`. The earnings year arrows have accessible labels and 44px targets, and empty tabs show a dashed empty state.
 - `@merqo/ui` pinned to commit e641d602cd1f4e4a1e7a4d6fd463ba26661de9ad (tag v0.41.0 pending). Tier labels (Free / Starter / Pro) in the client navigation now come from its shared `tierLabel` helper, and the account menu moves "Payment setup" to the top.
 
 ### Added

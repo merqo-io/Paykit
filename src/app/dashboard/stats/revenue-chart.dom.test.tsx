@@ -68,7 +68,7 @@ describe("RevenueChart", () => {
 
     expect(screen.getByText("Total revenue")).toBeInTheDocument();
     expect(screen.getByText("$8.00")).toBeInTheDocument();
-    expect(screen.getByText("Transactions")).toBeInTheDocument();
+    expect(screen.getByText("Payments")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
     expect(screen.getByText("Avg / day")).toBeInTheDocument();
     expect(screen.getByText("$4.00")).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe("RevenueChart", () => {
     render(<RevenueChart data={[]} />);
 
     expect(screen.getByText("Total revenue")).toBeInTheDocument();
-    expect(screen.getByText("Transactions")).toBeInTheDocument();
+    expect(screen.getByText("Payments")).toBeInTheDocument();
     expect(screen.getByText("0")).toBeInTheDocument();
     expect(screen.getAllByText("$0.00")).toHaveLength(2);
   });
@@ -102,13 +102,13 @@ describe("ChartTooltip", () => {
   it("renders the date, amount, and singular transaction count when active", () => {
     render(<ChartTooltip active payload={[{ payload: day }]} />);
     expect(screen.getByText("2026-07-15")).toBeInTheDocument();
-    expect(screen.getByText("$5.00 · 1 transaction")).toBeInTheDocument();
+    expect(screen.getByText("$5.00 · 1 payment")).toBeInTheDocument();
   });
 
   it("pluralizes transaction count for more than one", () => {
     render(
       <ChartTooltip active payload={[{ payload: { ...day, count: 2 } }]} />,
     );
-    expect(screen.getByText("$5.00 · 2 transactions")).toBeInTheDocument();
+    expect(screen.getByText("$5.00 · 2 payments")).toBeInTheDocument();
   });
 });
