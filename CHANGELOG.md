@@ -8,6 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Payment setup page uses the shared page header; payment method and payee ID type radios sit in labelled fieldsets with accessible names matching their visible text, and the save confirmation is a status message with an icon. The return link now reads "Go back".
 - `@merqo/ui` pinned to commit e641d602cd1f4e4a1e7a4d6fd463ba26661de9ad (tag v0.41.0 pending). Tier labels (Free / Starter / Pro) in the client navigation now come from its shared `tierLabel` helper, and the account menu moves "Payment setup" to the top.
 
 ### Added

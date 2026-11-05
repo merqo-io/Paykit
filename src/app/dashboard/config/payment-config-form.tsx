@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { RadioOptionCard } from "./radio-option-card";
 import Image from "next/image";
 import QRCode from "react-qr-code";
-import { ExternalLink } from "lucide-react";
+import { CheckCircle2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -129,18 +129,21 @@ function PayNowFields({
         />
       </div>
 
-      <RadioGroup
-        value={idKindTouched ? idKind : ""}
-        onValueChange={(v) => onIdKind(v as IdKind)}
-        className="flex gap-4"
-      >
-        <span className="flex items-center gap-2">
-          <RadioGroupItem value="uen" aria-label="Pay via UEN" /> UEN
-        </span>
-        <span className="flex items-center gap-2">
-          <RadioGroupItem value="mobile" aria-label="Pay via mobile" /> Mobile
-        </span>
-      </RadioGroup>
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium">Payee ID type</legend>
+        <RadioGroup
+          value={idKindTouched ? idKind : ""}
+          onValueChange={(v) => onIdKind(v as IdKind)}
+          className="flex gap-4"
+        >
+          <label className="flex items-center gap-2 text-sm">
+            <RadioGroupItem value="uen" /> UEN
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <RadioGroupItem value="mobile" /> Mobile
+          </label>
+        </RadioGroup>
+      </fieldset>
 
       {idKind === "uen" ? (
         <div className="space-y-2">
@@ -274,13 +277,19 @@ function SaveStatus({
       )}
       {state.status === "ok" && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <p className="text-sm font-medium text-mint">Saved.</p>
+          <p
+            role="status"
+            className="flex items-center gap-1.5 text-sm font-medium text-mint"
+          >
+            <CheckCircle2 className="size-4" aria-hidden="true" />
+            Payment setup saved
+          </p>
           {returnTo && (
             <a
               href={returnTo}
               className="text-sm font-medium text-primary underline-offset-4 hover:underline"
             >
-              Back to your booth
+              Go back
             </a>
           )}
         </div>
@@ -368,24 +377,27 @@ export function PaymentConfigForm({
     <form action={formAction} className="space-y-6">
       <input type="hidden" name="kind" value={kind} />
 
-      <RadioGroup
-        value={kind}
-        onValueChange={(v) => setKind(v as PaymentConfigKind)}
-        className="gap-2.5"
-      >
-        {KIND_OPTIONS.map(({ k, label: optLabel, hint }) => {
-          const selected = kind === k;
-          return (
-            <RadioOptionCard
-              key={k}
-              value={k}
-              label={optLabel}
-              hint={hint}
-              selected={selected}
-            />
-          );
-        })}
-      </RadioGroup>
+      <fieldset>
+        <legend className="mb-2 text-sm font-medium">Payment method</legend>
+        <RadioGroup
+          value={kind}
+          onValueChange={(v) => setKind(v as PaymentConfigKind)}
+          className="gap-2.5"
+        >
+          {KIND_OPTIONS.map(({ k, label: optLabel, hint }) => {
+            const selected = kind === k;
+            return (
+              <RadioOptionCard
+                key={k}
+                value={k}
+                label={optLabel}
+                hint={hint}
+                selected={selected}
+              />
+            );
+          })}
+        </RadioGroup>
+      </fieldset>
 
       {kind === "paynow" && (
         <PayNowFields
@@ -444,20 +456,21 @@ export function PaymentConfigForm({
           </div>
 
           {preset === "other" && (
-            <RadioGroup
-              value={pointerMode}
-              onValueChange={(v) => setPointerMode(v as PointerMode)}
-              className="flex gap-4"
-            >
-              <span className="flex items-center gap-2">
-                <RadioGroupItem value="link" aria-label="Use a payment link" />{" "}
-                Payment link
-              </span>
-              <span className="flex items-center gap-2">
-                <RadioGroupItem value="qr" aria-label="Use a QR image" /> QR
-                image
-              </span>
-            </RadioGroup>
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium">Payment method</legend>
+              <RadioGroup
+                value={pointerMode}
+                onValueChange={(v) => setPointerMode(v as PointerMode)}
+                className="flex gap-4"
+              >
+                <label className="flex items-center gap-2 text-sm">
+                  <RadioGroupItem value="link" /> Payment link
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <RadioGroupItem value="qr" /> QR image
+                </label>
+              </RadioGroup>
+            </fieldset>
           )}
 
           {pointerMode === "link" ? (
@@ -476,7 +489,7 @@ export function PaymentConfigForm({
       <SaveStatus state={state} returnTo={returnTo} />
 
       <Button type="submit" disabled={pending}>
-        {pending ? "Saving…" : "Save payment config"}
+        {pending ? "Saving…" : "Save payment setup"}
       </Button>
     </form>
   );
