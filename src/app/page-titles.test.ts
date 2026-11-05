@@ -36,7 +36,7 @@ const PAGES: [string, () => Promise<MetadataModule>, string][] = [
   [
     "/dashboard/transactions",
     () => import("./dashboard/transactions/page"),
-    "Transactions",
+    "Payments",
   ],
   ["/admin", () => import("./admin/page"), "Admin overview"],
   ["/admin/vendors", () => import("./admin/vendors/page"), "Vendors"],
