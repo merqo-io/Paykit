@@ -117,7 +117,7 @@ export function ProfileForm({
       // The upload landed but the save did not, so the new object is
       // referenced nowhere.
       if (url && url !== previousAvatar) void removeReplacedAvatar(url);
-      toast.error(error.message);
+      toast.error("Could not save picture. Try again");
       return;
     }
     if (previousAvatar && previousAvatar !== url)
@@ -140,7 +140,7 @@ export function ProfileForm({
         data: { display_name: parsed.data.displayName },
       });
       if (error) {
-        toast.error(error.message);
+        toast.error("Could not save display name. Try again");
         return;
       }
       toast.success("Display name saved");
@@ -160,7 +160,7 @@ export function ProfileForm({
         password: parsed.data.password,
       });
       if (error) {
-        toast.error(error.message);
+        toast.error("Could not update password. Try again");
         return;
       }
       toast.success("Password updated");
@@ -214,15 +214,21 @@ export function ProfileForm({
             type="button"
             onClick={saveBusinessName}
             disabled={savingName || name === stallName}
-            className="h-10 rounded-xl font-semibold"
+            className="h-11 rounded-xl font-semibold"
           >
             {savingName ? "Saving…" : "Save business name"}
           </Button>
         </div>
 
-        <div className="space-y-4 border-t pt-6">
+        <div
+          role="group"
+          aria-labelledby="links-heading"
+          className="space-y-4 border-t pt-6"
+        >
           <div>
-            <p className={FORM_LABEL_CLASS}>Links</p>
+            <p id="links-heading" className={FORM_LABEL_CLASS}>
+              Links
+            </p>
             <p className="mt-1 text-xs text-muted-foreground">
               Shown to your customers in other Merqo apps.
             </p>
@@ -238,7 +244,7 @@ export function ProfileForm({
               type="button"
               onClick={saveLinks}
               disabled={savingLinks}
-              className="h-10 rounded-xl font-semibold"
+              className="h-11 rounded-xl font-semibold"
             >
               {savingLinks ? "Saving…" : "Save links"}
             </Button>
@@ -251,8 +257,14 @@ export function ProfileForm({
         title="Account"
         description="Only for you. Customers never see these."
       >
-        <div className="space-y-2">
-          <p className={FORM_LABEL_CLASS}>Picture</p>
+        <div
+          role="group"
+          aria-labelledby="picture-heading"
+          className="space-y-2"
+        >
+          <p id="picture-heading" className={FORM_LABEL_CLASS}>
+            Picture
+          </p>
           <div className="flex items-center gap-4">
             <ImageUploader
               bucket="vendor-images"
@@ -291,7 +303,7 @@ export function ProfileForm({
             type="button"
             onClick={saveDisplayName}
             disabled={savingDisplay || display === displayName}
-            className="h-10 rounded-xl font-semibold"
+            className="h-11 rounded-xl font-semibold"
           >
             {savingDisplay ? "Saving…" : "Save display name"}
           </Button>
@@ -325,6 +337,8 @@ export function ProfileForm({
               placeholder="At least 8 characters"
               onChange={(e) => setPassword(e.target.value)}
               className="h-11 rounded-xl"
+              aria-invalid={!!pwError}
+              aria-describedby={pwError ? "confirm-password-error" : undefined}
             />
           </div>
           <div className="space-y-2">
@@ -348,7 +362,7 @@ export function ProfileForm({
               type="button"
               onClick={savePassword}
               disabled={savingPw || !password || !confirm}
-              className="h-10 rounded-xl font-semibold"
+              className="h-11 rounded-xl font-semibold"
             >
               {savingPw ? "Updating…" : "Update password"}
             </Button>

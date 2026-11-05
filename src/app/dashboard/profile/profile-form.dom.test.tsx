@@ -12,6 +12,7 @@ const {
   refreshMock,
   removeReplacedAvatarMock,
   toastSuccessMock,
+  toastErrorMock,
 } = vi.hoisted(() => ({
   updateStallNameMock: vi.fn(),
   updateSocialLinksMock: vi.fn(),
@@ -19,10 +20,11 @@ const {
   refreshMock: vi.fn(),
   removeReplacedAvatarMock: vi.fn(),
   toastSuccessMock: vi.fn(),
+  toastErrorMock: vi.fn(),
 }));
 
 vi.mock("sonner", () => ({
-  toast: { success: toastSuccessMock, error: vi.fn() },
+  toast: { success: toastSuccessMock, error: toastErrorMock },
 }));
 
 vi.mock("./actions", () => ({
@@ -90,6 +92,7 @@ beforeEach(() => {
   refreshMock.mockReset();
   removeReplacedAvatarMock.mockReset().mockResolvedValue(undefined);
   toastSuccessMock.mockReset();
+  toastErrorMock.mockReset();
 });
 
 describe("ProfileForm", () => {
@@ -232,6 +235,9 @@ describe("ProfileForm avatar storage cleanup", () => {
     await user.click(screen.getByRole("button", { name: "finish upload" }));
     await waitFor(() =>
       expect(removeReplacedAvatarMock).toHaveBeenCalledWith(NEW_AVATAR),
+    );
+    expect(toastErrorMock).toHaveBeenCalledWith(
+      "Could not save picture. Try again",
     );
     expect(removeReplacedAvatarMock).not.toHaveBeenCalledWith(OLD_AVATAR);
   });
