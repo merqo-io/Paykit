@@ -26,7 +26,7 @@ for this project.
 - `login/` — combined sign-in/sign-up page, including the "Forgot password?" flow.
 - `inquire/`: a vendor's public booking inquiry form, `/inquire/{public_id}`: no session, service role only. See its README.
 - `pay/` — the hosted pay page, `/pay/{id}?k=<token>`: one of paykit's two public, unauthenticated pages (with `inquire/`). See its README.
-- `page.tsx` — `Home` async server component, the marketing landing page. Composes `Nav`, `Hero`, `HowItWorks`, `Benefits`, `Faq`, `ClosingCta` from `@/components/landing/`, `SiteFooter showSignIn` from `@/components/site-footer`, and shared `BackToTop`. `ClosingCta` is the family's documented ink-band closing section, rendered between `Faq` and the footer. Only reads the session, for the nav sign-in/dashboard link; the landing publishes no price. `src/app/page.dom.test.tsx` renders the real sections as a copy guard (no `$`, em dash or banned words, the pilot pricing line, the "In build" badge, waitlist CTAs).
+- `page.tsx` — `Home` async server component, the marketing landing page. Composes `Nav`, `Hero`, `HowItWorks`, `Benefits`, `Faq`, `ClosingCta` from `@/components/landing/`, `SiteFooter showSignIn` from `@/components/site-footer`, and shared `BackToTop`. `ClosingCta` is the family's documented ink-band closing section, rendered between `Faq` and the footer. Only reads the session, for the nav sign-in/dashboard link; the landing publishes no price. `src/app/page.dom.test.tsx` renders the real sections as a copy guard (no `$`, em dash or banned words, the pilot pricing line, the "In build" badge, waitlist CTAs, the hero h1 "One payment setup for every kit." and the footer).
 
 ## Connectivity
 
