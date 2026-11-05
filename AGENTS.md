@@ -88,6 +88,13 @@ Tables, constraints and RLS detail: [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md). 
 - After editing the schema, update both `supabase/migrations/` and
   `src/lib/types.ts`.
 
+## Git Workflow
+
+- Branch `feat/*` or `fix/*` from `staging`; open the PR into `staging` (squash is fine). CI runs on it.
+- After merge, Vercel's git integration deploys `paykit-staging.merqo.io` (Preview env, staging Supabase). Test there, not on `*.vercel.app`: the sign-in cookie only works on merqo.io hosts and branch previews are disabled.
+- Promote with a PR `staging` -> `main` merged as a **merge commit** (never squash or rebase) so `staging-sync` can fast-forward `staging` to `main`.
+- Never commit directly to `main` or `staging`.
+
 ## Skills
 
 ### Project skills — check here first (`.claude/skills/`)

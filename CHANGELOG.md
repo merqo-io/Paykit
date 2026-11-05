@@ -9,6 +9,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Payments ledger restyled to match the rest of the dashboard: a "Payments" page header, "Reference" column, plain status labels (Awaiting payment, Marked paid, Received; Awaiting deposit for bookings), dashed empty states and tables that scroll instead of overflowing on mobile.
+- Release flow is now `feat/*` | `fix/*` -> `staging` -> `main`. Vercel's git integration deploys `staging` to paykit-staging.merqo.io (`vercel.json` enables `staging`), CI also runs on pushes to `staging`, and the `staging-sync` workflow no longer calls the Vercel deploy hook (the `VERCEL_STAGING_DEPLOY_HOOK` secret is unused).
 - `@merqo/ui` pinned to commit e641d602cd1f4e4a1e7a4d6fd463ba26661de9ad (tag v0.41.0 pending). Tier labels (Free / Starter / Pro) in the client navigation now come from its shared `tierLabel` helper, and the account menu moves "Payment setup" to the top.
 
 ### Added

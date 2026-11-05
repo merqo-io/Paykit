@@ -334,7 +334,7 @@ Source lives in the `merqo-io` GitHub organization (`github.com/merqo-io/paykit`
 
 The `staging-sync` workflow pushes to `staging` with the `merqo-staging-sync` GitHub App token.
 
-Vercel builds from git only for `main` (`git.deploymentEnabled` in `vercel.json`), so PRs get no automatic preview and the Hobby daily deployment cap lasts. Staging deploys through the `staging-sync` deploy hook; use the `vercel` CLI for an ad-hoc preview. See `docs/DEPLOY.md`.
+Vercel builds from git only for `main` and `staging` (`git.deploymentEnabled` in `vercel.json`), so PRs get no automatic preview and the Hobby daily deployment cap lasts. Merging into `staging` deploys paykit-staging.merqo.io; use the `vercel` CLI for an ad-hoc preview. See `docs/DEPLOY.md`.
 
 ## October 2026 audit status
 
