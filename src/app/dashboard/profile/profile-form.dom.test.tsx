@@ -11,12 +11,18 @@ const {
   updateUserMock,
   refreshMock,
   removeReplacedAvatarMock,
+  toastSuccessMock,
 } = vi.hoisted(() => ({
   updateStallNameMock: vi.fn(),
   updateSocialLinksMock: vi.fn(),
   updateUserMock: vi.fn(),
   refreshMock: vi.fn(),
   removeReplacedAvatarMock: vi.fn(),
+  toastSuccessMock: vi.fn(),
+}));
+
+vi.mock("sonner", () => ({
+  toast: { success: toastSuccessMock, error: vi.fn() },
 }));
 
 vi.mock("./actions", () => ({
@@ -83,6 +89,7 @@ beforeEach(() => {
   updateUserMock.mockReset().mockResolvedValue({ error: null });
   refreshMock.mockReset();
   removeReplacedAvatarMock.mockReset().mockResolvedValue(undefined);
+  toastSuccessMock.mockReset();
 });
 
 describe("ProfileForm", () => {
@@ -91,15 +98,37 @@ describe("ProfileForm", () => {
     expect(screen.getByTestId("image-uploader")).toBeInTheDocument();
   });
 
-  it("saves a changed stall/shop name", async () => {
+  it("groups fields under Business and Account headings", () => {
+    renderForm();
+    expect(screen.getByText("Business")).toBeInTheDocument();
+    expect(screen.getByText("Account")).toBeInTheDocument();
+    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(screen.getByLabelText("New password")).toBeInTheDocument();
+  });
+
+  it("toasts a saved business name without a trailing period", async () => {
     const user = userEvent.setup();
     renderForm();
-
-    const input = screen.getByLabelText("Stall / shop name");
+    const input = screen.getByLabelText("Business name");
     await user.clear(input);
     await user.type(input, "New Cart Name");
     await user.click(
-      screen.getByRole("button", { name: /save stall\/shop name/i }),
+      screen.getByRole("button", { name: /save business name/i }),
+    );
+    await waitFor(() =>
+      expect(toastSuccessMock).toHaveBeenCalledWith("Business name saved"),
+    );
+  });
+
+  it("saves a changed business name", async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    const input = screen.getByLabelText("Business name");
+    await user.clear(input);
+    await user.type(input, "New Cart Name");
+    await user.click(
+      screen.getByRole("button", { name: /save business name/i }),
     );
 
     await waitFor(() => {
@@ -109,18 +138,18 @@ describe("ProfileForm", () => {
     });
   });
 
-  it("blocks saving the stall name when cleared to empty", async () => {
+  it("blocks saving the business name when cleared to empty", async () => {
     const user = userEvent.setup();
     renderForm();
 
-    const input = screen.getByLabelText("Stall / shop name");
+    const input = screen.getByLabelText("Business name");
     await user.clear(input);
     await user.click(
-      screen.getByRole("button", { name: /save stall\/shop name/i }),
+      screen.getByRole("button", { name: /save business name/i }),
     );
 
     expect(updateStallNameMock).not.toHaveBeenCalled();
-    expect(screen.getByText(/required/i)).toBeInTheDocument();
+    expect(screen.getByText("Enter a business name")).toBeInTheDocument();
   });
 
   it("updates the display name via the browser auth client, not a server action", async () => {
