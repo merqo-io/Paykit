@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { type AuditLogEntry } from "@merqo/ui";
 import { requireAdmin } from "@/lib/admin";
 import { auditLog, type AuditLogRow } from "@/lib/admin-data";
+import { PageHeader } from "@/components/page-header";
 import { ActivitySection } from "./activity-section";
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ function formatDetail(detail: AuditLogRow["detail"]): string | null {
   const entries = Object.entries(detail).filter(([, v]) => v !== undefined);
   if (entries.length === 0) return null;
   return entries
-    .map(([key, value]) => `${key}: ${value === null ? "—" : String(value)}`)
+    .map(([key, value]) => `${key}: ${value === null ? "None" : String(value)}`)
     .join(", ");
 }
 
@@ -39,15 +40,12 @@ export default async function AdminActivityPage() {
 
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-5 py-8">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Internal
-        </p>
-        <h1 className="text-3xl font-bold tracking-tight">Activity</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Recent admin- and vendor-initiated actions, across every vendor.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Admin"
+        title="Activity"
+        description="Recent actions by admins and vendors, across every vendor."
+        className="mb-0"
+      />
 
       <ActivitySection entries={rows.map(toEntry)} />
     </main>

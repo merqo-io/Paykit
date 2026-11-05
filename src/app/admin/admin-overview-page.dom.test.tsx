@@ -49,7 +49,11 @@ import AdminOverviewPage from "./page";
 describe("AdminOverviewPage", () => {
   it("renders platform totals and recent activity", async () => {
     render(await AdminOverviewPage());
-    expect(screen.getByText("Overview")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Overview" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Received")).toBeInTheDocument();
+    expect(screen.getByText("Awaiting payment")).toBeInTheDocument();
     expect(screen.getByText("4")).toBeInTheDocument();
     expect(screen.getByText("120")).toBeInTheDocument();
     expect(screen.getByText("kopitiam@example.com")).toBeInTheDocument();
@@ -84,6 +88,8 @@ describe("AdminOverviewPage", () => {
     const { recentActivity } = await import("@/lib/admin-data");
     vi.mocked(recentActivity).mockResolvedValueOnce([]);
     render(await AdminOverviewPage());
-    expect(screen.getByText("No activity yet.")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "No activity yet" }),
+    ).toBeInTheDocument();
   });
 });

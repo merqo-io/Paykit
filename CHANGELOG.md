@@ -8,6 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Admin area restyled to the qkit baseline: shared page headers and empty states, accessible section tabs with `aria-current`, flat cards, plain status labels and "Not set"/"None" placeholders.
 - `@merqo/ui` pinned to commit e641d602cd1f4e4a1e7a4d6fd463ba26661de9ad (tag v0.41.0 pending). Tier labels (Free / Starter / Pro) in the client navigation now come from its shared `tierLabel` helper, and the account menu moves "Payment setup" to the top.
 
 ### Added

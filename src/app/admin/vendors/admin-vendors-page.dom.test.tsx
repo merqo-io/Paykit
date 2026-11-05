@@ -38,7 +38,9 @@ import AdminVendorsPage from "./page";
 describe("AdminVendorsPage", () => {
   it("renders vendors with their plan, transaction count, and secondary identity", async () => {
     render(await AdminVendorsPage());
-    expect(screen.getByText("Vendors")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Vendors" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("pro@example.com")).toBeInTheDocument();
     expect(screen.getByText("free@example.com")).toBeInTheDocument();
     expect(screen.getByText("Pro")).toBeInTheDocument();
@@ -55,6 +57,8 @@ describe("AdminVendorsPage", () => {
     const { listVendors } = await import("@/lib/admin-data");
     vi.mocked(listVendors).mockResolvedValueOnce([]);
     render(await AdminVendorsPage());
-    expect(screen.getByText("No vendors yet.")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "No vendors yet" }),
+    ).toBeInTheDocument();
   });
 });
