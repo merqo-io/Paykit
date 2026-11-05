@@ -3,12 +3,12 @@ import { Badge } from "@/components/ui/badge";
 /** Decorative checkout stand-in for the hero, not a scannable QR. */
 export function CheckoutCard() {
   return (
-    <div className="w-full max-w-sm rounded-2xl border bg-card p-5 shadow-lg shadow-foreground/5">
+    <div className="w-full max-w-sm rounded-2xl border bg-card p-5">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-          Checkout
+        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          Scan to pay with PayNow
         </span>
-        <Badge variant="outline" className="font-mono text-[10px]">
+        <Badge variant="outline" className="text-[10px]">
           preview
         </Badge>
       </div>
@@ -35,15 +35,13 @@ export function CheckoutCard() {
         <span className="font-display text-2xl font-semibold tracking-tight">
           PayNow
         </span>
-        <span className="font-mono text-xs text-muted-foreground">Sample</span>
+        <span className="text-xs text-muted-foreground">Sample</span>
       </div>
 
       <div className="mt-3 flex items-center gap-2 border-t pt-3">
         <span className="size-1.5 rounded-full bg-mint" aria-hidden />
         <span className="text-sm font-medium">Confirmed</span>
-        <span className="ml-auto font-mono text-xs text-muted-foreground">
-          #A82F
-        </span>
+        <span className="ml-auto text-xs text-muted-foreground">#A82F</span>
       </div>
     </div>
   );

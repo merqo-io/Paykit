@@ -28,7 +28,7 @@ export function Nav({ authed = false }: { authed?: boolean }) {
             asChild
             variant="ghost"
             size="sm"
-            className="hidden rounded-lg sm:inline-flex"
+            className="hidden sm:inline-flex"
           >
             <a href="#faq">FAQ</a>
           </Button>

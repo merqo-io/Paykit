@@ -8,8 +8,8 @@ const STEPS = [
   },
   {
     icon: QrCode,
-    title: "Your kit requests a checkout",
-    body: "qkit asks paykit for a checkout. paykit builds it, and the customer scans or taps to pay.",
+    title: "Your kit asks for a payment QR",
+    body: "qkit asks paykit for a QR. paykit builds it, and the customer scans or taps to pay.",
   },
   {
     icon: CheckCheck,
@@ -22,7 +22,7 @@ export function HowItWorks() {
   return (
     <section id="how" className="border-t">
       <div className="mx-auto max-w-6xl px-6 py-20 sm:py-24">
-        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           How it works
         </p>
         <h2 className="mt-3 max-w-xl text-balance font-display text-3xl font-bold tracking-tight sm:text-4xl">
@@ -32,7 +32,7 @@ export function HowItWorks() {
           {STEPS.map((s, i) => (
             <li key={s.title}>
               <div className="flex items-center gap-3">
-                <span className="font-mono text-sm font-semibold text-mint">
+                <span className="text-sm font-semibold text-mint">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="h-px flex-1 bg-border" />

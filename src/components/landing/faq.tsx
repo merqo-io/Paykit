@@ -27,7 +27,7 @@ export function Faq() {
   const FAQ: FaqEntry[] = [
     {
       q: "Does paykit hold my money?",
-      a: "No. paykit only renders your checkout (a PayNow QR, or your own payment link/QR) and tracks its status. Customers pay you directly, and paykit never touches funds.",
+      a: "No. paykit only shows your PayNow QR (or your own payment link or QR) and tracks its status. Customers pay you directly, and paykit never touches funds.",
     },
     {
       q: "How do I know a payment came through?",
@@ -45,7 +45,7 @@ export function Faq() {
 
   return (
     <section id="faq" className="mx-auto max-w-3xl px-5 py-16">
-      <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         FAQ
       </p>
       <h2 className="mt-3 text-balance font-display text-3xl font-bold tracking-tight sm:text-4xl">

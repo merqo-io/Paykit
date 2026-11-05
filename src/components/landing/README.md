@@ -34,7 +34,7 @@ file. Presentational only — no data fetching, no client state beyond the
   confirm).
 - `faq.tsx` — Q&A list, including "does paykit hold my money?" and "what
   will it cost?" (answered with `PILOT_PRICING_LINE`). Heading uses the
-  same eyebrow (`font-mono uppercase tracking-widest`) + `font-display`
+  same eyebrow (`text-xs font-semibold uppercase tracking-[0.16em]`, the same as `PageHeader`) + `font-display`
   heading pair as `how-it-works.tsx`/`benefits.tsx`, not a bespoke centered
   heading.
 - `closing-cta.tsx` — full-bleed `bg-ink text-ink-foreground` closing

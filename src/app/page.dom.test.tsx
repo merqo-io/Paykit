@@ -35,6 +35,17 @@ describe("HomePage copy guardrails", () => {
     ).toBeInTheDocument();
   });
 
+  it("leads with the one-setup headline and ends with the family footer", async () => {
+    await renderLanding();
+    expect(
+      screen.getByRole("heading", {
+        level: 1,
+        name: "One payment setup for every kit.",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("contentinfo")).toBeInTheDocument();
+  });
+
   it("states pricing with the exact pilot line and no prices", async () => {
     const text = await renderLanding();
     expect(text).toContain(PRICING_LINE);
