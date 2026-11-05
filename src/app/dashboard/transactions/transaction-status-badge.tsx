@@ -1,8 +1,8 @@
 import { InfoTooltip, StatusBadge } from "@merqo/ui";
 import type { TxStatus } from "@/lib/types";
 
-// `claimed` (shown as "Marked paid") keeps the brand mint accent — it's the one status needing the
-// vendor's attention right now (pending→claimed→confirmed, `@/lib/tx-state`).
+// `claimed` keeps the mint accent because it needs the vendor's attention
+// (pending→claimed→confirmed, see `@/lib/tx-state`).
 const STATUS_CONFIG: Record<TxStatus, { label: string; className: string }> = {
   pending: {
     label: "Awaiting payment",
