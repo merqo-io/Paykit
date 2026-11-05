@@ -27,7 +27,7 @@ export function RefundDialog({ transactionId }: { transactionId: string }) {
     async (prevState, formData) => {
       const result = await issueRefundAction(prevState, formData);
       if (result.status === "ok") {
-        toast.success("Refund recorded.");
+        toast.success("Refund recorded");
         formRef.current?.reset();
         setOpen(false);
       }
