@@ -250,8 +250,8 @@ crash at render with `Functions cannot be passed directly to Client
 Components`, and because the crash happens at request time on a dynamic
 route, `next build` does not catch it. The fix is one of two shapes: drop
 the optional prop and let the component's own fallback render (this is
-what `BackButton` on `/dashboard/plan` and `/dashboard/profile` now
-does), or move the props into a `"use client"` wrapper that owns them
+what `/dashboard/plan` and `/dashboard/profile` did before the shared
+page header replaced their `BackButton`), or move the props into a `"use client"` wrapper that owns them
 (`reports/earnings/earnings-tables.tsx` for `DataTable`'s `cell`/
 `getRowKey`, matching the existing `admin/vendors` `VendorsTable`).
 The full incident writeup lives in qkit at
