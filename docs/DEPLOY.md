@@ -37,12 +37,12 @@ this runbook does not establish which migrations or secrets are currently live.
 
 ## Which branches deploy
 
-Only `main` deploys from git (`git.deploymentEnabled` in `vercel.json`, with
-`**` disabling every other branch; `*` would miss names containing `/`).
-Pull requests and other branches get no automatic preview, which keeps the
-Vercel Hobby daily deployment cap from running out. Staging deploys through
-the `staging-sync` workflow's deploy hook, which `deploymentEnabled` does not
-gate. For an ad-hoc preview, run the `vercel` CLI.
+Only `main` and `staging` deploy from git (`git.deploymentEnabled` in
+`vercel.json`, with `**` disabling every other branch; `*` would miss names
+containing `/`). Pull requests and other branches get no automatic preview,
+which keeps the Vercel Hobby daily deployment cap from running out. Merging a
+PR into `staging` deploys `paykit-staging.merqo.io` through Vercel's git
+integration. For an ad-hoc preview, run the `vercel` CLI.
 
 ## Staging
 
@@ -71,9 +71,8 @@ setup, the env model and the rollout checklist live in merqo's
   silently skips the hosted page.
 
 Vercel Deployment Protection must be off on this project (it still challenges
-a branch-assigned domain), and the sync workflow needs the repo secret
-`VERCEL_STAGING_DEPLOY_HOOK`: Vercel does not git-deploy a commit it already
-built for production, so the workflow calls the deploy hook instead.
+a branch-assigned domain). No deploy hook is needed: pushes to `staging`
+deploy through Vercel's git integration.
 
 Load the `paykit` schema on staging with `scripts/staging-migrate.sh`, after
 merqo's and qkit's, not with `supabase db push`: every kit shares one
