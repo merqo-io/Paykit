@@ -8,6 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- `@merqo/ui` moved to v0.42.1 (commit 53ec5baa47e29e4d7acc23180cba63aa9539d5af). Page header, empty state, stat card and plan chip now come from the shared package; the local `PageHeader`, `EmptyState`, `Stat` and navigation `TierBadge` are deleted. Page titles lose `tracking-tight`, stat tiles gain the shared card shadow, and the Pro plan chip uses the shared tint instead of mint.
 - Bookings forms and dialogs restyled to the qkit baseline: booking and inquiry detail pages use the shared page header, dialogs share one title, description and footer layout, money fields are labelled S$ decimal inputs with inline errors, free vendors see a refund-tracking hint, and copy drops "checkout" and "Terms version" jargon. Error messages read "Could not ... Try again." and toasts have no trailing period.
 - Payment setup page uses the shared page header; payment method and payee ID type radios sit in labelled fieldsets with accessible names matching their visible text, and the save confirmation is a status message with an icon. The return link now reads "Go back".
 - Landing page tidied to the qkit-style baseline: new hero headline, one eyebrow style, no shadows or radius drift, and plainer copy.

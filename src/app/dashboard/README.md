@@ -59,3 +59,5 @@ Each feature folder documents its own boundary and behavior coverage.
 [app](../README.md)
 
 The dashboard navigation uses the existing local `Wordmark`, preserving its typography and link destination.
+
+Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.

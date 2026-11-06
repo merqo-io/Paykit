@@ -74,3 +74,5 @@ The tab title comes from `../page.tsx` (`"Reports"`); this redirect route has no
 The shared package now preserves each module's own client/server directive.
 These wrappers retain local callback ownership and historical fix provenance;
 the package no longer applies a blanket client banner.
+
+Page chrome here (EmptyState) comes from `@merqo/ui`; paykit keeps no local copy.

@@ -31,3 +31,5 @@ status, plan (read-only, from the entitlement cache), and transaction count.
 ## Parent
 
 [admin](../README.md)
+
+Page chrome here (PageHeader and EmptyState) comes from `@merqo/ui`; paykit keeps no local copy.

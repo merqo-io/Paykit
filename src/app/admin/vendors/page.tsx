@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/admin";
 import { listVendors } from "@/lib/admin-data";
-import { PageHeader } from "@/components/page-header";
-import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@merqo/ui";
+import { EmptyState } from "@merqo/ui";
 import { VendorsTable } from "@/app/admin/vendors/vendors-table";
 
 export const metadata: Metadata = {
@@ -19,6 +19,7 @@ export default async function AdminVendorsPage() {
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-5 py-8">
       <PageHeader
+        responsive
         eyebrow="Admin"
         title="Vendors"
         description="Every vendor with payment details, across every kit, most urgent first."

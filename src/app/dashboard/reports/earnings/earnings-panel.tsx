@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@merqo/ui";
 import type { EarningsReport } from "@/lib/earnings-report";
 import { formatCents } from "@/lib/utils";
 import { reportsHref } from "../search-params";

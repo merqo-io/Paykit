@@ -8,7 +8,7 @@ import { getBooking } from "@/lib/bookings";
 import { getTransaction } from "@/lib/transactions";
 import { getInquiryForBooking } from "@/lib/inquiry-inbox";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@merqo/ui";
 import { formatCents, formatDate } from "@/lib/utils";
 import { BookingStatusBadge, BalanceDueIndicator } from "../booking-badges";
 import { TermsSnapshot } from "../inquiry-badges";
@@ -61,16 +61,17 @@ export default async function BookingDetailPage({
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
+        responsive
         eyebrow="Booking"
         title={booking.customer_name}
         description={`Event on ${formatDate(booking.event_date)}`}
         className="mb-0"
-        actions={
-          <>
+        action={
+          <div className="flex flex-wrap items-center gap-2">
             <BookingStatusBadge status={booking.status} />
             <BalanceDueIndicator booking={booking} />
             <PrintBookingButton />
-          </>
+          </div>
         }
       />
 
