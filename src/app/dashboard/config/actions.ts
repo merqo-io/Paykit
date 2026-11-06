@@ -50,7 +50,9 @@ export async function saveConfigAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: parsed.error.issues[0]?.message ?? "Invalid input",
+      message:
+        parsed.error.issues[0]?.message ??
+        "Check the highlighted fields and try again",
     };
   }
 

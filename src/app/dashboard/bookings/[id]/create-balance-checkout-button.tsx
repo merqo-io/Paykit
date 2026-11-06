@@ -16,16 +16,18 @@ export function CreateBalanceCheckoutButton({
     start(async () => {
       const result = await createBalanceCheckoutAction(bookingId);
       if (result.status === "error") {
-        toast.error(result.message ?? "Could not create the balance checkout.");
+        toast.error(
+          result.message ?? "Could not create the balance payment. Try again.",
+        );
         return;
       }
-      toast.success("Balance checkout created.");
+      toast.success("Balance payment created");
     });
   }
 
   return (
     <Button size="sm" disabled={pending} onClick={onClick}>
-      {pending ? "Creating…" : "Create balance checkout"}
+      {pending ? "Creating…" : "Create balance payment"}
     </Button>
   );
 }

@@ -75,13 +75,13 @@ describe("InquiryFormSettings", () => {
     render(<InquiryFormSettings form={FORM} />);
     await userEvent.click(screen.getByRole("button", { name: "Inquiry form" }));
     expect(screen.getByLabelText("Business name")).toHaveValue("Kopi Cart Co");
-    expect(screen.getByLabelText("Terms version")).toHaveValue("v3");
+    expect(screen.getByLabelText("Terms label")).toHaveValue("v3");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
     await waitFor(() => expect(saveMock).toHaveBeenCalled());
     const fd = saveMock.mock.calls[0][1] as FormData;
     expect(fd.get("business_name")).toBe("Kopi Cart Co");
     expect(fd.get("enabled")).toBe("on");
-    expect(toastMock.success).toHaveBeenCalledWith("Inquiry form saved.");
+    expect(toastMock.success).toHaveBeenCalledWith("Inquiry form saved");
   });
 
   it("shows a save error in the dialog", async () => {

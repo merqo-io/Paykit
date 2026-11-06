@@ -28,7 +28,7 @@ describe("CreateBalanceCheckoutButton", () => {
     const user = userEvent.setup();
     render(<CreateBalanceCheckoutButton bookingId="b1" />);
     await user.click(
-      screen.getByRole("button", { name: /create balance checkout/i }),
+      screen.getByRole("button", { name: /create balance payment/i }),
     );
     await waitFor(() =>
       expect(createBalanceCheckoutActionMock).toHaveBeenCalledWith("b1"),
@@ -39,16 +39,16 @@ describe("CreateBalanceCheckoutButton", () => {
   it("toasts the error message on failure", async () => {
     createBalanceCheckoutActionMock.mockResolvedValue({
       status: "error",
-      message: "Create the deposit checkout before the balance checkout.",
+      message: "Create the deposit payment before the balance payment.",
     } satisfies BookingActionState);
     const user = userEvent.setup();
     render(<CreateBalanceCheckoutButton bookingId="b1" />);
     await user.click(
-      screen.getByRole("button", { name: /create balance checkout/i }),
+      screen.getByRole("button", { name: /create balance payment/i }),
     );
     await waitFor(() =>
       expect(toast.error).toHaveBeenCalledWith(
-        "Create the deposit checkout before the balance checkout.",
+        "Create the deposit payment before the balance payment.",
       ),
     );
   });

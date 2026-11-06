@@ -7,6 +7,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -35,7 +36,7 @@ export function InquiryDetailActions({
       if (result.status === "error") toast.error(result.message);
       else
         toast.success(
-          next === "contacted" ? "Marked contacted." : "Inquiry declined.",
+          next === "contacted" ? "Marked contacted" : "Inquiry declined",
         );
     });
   }
@@ -47,7 +48,7 @@ export function InquiryDetailActions({
         toast.error(result.message);
         return;
       }
-      toast.success("Inquiry deleted.");
+      toast.success("Inquiry deleted");
       router.push("/dashboard/bookings");
     });
   }
@@ -88,14 +89,23 @@ export function InquiryDetailActions({
               this when a client asks you to delete their data.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
-              Keep
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="rounded-xl"
+              onClick={() => setConfirmOpen(false)}
+            >
+              Keep inquiry
             </Button>
-            <Button variant="destructive" disabled={pending} onClick={remove}>
+            <Button
+              variant="destructive"
+              className="rounded-xl"
+              disabled={pending}
+              onClick={remove}
+            >
               Delete inquiry
             </Button>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

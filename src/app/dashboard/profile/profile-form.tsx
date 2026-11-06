@@ -90,7 +90,6 @@ export function ProfileForm({
   function saveBusinessName() {
     const parsed = profileNameSchema.safeParse({ name });
     if (!parsed.success) {
-      // Fixed copy: the shared schema message still says "Stall / shop name".
       setNameError("Enter a business name");
       return;
     }
@@ -223,6 +222,7 @@ export function ProfileForm({
         <div
           role="group"
           aria-labelledby="links-heading"
+          aria-describedby={linksError ? "links-error" : undefined}
           className="space-y-4 border-t pt-6"
         >
           <div>
@@ -238,7 +238,7 @@ export function ProfileForm({
             onChange={setLinks}
             idPrefix="profile"
           />
-          <FieldError message={linksError} />
+          <FieldError id="links-error" message={linksError} />
           <div className="flex justify-end">
             <Button
               type="button"

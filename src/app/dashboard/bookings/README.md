@@ -78,3 +78,15 @@ Booking amount conversion uses `dollarsToCents` from `@/lib/money`; the action k
 Booking and transaction reads list their columns (`@/lib/columns`).
 
 `actions.ts` keeps each action short with helpers: `linkDepositCheckout` (deposit checkout plus link), `linkSourceInquiry` and `recordCancellationRefund`.
+
+## Forms and dialogs
+
+`field.tsx` holds `Field` (visible label, hint and inline error wired with
+`aria-describedby` and `aria-invalid`, `h-11` input, no shadow) and
+`MoneyField`, an S$-prefixed decimal text input. `@merqo/ui` `MoneyInput` was
+not adopted: the installed version could not be inspected, so this fallback
+keeps amounts as text parsed on the server. New booking, inquiry form settings,
+and the cancel and reschedule dialogs share it. Dialogs use one title,
+description and `DialogFooter` with a single filled primary; destructive
+actions use the destructive variant. Errors read "Could not ... Try again."
+and toasts have no trailing period.

@@ -569,7 +569,7 @@ describe("saved booking recovery outcomes", () => {
     );
     expect(result).toEqual({
       status: "ok",
-      message: "Booking saved. Open it and retry the deposit checkout.",
+      message: "Booking saved. Open it and retry the deposit payment.",
     });
     expect(serviceDeleteMock).not.toHaveBeenCalled();
     expect(serviceLinkMock).not.toHaveBeenCalled();
@@ -589,7 +589,7 @@ describe("saved booking recovery outcomes", () => {
         ),
       ).toMatchObject({
         status: "ok",
-        message: expect.stringContaining("retry the deposit checkout"),
+        message: expect.stringContaining("retry the deposit payment"),
       });
       expect(serviceDeleteMock).not.toHaveBeenCalled();
     },

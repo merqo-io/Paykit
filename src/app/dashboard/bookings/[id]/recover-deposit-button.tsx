@@ -16,18 +16,17 @@ export function RecoverDepositButton({ bookingId }: { bookingId: string }) {
             const result = await recoverDepositCheckoutAction(bookingId);
             if (result.status === "error")
               toast.error(
-                result.message ?? "Could not recover the deposit checkout.",
+                result.message ??
+                  "Could not recover the deposit payment. Try again.",
               );
-            else toast.success("Deposit checkout ready.");
+            else toast.success("Deposit payment ready");
           } catch {
-            toast.error(
-              "Could not recover the deposit checkout. Please try again.",
-            );
+            toast.error("Could not recover the deposit payment. Try again.");
           }
         })
       }
     >
-      {pending ? "Recovering…" : "Retry deposit checkout"}
+      {pending ? "Recovering…" : "Retry deposit payment"}
     </Button>
   );
 }

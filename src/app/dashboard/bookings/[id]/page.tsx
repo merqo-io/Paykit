@@ -7,6 +7,8 @@ import { getVendorSession } from "@/lib/vendor-session";
 import { getBooking } from "@/lib/bookings";
 import { getTransaction } from "@/lib/transactions";
 import { getInquiryForBooking } from "@/lib/inquiry-inbox";
+import { readVendorPlan } from "@/lib/vendor-entitlement";
+import { PageHeader } from "@/components/page-header";
 import { formatCents, formatDate } from "@/lib/utils";
 import { BookingStatusBadge, BalanceDueIndicator } from "../booking-badges";
 import { TermsSnapshot } from "../inquiry-badges";
@@ -27,11 +29,11 @@ export default async function BookingDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { user } = await getVendorSession();
+  const { supabase, user } = await getVendorSession();
   const booking = await getBooking(user.id, id);
   if (!booking) notFound();
 
-  const [depositTx, balanceTx, inquiry] = await Promise.all([
+  const [depositTx, balanceTx, inquiry, plan] = await Promise.all([
     booking.deposit_transaction_id
       ? getTransaction(user.id, booking.deposit_transaction_id)
       : Promise.resolve(null),
@@ -39,6 +41,7 @@ export default async function BookingDetailPage({
       ? getTransaction(user.id, booking.balance_transaction_id)
       : Promise.resolve(null),
     getInquiryForBooking(user.id, booking.id),
+    readVendorPlan(supabase, user.id),
   ]);
 
   const [depositQr, balanceQr] = await Promise.all([
@@ -57,23 +60,19 @@ export default async function BookingDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {booking.customer_name}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Event on {formatDate(booking.event_date)}
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <div className="flex items-center gap-2">
+      <PageHeader
+        eyebrow="Booking"
+        title={booking.customer_name}
+        description={`Event on ${formatDate(booking.event_date)}`}
+        className="mb-0"
+        actions={
+          <>
             <BookingStatusBadge status={booking.status} />
+            <BalanceDueIndicator booking={booking} />
             <PrintBookingButton />
-          </div>
-          <BalanceDueIndicator booking={booking} />
-        </div>
-      </div>
+          </>
+        }
+      />
 
       <div className="rounded-xl border p-4 text-sm">
         <dl className="grid grid-cols-2 gap-y-2">
@@ -88,7 +87,7 @@ export default async function BookingDetailPage({
             <CopyBookingIdButton bookingId={booking.id} />
           </dd>
           <dt className="text-muted-foreground">Customer phone</dt>
-          <dd>{booking.customer_phone ?? "—"}</dd>
+          <dd>{booking.customer_phone ?? "Not set"}</dd>
           <dt className="text-muted-foreground">Total</dt>
           <dd>{formatCents(booking.total_amount_cents)}</dd>
           <dt className="text-muted-foreground">Deposit</dt>
@@ -107,8 +106,9 @@ export default async function BookingDetailPage({
           )}
         </dl>
         <p className="mt-3 text-xs text-muted-foreground">
-          Paste the Booking ID above into a qkit event booth&rsquo;s settings to
-          show this booking&rsquo;s live deposit/balance status there.
+          Paste the Booking ID above into your qkit event&rsquo;s payment
+          settings to show this booking&rsquo;s live deposit and balance status
+          there.
         </p>
       </div>
 
@@ -142,6 +142,7 @@ export default async function BookingDetailPage({
             bookingId={booking.id}
             depositTx={depositTx}
             balanceTx={balanceTx}
+            isPro={plan === "pro"}
           />
         </div>
       )}
