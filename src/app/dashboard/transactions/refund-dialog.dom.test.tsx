@@ -36,7 +36,7 @@ describe("RefundDialog", () => {
     await user.click(screen.getByRole("button", { name: /record refund/i }));
 
     await waitFor(() =>
-      expect(toast.success).toHaveBeenCalledWith("Refund recorded."),
+      expect(toast.success).toHaveBeenCalledWith("Refund recorded"),
     );
     await waitFor(() =>
       expect(

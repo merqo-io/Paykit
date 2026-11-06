@@ -85,9 +85,10 @@ a hand-copied color, so it can't drift from what the real badge looks like;
 see `../docs/superpowers/specs/2026-08-25-tour-example-badge-drift-fix-design.md`
 (workspace root, cross-kit spec). The badge itself now carries a persistent
 tap-to-open hint (`@merqo/ui`'s `InfoTooltip`, `trigger="tap"`) explaining
-what `claimed`/`confirmed` mean, so that distinction survives past the
-one-time tour — tap, not the component's hover default, since a native
-hover hint has no touch equivalent and most vendors check this on a
+what the "Marked paid" (`claimed`) and "Received" (`confirmed`) labels mean,
+so that distinction survives past the one-time tour — tap, not the
+component's hover default, since a native hover hint has no touch equivalent
+and most vendors check this on a
 phone. The tour covers Payments, Bookings and Reports in the nav, and
 points Payment setup at the avatar menu.
 `@merqo/ui`'s `DashboardNav`
