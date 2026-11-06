@@ -112,7 +112,7 @@ jobs:
           # "No tests were executed".
           FILES=$(git diff --name-only --diff-filter=d "origin/$GITHUB_BASE_REF...HEAD" \
             | grep -E '^src/lib/.*\.ts$' \
-            | grep -vE '\.test\.ts$|/types\.ts$' \
+            | grep -vE '\.test\.ts$|/types\.ts$|/db-types/' \
             | paste -sd, -)
           if [ -z "$FILES" ]; then
             echo "No surviving src/lib changes — skipping mutation."
