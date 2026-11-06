@@ -36,7 +36,7 @@ describe("RecoverDepositButton", () => {
       screen.getByRole("button", { name: "Retry deposit payment" }),
     );
     await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith("Refresh and try again."),
+      expect(toast.error).toHaveBeenCalledWith("Refresh and try again"),
     );
     expect(toast.success).not.toHaveBeenCalled();
   });
@@ -49,7 +49,7 @@ describe("RecoverDepositButton", () => {
     );
     await waitFor(() =>
       expect(toast.error).toHaveBeenCalledWith(
-        "Could not recover the deposit payment. Try again.",
+        "Could not recover the deposit payment. Try again",
       ),
     );
     expect(

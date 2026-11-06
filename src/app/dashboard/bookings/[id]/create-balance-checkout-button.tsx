@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { createBalanceCheckoutAction } from "../actions";
+import { toastText } from "../toast-text";
 
 export function CreateBalanceCheckoutButton({
   bookingId,
@@ -17,7 +18,10 @@ export function CreateBalanceCheckoutButton({
       const result = await createBalanceCheckoutAction(bookingId);
       if (result.status === "error") {
         toast.error(
-          result.message ?? "Could not create the balance payment. Try again.",
+          toastText(
+            result.message ??
+              "Could not create the balance payment. Try again.",
+          ),
         );
         return;
       }

@@ -17,6 +17,7 @@ import {
   deleteInquiryAction,
   setInquiryStatusAction,
 } from "../../inquiry-actions";
+import { toastText } from "../../toast-text";
 import type { InquiryStatus } from "@/lib/types";
 
 export function InquiryDetailActions({
@@ -33,7 +34,7 @@ export function InquiryDetailActions({
   function setStatus(next: "contacted" | "declined") {
     start(async () => {
       const result = await setInquiryStatusAction(inquiryId, next);
-      if (result.status === "error") toast.error(result.message);
+      if (result.status === "error") toast.error(toastText(result.message));
       else
         toast.success(
           next === "contacted" ? "Marked contacted" : "Inquiry declined",
@@ -45,7 +46,7 @@ export function InquiryDetailActions({
     start(async () => {
       const result = await deleteInquiryAction(inquiryId);
       if (result.status === "error") {
-        toast.error(result.message);
+        toast.error(toastText(result.message));
         return;
       }
       toast.success("Inquiry deleted");

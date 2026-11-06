@@ -133,6 +133,23 @@ describe("NewBookingDialog amounts", () => {
     expect(createBookingActionMock).not.toHaveBeenCalled();
   });
 
+  it("asks for a valid amount when a value is not a number", async () => {
+    createBookingActionMock.mockClear();
+    const user = userEvent.setup();
+    render(<NewBookingDialog />);
+    await user.click(screen.getByRole("button", { name: "New booking" }));
+    await fillValidForm(user);
+    const balance = screen.getByLabelText("Balance");
+    await user.clear(balance);
+    await user.type(balance, "700");
+    await user.type(screen.getByLabelText("Deposit"), "x");
+    await user.click(screen.getByRole("button", { name: /create booking/i }));
+    expect(screen.getByLabelText("Balance")).toHaveAccessibleDescription(
+      "Enter a valid amount.",
+    );
+    expect(createBookingActionMock).not.toHaveBeenCalled();
+  });
+
   it("uses S$-prefixed decimal inputs and closes with Cancel", async () => {
     const user = userEvent.setup();
     render(<NewBookingDialog />);

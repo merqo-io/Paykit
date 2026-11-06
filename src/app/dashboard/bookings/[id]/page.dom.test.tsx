@@ -248,4 +248,17 @@ describe("BookingDetailPage header and placeholders", () => {
     ).toBeVisible();
     expect(screen.queryByLabelText(/refund amount/i)).toBeNull();
   });
+
+  it("does not show the Pro hint when the plan read fails", async () => {
+    readVendorPlanMock.mockResolvedValue(null);
+    getBookingMock.mockResolvedValue(BOOKING);
+    getTransactionMock.mockResolvedValue(DEPOSIT_TX);
+    const { default: userEvent } = await import("@testing-library/user-event");
+    render(await BookingDetailPage({ params: Promise.resolve({ id: "b1" }) }));
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: "Cancel booking" }));
+    expect(screen.queryByText(/Refund tracking is on the Pro plan/)).toBeNull();
+    expect(screen.getByLabelText(/refund amount/i)).toBeInTheDocument();
+  });
 });

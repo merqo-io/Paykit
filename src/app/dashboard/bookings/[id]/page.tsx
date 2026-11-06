@@ -142,7 +142,7 @@ export default async function BookingDetailPage({
             bookingId={booking.id}
             depositTx={depositTx}
             balanceTx={balanceTx}
-            isPro={plan === "pro"}
+            isPro={plan !== "free"}
           />
         </div>
       )}

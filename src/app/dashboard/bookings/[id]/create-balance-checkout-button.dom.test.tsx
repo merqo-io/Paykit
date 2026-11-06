@@ -48,7 +48,7 @@ describe("CreateBalanceCheckoutButton", () => {
     );
     await waitFor(() =>
       expect(toast.error).toHaveBeenCalledWith(
-        "Create the deposit payment before the balance payment.",
+        "Create the deposit payment before the balance payment",
       ),
     );
   });

@@ -3,6 +3,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { recoverDepositCheckoutAction } from "../deposit-actions";
+import { toastText } from "../toast-text";
 
 export function RecoverDepositButton({ bookingId }: { bookingId: string }) {
   const [pending, start] = useTransition();
@@ -16,12 +17,16 @@ export function RecoverDepositButton({ bookingId }: { bookingId: string }) {
             const result = await recoverDepositCheckoutAction(bookingId);
             if (result.status === "error")
               toast.error(
-                result.message ??
-                  "Could not recover the deposit payment. Try again.",
+                toastText(
+                  result.message ??
+                    "Could not recover the deposit payment. Try again.",
+                ),
               );
             else toast.success("Deposit payment ready");
           } catch {
-            toast.error("Could not recover the deposit payment. Try again.");
+            toast.error(
+              toastText("Could not recover the deposit payment. Try again."),
+            );
           }
         })
       }

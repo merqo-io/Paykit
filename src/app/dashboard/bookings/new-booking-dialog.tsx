@@ -79,6 +79,11 @@ export function NewBookingDialog({
     FormData
   >(
     async (prevState, formData) => {
+      const amounts = [totalAmount, depositAmount, balanceAmount];
+      if (!amounts.every((v) => Number.isFinite(Number(v)))) {
+        setAmountError("Enter a valid amount.");
+        return { status: "idle" };
+      }
       if (!amountsAddUp(totalAmount, depositAmount, balanceAmount)) {
         setAmountError("Deposit and balance must add up to the total.");
         return { status: "idle" };
