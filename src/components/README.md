@@ -35,3 +35,5 @@ mechanisms; adapter tests cover Paykit's props, routes and action behavior.
 ## Parent
 
 [src](../README.md)
+
+`PageHeader`'s title wraps long words (`break-words`) so a long customer name never overflows the header.

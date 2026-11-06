@@ -7,14 +7,15 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Field } from "./field";
 import {
   saveInquiryFormAction,
   type InquiryActionState,
@@ -34,7 +35,7 @@ export function InquiryFormSettings({ form }: { form: InquiryForm | null }) {
     async (prev, formData) => {
       const result = await saveInquiryFormAction(prev, formData);
       if (result.status === "ok") {
-        toast.success("Inquiry form saved.");
+        toast.success("Inquiry form saved");
         setOpen(false);
       }
       return result;
@@ -74,42 +75,32 @@ export function InquiryFormSettings({ form }: { form: InquiryForm | null }) {
             </DialogDescription>
           </DialogHeader>
           <form action={formAction} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="business_name">Business name</Label>
-              <Input
-                id="business_name"
-                name="business_name"
-                defaultValue={form?.business_name ?? ""}
-                maxLength={80}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="terms_url">Booking terms link (optional)</Label>
-              <Input
-                id="terms_url"
-                name="terms_url"
-                type="url"
-                placeholder="https://"
-                defaultValue={form?.terms_url ?? ""}
-                maxLength={500}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="terms_version">Terms version</Label>
-              <Input
-                id="terms_version"
-                name="terms_version"
-                placeholder="v1"
-                defaultValue={form?.terms_version ?? ""}
-                maxLength={40}
-              />
-              <p className="text-xs text-muted-foreground">
-                With a link, clients must tick a box accepting these terms. We
-                record the version and the time. Change the version whenever you
-                change the document.
-              </p>
-            </div>
+            <Field
+              id="business_name"
+              name="business_name"
+              label="Business name"
+              defaultValue={form?.business_name ?? ""}
+              maxLength={80}
+              required
+            />
+            <Field
+              id="terms_url"
+              name="terms_url"
+              label="Booking terms link (optional)"
+              type="url"
+              placeholder="https://"
+              defaultValue={form?.terms_url ?? ""}
+              maxLength={500}
+            />
+            <Field
+              id="terms_version"
+              name="terms_version"
+              label="Terms label"
+              placeholder="v1"
+              defaultValue={form?.terms_version ?? ""}
+              maxLength={40}
+              hint="With a link, clients must tick a box accepting these terms. We record this label and the time. Change the label whenever you change the document."
+            />
             <div className="flex items-center gap-3">
               <Checkbox
                 id="enabled"
@@ -125,9 +116,19 @@ export function InquiryFormSettings({ form }: { form: InquiryForm | null }) {
                 {state.message}
               </p>
             )}
-            <Button type="submit" disabled={pending}>
-              {pending ? "Saving…" : "Save"}
-            </Button>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-xl"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" className="rounded-xl" disabled={pending}>
+                {pending ? "Saving…" : "Save"}
+              </Button>
+            </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>

@@ -7,6 +7,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -16,6 +17,7 @@ import {
   deleteInquiryAction,
   setInquiryStatusAction,
 } from "../../inquiry-actions";
+import { toastText } from "../../toast-text";
 import type { InquiryStatus } from "@/lib/types";
 
 export function InquiryDetailActions({
@@ -32,10 +34,10 @@ export function InquiryDetailActions({
   function setStatus(next: "contacted" | "declined") {
     start(async () => {
       const result = await setInquiryStatusAction(inquiryId, next);
-      if (result.status === "error") toast.error(result.message);
+      if (result.status === "error") toast.error(toastText(result.message));
       else
         toast.success(
-          next === "contacted" ? "Marked contacted." : "Inquiry declined.",
+          next === "contacted" ? "Marked contacted" : "Inquiry declined",
         );
     });
   }
@@ -44,10 +46,10 @@ export function InquiryDetailActions({
     start(async () => {
       const result = await deleteInquiryAction(inquiryId);
       if (result.status === "error") {
-        toast.error(result.message);
+        toast.error(toastText(result.message));
         return;
       }
-      toast.success("Inquiry deleted.");
+      toast.success("Inquiry deleted");
       router.push("/dashboard/bookings");
     });
   }
@@ -88,14 +90,23 @@ export function InquiryDetailActions({
               this when a client asks you to delete their data.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
-              Keep
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="rounded-xl"
+              onClick={() => setConfirmOpen(false)}
+            >
+              Keep inquiry
             </Button>
-            <Button variant="destructive" disabled={pending} onClick={remove}>
+            <Button
+              variant="destructive"
+              className="rounded-xl"
+              disabled={pending}
+              onClick={remove}
+            >
               Delete inquiry
             </Button>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

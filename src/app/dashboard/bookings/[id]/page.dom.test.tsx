@@ -8,9 +8,11 @@ const {
   getBookingMock,
   getTransactionMock,
   notFoundMock,
+  readVendorPlanMock,
   getInquiryForBookingMock,
 } = vi.hoisted(() => ({
   getInquiryForBookingMock: vi.fn(),
+  readVendorPlanMock: vi.fn(),
   getVendorSessionMock: vi.fn(),
   getBookingMock: vi.fn(),
   getTransactionMock: vi.fn(),
@@ -27,6 +29,10 @@ vi.mock("@/lib/transactions", () => ({ getTransaction: getTransactionMock }));
 vi.mock("next/navigation", () => ({ notFound: notFoundMock }));
 vi.mock("@/lib/inquiry-inbox", () => ({
   getInquiryForBooking: getInquiryForBookingMock,
+}));
+
+vi.mock("@/lib/vendor-entitlement", () => ({
+  readVendorPlan: readVendorPlanMock,
 }));
 
 import BookingDetailPage from "./page";
@@ -71,6 +77,7 @@ beforeEach(() => {
   getTransactionMock.mockReset().mockResolvedValue(null);
   notFoundMock.mockClear();
   getInquiryForBookingMock.mockReset().mockResolvedValue(null);
+  readVendorPlanMock.mockReset().mockResolvedValue("pro");
 });
 
 describe("BookingDetailPage", () => {
@@ -133,18 +140,18 @@ describe("BookingDetailPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("offers Create balance checkout once the deposit exists and balance doesn't yet", async () => {
+  it("offers Create balance payment once the deposit exists and balance doesn't yet", async () => {
     getBookingMock.mockResolvedValue(BOOKING);
     const jsx = await BookingDetailPage({
       params: Promise.resolve({ id: "b1" }),
     });
     render(jsx);
     expect(
-      screen.getByRole("button", { name: /create balance checkout/i }),
+      screen.getByRole("button", { name: /create balance payment/i }),
     ).toBeInTheDocument();
   });
 
-  it("hides Create balance checkout once the balance checkout already exists", async () => {
+  it("hides Create balance payment once the balance checkout already exists", async () => {
     getBookingMock.mockResolvedValue({
       ...BOOKING,
       balance_transaction_id: "tx-balance",
@@ -154,7 +161,7 @@ describe("BookingDetailPage", () => {
     });
     render(jsx);
     expect(
-      screen.queryByRole("button", { name: /create balance checkout/i }),
+      screen.queryByRole("button", { name: /create balance payment/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -165,7 +172,7 @@ describe("BookingDetailPage", () => {
     });
     render(jsx);
     expect(
-      screen.queryByRole("button", { name: /create balance checkout/i }),
+      screen.queryByRole("button", { name: /create balance payment/i }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Cancel booking" }),
@@ -214,4 +221,44 @@ describe("immutable payment display", () => {
         ).toBeInTheDocument();
     },
   );
+});
+
+describe("BookingDetailPage header and placeholders", () => {
+  it("renders a PageHeader with the customer name and Not set for a missing phone", async () => {
+    getBookingMock.mockResolvedValue({ ...BOOKING, customer_phone: null });
+    render(await BookingDetailPage({ params: Promise.resolve({ id: "b1" }) }));
+    expect(screen.getByText("Booking", { selector: "p" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Jane Tan" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Not set")).toBeInTheDocument();
+  });
+
+  it("shows free vendors the Pro refund hint instead of a refund field", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    getBookingMock.mockResolvedValue(BOOKING);
+    getTransactionMock.mockResolvedValue(DEPOSIT_TX);
+    const { default: userEvent } = await import("@testing-library/user-event");
+    render(await BookingDetailPage({ params: Promise.resolve({ id: "b1" }) }));
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: "Cancel booking" }));
+    expect(
+      screen.getByText(/Refund tracking is on the Pro plan/),
+    ).toBeVisible();
+    expect(screen.queryByLabelText(/refund amount/i)).toBeNull();
+  });
+
+  it("does not show the Pro hint when the plan read fails", async () => {
+    readVendorPlanMock.mockResolvedValue(null);
+    getBookingMock.mockResolvedValue(BOOKING);
+    getTransactionMock.mockResolvedValue(DEPOSIT_TX);
+    const { default: userEvent } = await import("@testing-library/user-event");
+    render(await BookingDetailPage({ params: Promise.resolve({ id: "b1" }) }));
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: "Cancel booking" }));
+    expect(screen.queryByText(/Refund tracking is on the Pro plan/)).toBeNull();
+    expect(screen.getByLabelText(/refund amount/i)).toBeInTheDocument();
+  });
 });

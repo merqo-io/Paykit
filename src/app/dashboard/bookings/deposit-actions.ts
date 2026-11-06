@@ -25,7 +25,7 @@ async function recoverDeposit(
   if (lookupError || (existing && existing.amount_cents !== depositAmount)) {
     return {
       status: "error",
-      message: "Could not verify the deposit checkout.",
+      message: "Could not verify the deposit payment. Try again.",
     };
   }
   let transactionId = existing?.id;
@@ -39,7 +39,7 @@ async function recoverDeposit(
     if (!checkout.ok) {
       return {
         status: "error",
-        message: "Could not create the deposit checkout. Try again.",
+        message: "Could not create the deposit payment. Try again.",
       };
     }
     transactionId = checkout.transaction_id;
@@ -55,7 +55,7 @@ async function recoverDeposit(
   if (linkError || !linked) {
     return {
       status: "error",
-      message: "Could not link the deposit checkout. Refresh and try again.",
+      message: "Could not link the deposit payment. Refresh and try again.",
     };
   }
   revalidatePath("/dashboard/bookings/" + bookingId);
@@ -69,7 +69,11 @@ export async function recoverDepositCheckoutAction(
   const parsed = createBalanceCheckoutInputSchema.safeParse({
     booking_id: bookingId,
   });
-  if (!parsed.success) return { status: "error", message: "Invalid booking" };
+  if (!parsed.success)
+    return {
+      status: "error",
+      message: "Could not find that booking. Try again.",
+    };
   const { supabase, user } = await getVendorSession();
   try {
     const { data: booking, error } = await supabase
@@ -78,7 +82,10 @@ export async function recoverDepositCheckoutAction(
       .eq("id", parsed.data.booking_id)
       .maybeSingle();
     if (error || !booking)
-      return { status: "error", message: "Booking not found" };
+      return {
+        status: "error",
+        message: "Could not find that booking. Try again.",
+      };
     if (booking.status === "cancelled") {
       return {
         status: "error",
@@ -99,7 +106,7 @@ export async function recoverDepositCheckoutAction(
     console.error("recoverDepositCheckoutAction: checkout unavailable");
     return {
       status: "error",
-      message: "Could not recover the deposit checkout. Please try again.",
+      message: "Could not recover the deposit payment. Try again.",
     };
   }
 }

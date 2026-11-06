@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getVendorSession } from "@/lib/vendor-session";
 import { getInquiry } from "@/lib/inquiry-inbox";
 import { formatDate } from "@/lib/utils";
+import { PageHeader } from "@/components/page-header";
 import { whatsappLink } from "@/lib/phone-links";
 import { InquiryStatusBadge, TermsSnapshot } from "../../inquiry-badges";
 import { NewBookingDialog } from "../../new-booking-dialog";
@@ -31,17 +32,13 @@ export default async function InquiryDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {inquiry.customer_name}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Received {received}
-          </p>
-        </div>
-        <InquiryStatusBadge status={inquiry.status} />
-      </div>
+      <PageHeader
+        eyebrow="Inquiry"
+        title={inquiry.customer_name}
+        description={`Received ${received}`}
+        className="mb-0"
+        actions={<InquiryStatusBadge status={inquiry.status} />}
+      />
 
       <div className="rounded-xl border p-4 text-sm">
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">

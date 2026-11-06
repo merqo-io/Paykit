@@ -28,7 +28,8 @@ export async function saveInquiryFormAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: parsed.error.issues[0]?.message ?? "Invalid input",
+      message:
+        parsed.error.issues[0]?.message ?? "Check the details and try again",
     };
   }
 
@@ -68,7 +69,11 @@ export async function setInquiryStatusAction(
     inquiry_id: inquiryId,
     status,
   });
-  if (!parsed.success) return { status: "error", message: "Invalid inquiry" };
+  if (!parsed.success)
+    return {
+      status: "error",
+      message: "Could not find that inquiry. Try again.",
+    };
 
   const { data, error } = await supabase
     .from("inquiries")
@@ -91,7 +96,11 @@ export async function deleteInquiryAction(
   const { supabase, user } = await getVendorSession();
   const parsed =
     inquiryStatusUpdateSchema.shape.inquiry_id.safeParse(inquiryId);
-  if (!parsed.success) return { status: "error", message: "Invalid inquiry" };
+  if (!parsed.success)
+    return {
+      status: "error",
+      message: "Could not find that inquiry. Try again.",
+    };
 
   const { data, error } = await supabase
     .from("inquiries")

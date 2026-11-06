@@ -85,13 +85,13 @@ describe("NewBookingDialog", () => {
 
     await user.type(screen.getByLabelText("Total amount"), "1000");
     await user.type(screen.getByLabelText("Deposit"), "300");
-    expect(screen.getByLabelText("Balance")).toHaveValue(700);
+    expect(screen.getByLabelText("Balance")).toHaveValue("700.00");
 
     await user.clear(screen.getByLabelText("Balance"));
     await user.type(screen.getByLabelText("Balance"), "650");
     await user.type(screen.getByLabelText("Deposit"), "1");
     // Now touched — no longer overwritten by the total/deposit derivation.
-    expect(screen.getByLabelText("Balance")).toHaveValue(650);
+    expect(screen.getByLabelText("Balance")).toHaveValue("650");
   });
 
   it("keeps the dialog open and shows an inline error on a failed submit", async () => {
@@ -112,5 +112,54 @@ describe("NewBookingDialog", () => {
     expect(
       screen.getByRole("heading", { name: "New booking" }),
     ).toBeInTheDocument();
+  });
+});
+
+describe("NewBookingDialog amounts", () => {
+  it("blocks a mismatched split inline and never calls the action", async () => {
+    createBookingActionMock.mockClear();
+    const user = userEvent.setup();
+    render(<NewBookingDialog />);
+    await user.click(screen.getByRole("button", { name: "New booking" }));
+    await fillValidForm(user);
+    const balance = screen.getByLabelText("Balance");
+    await user.clear(balance);
+    await user.type(balance, "5");
+    await user.click(screen.getByRole("button", { name: /create booking/i }));
+    expect(balance).toHaveAttribute("aria-invalid", "true");
+    expect(balance).toHaveAccessibleDescription(
+      "Deposit and balance must add up to the total.",
+    );
+    expect(createBookingActionMock).not.toHaveBeenCalled();
+  });
+
+  it("asks for a valid amount when a value is not a number", async () => {
+    createBookingActionMock.mockClear();
+    const user = userEvent.setup();
+    render(<NewBookingDialog />);
+    await user.click(screen.getByRole("button", { name: "New booking" }));
+    await fillValidForm(user);
+    const balance = screen.getByLabelText("Balance");
+    await user.clear(balance);
+    await user.type(balance, "700");
+    await user.type(screen.getByLabelText("Deposit"), "x");
+    await user.click(screen.getByRole("button", { name: /create booking/i }));
+    expect(screen.getByLabelText("Balance")).toHaveAccessibleDescription(
+      "Enter a valid amount.",
+    );
+    expect(createBookingActionMock).not.toHaveBeenCalled();
+  });
+
+  it("uses S$-prefixed decimal inputs and closes with Cancel", async () => {
+    const user = userEvent.setup();
+    render(<NewBookingDialog />);
+    await user.click(screen.getByRole("button", { name: "New booking" }));
+    expect(screen.getByLabelText("Total amount")).toHaveAttribute(
+      "inputmode",
+      "decimal",
+    );
+    expect(screen.getAllByText("S$")).toHaveLength(3);
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 });

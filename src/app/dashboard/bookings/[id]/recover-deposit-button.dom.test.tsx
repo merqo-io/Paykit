@@ -18,10 +18,10 @@ describe("RecoverDepositButton", () => {
     const user = userEvent.setup();
     render(<RecoverDepositButton bookingId="b1" />);
     await user.click(
-      screen.getByRole("button", { name: "Retry deposit checkout" }),
+      screen.getByRole("button", { name: "Retry deposit payment" }),
     );
     await waitFor(() =>
-      expect(toast.success).toHaveBeenCalledWith("Deposit checkout ready."),
+      expect(toast.success).toHaveBeenCalledWith("Deposit payment ready"),
     );
     expect(recover).toHaveBeenCalledWith("b1");
   });
@@ -33,10 +33,10 @@ describe("RecoverDepositButton", () => {
     const user = userEvent.setup();
     render(<RecoverDepositButton bookingId="b1" />);
     await user.click(
-      screen.getByRole("button", { name: "Retry deposit checkout" }),
+      screen.getByRole("button", { name: "Retry deposit payment" }),
     );
     await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith("Refresh and try again."),
+      expect(toast.error).toHaveBeenCalledWith("Refresh and try again"),
     );
     expect(toast.success).not.toHaveBeenCalled();
   });
@@ -45,15 +45,15 @@ describe("RecoverDepositButton", () => {
     const user = userEvent.setup();
     render(<RecoverDepositButton bookingId="b1" />);
     await user.click(
-      screen.getByRole("button", { name: "Retry deposit checkout" }),
+      screen.getByRole("button", { name: "Retry deposit payment" }),
     );
     await waitFor(() =>
       expect(toast.error).toHaveBeenCalledWith(
-        "Could not recover the deposit checkout. Please try again.",
+        "Could not recover the deposit payment. Try again",
       ),
     );
     expect(
-      screen.getByRole("button", { name: "Retry deposit checkout" }),
+      screen.getByRole("button", { name: "Retry deposit payment" }),
     ).toBeEnabled();
   });
 });
