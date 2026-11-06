@@ -45,6 +45,18 @@ describe("updateStallName", () => {
     });
   });
 
+  it("returns plain copy when the RPC fails", async () => {
+    rpcMock.mockResolvedValue({ data: null, error: { message: "boom" } });
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { updateStallName } = await import("./actions");
+    const result = await updateStallName({ name: "New Cart Name" });
+    expect(result).toEqual({
+      success: false,
+      error: "Could not save business name. Try again.",
+    });
+    spy.mockRestore();
+  });
+
   it("returns an error for an empty name without calling the RPC", async () => {
     const { updateStallName } = await import("./actions");
     const result = await updateStallName({ name: "" });
@@ -65,6 +77,18 @@ describe("updateSocialLinks", () => {
       p_stall_name: null,
       p_social_links: { website: "https://new.example" },
     });
+  });
+
+  it("returns plain copy when the RPC fails", async () => {
+    rpcMock.mockResolvedValue({ data: null, error: { message: "boom" } });
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { updateSocialLinks } = await import("./actions");
+    const result = await updateSocialLinks({ website: "https://new.example" });
+    expect(result).toEqual({
+      success: false,
+      error: "Could not save links. Try again.",
+    });
+    spy.mockRestore();
   });
 
   it("returns an error for an invalid URL without calling the RPC", async () => {
