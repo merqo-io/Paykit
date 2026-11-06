@@ -5,7 +5,7 @@ import { resolvePlanView } from "@/lib/plan-view";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
 import { merqoBaseUrl } from "@/lib/merqo-url";
 import { PricingLadder, fetchPlanCatalog } from "@merqo/ui";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@merqo/ui";
 
 export const metadata: Metadata = {
   title: "Plan",
@@ -24,7 +24,7 @@ export default async function PlanPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <PageHeader eyebrow="Billing" title="Plan" className="mb-0" />
+      <PageHeader responsive eyebrow="Billing" title="Plan" className="mb-0" />
 
       <div className="rounded-xl border p-4">
         <p className="text-sm font-medium">

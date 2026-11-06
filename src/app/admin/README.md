@@ -27,11 +27,8 @@ figure-tile helper used by the overview and vendors screens.
   `securityStats()` in `@/lib/admin-data`), a recent cross-vendor activity
   feed (flat bordered card, or `EmptyState` when empty). Page titles use the
   shared `PageHeader`; statuses read Awaiting payment / Marked paid / Received.
-- `stat.tsx` — `Stat`: a small labeled-value tile (a flat bordered card
-  wrapping `@merqo/ui`'s shared `StatTile`) used on the admin overview page
-  — label/value plus optional `caption` and a period-over-period `delta`/
-  `deltaTooltip` pill (`deltaSize="xs"`, matching loopkit's own `StatTile`
-  wrapper convention).
+- Overview figures use `@merqo/ui`'s shared `StatCard` (label/value plus optional
+  `caption` and a period-over-period `delta`/`deltaTooltip` pill, `deltaSize="xs"`).
 - `vendors/`
 
 ## Connectivity

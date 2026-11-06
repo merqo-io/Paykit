@@ -29,3 +29,5 @@ that, until this folder existed, no page ever read back.
 ## Parent
 
 [admin](../README.md)
+
+Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.

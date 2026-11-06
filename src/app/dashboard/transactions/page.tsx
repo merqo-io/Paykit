@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getVendorSession } from "@/lib/vendor-session";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
 import { listTransactions } from "@/lib/transactions";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@merqo/ui";
 import { TransactionTable } from "./transaction-table";
 
 export const metadata: Metadata = {
@@ -18,6 +18,7 @@ export default async function TransactionsPage() {
   return (
     <div>
       <PageHeader
+        responsive
         eyebrow="Ledger"
         title="Payments"
         description="Your 200 most recent payments across every kit. Earnings reports include your full history."

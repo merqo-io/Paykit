@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@merqo/ui";
 import { DataTable, type DataTableColumn } from "@merqo/ui";
 import { formatCents } from "@/lib/utils";
 import { RefundDialog } from "./refund-dialog";

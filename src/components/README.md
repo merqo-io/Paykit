@@ -6,10 +6,8 @@ Paykit-specific client adapters and presentation. Shared controls live in
 - `dashboard-tour.tsx` adapts routing, mark-seen action and `tour-steps.ts` to
   the shared tour (its Reports step anchors on `nav-reports`). Step descriptions render the real transaction-status badge
   into static markup; their HTML is authored configuration, not customer input.
-- `page-header.tsx` (eyebrow, title, optional line, actions) and
-  `empty-state.tsx` (dashed card with up to two actions) are the local page
-  chrome for dashboard pages; keep their props simple so they can be swapped for
-  a shared version.
+- Dashboard page chrome (`PageHeader`, `EmptyState`) and the navigation plan chip
+  (`TierChip`) come from `@merqo/ui`; there are no local copies.
 - `site-footer.tsx` — `SiteFooter({ showSignIn })`, paykit's copy of the
   family footer: `@merqo/ui`'s `Footer` with the paykit wordmark (linking to
   `/`), the tagline "A shared payment setup for merqo vendors." and `kitName`.

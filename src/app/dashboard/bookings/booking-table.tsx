@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@merqo/ui";
 import { DataTable, type DataTableColumn } from "@merqo/ui";
 import { formatCents, formatDate } from "@/lib/utils";
 import { BookingStatusBadge, BalanceDueIndicator } from "./booking-badges";

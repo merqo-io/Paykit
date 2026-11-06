@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getVendorSession } from "@/lib/vendor-session";
 import { getInquiry } from "@/lib/inquiry-inbox";
 import { formatDate } from "@/lib/utils";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@merqo/ui";
 import { whatsappLink } from "@/lib/phone-links";
 import { InquiryStatusBadge, TermsSnapshot } from "../../inquiry-badges";
 import { NewBookingDialog } from "../../new-booking-dialog";
@@ -33,11 +33,12 @@ export default async function InquiryDetailPage({
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
+        responsive
         eyebrow="Inquiry"
         title={inquiry.customer_name}
         description={`Received ${received}`}
         className="mb-0"
-        actions={<InquiryStatusBadge status={inquiry.status} />}
+        action={<InquiryStatusBadge status={inquiry.status} />}
       />
 
       <div className="rounded-xl border p-4 text-sm">

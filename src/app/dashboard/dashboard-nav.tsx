@@ -6,9 +6,8 @@ import { usePathname } from "next/navigation";
 import {
   DashboardNav as SharedDashboardNav,
   getSwitchKits,
-  tierLabel,
+  TierChip,
 } from "@merqo/ui";
-import { cn } from "@/lib/utils";
 import type { SupportMessageInput } from "@/lib/schemas";
 import { SUPPORT_CATEGORY_LABELS } from "@/lib/schemas";
 import { submitFeedbackAction } from "@/app/actions/feedback";
@@ -29,34 +28,6 @@ function isActive(path: string, href: string): boolean {
 /** Stable anchor id for the onboarding tour, e.g. "/dashboard/transactions" -> "nav-transactions". */
 function tourAnchor(href: string): string {
   return `nav-${href === "/dashboard" ? "dashboard" : href.split("/").pop()}`;
-}
-
-// A small mono "ticket stamp" for the account's plan, ported from qkit's
-// TierBadge — simplified to paykit's 2-tier (free/pro) set, so it's a flat
-// lookup rather than qkit's 3-rung logic.
-const TIER_BADGE: Record<Tier, { label: string; className: string }> = {
-  free: {
-    label: tierLabel("free"),
-    className: "bg-secondary text-muted-foreground ring-border",
-  },
-  pro: {
-    label: tierLabel("pro"),
-    className: "bg-mint/15 text-mint ring-mint/30",
-  },
-};
-
-function TierBadge({ tier }: { tier: Tier }) {
-  const { label, className } = TIER_BADGE[tier];
-  return (
-    <span
-      className={cn(
-        "shrink-0 rounded-full px-1.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wider ring-1 ring-inset",
-        className,
-      )}
-    >
-      {label}
-    </span>
-  );
 }
 
 // Category list/labels for the nav's Get-help sheet.
@@ -131,7 +102,7 @@ export function DashboardNav({
         subtitle: vendorName || "Your account",
       }}
       signOutAction={signOut}
-      tierBadge={<TierBadge tier={plan} />}
+      tierBadge={<TierChip tier={plan} />}
       showPlanItem
       extraLink={{ href: "/dashboard/config", label: "Payment setup" }}
       switchKits={getSwitchKits("paykit")}

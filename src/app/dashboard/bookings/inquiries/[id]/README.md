@@ -28,3 +28,5 @@ another vendor's.
 The page header uses `PageHeader` (eyebrow "Inquiry", status badge in its
 actions). The delete dialog uses the shared title, description and
 `DialogFooter` layout with a destructive confirm.
+
+Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.

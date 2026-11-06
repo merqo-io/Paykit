@@ -5,7 +5,7 @@ import { claimedTxCount, txCountThisMonth } from "@/lib/transactions";
 import { stampTourSeen } from "@/lib/tour-prefs";
 import { getConfig } from "./config/actions";
 import type { VendorPaymentConfig } from "@/lib/types";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@merqo/ui";
 import { buttonVariants } from "@/components/ui/button";
 import { FORM_LABEL_CLASS } from "@/lib/utils";
 
@@ -68,9 +68,10 @@ export default async function DashboardPage() {
   return (
     <div>
       <PageHeader
+        responsive
         eyebrow="Overview"
         title="Payments at a glance"
-        actions={
+        action={
           !config ? (
             <Link
               href="/dashboard/config"
