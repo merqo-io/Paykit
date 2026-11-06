@@ -77,6 +77,29 @@ describe("checkLegalAcceptance", () => {
     errorSpy.mockRestore();
   });
 
+  it("still passes a current vendor when the cache write returns an error", async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: { message: "x" } });
+    const { client } = clientWith({ cached: null, upsert });
+    vi.mocked(createServiceClient).mockResolvedValue(client as never);
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        terms: LEGAL_VERSIONS.terms,
+        privacy: LEGAL_VERSIONS.privacy,
+      }),
+    }) as never;
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await checkLegalAcceptance("vendor@example.com");
+
+    expect(result).toBe(true);
+    expect(errorSpy).toHaveBeenCalledWith(
+      "checkLegalAcceptance: cache write failed",
+      "x",
+    );
+    errorSpy.mockRestore();
+  });
+
   it("calls merqo and caches the result when there is no cache row", async () => {
     const { client, upsert } = clientWith({ cached: null });
     vi.mocked(createServiceClient).mockResolvedValue(client as never);
