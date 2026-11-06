@@ -1,29 +1,35 @@
+import { StatusBadge } from "@merqo/ui";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { balanceDueBadge } from "@/lib/booking-status";
 import type { Booking, BookingStatus } from "@/lib/types";
 
-const STATUS_LABEL: Record<BookingStatus, string> = {
-  pending_deposit: "Pending deposit",
-  deposit_paid: "Deposit paid",
-  fully_paid: "Fully paid",
-  cancelled: "Cancelled",
-};
-
-const STATUS_BADGE_CLASS: Partial<Record<BookingStatus, string>> = {
-  deposit_paid: "bg-mint/15 text-mint ring-1 ring-mint/30",
-  fully_paid: "bg-primary/15 text-primary ring-1 ring-primary/30",
+// Same chip as the payment status badge so a booking and its payment read as
+// one family; `cancelled` stays muted.
+const STATUS_CONFIG: Record<
+  BookingStatus,
+  { label: string; className: string }
+> = {
+  pending_deposit: {
+    label: "Awaiting deposit",
+    className: "text-secondary border-secondary/35 bg-secondary/12",
+  },
+  deposit_paid: {
+    label: "Deposit paid",
+    className: "text-mint border-mint/35 bg-mint/12",
+  },
+  fully_paid: {
+    label: "Fully paid",
+    className: "text-primary border-primary/35 bg-primary/12",
+  },
+  cancelled: {
+    label: "Cancelled",
+    className: "text-muted-foreground border-border bg-muted/40",
+  },
 };
 
 export function BookingStatusBadge({ status }: { status: BookingStatus }) {
-  return (
-    <Badge
-      variant={status === "cancelled" ? "outline" : "secondary"}
-      className={cn(STATUS_BADGE_CLASS[status])}
-    >
-      {STATUS_LABEL[status]}
-    </Badge>
-  );
+  return <StatusBadge status={status} config={STATUS_CONFIG} />;
 }
 
 /**

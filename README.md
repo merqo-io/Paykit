@@ -85,9 +85,10 @@ a hand-copied color, so it can't drift from what the real badge looks like;
 see `../docs/superpowers/specs/2026-08-25-tour-example-badge-drift-fix-design.md`
 (workspace root, cross-kit spec). The badge itself now carries a persistent
 tap-to-open hint (`@merqo/ui`'s `InfoTooltip`, `trigger="tap"`) explaining
-what `claimed`/`confirmed` mean, so that distinction survives past the
-one-time tour — tap, not the component's hover default, since a native
-hover hint has no touch equivalent and most vendors check this on a
+what the "Marked paid" (`claimed`) and "Received" (`confirmed`) labels mean,
+so that distinction survives past the one-time tour — tap, not the
+component's hover default, since a native hover hint has no touch equivalent
+and most vendors check this on a
 phone. The tour covers Payments, Bookings and Reports in the nav, and
 points Payment setup at the avatar menu.
 `@merqo/ui`'s `DashboardNav`
@@ -225,7 +226,7 @@ against its one unambiguously confirmed transaction, reusing the existing
 Pro-gated `refunds` ledger rather than a second mechanism. Creating a
 booking or its balance checkout now logs to the admin audit trail too,
 closing the last two real gaps in that coverage. An accrual-aware
-earnings report (`/dashboard/reports/earnings`, free for every vendor) —
+earnings report (`/dashboard/reports?tab=earnings`, free for every vendor) —
 revenue by month and by booking, tagged by event date rather than
 claim/confirm date, CSV export — rounds out the event-cart bookings
 feature set. A calling kit whose own vendor already knows their booking's
@@ -250,8 +251,8 @@ crash at render with `Functions cannot be passed directly to Client
 Components`, and because the crash happens at request time on a dynamic
 route, `next build` does not catch it. The fix is one of two shapes: drop
 the optional prop and let the component's own fallback render (this is
-what `BackButton` on `/dashboard/plan` and `/dashboard/profile` now
-does), or move the props into a `"use client"` wrapper that owns them
+what `/dashboard/plan` and `/dashboard/profile` did before the shared
+page header replaced their `BackButton`), or move the props into a `"use client"` wrapper that owns them
 (`reports/earnings/earnings-tables.tsx` for `DataTable`'s `cell`/
 `getRowKey`, matching the existing `admin/vendors` `VendorsTable`).
 The full incident writeup lives in qkit at
@@ -333,7 +334,7 @@ Source lives in the `merqo-io` GitHub organization (`github.com/merqo-io/paykit`
 
 The `staging-sync` workflow pushes to `staging` with the `merqo-staging-sync` GitHub App token.
 
-Vercel builds from git only for `main` (`git.deploymentEnabled` in `vercel.json`), so PRs get no automatic preview and the Hobby daily deployment cap lasts. Staging deploys through the `staging-sync` deploy hook; use the `vercel` CLI for an ad-hoc preview. See `docs/DEPLOY.md`.
+Vercel builds from git only for `main` and `staging` (`git.deploymentEnabled` in `vercel.json`), so PRs get no automatic preview and the Hobby daily deployment cap lasts. Merging into `staging` deploys paykit-staging.merqo.io; use the `vercel` CLI for an ad-hoc preview. See `docs/DEPLOY.md`.
 
 ## October 2026 audit status
 
@@ -364,3 +365,7 @@ Every foreign key column is indexed (migration `0027`, applied by hand), which t
 ## Lint
 
 `eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-icon.tsx` and `src/app/global-error.tsx`; `src/lib/types.ts` is the one `max-lines` exception until the split-long-files task.
+
+The `/admin` pages share the dashboard's `PageHeader` and `EmptyState`, with
+section tabs that mark the current page via `aria-current`
+(`src/app/admin/README.md`).

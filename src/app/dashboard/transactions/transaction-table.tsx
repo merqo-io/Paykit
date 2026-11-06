@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyState } from "@/components/empty-state";
 import { DataTable, type DataTableColumn } from "@merqo/ui";
 import { formatCents } from "@/lib/utils";
 import { RefundDialog } from "./refund-dialog";
@@ -12,7 +13,7 @@ import type { Transaction } from "@/lib/types";
 // page. Same shape as `admin/vendors/vendors-table.tsx`.
 const BASE_COLUMNS: DataTableColumn<Transaction>[] = [
   { header: "Kit", cell: (tx) => tx.kit_slug },
-  { header: "Order ref", cell: (tx) => tx.order_ref },
+  { header: "Reference", cell: (tx) => tx.order_ref },
   { header: "Amount", cell: (tx) => formatCents(tx.amount_cents) },
   {
     header: "Status",
@@ -39,12 +40,21 @@ export function TransactionTable({
   transactions: Transaction[];
   isPro: boolean;
 }) {
+  if (transactions.length === 0) {
+    return (
+      <EmptyState
+        title="No payments yet"
+        description="Payments from your kits appear here as customers check out."
+      />
+    );
+  }
   return (
-    <DataTable
-      rows={transactions}
-      columns={isPro ? [...BASE_COLUMNS, REFUND_COLUMN] : BASE_COLUMNS}
-      getRowKey={(tx) => tx.id}
-      emptyState="No transactions yet."
-    />
+    <div className="min-w-0 overflow-x-auto">
+      <DataTable
+        rows={transactions}
+        columns={isPro ? [...BASE_COLUMNS, REFUND_COLUMN] : BASE_COLUMNS}
+        getRowKey={(tx) => tx.id}
+      />
+    </div>
   );
 }

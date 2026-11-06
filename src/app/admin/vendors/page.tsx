@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/admin";
 import { listVendors } from "@/lib/admin-data";
-import { ElevatedCard } from "@merqo/ui";
+import { PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/empty-state";
 import { VendorsTable } from "@/app/admin/vendors/vendors-table";
 
 export const metadata: Metadata = {
@@ -17,25 +18,22 @@ export default async function AdminVendorsPage() {
 
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-5 py-8">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Internal
-        </p>
-        <h1 className="text-3xl font-bold tracking-tight">Vendors</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Every vendor with a payment config, across every kit, most urgent
-          first.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Admin"
+        title="Vendors"
+        description="Every vendor with payment details, across every kit, most urgent first."
+        className="mb-0"
+      />
 
       {vendors.length === 0 ? (
-        <p className="rounded-2xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-          No vendors yet.
-        </p>
+        <EmptyState
+          title="No vendors yet"
+          description="Vendors appear here once they add payment details."
+        />
       ) : (
-        <ElevatedCard className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border bg-card">
           <VendorsTable rows={vendors} />
-        </ElevatedCard>
+        </div>
       )}
     </main>
   );

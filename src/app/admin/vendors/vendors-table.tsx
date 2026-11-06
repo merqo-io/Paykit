@@ -14,7 +14,7 @@ const columns: DataTableColumn<VendorRow>[] = [
     header: "Vendor",
     cell: (v) => (
       <>
-        <p className="font-medium">{v.email ?? "—"}</p>
+        <p className="font-medium">{v.email ?? "Not set"}</p>
         {(v.payee_name || v.label) && (
           <p className="text-xs text-muted-foreground">
             {v.payee_name ?? v.label}

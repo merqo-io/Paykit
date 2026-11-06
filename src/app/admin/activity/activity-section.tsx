@@ -10,7 +10,7 @@ const ACTION_LABELS: Record<string, string> = {
   set_pricing: "Set pricing",
   record_refund: "Recorded refund",
   create_booking: "Created booking",
-  create_balance_checkout: "Created balance checkout",
+  create_balance_checkout: "Created balance payment",
   cancel_booking: "Cancelled booking",
   reschedule_booking: "Rescheduled booking",
 };

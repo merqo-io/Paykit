@@ -60,9 +60,9 @@ describe("TransactionsPage", () => {
     render(jsx);
 
     expect(
-      screen.getByRole("heading", { name: "Transactions" }),
+      screen.getByRole("heading", { name: "Payments" }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/no transactions yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/no payments yet/i)).toBeInTheDocument();
   });
 
   it("hides the Refund column for a Free vendor", async () => {

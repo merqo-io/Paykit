@@ -9,7 +9,8 @@ status, plan (read-only, from the entitlement cache), and transaction count.
 
 - `page.tsx` — `AdminVendorsPage`: `requireAdmin()` + fetches
   `listVendors()` (pre-sorted most-urgent status first) and renders
-  `VendorsTable` inside `@merqo/ui`'s `ElevatedCard`.
+  `VendorsTable` in a flat bordered card, or `EmptyState` when there are no
+  vendors, under the shared `PageHeader`.
 - `vendors-table.tsx` — `VendorsTable`: `"use client"` wrapper owning the
   `columns` array (`cell` render callbacks) and the `getRowKey` function it
   passes to `@merqo/ui`'s shared `DataTable` — vendor email with
