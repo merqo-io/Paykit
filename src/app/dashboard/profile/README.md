@@ -2,17 +2,17 @@
 
 Vendor account settings. `page.tsx` establishes the vendor session, loads the
 shared profile and reads auth metadata defensively before rendering
-`profile-form.tsx`. The shared back button receives plain serializable props;
-client component references cannot cross directly from this server page.
+`profile-form.tsx`. The title block is the shared `PageHeader`.
 
-`actions.ts` validates stall-name and social-link input and calls the
+`actions.ts` validates business-name and social-link input and calls the
 owner-scoped `patch_vendor_profile` RPC. Each write changes only the submitted
 field, preserving concurrent edits to the other column. Missing rows are
 provisioned atomically; empty social links explicitly clear links.
 
 The client form saves display name, avatar metadata and password through
 `supabase.auth.updateUser`. These belong to the shared Supabase account.
-It composes shared sections, social-link fields and image uploader from
+The form has two groups, Business (name, links) and Account (picture, display
+name, email, password); each field saves on its own. It composes shared sections, social-link fields and image uploader from
 `@merqo/ui`; `lib/image-upload-adapter.ts` uploads to the supported public
 bucket and contains best-effort cleanup. A successful avatar replacement removes
 the previous object; returned save errors restore the visible previous avatar

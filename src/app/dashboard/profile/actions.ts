@@ -12,7 +12,7 @@ import {
 import type { ActionResult } from "@/lib/action-result";
 
 /**
- * Update the vendor's shared stall/shop name. Persisted in
+ * Update the vendor's shared business name. Persisted in
  * merqo.vendor_profile (shared across every kit — see `Merqo Business/docs/
  * business/2026-07-21-profile-settings-page-standard.md`) via the
  * patch_vendor_profile RPC, not a paykit-local table write (paykit has no
@@ -25,7 +25,7 @@ export async function updateStallName(
   if (!parsed.success)
     return {
       success: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid stall name",
+      error: "Enter a business name",
     };
 
   const { supabase, user } = await getVendorSession();
@@ -39,7 +39,10 @@ export async function updateStallName(
       "updateStallName failed",
       err instanceof Error ? err.message : err,
     );
-    return { success: false, error: "Could not save stall name" };
+    return {
+      success: false,
+      error: "Could not save business name. Try again.",
+    };
   }
 
   revalidatePath("/dashboard/profile");
@@ -57,7 +60,7 @@ export async function updateSocialLinks(
   if (!parsed.success)
     return {
       success: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid links",
+      error: parsed.error.issues[0]?.message ?? "Check your links",
     };
 
   const { supabase, user } = await getVendorSession();
@@ -69,7 +72,7 @@ export async function updateSocialLinks(
       "updateSocialLinks failed",
       err instanceof Error ? err.message : err,
     );
-    return { success: false, error: "Could not save links" };
+    return { success: false, error: "Could not save links. Try again." };
   }
 
   revalidatePath("/dashboard/profile");
