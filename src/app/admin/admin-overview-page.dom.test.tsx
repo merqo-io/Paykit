@@ -49,7 +49,11 @@ import AdminOverviewPage from "./page";
 describe("AdminOverviewPage", () => {
   it("renders platform totals and recent activity", async () => {
     render(await AdminOverviewPage());
-    expect(screen.getByText("Overview")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Overview" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Received")).toBeInTheDocument();
+    expect(screen.getByText("Awaiting payment")).toBeInTheDocument();
     expect(screen.getByText("4")).toBeInTheDocument();
     expect(screen.getByText("120")).toBeInTheDocument();
     expect(screen.getByText("kopitiam@example.com")).toBeInTheDocument();
@@ -70,7 +74,7 @@ describe("AdminOverviewPage", () => {
   it("renders the Security stat block", async () => {
     render(await AdminOverviewPage());
     expect(screen.getByText("Security")).toBeInTheDocument();
-    expect(screen.getByText("Failed auth · 24h")).toBeInTheDocument();
+    expect(screen.getByText("Failed sign-ins, last 24h")).toBeInTheDocument();
     expect(screen.getByText("5")).toBeInTheDocument();
     expect(screen.getByText("Rate-limited kits · 24h")).toBeInTheDocument();
   });
@@ -80,10 +84,30 @@ describe("AdminOverviewPage", () => {
     expect(screen.queryByText(/pricing/i)).not.toBeInTheDocument();
   });
 
+  it("falls back to Not set when a row has no email", async () => {
+    const { recentActivity } = await import("@/lib/admin-data");
+    vi.mocked(recentActivity).mockResolvedValueOnce([
+      {
+        id: "t3",
+        vendor_id: "v3",
+        email: null,
+        kit_slug: "qkit",
+        amount_cents: 100,
+        status: "claimed",
+        created_at: "2026-07-12T00:00:00Z",
+      },
+    ] as Awaited<ReturnType<typeof recentActivity>>);
+    render(await AdminOverviewPage());
+    expect(screen.getByText("Not set")).toBeInTheDocument();
+    expect(screen.getByText("Marked paid")).toBeInTheDocument();
+  });
+
   it("shows an empty state when there is no activity yet", async () => {
     const { recentActivity } = await import("@/lib/admin-data");
     vi.mocked(recentActivity).mockResolvedValueOnce([]);
     render(await AdminOverviewPage());
-    expect(screen.getByText("No activity yet.")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "No activity yet" }),
+    ).toBeInTheDocument();
   });
 });

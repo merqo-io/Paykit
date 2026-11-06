@@ -9,17 +9,17 @@ that, until this folder existed, no page ever read back.
 ## Contents
 
 - `page.tsx` — `AdminActivityPage`: fetches the 100 most recent
-  `admin_audit` rows via `auditLog()` (`@/lib/admin-data`), maps each to
+  `admin_audit` rows via `auditLog()` (`@/lib/admin-data`) under the shared `PageHeader`, maps each to
   `@merqo/ui`'s `AuditLogEntry` (actor resolved to email, falling back to
   the raw `admin_id`; `detail`'s jsonb rendered as a flat `key: value`
-  list), and hands the mapped entries to `ActivitySection`.
+  list, `None` for null values), and hands the mapped entries to `ActivitySection`.
 - `activity-section.tsx` — `ActivitySection`: client component (function
   props, like `formatAction`, can't cross the server/client boundary
   directly from `page.tsx`, same reasoning as `../vendors/vendors-table.tsx`)
   wrapping `@merqo/ui`'s `AuditLogTable`, mapping every real action string
   `recordAudit()` is called with today, plus the retired `set_vendor_plan` and
   `set_pricing` so historical rows still render (`record_refund`, `create_booking`,
-  `create_balance_checkout`, `cancel_booking`, `reschedule_booking`) to a
+  `create_balance_checkout` shown as "Created balance payment", `cancel_booking`, `reschedule_booking`) to a
   human-readable label.
 
 ## Tab title

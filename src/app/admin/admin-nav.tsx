@@ -14,7 +14,10 @@ const TABS = [
 export function AdminNav() {
   const path = usePathname();
   return (
-    <nav className="mx-auto flex max-w-5xl gap-1 px-5 pb-1 pt-3">
+    <nav
+      aria-label="Admin sections"
+      className="mx-auto flex max-w-5xl gap-1 px-5 pt-2"
+    >
       {TABS.map((t) => {
         const active =
           t.href === "/admin" ? path === "/admin" : path.startsWith(t.href);
@@ -22,8 +25,9 @@ export function AdminNav() {
           <Link
             key={t.href}
             href={t.href}
+            aria-current={active ? "page" : undefined}
             className={cn(
-              "rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors",
+              "inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors",
               active
                 ? "bg-primary/10 text-primary"
                 : "text-muted-foreground hover:bg-muted",
