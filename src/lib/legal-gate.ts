@@ -64,11 +64,17 @@ async function readLegalAcceptance(email: string): Promise<boolean> {
     return false;
   }
 
-  await supabase.from("legal_check_state").upsert({
-    email: normalized,
-    checked_at: new Date().toISOString(),
-    is_current: isCurrent,
-  });
+  try {
+    await supabase.from("legal_check_state").upsert({
+      email: normalized,
+      checked_at: new Date().toISOString(),
+      is_current: isCurrent,
+    });
+  } catch (err) {
+    // The cache is only an optimisation; a write failure must not gate a
+    // vendor whose acceptance merqo has just confirmed.
+    console.error("checkLegalAcceptance: cache write failed", err);
+  }
 
   return isCurrent;
 }
