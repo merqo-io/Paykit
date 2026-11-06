@@ -9,6 +9,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Landing page tidied to the qkit-style baseline: new hero headline, one eyebrow style, no shadows or radius drift, and plainer copy.
+- Profile page: shared page header, two groups (Business, Account) and plain copy.
 - Payments ledger restyled to match the rest of the dashboard: a "Payments" page header, "Reference" column, plain status labels (Awaiting payment, Marked paid, Received; Awaiting deposit for bookings), dashed empty states and tables that scroll instead of overflowing on mobile.
 - Stats and Earnings are now one Reports page (`/dashboard/reports`) with Overview and Earnings tabs. The old `/dashboard/stats` and `/dashboard/reports/earnings` URLs redirect to the matching tab and keep `year`. The earnings year arrows have accessible labels and 44px targets, and empty tabs show a dashed empty state.
 - Release flow is now `feat/*` | `fix/*` -> `staging` -> `main`. Vercel's git integration deploys `staging` to paykit-staging.merqo.io (`vercel.json` enables `staging`), CI also runs on pushes to `staging`, and the `staging-sync` workflow no longer calls the Vercel deploy hook (the `VERCEL_STAGING_DEPLOY_HOOK` secret is unused).
