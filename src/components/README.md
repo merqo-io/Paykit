@@ -4,7 +4,7 @@ Paykit-specific client adapters and presentation. Shared controls live in
 `@merqo/ui`; raw CLI-managed primitives live under `ui/`.
 
 - `dashboard-tour.tsx` adapts routing, mark-seen action and `tour-steps.ts` to
-  the shared tour. Step descriptions render the real transaction-status badge
+  the shared tour (its Reports step anchors on `nav-reports`). Step descriptions render the real transaction-status badge
   into static markup; their HTML is authored configuration, not customer input.
 - `page-header.tsx` (eyebrow, title, optional line, actions) and
   `empty-state.tsx` (dashed card with up to two actions) are the local page

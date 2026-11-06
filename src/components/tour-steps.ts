@@ -40,7 +40,7 @@ const DESKTOP: TourStep[] = [
       "Taking a deposit first and the rest later, for weddings, events, or anything booked in advance? Track the deposit and balance here, with reschedule and cancel built in.",
   },
   {
-    element: sel("nav-stats"),
+    element: sel("nav-reports"),
     title: "Reports",
     description:
       "Track your revenue and payment volume over time, and see earnings by month.",

@@ -42,7 +42,7 @@ describe("DashboardNav", () => {
     );
     expect(screen.getByRole("link", { name: "Reports" })).toHaveAttribute(
       "href",
-      "/dashboard/stats",
+      "/dashboard/reports",
     );
     expect(
       screen.queryByRole("link", { name: "Payment setup" }),
@@ -73,7 +73,7 @@ describe("DashboardNav", () => {
     );
     expect(screen.getByRole("link", { name: "Reports" })).toHaveAttribute(
       "data-tour",
-      "nav-stats",
+      "nav-reports",
     );
   });
 

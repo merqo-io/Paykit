@@ -85,9 +85,10 @@ a hand-copied color, so it can't drift from what the real badge looks like;
 see `../docs/superpowers/specs/2026-08-25-tour-example-badge-drift-fix-design.md`
 (workspace root, cross-kit spec). The badge itself now carries a persistent
 tap-to-open hint (`@merqo/ui`'s `InfoTooltip`, `trigger="tap"`) explaining
-what `claimed`/`confirmed` mean, so that distinction survives past the
-one-time tour — tap, not the component's hover default, since a native
-hover hint has no touch equivalent and most vendors check this on a
+what the "Marked paid" (`claimed`) and "Received" (`confirmed`) labels mean,
+so that distinction survives past the one-time tour — tap, not the
+component's hover default, since a native hover hint has no touch equivalent
+and most vendors check this on a
 phone. The tour covers Payments, Bookings and Reports in the nav, and
 points Payment setup at the avatar menu.
 `@merqo/ui`'s `DashboardNav`
@@ -225,7 +226,7 @@ against its one unambiguously confirmed transaction, reusing the existing
 Pro-gated `refunds` ledger rather than a second mechanism. Creating a
 booking or its balance checkout now logs to the admin audit trail too,
 closing the last two real gaps in that coverage. An accrual-aware
-earnings report (`/dashboard/reports/earnings`, free for every vendor) —
+earnings report (`/dashboard/reports?tab=earnings`, free for every vendor) —
 revenue by month and by booking, tagged by event date rather than
 claim/confirm date, CSV export — rounds out the event-cart bookings
 feature set. A calling kit whose own vendor already knows their booking's
