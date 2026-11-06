@@ -50,3 +50,5 @@ actions and wrap on narrow screens). Missing values read "Not set".
 validated inline; free vendors see a short hint that refund tracking is on the
 Pro plan. The gating itself (RLS and server action checks) is unchanged. The
 page reads the plan with `readVendorPlan`.
+
+Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.

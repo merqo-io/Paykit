@@ -96,3 +96,5 @@ The BYO payment-QR upload's resize step now calls `@merqo/ui`'s `resizeToWebp` (
 The config read lists its columns (`CONFIG_COLUMNS`).
 
 The save action's fallback validation error reads "Check the highlighted fields and try again".
+
+Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.

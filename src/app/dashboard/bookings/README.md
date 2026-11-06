@@ -90,3 +90,5 @@ and the cancel and reschedule dialogs share it. Dialogs use one title,
 description and `DialogFooter` with a single filled primary; destructive
 actions use the destructive variant. Errors read "Could not ... Try again."
 and toasts have no trailing period.
+
+Page chrome here (EmptyState) comes from `@merqo/ui`; paykit keeps no local copy.

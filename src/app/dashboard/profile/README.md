@@ -35,3 +35,5 @@ behavior.
 `profile-form.tsx` renders its inline errors through a small `FieldError` component.
 
 The Links group is described by its inline error (`aria-describedby`); `SocialLinksFields` inputs are owned by `@merqo/ui`, so the error is tied to the group rather than each input.
+
+Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.
