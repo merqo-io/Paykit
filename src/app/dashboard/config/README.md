@@ -8,7 +8,7 @@ own BYO payment link/QR image, and saves it as their `vendor_payment_config`.
 ## Contents
 
 - `page.tsx` — server component: loads the vendor's current config, renders
-  `PaymentConfigForm`. Content sits in a plain `mx-auto max-w-lg` div (not
+  a `PageHeader` (eyebrow + serif title) and `PaymentConfigForm`. Content sits in a plain `mx-auto max-w-lg` div (not
   `<main>` — the parent `dashboard/layout.tsx` owns that landmark and the
   page-family's canonical `max-w-7xl` outer width); a form this size reads
   better narrower than the full dashboard width.
@@ -19,7 +19,7 @@ own BYO payment link/QR image, and saves it as their `vendor_payment_config`.
   existing saved `pointer` config likely came from, used to pre-select the
   picker on edit. UI-only: no preset ID is persisted, see
   `docs/superpowers/specs/2026-08-14-paykit-byo-preset-directory-design.md`.
-- `payment-config-form.tsx` — client form (PayNow, link, QR and save-status sections are small components in the same file; state stays in the form): radio-toggles between PayNow/BYO
+- `payment-config-form.tsx` — client form (PayNow, link, QR and save-status sections are small components in the same file; state stays in the form): radio-toggles (grouped in fieldsets with legends; accessible names are the visible text; the save confirmation is a `role="status"` line with an icon) between PayNow/BYO
   `kind`; for BYO, a `pointer-presets.ts` card picker drives which mode
   (link vs QR) is locked, what pre-fills the label, and which "where to
   find this" instructions/URL-shape warning render, before falling through

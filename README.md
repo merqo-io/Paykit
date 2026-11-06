@@ -281,7 +281,7 @@ uploaded from paykit (`vendor-images`) or from qkit's booth form
 folder are ever deleted.
 
 The payment setup page (`/dashboard/config`) accepts `return_to`, the page in
-another Merqo app to go back to. After a save it shows a "Back to your booth"
+another Merqo app to go back to. After a save it shows a "Go back"
 link to that address, and only when the address is https on `merqo.io` or a
 subdomain of it (`familyReturnUrl` in `src/lib/return-to.ts`). This is what
 lets a calling kit send a vendor here to enter payment details instead of

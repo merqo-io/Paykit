@@ -68,9 +68,7 @@ async function pickQrAndSave() {
   );
   await user.click(screen.getByRole("radio", { name: "PayLah! QR" }));
   await user.click(screen.getByRole("button", { name: "pick qr" }));
-  await user.click(
-    screen.getByRole("button", { name: /save payment config/i }),
-  );
+  await user.click(screen.getByRole("button", { name: /save payment setup/i }));
 }
 
 // The QR uploader defers its upload, so the only moment an image reaches
@@ -131,7 +129,7 @@ describe("PaymentConfigForm deferred QR upload", () => {
     const user = userEvent.setup();
     render(<PaymentConfigForm initial={null} vendorId="v1" />);
     await user.click(
-      screen.getByRole("button", { name: /save payment config/i }),
+      screen.getByRole("button", { name: /save payment setup/i }),
     );
     await waitFor(() => expect(saveConfigActionMock).toHaveBeenCalled());
     expect(commitPendingImagesMock).not.toHaveBeenCalled();
