@@ -4,7 +4,7 @@ import { PILOT_PRICING_LINE } from "./waitlist";
 export function Benefits() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
-      <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         Why paykit
       </p>
       <h2 className="mt-3 max-w-xl text-balance font-display text-3xl font-bold tracking-tight sm:text-4xl">
@@ -31,7 +31,7 @@ export function Benefits() {
           </h3>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Customers pay straight into your own account. paykit only renders
-            the checkout and tracks status. No funds pass through it.
+            the QR and tracks status. No funds pass through it.
           </p>
         </div>
 

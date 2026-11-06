@@ -4,7 +4,7 @@ type FaqEntry = { q: string; a: string };
 
 function FaqItem({ q, a }: FaqEntry) {
   return (
-    <details className="group overflow-hidden rounded-xl border border-border bg-card open:border-primary/50">
+    <details className="group overflow-hidden rounded-2xl border border-border bg-card open:border-primary/50">
       <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-5 py-4 outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-inset">
         <span className="text-base font-semibold leading-snug text-foreground">
           {q}
@@ -27,7 +27,7 @@ export function Faq() {
   const FAQ: FaqEntry[] = [
     {
       q: "Does paykit hold my money?",
-      a: "No. paykit only renders your checkout (a PayNow QR, or your own payment link/QR) and tracks its status. Customers pay you directly, and paykit never touches funds.",
+      a: "No. paykit only shows your PayNow QR (or your own payment link or QR) and tracks its status. Customers pay you directly, and paykit never touches funds.",
     },
     {
       q: "How do I know a payment came through?",
@@ -45,7 +45,7 @@ export function Faq() {
 
   return (
     <section id="faq" className="mx-auto max-w-3xl px-5 py-16">
-      <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         FAQ
       </p>
       <h2 className="mt-3 text-balance font-display text-3xl font-bold tracking-tight sm:text-4xl">
