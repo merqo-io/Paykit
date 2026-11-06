@@ -8,6 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Bookings forms and dialogs restyled to the qkit baseline: booking and inquiry detail pages use the shared page header, dialogs share one title, description and footer layout, money fields are labelled S$ decimal inputs with inline errors, free vendors see a refund-tracking hint, and copy drops "checkout" and "Terms version" jargon. Error messages read "Could not ... Try again." and toasts have no trailing period.
 - Payment setup page uses the shared page header; payment method and payee ID type radios sit in labelled fieldsets with accessible names matching their visible text, and the save confirmation is a status message with an icon. The return link now reads "Go back".
 - Landing page tidied to the qkit-style baseline: new hero headline, one eyebrow style, no shadows or radius drift, and plainer copy.
 - Admin area restyled to the qkit baseline: shared page headers and empty states, accessible section tabs with `aria-current`, flat cards, plain status labels and "Not set"/"None" placeholders.

@@ -5,14 +5,15 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { rescheduleBookingAction } from "../actions";
+import { Field } from "../field";
 
 export function RescheduleBookingDialog({
   bookingId,
@@ -38,10 +39,12 @@ export function RescheduleBookingDialog({
         newBalanceDueDate,
       );
       if (result.status === "error") {
-        setError(result.message ?? "Could not reschedule booking.");
+        setError(
+          result.message ?? "Could not reschedule the booking. Try again.",
+        );
         return;
       }
-      toast.success("Booking rescheduled.");
+      toast.success("Booking rescheduled");
       setOpen(false);
     });
   }
@@ -49,46 +52,49 @@ export function RescheduleBookingDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className="rounded-xl">
           Reschedule
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Reschedule this booking?</DialogTitle>
+          <DialogDescription>
+            A deposit already paid stays counted toward this booking. Only the
+            dates change.
+          </DialogDescription>
         </DialogHeader>
-        <p className="text-sm text-muted-foreground">
-          A deposit already paid stays counted toward this booking. Only the
-          dates change.
-        </p>
-        <div className="space-y-2">
-          <Label htmlFor="reschedule_event_date">New event date</Label>
-          <Input
-            id="reschedule_event_date"
-            type="date"
-            value={newEventDate}
-            onChange={(e) => setNewEventDate(e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="reschedule_balance_due_date">
-            New balance due date
-          </Label>
-          <Input
-            id="reschedule_balance_due_date"
-            type="date"
-            value={newBalanceDueDate}
-            onChange={(e) => setNewBalanceDueDate(e.target.value)}
-          />
-        </div>
+        <Field
+          id="reschedule_event_date"
+          label="New event date"
+          type="date"
+          value={newEventDate}
+          onChange={(e) => setNewEventDate(e.target.value)}
+        />
+        <Field
+          id="reschedule_balance_due_date"
+          label="New balance due date"
+          type="date"
+          value={newBalanceDueDate}
+          onChange={(e) => setNewBalanceDueDate(e.target.value)}
+        />
         {error && (
           <p role="alert" className="text-sm font-medium text-destructive">
             {error}
           </p>
         )}
-        <Button disabled={pending} onClick={onConfirm}>
-          {pending ? "Rescheduling…" : "Confirm reschedule"}
-        </Button>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            className="rounded-xl"
+            onClick={() => setOpen(false)}
+          >
+            Keep dates
+          </Button>
+          <Button className="rounded-xl" disabled={pending} onClick={onConfirm}>
+            {pending ? "Rescheduling…" : "Confirm reschedule"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

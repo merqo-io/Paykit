@@ -34,7 +34,7 @@ describe("InquiryDetailActions", () => {
     await waitFor(() =>
       expect(setStatusMock).toHaveBeenCalledWith("i1", "contacted"),
     );
-    expect(toastMock.success).toHaveBeenCalledWith("Marked contacted.");
+    expect(toastMock.success).toHaveBeenCalledWith("Marked contacted");
   });
 
   it("declines, and shows the error when it fails", async () => {

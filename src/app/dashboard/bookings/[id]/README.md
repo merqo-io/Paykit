@@ -43,3 +43,10 @@ control eligibility, checkout kinds and legacy fallback.
 [bookings](../README.md)
 
 The QR card's `dangerouslySetInnerHTML` is `qrSvg()` output over a server-built payload.
+
+The page header uses `PageHeader` (status, balance-due and print sit in its
+actions and wrap on narrow screens). Missing values read "Not set".
+`cancel-booking-dialog.tsx` takes `isPro`: Pro vendors get an S$ refund field
+validated inline; free vendors see a short hint that refund tracking is on the
+Pro plan. The gating itself (RLS and server action checks) is unchanged. The
+page reads the plan with `readVendorPlan`.

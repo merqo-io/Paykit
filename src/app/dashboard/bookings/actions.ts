@@ -87,7 +87,8 @@ export async function createBookingAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: parsed.error.issues[0]?.message ?? "Invalid input",
+      message:
+        parsed.error.issues[0]?.message ?? "Check the details and try again",
     };
   }
 
@@ -121,7 +122,7 @@ export async function createBookingAction(
     revalidatePath("/dashboard/bookings");
     return {
       status: "ok",
-      message: "Booking saved. Open it and retry the deposit checkout.",
+      message: "Booking saved. Open it and retry the deposit payment.",
     };
   }
 
@@ -149,7 +150,10 @@ export async function createBalanceCheckoutAction(
     booking_id: bookingId,
   });
   if (!parsed.success) {
-    return { status: "error", message: "Invalid booking" };
+    return {
+      status: "error",
+      message: "Could not find that booking. Try again.",
+    };
   }
 
   const { data: booking, error: readError } = await supabase
@@ -160,22 +164,25 @@ export async function createBalanceCheckoutAction(
     .eq("id", parsed.data.booking_id)
     .maybeSingle();
   if (readError || !booking) {
-    return { status: "error", message: "Booking not found" };
+    return {
+      status: "error",
+      message: "Could not find that booking. Try again.",
+    };
   }
   if (booking.status === "cancelled") {
     return {
       status: "error",
-      message: "Cannot create checkout for a cancelled booking.",
+      message: "Could not create a payment for a cancelled booking.",
     };
   }
   if (!booking.deposit_transaction_id) {
     return {
       status: "error",
-      message: "Create the deposit checkout before the balance checkout.",
+      message: "Create the deposit payment before the balance payment.",
     };
   }
   if (booking.balance_transaction_id) {
-    return { status: "error", message: "Balance checkout already created." };
+    return { status: "error", message: "Balance payment already created." };
   }
 
   try {
@@ -188,7 +195,7 @@ export async function createBalanceCheckoutAction(
     if (!checkout.ok) {
       return {
         status: "error",
-        message: "Could not create the balance checkout. Try again.",
+        message: "Could not create the balance payment. Try again.",
       };
     }
     const service = await createServiceClient();
@@ -200,14 +207,14 @@ export async function createBalanceCheckoutAction(
     if (error || !linked) {
       return {
         status: "error",
-        message: "Could not link the balance checkout. Try again.",
+        message: "Could not link the balance payment. Try again.",
       };
     }
   } catch {
     console.error("createBalanceCheckoutAction: checkout unavailable");
     return {
       status: "error",
-      message: "Could not prepare the balance checkout. Try again.",
+      message: "Could not prepare the balance payment. Try again.",
     };
   }
   try {
@@ -272,7 +279,8 @@ export async function cancelBookingAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: parsed.error.issues[0]?.message ?? "Invalid input",
+      message:
+        parsed.error.issues[0]?.message ?? "Check the details and try again",
     };
   }
 
@@ -287,7 +295,10 @@ export async function cancelBookingAction(
     .eq("id", parsed.data.booking_id)
     .maybeSingle();
   if (readError || !booking) {
-    return { status: "error", message: "Booking not found" };
+    return {
+      status: "error",
+      message: "Could not find that booking. Try again.",
+    };
   }
   if (booking.status === "cancelled") {
     return { status: "ok" };
@@ -299,7 +310,10 @@ export async function cancelBookingAction(
     .eq("id", parsed.data.booking_id);
   if (updateError) {
     console.error("cancelBookingAction failed", updateError.message);
-    return { status: "error", message: "Could not cancel booking." };
+    return {
+      status: "error",
+      message: "Could not cancel the booking. Try again.",
+    };
   }
 
   const refundRecorded = await recordCancellationRefund(
@@ -321,7 +335,7 @@ export async function cancelBookingAction(
     ? {
         status: "ok",
         message:
-          "Booking cancelled, but the refund could not be recorded. Check the transaction is confirmed and you're on Pro.",
+          "Booking cancelled, but the refund could not be recorded. Check the payment is received and your plan includes refund tracking.",
       }
     : { status: "ok" };
 }
@@ -341,7 +355,8 @@ export async function rescheduleBookingAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: parsed.error.issues[0]?.message ?? "Invalid input",
+      message:
+        parsed.error.issues[0]?.message ?? "Check the details and try again",
     };
   }
 
@@ -351,7 +366,10 @@ export async function rescheduleBookingAction(
     .eq("id", parsed.data.booking_id)
     .maybeSingle();
   if (readError || !booking) {
-    return { status: "error", message: "Booking not found" };
+    return {
+      status: "error",
+      message: "Could not find that booking. Try again.",
+    };
   }
   if (booking.status === "cancelled") {
     return {
@@ -373,7 +391,10 @@ export async function rescheduleBookingAction(
     .eq("id", parsed.data.booking_id);
   if (updateError) {
     console.error("rescheduleBookingAction failed", updateError.message);
-    return { status: "error", message: "Could not reschedule booking." };
+    return {
+      status: "error",
+      message: "Could not reschedule the booking. Try again.",
+    };
   }
 
   await recordAudit(user.id, "reschedule_booking", parsed.data.booking_id, {

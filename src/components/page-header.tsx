@@ -27,7 +27,7 @@ export function PageHeader({
     >
       <div className="min-w-0">
         <p className={cn(FORM_LABEL_CLASS, "tracking-[0.16em]")}>{eyebrow}</p>
-        <h1 className="font-display mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="font-display mt-1 text-3xl font-semibold tracking-tight break-words sm:text-4xl">
           {title}
         </h1>
         {description ? (

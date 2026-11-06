@@ -219,7 +219,7 @@ export type RescheduleBookingInput = z.infer<
 // Supabase auth user and are written client-side.
 
 export const profileNameSchema = z.object({
-  name: z.string().trim().min(1, "Stall / shop name is required").max(100),
+  name: z.string().trim().min(1, "Business name is required").max(100),
 });
 export type ProfileNameInput = z.infer<typeof profileNameSchema>;
 

@@ -94,3 +94,5 @@ The BYO payment-QR upload's resize step now calls `@merqo/ui`'s `resizeToWebp` (
 `radio-option-card.tsx` shares the two pickers' label/control shell while retaining separate kind/preset state and compact preset spacing.
 
 The config read lists its columns (`CONFIG_COLUMNS`).
+
+The save action's fallback validation error reads "Check the highlighted fields and try again".

@@ -61,7 +61,7 @@ describe("CancelBookingDialog", () => {
   it("keeps the dialog open and shows the error on failure", async () => {
     cancelBookingActionMock.mockResolvedValue({
       status: "error",
-      message: "Could not cancel booking.",
+      message: "Could not cancel the booking. Try again.",
     });
     const user = userEvent.setup();
     render(<CancelBookingDialog bookingId="b1" />);
@@ -73,7 +73,7 @@ describe("CancelBookingDialog", () => {
 
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent(
-        "Could not cancel booking.",
+        "Could not cancel the booking. Try again.",
       ),
     );
     expect(
@@ -107,5 +107,67 @@ describe("CancelBookingDialog", () => {
         amountCents: 15000,
       }),
     );
+  });
+});
+
+describe("CancelBookingDialog refund field", () => {
+  it("labels the amount with an S$ prefix and a decimal keyboard", async () => {
+    const user = userEvent.setup();
+    render(
+      <CancelBookingDialog bookingId="b1" depositTx={CONFIRMED_DEPOSIT} />,
+    );
+    await user.click(screen.getByRole("button", { name: "Cancel booking" }));
+    const input = screen.getByLabelText("Refund amount (optional)");
+    expect(input).toHaveAttribute("inputmode", "decimal");
+    expect(screen.getByText("S$")).toBeInTheDocument();
+  });
+
+  it("rejects a non-positive refund inline without calling the action", async () => {
+    const user = userEvent.setup();
+    render(
+      <CancelBookingDialog bookingId="b1" depositTx={CONFIRMED_DEPOSIT} />,
+    );
+    await user.click(screen.getByRole("button", { name: "Cancel booking" }));
+    const input = screen.getByLabelText("Refund amount (optional)");
+    await user.type(input, "0");
+    await user.click(
+      screen.getByRole("button", { name: /confirm cancellation/i }),
+    );
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    expect(input).toHaveAccessibleDescription(
+      "Enter an amount greater than 0.",
+    );
+    expect(cancelBookingActionMock).not.toHaveBeenCalled();
+  });
+
+  it("explains refund tracking is Pro for free vendors and sends no refund", async () => {
+    cancelBookingActionMock.mockResolvedValue({ status: "ok" });
+    const user = userEvent.setup();
+    render(
+      <CancelBookingDialog
+        bookingId="b1"
+        depositTx={CONFIRMED_DEPOSIT}
+        isPro={false}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Cancel booking" }));
+    expect(screen.queryByLabelText(/refund amount/i)).toBeNull();
+    expect(
+      screen.getByText(/Refund tracking is on the Pro plan/),
+    ).toBeVisible();
+    await user.click(
+      screen.getByRole("button", { name: /confirm cancellation/i }),
+    );
+    await waitFor(() =>
+      expect(cancelBookingActionMock).toHaveBeenCalledWith("b1", ""),
+    );
+  });
+
+  it("closes with Keep booking", async () => {
+    const user = userEvent.setup();
+    render(<CancelBookingDialog bookingId="b1" />);
+    await user.click(screen.getByRole("button", { name: "Cancel booking" }));
+    await user.click(screen.getByRole("button", { name: "Keep booking" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 });

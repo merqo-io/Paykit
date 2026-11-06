@@ -24,3 +24,7 @@ another vendor's.
 ## Parent
 
 [inquiries](../README.md)
+
+The page header uses `PageHeader` (eyebrow "Inquiry", status badge in its
+actions). The delete dialog uses the shared title, description and
+`DialogFooter` layout with a destructive confirm.
