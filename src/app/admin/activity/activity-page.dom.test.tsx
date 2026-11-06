@@ -31,7 +31,9 @@ import AdminActivityPage from "./page";
 describe("AdminActivityPage", () => {
   it("renders audit rows with human-readable action labels", async () => {
     render(await AdminActivityPage());
-    expect(screen.getByText("Activity")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Activity" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Set vendor plan")).toBeInTheDocument();
     expect(screen.getByText("Recorded refund")).toBeInTheDocument();
     expect(screen.getByText("admin@example.com")).toBeInTheDocument();
@@ -46,7 +48,7 @@ describe("AdminActivityPage", () => {
     render(await AdminActivityPage());
     expect(screen.getByText("plan: pro")).toBeInTheDocument();
     expect(
-      screen.getByText("refunded_amount_cents: 500, reason: —"),
+      screen.getByText("refunded_amount_cents: 500, reason: None"),
     ).toBeInTheDocument();
   });
 

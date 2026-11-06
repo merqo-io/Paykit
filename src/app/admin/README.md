@@ -15,7 +15,8 @@ figure-tile helper used by the overview and vendors screens.
   the repo-root `AGENTS.md`.
 - `activity/`
 - `admin-nav.tsx` — `AdminNav` client component: the Overview/Vendors/Activity
-  tab bar, highlighting the active section by path.
+  tab bar, a labelled nav whose active link carries `aria-current="page"`
+  (44px targets).
 - `layout.tsx` — `AdminLayout`: gates every `/admin` route with
   `requireAdmin()`, renders the header (wordmark, Admin badge, sign-out) and
   `AdminNav`.
@@ -24,8 +25,9 @@ figure-tile helper used by the overview and vendors screens.
   trailing-30d refund count/volume tile), a Security stat block (failed
   bearer-auth attempts and rate-limited kits, both trailing 24h — see
   `securityStats()` in `@/lib/admin-data`), a recent cross-vendor activity
-  feed (`@merqo/ui`'s `ElevatedCard`-wrapped).
-- `stat.tsx` — `Stat`: a small labeled-value tile (`@merqo/ui`'s `ElevatedCard`-based,
+  feed (flat bordered card, or `EmptyState` when empty). Page titles use the
+  shared `PageHeader`; statuses read Awaiting payment / Marked paid / Received.
+- `stat.tsx` — `Stat`: a small labeled-value tile (a flat bordered card
   wrapping `@merqo/ui`'s shared `StatTile`) used on the admin overview page
   — label/value plus optional `caption` and a period-over-period `delta`/
   `deltaTooltip` pill (`deltaSize="xs"`, matching loopkit's own `StatTile`

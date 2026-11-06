@@ -8,6 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Admin area restyled to the qkit baseline: shared page headers and empty states, accessible section tabs with `aria-current`, flat cards, plain status labels and "Not set"/"None" placeholders.
 - Profile page: shared page header, two groups (Business, Account) and plain copy.
 - Payments ledger restyled to match the rest of the dashboard: a "Payments" page header, "Reference" column, plain status labels (Awaiting payment, Marked paid, Received; Awaiting deposit for bookings), dashed empty states and tables that scroll instead of overflowing on mobile.
 - Stats and Earnings are now one Reports page (`/dashboard/reports`) with Overview and Earnings tabs. The old `/dashboard/stats` and `/dashboard/reports/earnings` URLs redirect to the matching tab and keep `year`. The earnings year arrows have accessible labels and 44px targets, and empty tabs show a dashed empty state.
