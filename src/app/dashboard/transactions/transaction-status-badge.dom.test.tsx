@@ -13,7 +13,7 @@ describe("TransactionStatusBadge hint", () => {
     ).not.toBeInTheDocument();
 
     await user.click(
-      screen.getByRole("button", { name: 'What "claimed" means' }),
+      screen.getByRole("button", { name: 'What "Marked paid" means' }),
     );
 
     expect(
@@ -26,7 +26,7 @@ describe("TransactionStatusBadge hint", () => {
     render(<TransactionStatusBadge status="confirmed" />);
 
     await user.click(
-      screen.getByRole("button", { name: 'What "confirmed" means' }),
+      screen.getByRole("button", { name: 'What "Received" means' }),
     );
 
     expect(await screen.findByText(/can't be undone/i)).toBeInTheDocument();

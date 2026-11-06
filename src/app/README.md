@@ -22,7 +22,7 @@ for this project.
 - `icon.tsx` — `Icon` route handler; renders `brandIcon(32)` as a 32×32 PNG favicon.
 - `layout.tsx` — `RootLayout`. Loads `Fraunces`/`Inter`/`JetBrains_Mono` via `next/font/google`, sets `metadata` (the landing tab title `paykit | Vendor payments` and the `%s | paykit` template every other page's own `metadata.title` fills), wraps children in `next-themes`' `ThemeProvider` (`attribute="class"`, system default) so `@merqo/ui`'s always-on account-menu Light/Dark/System control actually toggles the `.dark` class, then `TooltipProvider` + `Toaster`.
 - `not-found.tsx` — branded 404 for any unknown route or `notFound()` call outside a more specific boundary: `Wordmark`, an `ElevatedCard` with "Page not found" and a "Back to home" link, tab title "Page not found | paykit". Same treatment as `error.tsx`; `not-found.dom.test.tsx` covers it.
-- `page-titles.test.ts` — imports each page's (or `login/layout.tsx`'s) `metadata` and checks its tab title, so a new page without one is noticed.
+- `page-titles.test.ts` — imports each page's (or `login/layout.tsx`'s) `metadata` and checks its tab title, so a new page without one is noticed (the payments ledger at `/dashboard/transactions` is titled "Payments").
 - `login/` — combined sign-in/sign-up page, including the "Forgot password?" flow.
 - `inquire/`: a vendor's public booking inquiry form, `/inquire/{public_id}`: no session, service role only. See its README.
 - `pay/` — the hosted pay page, `/pay/{id}?k=<token>`: one of paykit's two public, unauthenticated pages (with `inquire/`). See its README.

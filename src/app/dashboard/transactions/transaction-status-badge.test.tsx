@@ -9,16 +9,18 @@ describe("TransactionStatusBadge", () => {
       createElement(TransactionStatusBadge, { status: "claimed" }),
     );
     expect(claimed).toContain("text-mint");
-    expect(claimed).toContain("claimed");
+    expect(claimed).toContain("Marked paid");
 
     const confirmed = renderToStaticMarkup(
       createElement(TransactionStatusBadge, { status: "confirmed" }),
     );
     expect(confirmed).not.toContain("text-mint");
+    expect(confirmed).toContain("Received");
 
     const pending = renderToStaticMarkup(
       createElement(TransactionStatusBadge, { status: "pending" }),
     );
     expect(pending).not.toContain("text-mint");
+    expect(pending).toContain("Awaiting payment");
   });
 });
