@@ -20,14 +20,17 @@ being silently dropped.
 
 ## Contents
 
-- `page.tsx` — `EarningsReportPage({searchParams})` (server, Next 16 async
-  `searchParams`): reads an optional `?year=` (defaults to the current UTC
-  year), fetches `listTransactions()` + `listBookings()` in parallel, and
-  renders `buildEarningsReport()`'s (`@/lib/earnings-report`) result — a
-  total-revenue tile, a 12-month table, a per-booking-or-checkout line
-  table (hidden when empty), prev/next-year links, and `DownloadCsvButton`.
-  Both tables render via `earnings-tables.tsx`'s wrapper components, passed
-  plain row data, not `@merqo/ui`'s `DataTable` directly.
+- `page.tsx` — `EarningsRedirect({searchParams})`: sends the old
+  `/dashboard/reports/earnings` URL to `/dashboard/reports?tab=earnings`,
+  keeping a given `?year=` (validated through `../search-params`).
+- `earnings-panel.tsx` — `EarningsPanel({report, year})`: the Earnings tab body
+  rendered by `../page.tsx` from `buildEarningsReport()`'s
+  (`@/lib/earnings-report`) result — year arrows (`aria-label` "Previous
+  year"/"Next year", 44px targets), `DownloadCsvButton`, a total-revenue
+  tile, a 12-month table, a per-booking-or-checkout line table (hidden when
+  empty), or a dashed `EmptyState` when the year has no earnings. Tables
+  render via `earnings-tables.tsx`'s wrapper components, passed plain row
+  data, not `@merqo/ui`'s `DataTable` directly.
 - `earnings-tables.tsx` — `"use client"` wrapper, `EarningsMonthsTable`/
   `EarningsLinesTable`, added 2026-09-19: builds the `DataTableColumn`
   `cell`/`getRowKey` callbacks and renders `@merqo/ui`'s `DataTable`
@@ -47,14 +50,13 @@ being silently dropped.
   to capture what was actually serialized, and `URL.createObjectURL`/
   `revokeObjectURL`, asserting the CSV content and that the object URL is
   revoked after the click.
-- `page.dom.test.tsx` — awaits the async server component directly (same
-  pattern as `bookings/[id]/page.dom.test.tsx`): the requested year's
-  total/months/lines render, the default-to-current-year path, and the
-  per-booking table hiding itself when there's no revenue for the year.
+- `page.dom.test.tsx` — the redirect target, with and without `year`, and
+  the bad-year fallback. Panel rendering is covered by `../page.dom.test.tsx`.
 
 ## Connectivity
 
-Reachable from `dashboard-nav.tsx`'s "Earnings" link. `page.tsx` reads via
+Reachable from the Earnings tab on `dashboard-nav.tsx`'s "Reports" link.
+`../page.tsx` reads via
 `@/lib/vendor-session`, `@/lib/transactions`, and `@/lib/bookings`; the pure
 aggregation lives in `@/lib/earnings-report`'s `buildEarningsReport()`
 (unit-tested directly, no fetch mocking needed) and the CSV serialization
@@ -63,7 +65,7 @@ vendor-entered text, not app-generated — in `@/lib/earnings-csv`.
 
 ## Tab title
 
-`page.tsx` exports `metadata.title = "Earnings report"`, which the root layout's `%s | paykit` template turns into "Earnings report | paykit". `src/app/page-titles.test.ts` checks it.
+The tab title comes from `../page.tsx` (`"Reports"`); this redirect route has none.
 
 ## Parent
 

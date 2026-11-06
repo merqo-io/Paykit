@@ -37,8 +37,9 @@ for page render/data failures; it offers "Try again" and a "Back to dashboard" l
 - `transactions/` lists vendor transactions and Pro-gated refund bookkeeping.
 - `bookings/` manages deposit/balance checkouts, recoverable deposit setup,
   cancellation, rescheduling and printing. Due reminders are dashboard badges.
-- `stats/` charts confirmed revenue; `reports/earnings/` provides the yearly
-  event-date revenue record and escaped CSV. Both are available to Free vendors.
+- `reports/` is the Reports page: an Overview tab (revenue chart from `stats/`)
+  and an Earnings tab (yearly event-date revenue record and escaped CSV), both
+  free. The old `stats/` and `reports/earnings/` URLs redirect to the matching tab.
 - `plan/` shows the current plan and points to the Merqo account; merqo owns pricing.
 - `profile/` saves shared stall name/social links and Supabase account metadata.
 
