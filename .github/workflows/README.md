@@ -18,7 +18,7 @@ secret scan, dependency audit).
   passing `--diff-filter=d` so deleted paths are dropped: a PR that only
   removes lib files, e.g. code promoted into `@merqo/ui` with its tests,
   would otherwise hand Stryker paths that no longer exist and fail with
-  "No tests were executed");
+  "No tests were executed"; it also skips type-only `src/lib/db-types/`);
   `changelog` (PR-only — if `src/` changed, `CHANGELOG.md` must also be in
   the PR diff; skippable via `skip-changelog`); `readme-freshness` (PR-only
   — if a folder's files changed, that folder's `README.md` must also be in

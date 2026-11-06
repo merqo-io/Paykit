@@ -23,7 +23,13 @@ src/lib/vendor-session.ts        , shared dashboard auth guard (getVendorSession
 src/lib/vendor-entitlement.ts    , entitlement cache readers: resolvePlan, readVendorPlan, readAllVendorPlans
 src/lib/merqo-entitlement-contract.ts, Zod schema of merqo's entitlement push (copied from merqo)
 src/app/api/merqo/entitlement/   , POST receiver for merqo's entitlement push
-src/lib/types.ts                  — DB types (mirror of supabase/migrations)
+src/lib/types.ts                  — type-only barrel over db-types/ (importers use @/lib/types)
+src/lib/db-types/database.ts      — Database interface (tables, RPCs; mirror of supabase/migrations)
+src/lib/db-types/json.ts          — Json type
+src/lib/db-types/vendor.ts        — vendor plan, payment config, prefs, entitlement and legal-check types
+src/lib/db-types/payments.ts      — transaction, refund, feedback, payment audit and evidence types
+src/lib/db-types/bookings.ts      — booking and inquiry types
+src/lib/db-types/admin.ts         — admin, admin audit, auth failure and ops event types
 scripts/create-kit-key.mjs        — mint + store a hashed bearer secret for a calling kit
 supabase/migrations/              — SQL schema + RLS + grants
 supabase/tests/rls.test.sql       — pgTAP RLS suite

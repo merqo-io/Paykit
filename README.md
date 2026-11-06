@@ -364,7 +364,7 @@ Every foreign key column is indexed (migration `0027`, applied by hand), which t
 
 ## Lint
 
-`eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-icon.tsx` and `src/app/global-error.tsx`; `src/lib/types.ts` is the one `max-lines` exception until the split-long-files task.
+`eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-icon.tsx` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`. The mutation gate skips type-only `src/lib/db-types/`.
 
 The `/admin` pages share the dashboard's `PageHeader` and `EmptyState`, with
 section tabs that mark the current page via `aria-current`

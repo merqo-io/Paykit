@@ -7,8 +7,10 @@ provide authorization.
 ## Contracts
 
 - `schemas.ts` validates dashboard forms and actions; `api-schemas.ts` validates
-  the peer-kit API. Monetary values are integer cents. `types.ts` mirrors the
-  migration schema and RPC signatures.
+  the peer-kit API. Monetary values are integer cents. `types.ts` is a type-only barrel over `db-types/`, which mirrors the
+  migration schema and RPC signatures: `database.ts` holds the `Database`
+  interface, and `vendor.ts`, `payments.ts`, `bookings.ts`, `admin.ts` and
+  `json.ts` hold the row types and aliases it uses.
 - `checkout.ts` creates and renders a transaction through `payments/provider.ts`.
   A replay of the same kit and order reference must match the vendor, amount,
   checkout kind and payload; a conflicting replay fails. A new checkout
