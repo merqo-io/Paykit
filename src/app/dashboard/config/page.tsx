@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getVendorSession } from "@/lib/vendor-session";
 import { familyReturnUrl } from "@/lib/return-to";
 import { getConfig } from "./actions";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@merqo/ui";
 import { PaymentConfigForm } from "./payment-config-form";
 
 export const metadata: Metadata = {
@@ -27,6 +27,7 @@ export default async function ConfigPage({
   return (
     <div className="mx-auto max-w-lg">
       <PageHeader
+        responsive
         eyebrow="Account"
         title="Payment setup"
         description="Set this up once. It's reused by every kit that uses paykit for you."

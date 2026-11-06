@@ -94,3 +94,5 @@ vendors — that dialog calls `issueRefundAction` in `actions.ts`.
 ## Parent
 
 [dashboard](../README.md)
+
+Page chrome here (PageHeader and EmptyState) comes from `@merqo/ui`; paykit keeps no local copy.

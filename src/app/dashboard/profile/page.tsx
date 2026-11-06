@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getVendorSession } from "@/lib/vendor-session";
 import { getOrCreateVendorProfile } from "@/lib/merqo-vendor-profile";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@merqo/ui";
 import { ProfileForm } from "./profile-form";
 
 export const metadata: Metadata = {
@@ -28,6 +28,7 @@ export default async function ProfilePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
+        responsive
         eyebrow="Your account"
         title="Profile"
         description="Your business name and links are shared with every Merqo app you use. Everything else stays in paykit."

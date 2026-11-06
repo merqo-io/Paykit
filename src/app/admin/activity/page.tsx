@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { type AuditLogEntry } from "@merqo/ui";
 import { requireAdmin } from "@/lib/admin";
 import { auditLog, type AuditLogRow } from "@/lib/admin-data";
-import { PageHeader } from "@/components/page-header";
+import { PageHeader } from "@merqo/ui";
 import { ActivitySection } from "./activity-section";
 
 export const metadata: Metadata = {
@@ -41,6 +41,7 @@ export default async function AdminActivityPage() {
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-5 py-8">
       <PageHeader
+        responsive
         eyebrow="Admin"
         title="Activity"
         description="Recent actions by admins and vendors, across every vendor."

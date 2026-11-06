@@ -37,3 +37,5 @@ reads plan state via `@/lib/vendor-entitlement` and usage via
 ## Parent
 
 [dashboard](../README.md)
+
+Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.

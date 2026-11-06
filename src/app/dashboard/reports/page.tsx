@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/page-header";
-import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@merqo/ui";
+import { EmptyState } from "@merqo/ui";
 import { getVendorSession } from "@/lib/vendor-session";
 import { listAllTransactions } from "@/lib/transactions";
 import { listAllBookings } from "@/lib/bookings";
@@ -53,6 +53,7 @@ export default async function ReportsPage({
   return (
     <div className="mx-auto max-w-3xl">
       <PageHeader
+        responsive
         eyebrow="Insights"
         title="Reports"
         description="Revenue from confirmed payments across every kit."
