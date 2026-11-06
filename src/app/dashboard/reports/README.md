@@ -2,15 +2,25 @@
 
 ## Purpose
 
-Groups report-style views over paykit's own data (as opposed to `stats/`'s
-live chart) — currently just `earnings/`. A separate top-level segment
-rather than nesting under `stats/`, since a future report (e.g. a
-per-customer statement) wouldn't naturally belong under "stats" either.
+The Reports page (`/dashboard/reports`, the third nav link): one `PageHeader`
+titled "Reports" over two server-rendered tabs, free for every vendor. The
+active tab comes from `?tab=` (`overview` default, or `earnings`) and the
+earnings year from `?year=`; both are Zod-validated in `search-params.ts` and
+fall back to safe defaults. Plan gating covers refund tracking only, so
+nothing here is Pro-gated.
 
 ## Contents
 
-- `earnings/` — accrual-aware yearly revenue report, CSV export (own
-  README).
+- `page.tsx` — `ReportsPage({searchParams})` (server, async `searchParams`):
+  fetches only the active tab's data. Overview renders `../stats/revenue-chart`
+  or a dashed `EmptyState`; Earnings renders `EarningsPanel`.
+- `search-params.ts` — `parseReportsParams()` (Zod, `.catch` defaults) and
+  `reportsHref()`, the single place that builds report URLs.
+- `reports-tabs.tsx` — `ReportsTabs`: plain `Link`s with `aria-current`, so
+  tabs are deep-linkable with no client state.
+- `page.dom.test.tsx` — tabs, overview/earnings rendering, year arrow labels,
+  empty states, param fallbacks.
+- `earnings/` — the Earnings tab's panel and old-URL redirect (own README).
 
 ## Parent
 

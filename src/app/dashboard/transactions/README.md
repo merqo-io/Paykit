@@ -2,22 +2,24 @@
 
 ## Purpose
 
-The vendor's transaction history — every checkout paykit has run for them,
-across every kit — plus, for Pro vendors, a per-transaction refund action.
+The vendor's payments ledger — every payment paykit has tracked for them,
+across every kit — plus, for Pro vendors, a per-payment refund action.
 
 ## Contents
 
 - `page.tsx` — `TransactionsPage()` (server): calls `getVendorSession()`/
   `readVendorPlan()` (`@/lib/vendor-entitlement`) and `listTransactions()`, renders `TransactionTable`.
-  Content sits in a plain `mx-auto max-w-4xl` div (not `<main>` — the
-  parent `dashboard/layout.tsx` owns that landmark and the page-family's
-  canonical `max-w-7xl` outer width); a 5-6 column table reads better
-  narrower than the full dashboard width.
+  Titled "Payments" through the shared `PageHeader`; content sits in a
+  plain div (not `<main>` — the parent `dashboard/layout.tsx` owns that
+  landmark and the `max-w-7xl` outer width), same as the overview page.
 - `transaction-table.tsx` — `TransactionTable({ transactions, isPro })`:
-  renders `Kit`/`Order ref`/`Amount`/`Status`/`Created` columns through `@merqo/ui` DataTable, plus a `Refund` column with `RefundDialog` when `isPro`. Amounts
-  are formatted via `Intl.NumberFormat` (SGD). Empty state is a plain "No
-  transactions yet." message.
-- `transaction-status-badge.tsx` — `TransactionStatusBadge({ status })`: a
+  renders `Kit`/`Reference`/`Amount`/`Status`/`Created` columns through `@merqo/ui` DataTable, plus a `Refund` column with `RefundDialog` when `isPro`. Amounts
+  are formatted via `Intl.NumberFormat` (SGD). Empty state is the
+  shared dashed `EmptyState` ("No payments yet"); the table sits in an
+  `overflow-x-auto` wrapper so it scrolls instead of widening the page on a phone.
+- `transaction-status-badge.tsx` — `TransactionStatusBadge({ status })`
+  (labels: pending → "Awaiting payment", claimed → "Marked paid", confirmed
+  → "Received"; stored values are unchanged): a
   pure presentational component (extracted from `transaction-table.tsx` so
   `src/components/tour-steps.ts` can render the real thing instead of a
   hand-copied color), now a thin wrapper around `@merqo/ui`'s shared
@@ -30,7 +32,7 @@ across every kit — plus, for Pro vendors, a per-transaction refund action.
   `@merqo/ui`'s `InfoTooltip` (`trigger="tap"`, not its "hover" default —
   a native hover hint has no touch equivalent on any mobile browser, and
   most vendors check this on a phone) carrying a per-status hint (what
-  `claimed` vs `confirmed` actually means) so that distinction doesn't
+  "Marked paid" vs "Received" actually means) so that distinction doesn't
   rely solely on a vendor remembering the one-time tour explanation.
 - `transaction-status-badge.test.tsx` — asserts `claimed` gets the mint
   accent and `pending`/`confirmed` don't.
@@ -76,7 +78,7 @@ across every kit — plus, for Pro vendors, a per-transaction refund action.
 
 ## Connectivity
 
-Reachable from `dashboard-nav.tsx`'s "Transactions" link. `page.tsx` reads
+Reachable from `dashboard-nav.tsx`'s "Payments" link. `page.tsx` reads
 transactions via `@/lib/vendor-session` and `@/lib/transactions`, and
 renders `transaction-table.tsx`, which renders `refund-dialog.tsx` for Pro
 vendors — that dialog calls `issueRefundAction` in `actions.ts`.

@@ -23,12 +23,12 @@ describe("TransactionTable", () => {
     expect(screen.getByText("qkit")).toBeInTheDocument();
     expect(screen.getByText("A-001")).toBeInTheDocument();
     expect(screen.getByText("$4.50")).toBeInTheDocument();
-    expect(screen.getByText("confirmed")).toBeInTheDocument();
+    expect(screen.getByText("Received")).toBeInTheDocument();
   });
 
   it("shows an empty state with no transactions", () => {
     render(<TransactionTable transactions={[]} isPro={false} />);
-    expect(screen.getByText(/no transactions yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/no payments yet/i)).toBeInTheDocument();
   });
 
   it("hides the Refund column and button for a free-tier vendor", () => {
