@@ -24,7 +24,7 @@ in the workspace root for why. Brand theme is "Banknote Engrave"
 of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-icon.tsx`'s
 ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
-The public landing is in pre-launch mode: an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to merqo-ui commit e641d602 (v0.41.0, tag pending), whose `PricingLadder` the vendor plan page renders (the navigation tier badge uses its `tierLabel`) from merqo's public plan catalog (paykit stores no prices).
+The public landing is in pre-launch mode, headlined "One payment setup for every kit.": an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to merqo-ui commit e641d602 (v0.41.0, tag pending), whose `PricingLadder` the vendor plan page renders (the navigation tier badge uses its `tierLabel`) from merqo's public plan catalog (paykit stores no prices).
 
 The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amount (the vendor's payee name, falling back to their inquiry-form business name), reports claim and upload failures inline instead of in toasts, and shows a plain retry notice when the payment cannot be loaded.
 
@@ -85,9 +85,10 @@ a hand-copied color, so it can't drift from what the real badge looks like;
 see `../docs/superpowers/specs/2026-08-25-tour-example-badge-drift-fix-design.md`
 (workspace root, cross-kit spec). The badge itself now carries a persistent
 tap-to-open hint (`@merqo/ui`'s `InfoTooltip`, `trigger="tap"`) explaining
-what `claimed`/`confirmed` mean, so that distinction survives past the
-one-time tour — tap, not the component's hover default, since a native
-hover hint has no touch equivalent and most vendors check this on a
+what the "Marked paid" (`claimed`) and "Received" (`confirmed`) labels mean,
+so that distinction survives past the one-time tour — tap, not the
+component's hover default, since a native hover hint has no touch equivalent
+and most vendors check this on a
 phone. The tour covers Payments, Bookings and Reports in the nav, and
 points Payment setup at the avatar menu.
 `@merqo/ui`'s `DashboardNav`
@@ -225,7 +226,7 @@ against its one unambiguously confirmed transaction, reusing the existing
 Pro-gated `refunds` ledger rather than a second mechanism. Creating a
 booking or its balance checkout now logs to the admin audit trail too,
 closing the last two real gaps in that coverage. An accrual-aware
-earnings report (`/dashboard/reports/earnings`, free for every vendor) —
+earnings report (`/dashboard/reports?tab=earnings`, free for every vendor) —
 revenue by month and by booking, tagged by event date rather than
 claim/confirm date, CSV export — rounds out the event-cart bookings
 feature set. A calling kit whose own vendor already knows their booking's
@@ -250,8 +251,8 @@ crash at render with `Functions cannot be passed directly to Client
 Components`, and because the crash happens at request time on a dynamic
 route, `next build` does not catch it. The fix is one of two shapes: drop
 the optional prop and let the component's own fallback render (this is
-what `BackButton` on `/dashboard/plan` and `/dashboard/profile` now
-does), or move the props into a `"use client"` wrapper that owns them
+what `/dashboard/plan` and `/dashboard/profile` did before the shared
+page header replaced their `BackButton`), or move the props into a `"use client"` wrapper that owns them
 (`reports/earnings/earnings-tables.tsx` for `DataTable`'s `cell`/
 `getRowKey`, matching the existing `admin/vendors` `VendorsTable`).
 The full incident writeup lives in qkit at
@@ -280,7 +281,7 @@ uploaded from paykit (`vendor-images`) or from qkit's booth form
 folder are ever deleted.
 
 The payment setup page (`/dashboard/config`) accepts `return_to`, the page in
-another Merqo app to go back to. After a save it shows a "Back to your booth"
+another Merqo app to go back to. After a save it shows a "Go back"
 link to that address, and only when the address is https on `merqo.io` or a
 subdomain of it (`familyReturnUrl` in `src/lib/return-to.ts`). This is what
 lets a calling kit send a vendor here to enter payment details instead of
@@ -364,3 +365,7 @@ Every foreign key column is indexed (migration `0027`, applied by hand), which t
 ## Lint
 
 `eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-icon.tsx` and `src/app/global-error.tsx`; `src/lib/types.ts` is the one `max-lines` exception until the split-long-files task.
+
+The `/admin` pages share the dashboard's `PageHeader` and `EmptyState`, with
+section tabs that mark the current page via `aria-current`
+(`src/app/admin/README.md`).

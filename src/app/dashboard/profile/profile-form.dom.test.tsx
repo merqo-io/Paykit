@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ProfileForm } from "./profile-form";
@@ -11,12 +11,20 @@ const {
   updateUserMock,
   refreshMock,
   removeReplacedAvatarMock,
+  toastSuccessMock,
+  toastErrorMock,
 } = vi.hoisted(() => ({
   updateStallNameMock: vi.fn(),
   updateSocialLinksMock: vi.fn(),
   updateUserMock: vi.fn(),
   refreshMock: vi.fn(),
   removeReplacedAvatarMock: vi.fn(),
+  toastSuccessMock: vi.fn(),
+  toastErrorMock: vi.fn(),
+}));
+
+vi.mock("sonner", () => ({
+  toast: { success: toastSuccessMock, error: toastErrorMock },
 }));
 
 vi.mock("./actions", () => ({
@@ -83,6 +91,8 @@ beforeEach(() => {
   updateUserMock.mockReset().mockResolvedValue({ error: null });
   refreshMock.mockReset();
   removeReplacedAvatarMock.mockReset().mockResolvedValue(undefined);
+  toastSuccessMock.mockReset();
+  toastErrorMock.mockReset();
 });
 
 describe("ProfileForm", () => {
@@ -91,15 +101,37 @@ describe("ProfileForm", () => {
     expect(screen.getByTestId("image-uploader")).toBeInTheDocument();
   });
 
-  it("saves a changed stall/shop name", async () => {
+  it("groups fields under Business and Account headings", () => {
+    renderForm();
+    expect(screen.getByText("Business")).toBeInTheDocument();
+    expect(screen.getByText("Account")).toBeInTheDocument();
+    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(screen.getByLabelText("New password")).toBeInTheDocument();
+  });
+
+  it("toasts a saved business name without a trailing period", async () => {
     const user = userEvent.setup();
     renderForm();
-
-    const input = screen.getByLabelText("Stall / shop name");
+    const input = screen.getByLabelText("Business name");
     await user.clear(input);
     await user.type(input, "New Cart Name");
     await user.click(
-      screen.getByRole("button", { name: /save stall\/shop name/i }),
+      screen.getByRole("button", { name: /save business name/i }),
+    );
+    await waitFor(() =>
+      expect(toastSuccessMock).toHaveBeenCalledWith("Business name saved"),
+    );
+  });
+
+  it("saves a changed business name", async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    const input = screen.getByLabelText("Business name");
+    await user.clear(input);
+    await user.type(input, "New Cart Name");
+    await user.click(
+      screen.getByRole("button", { name: /save business name/i }),
     );
 
     await waitFor(() => {
@@ -109,18 +141,18 @@ describe("ProfileForm", () => {
     });
   });
 
-  it("blocks saving the stall name when cleared to empty", async () => {
+  it("blocks saving the business name when cleared to empty", async () => {
     const user = userEvent.setup();
     renderForm();
 
-    const input = screen.getByLabelText("Stall / shop name");
+    const input = screen.getByLabelText("Business name");
     await user.clear(input);
     await user.click(
-      screen.getByRole("button", { name: /save stall\/shop name/i }),
+      screen.getByRole("button", { name: /save business name/i }),
     );
 
     expect(updateStallNameMock).not.toHaveBeenCalled();
-    expect(screen.getByText(/required/i)).toBeInTheDocument();
+    expect(screen.getByText("Enter a business name")).toBeInTheDocument();
   });
 
   it("updates the display name via the browser auth client, not a server action", async () => {
@@ -139,6 +171,53 @@ describe("ProfileForm", () => {
         data: { display_name: "Bee" },
       });
     });
+  });
+
+  it("shows fixed copy when saving the display name fails", async () => {
+    updateUserMock.mockResolvedValueOnce({ error: { message: "raw" } });
+    const user = userEvent.setup();
+    renderForm();
+    const input = screen.getByLabelText("Display name");
+    await user.clear(input);
+    await user.type(input, "Bee");
+    await user.click(
+      screen.getByRole("button", { name: /save display name/i }),
+    );
+    await waitFor(() =>
+      expect(toastErrorMock).toHaveBeenCalledWith(
+        "Could not save display name. Try again",
+      ),
+    );
+  });
+
+  it("shows an inline error for a display name that is too long", async () => {
+    const user = userEvent.setup();
+    renderForm();
+    fireEvent.change(screen.getByLabelText("Display name"), {
+      target: { value: "x".repeat(61) },
+    });
+    await user.click(
+      screen.getByRole("button", { name: /save display name/i }),
+    );
+    expect(updateUserMock).not.toHaveBeenCalled();
+    expect(screen.getByText("Display name is too long")).toBeInTheDocument();
+  });
+
+  it("shows fixed copy when updating the password fails", async () => {
+    updateUserMock.mockResolvedValueOnce({ error: { message: "raw" } });
+    const user = userEvent.setup();
+    renderForm();
+    await user.type(screen.getByLabelText("New password"), "password123");
+    await user.type(
+      screen.getByLabelText("Confirm new password"),
+      "password123",
+    );
+    await user.click(screen.getByRole("button", { name: /update password/i }));
+    await waitFor(() =>
+      expect(toastErrorMock).toHaveBeenCalledWith(
+        "Could not update password. Try again",
+      ),
+    );
   });
 
   it("rejects a mismatched password confirmation without calling the auth client", async () => {
@@ -203,6 +282,9 @@ describe("ProfileForm avatar storage cleanup", () => {
     await user.click(screen.getByRole("button", { name: "finish upload" }));
     await waitFor(() =>
       expect(removeReplacedAvatarMock).toHaveBeenCalledWith(NEW_AVATAR),
+    );
+    expect(toastErrorMock).toHaveBeenCalledWith(
+      "Could not save picture. Try again",
     );
     expect(removeReplacedAvatarMock).not.toHaveBeenCalledWith(OLD_AVATAR);
   });

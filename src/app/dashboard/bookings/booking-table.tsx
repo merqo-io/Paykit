@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { EmptyState } from "@/components/empty-state";
 import { DataTable, type DataTableColumn } from "@merqo/ui";
 import { formatCents, formatDate } from "@/lib/utils";
 import { BookingStatusBadge, BalanceDueIndicator } from "./booking-badges";
@@ -38,12 +39,21 @@ const columns: DataTableColumn<Booking>[] = [
 ];
 
 export function BookingTable({ bookings }: { bookings: Booking[] }) {
+  if (bookings.length === 0) {
+    return (
+      <EmptyState
+        title="No bookings yet"
+        description="Bookings you add or accept from inquiries appear here."
+      />
+    );
+  }
   return (
-    <DataTable
-      rows={bookings}
-      columns={columns}
-      getRowKey={(booking) => booking.id}
-      emptyState="No bookings yet."
-    />
+    <div className="min-w-0 overflow-x-auto">
+      <DataTable
+        rows={bookings}
+        columns={columns}
+        getRowKey={(booking) => booking.id}
+      />
+    </div>
   );
 }

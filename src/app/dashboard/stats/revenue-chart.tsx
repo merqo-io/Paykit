@@ -39,10 +39,10 @@ export function ChartTooltip({
   if (!active || !payload?.length) return null;
   const { date, cents, count } = payload[0].payload;
   return (
-    <div className="rounded-lg border bg-popover px-3 py-2 text-sm shadow-md">
+    <div className="rounded-lg border bg-popover px-3 py-2 text-sm">
       <p className="font-medium">{date}</p>
       <p className="text-muted-foreground">
-        {formatCents(cents)} · {count} transaction{count === 1 ? "" : "s"}
+        {formatCents(cents)} · {count} payment{count === 1 ? "" : "s"}
       </p>
     </div>
   );
@@ -74,7 +74,7 @@ export function RevenueChart({ data }: { data: DailyRevenue[] }) {
     <div>
       <div className="mb-6 grid grid-cols-3 gap-3">
         <StatTile label="Total revenue" value={formatCents(totalCents)} />
-        <StatTile label="Transactions" value={String(txCount)} />
+        <StatTile label="Payments" value={String(txCount)} />
         <StatTile label="Avg / day" value={formatCents(avgCentsPerDay)} />
       </div>
       <div role="img" aria-label={summarize(data)}>

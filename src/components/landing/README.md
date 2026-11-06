@@ -27,14 +27,15 @@ file. Presentational only — no data fetching, no client state beyond the
   (the only pricing statement on public pages).
 - `checkout-card.tsx` — stylized non-functional checkout artifact for the
   hero (not a real scannable QR, a stand-in with a status pill using the
-  product's own pending/claimed/confirmed language).
+  waiting/paid/confirmed steps; the API's internal states are pending,
+  claimed and confirmed).
 - `benefits.tsx` — the "why paykit" feature grid; its pricing tile renders
   `PILOT_PRICING_LINE`.
 - `how-it-works.tsx` — 3-step explainer (connect method → share checkout →
   confirm).
 - `faq.tsx` — Q&A list, including "does paykit hold my money?" and "what
   will it cost?" (answered with `PILOT_PRICING_LINE`). Heading uses the
-  same eyebrow (`font-mono uppercase tracking-widest`) + `font-display`
+  same eyebrow (`text-xs font-semibold uppercase tracking-[0.16em]`, the same as `PageHeader`) + `font-display`
   heading pair as `how-it-works.tsx`/`benefits.tsx`, not a bespoke centered
   heading.
 - `closing-cta.tsx` — full-bleed `bg-ink text-ink-foreground` closing

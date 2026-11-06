@@ -19,7 +19,7 @@ type Tier = "free" | "pro";
 const LINKS = [
   { href: "/dashboard/transactions", label: "Payments" },
   { href: "/dashboard/bookings", label: "Bookings" },
-  { href: "/dashboard/stats", label: "Reports" },
+  { href: "/dashboard/reports", label: "Reports" },
 ];
 
 function isActive(path: string, href: string): boolean {

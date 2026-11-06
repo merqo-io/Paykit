@@ -1,7 +1,7 @@
-import { ElevatedCard, StatTile } from "@merqo/ui";
+import { StatTile } from "@merqo/ui";
 import { cn } from "@/lib/utils";
 
-/** A back-office figure tile: wraps @merqo/ui's shared StatTile in paykit's own card shell. */
+/** A back-office figure tile: wraps @merqo/ui's shared StatTile in a flat bordered card. */
 export function Stat({
   label,
   value,
@@ -19,7 +19,7 @@ export function Stat({
   className?: string;
 }) {
   return (
-    <ElevatedCard className={cn("p-4", className)}>
+    <div className={cn("rounded-xl border bg-card p-4", className)}>
       <StatTile
         label={label}
         value={String(value)}
@@ -28,6 +28,6 @@ export function Stat({
         deltaSize="xs"
         deltaTooltip={deltaTooltip}
       />
-    </ElevatedCard>
+    </div>
   );
 }

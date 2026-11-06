@@ -8,7 +8,7 @@ import { WAITLIST_URL } from "./waitlist";
 const STATS = [
   { value: "0", label: "funds held by paykit" },
   { value: "2", label: "ways to get paid: PayNow or your own link" },
-  { value: "3", label: "checkout states: pending, claimed, confirmed" },
+  { value: "3", label: "payment steps: waiting, paid, confirmed" },
 ];
 
 export function Hero() {
@@ -26,7 +26,7 @@ export function Hero() {
       <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-20 sm:py-28 lg:grid-cols-2 lg:items-center">
         <div className="fade-rise">
           <div className="flex flex-wrap items-center gap-3">
-            <Badge variant="outline" className="font-mono text-xs">
+            <Badge variant="outline" className="text-xs">
               In build
             </Badge>
             <p className="text-sm text-muted-foreground">
@@ -34,14 +34,12 @@ export function Hero() {
             </p>
           </div>
           <h1 className="mt-4 text-balance font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
-            One payment setup.
-            <br />
-            Set it up once.
+            One payment setup for every kit.
           </h1>
           <p className="mt-5 max-w-md text-lg text-muted-foreground">
-            paykit generates your checkout, a PayNow QR, or your own payment
-            link or QR, tracks who&apos;s paid, and never touches the money.
-            qkit is the first kit built to check out through it.
+            paykit shows your customers a PayNow QR, or your own payment link or
+            QR, and tracks who&apos;s paid. It never touches the money. qkit is
+            the first kit built to use it.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">

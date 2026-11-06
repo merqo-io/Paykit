@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getVendorSession } from "@/lib/vendor-session";
 import { familyReturnUrl } from "@/lib/return-to";
 import { getConfig } from "./actions";
+import { PageHeader } from "@/components/page-header";
 import { PaymentConfigForm } from "./payment-config-form";
 
 export const metadata: Metadata = {
@@ -25,18 +26,16 @@ export default async function ConfigPage({
   ]);
   return (
     <div className="mx-auto max-w-lg">
-      <h1 className="text-2xl font-semibold tracking-tight">Payment setup</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Set this up once. It&apos;s reused by every kit that uses paykit for
-        you.
-      </p>
-      <div className="mt-6">
-        <PaymentConfigForm
-          initial={config}
-          vendorId={user.id}
-          returnTo={familyReturnUrl(return_to)}
-        />
-      </div>
+      <PageHeader
+        eyebrow="Account"
+        title="Payment setup"
+        description="Set this up once. It's reused by every kit that uses paykit for you."
+      />
+      <PaymentConfigForm
+        initial={config}
+        vendorId={user.id}
+        returnTo={familyReturnUrl(return_to)}
+      />
     </div>
   );
 }

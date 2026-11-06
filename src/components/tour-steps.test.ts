@@ -38,7 +38,7 @@ describe("tourSteps", () => {
       '[data-tour="tx-count"]',
       '[data-tour="nav-transactions"]',
       '[data-tour="nav-bookings"]',
-      '[data-tour="nav-stats"]',
+      '[data-tour="nav-reports"]',
       '[data-tour="nav-account"]',
       '[data-tour="tour-replay"]',
     ]);
@@ -53,7 +53,9 @@ describe("tourSteps", () => {
     const bookings = steps.find(
       (s) => s.element === '[data-tour="nav-bookings"]',
     );
-    const reports = steps.find((s) => s.element === '[data-tour="nav-stats"]');
+    const reports = steps.find(
+      (s) => s.element === '[data-tour="nav-reports"]',
+    );
     const account = steps.find(
       (s) => s.element === '[data-tour="nav-account"]',
     );

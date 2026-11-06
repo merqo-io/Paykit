@@ -27,7 +27,7 @@ describe("BookingTable", () => {
     const link = screen.getByRole("link", { name: "Jane Tan" });
     expect(link).toHaveAttribute("href", "/dashboard/bookings/b1");
     expect(screen.getByText("$1,000.00")).toBeInTheDocument();
-    expect(screen.getByText("Pending deposit")).toBeInTheDocument();
+    expect(screen.getByText("Awaiting deposit")).toBeInTheDocument();
   });
 
   it("shows an empty state with no bookings", () => {

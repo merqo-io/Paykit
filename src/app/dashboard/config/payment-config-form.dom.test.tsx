@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PaymentConfigForm } from "./payment-config-form";
 
@@ -26,9 +32,9 @@ beforeEach(() => {
 describe("PaymentConfigForm", () => {
   it("defaults to the PayNow section, shows the UEN field, switches to mobile on toggle", () => {
     render(<PaymentConfigForm initial={null} vendorId="v1" />);
-    expect(screen.getByLabelText("UEN")).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "UEN" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("radio", { name: /mobile/i }));
-    expect(screen.getByLabelText("Mobile")).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Mobile" })).toBeInTheDocument();
   });
 
   it("renders a QR preview once payee name + identifier are filled", () => {
@@ -37,7 +43,7 @@ describe("PaymentConfigForm", () => {
     fireEvent.change(screen.getByLabelText("Payee name"), {
       target: { value: "Kopitiam Cart" },
     });
-    fireEvent.change(screen.getByLabelText("UEN"), {
+    fireEvent.change(screen.getByRole("textbox", { name: "UEN" }), {
       target: { value: "53312345A" },
     });
     expect(document.querySelector("svg")).toBeInTheDocument();
@@ -54,7 +60,7 @@ describe("PaymentConfigForm", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 
     await user.click(
-      screen.getByRole("button", { name: /save payment config/i }),
+      screen.getByRole("button", { name: /save payment setup/i }),
     );
 
     await waitFor(() => {
@@ -75,9 +81,11 @@ describe("PaymentConfigForm", () => {
     await user.click(screen.getByRole("radio", { name: "Other / custom" }));
 
     expect(screen.getByLabelText("Button label")).toBeInTheDocument();
-    expect(screen.getByLabelText("Payment link")).toBeInTheDocument();
+    expect(
+      screen.getByRole("textbox", { name: "Payment link" }),
+    ).toBeInTheDocument();
 
-    await user.click(screen.getByRole("radio", { name: "Use a QR image" }));
+    await user.click(screen.getByRole("radio", { name: "QR image" }));
     expect(screen.getByTestId("image-uploader")).toBeInTheDocument();
   });
 
@@ -103,7 +111,7 @@ describe("PaymentConfigForm", () => {
     expect(screen.getByLabelText("Button label")).toHaveValue(
       "Pay with PayLah",
     );
-    expect(screen.getByLabelText("Payment link")).toHaveValue(
+    expect(screen.getByRole("textbox", { name: "Payment link" })).toHaveValue(
       "https://pay.example/kopitiam",
     );
   });
@@ -127,7 +135,7 @@ describe("PaymentConfigForm", () => {
     );
     // Stripe/HitPay/PayLah! lock the mode — no link/QR toggle shown.
     expect(
-      screen.queryByRole("radio", { name: "Use a payment link" }),
+      screen.queryByRole("radio", { name: "Payment link" }),
     ).not.toBeInTheDocument();
   });
 
@@ -184,12 +192,16 @@ describe("PaymentConfigForm", () => {
     );
     await user.click(screen.getByRole("radio", { name: "Other / custom" }));
 
+    const group = screen.getByRole("group", { name: "How customers pay" });
     expect(
-      screen.getByRole("radio", { name: "Use a payment link" }),
+      within(group).getByRole("radio", { name: "Payment link" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("radio", { name: "Use a QR image" }),
+      within(group).getByRole("radio", { name: "QR image" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("group", { name: "Payment method" }),
+    ).toHaveLength(1);
     expect(screen.getByText(/GrabPay, ShopeePay, Qashier/)).toBeInTheDocument();
   });
 
@@ -201,7 +213,7 @@ describe("PaymentConfigForm", () => {
       screen.getByRole("radio", { name: /payment link or qr image/i }),
     );
     await user.type(
-      screen.getByLabelText("Payment link"),
+      screen.getByRole("textbox", { name: "Payment link" }),
       "https://example.com/pay",
     );
 
@@ -209,12 +221,12 @@ describe("PaymentConfigForm", () => {
       screen.getByText(/doesn't look like a Stripe Payment Link/),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /save payment config/i }),
+      screen.getByRole("button", { name: /save payment setup/i }),
     ).not.toBeDisabled();
 
-    await user.clear(screen.getByLabelText("Payment link"));
+    await user.clear(screen.getByRole("textbox", { name: "Payment link" }));
     await user.type(
-      screen.getByLabelText("Payment link"),
+      screen.getByRole("textbox", { name: "Payment link" }),
       "https://buy.stripe.com/test_abc123",
     );
 
@@ -270,7 +282,7 @@ describe("PaymentConfigForm", () => {
 
     expect(screen.getByRole("radio", { name: "Other / custom" })).toBeChecked();
     // Existing saved data still displays correctly under the Other fallback.
-    expect(screen.getByLabelText("Payment link")).toHaveValue(
+    expect(screen.getByRole("textbox", { name: "Payment link" })).toHaveValue(
       "https://pay.example/kopitiam",
     );
   });
@@ -288,20 +300,20 @@ describe("PaymentConfigForm way back", () => {
       <PaymentConfigForm initial={null} vendorId="v1" returnTo={returnTo} />,
     );
     await user.click(
-      screen.getByRole("button", { name: /save payment config/i }),
+      screen.getByRole("button", { name: /save payment setup/i }),
     );
     await waitFor(() => expect(saveConfigActionMock).toHaveBeenCalled());
   }
 
   function backLink() {
-    return screen.queryByRole("link", { name: "Back to your booth" });
+    return screen.queryByRole("link", { name: "Go back" });
   }
 
   it("offers the way back once a save succeeds", async () => {
     await save(RETURN_TO, "ok");
 
     expect(
-      await screen.findByRole("link", { name: "Back to your booth" }),
+      await screen.findByRole("link", { name: "Go back" }),
     ).toHaveAttribute("href", RETURN_TO);
   });
 
@@ -323,7 +335,27 @@ describe("PaymentConfigForm way back", () => {
   it("offers no way back when the page was given none", async () => {
     await save(null, "ok");
 
-    expect(await screen.findByText("Saved.")).toBeInTheDocument();
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Payment setup saved",
+    );
     expect(backLink()).toBeNull();
+  });
+});
+
+describe("PaymentConfigForm accessible grouping", () => {
+  it("groups the payment methods under a legend", () => {
+    render(<PaymentConfigForm initial={null} vendorId="v1" />);
+
+    expect(
+      screen.getByRole("group", { name: "Payment method" }),
+    ).toBeInTheDocument();
+  });
+
+  it("names the payee ID type radios by their visible text", () => {
+    render(<PaymentConfigForm initial={null} vendorId="v1" />);
+
+    const group = screen.getByRole("group", { name: "Payee ID type" });
+    expect(within(group).getByRole("radio", { name: "UEN" })).toBeVisible();
+    expect(within(group).getByRole("radio", { name: "Mobile" })).toBeVisible();
   });
 });

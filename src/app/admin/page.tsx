@@ -7,7 +7,9 @@ import {
 } from "@/lib/admin-data";
 import { Stat } from "@/app/admin/stat";
 import { Badge } from "@/components/ui/badge";
-import { ElevatedCard } from "@merqo/ui";
+import { PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/empty-state";
+import type { TxStatus } from "@/lib/types";
 import { formatCents, pctChange } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -15,6 +17,13 @@ export const metadata: Metadata = {
 };
 
 export const revalidate = 0;
+
+// API status values are unchanged; only the displayed wording differs.
+const STATUS_LABELS: Record<TxStatus, string> = {
+  pending: "Awaiting payment",
+  claimed: "Marked paid",
+  confirmed: "Received",
+};
 
 export default async function AdminOverviewPage() {
   await requireAdmin();
@@ -27,12 +36,7 @@ export default async function AdminOverviewPage() {
 
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-5 py-8">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Internal
-        </p>
-        <h1 className="text-3xl font-bold tracking-tight">Overview</h1>
-      </div>
+      <PageHeader eyebrow="Admin" title="Overview" className="mb-0" />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <Stat label="Vendors" value={totals.vendors} />
@@ -62,11 +66,12 @@ export default async function AdminOverviewPage() {
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Security
-        </h2>
+        <h2 className="text-sm font-medium text-muted-foreground">Security</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <Stat label="Failed auth · 24h" value={security.failed_auth_24h} />
+          <Stat
+            label="Failed sign-ins, last 24h"
+            value={security.failed_auth_24h}
+          />
           <Stat
             label="Rate-limited kits · 24h"
             value={security.rate_limited_kits_24h}
@@ -75,20 +80,20 @@ export default async function AdminOverviewPage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-sm font-medium text-muted-foreground">
           Recent activity across all vendors
         </h2>
-        <ElevatedCard className="p-6">
-          <ul className="space-y-2.5">
-            {activity.length > 0 ? (
-              activity.map((tx) => (
+        {activity.length > 0 ? (
+          <div className="rounded-xl border bg-card p-6">
+            <ul className="space-y-2.5">
+              {activity.map((tx) => (
                 <li
                   key={tx.id}
                   className="flex items-center justify-between gap-3 text-sm"
                 >
                   <span className="flex min-w-0 items-center gap-2.5">
                     <span className="min-w-0 truncate font-medium">
-                      {tx.email ?? "—"}
+                      {tx.email ?? "Not set"}
                     </span>
                     <span className="shrink-0 text-muted-foreground">
                       {tx.kit_slug}
@@ -98,7 +103,7 @@ export default async function AdminOverviewPage() {
                         tx.status === "confirmed" ? "default" : "secondary"
                       }
                     >
-                      {tx.status}
+                      {STATUS_LABELS[tx.status]}
                     </Badge>
                   </span>
                   <span className="flex shrink-0 items-center gap-3">
@@ -110,14 +115,15 @@ export default async function AdminOverviewPage() {
                     </span>
                   </span>
                 </li>
-              ))
-            ) : (
-              <li className="text-sm text-muted-foreground">
-                No activity yet.
-              </li>
-            )}
-          </ul>
-        </ElevatedCard>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <EmptyState
+            title="No activity yet"
+            description="Payments from every vendor show up here as they happen."
+          />
+        )}
       </section>
     </main>
   );
