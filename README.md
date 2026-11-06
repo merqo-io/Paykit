@@ -225,7 +225,7 @@ against its one unambiguously confirmed transaction, reusing the existing
 Pro-gated `refunds` ledger rather than a second mechanism. Creating a
 booking or its balance checkout now logs to the admin audit trail too,
 closing the last two real gaps in that coverage. An accrual-aware
-earnings report (`/dashboard/reports/earnings`, free for every vendor) —
+earnings report (`/dashboard/reports?tab=earnings`, free for every vendor) —
 revenue by month and by booking, tagged by event date rather than
 claim/confirm date, CSV export — rounds out the event-cart bookings
 feature set. A calling kit whose own vendor already knows their booking's
