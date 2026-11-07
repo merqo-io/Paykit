@@ -161,7 +161,9 @@ subtle at a glance, and security bumps of `next` to `16.3.4`,
 `getVendorSession` (`@/lib/vendor-session`) — paykit's single vendor-gate
 entry point — also redirects a signed-in vendor with a stale terms/privacy
 acceptance to `/legal/accept` before any dashboard page renders. paykit
-owns no acceptance record itself; merqo does (`src/app/legal/README.md`,
+owns no acceptance record itself; merqo does. Legal-gate cache write
+failures are logged and ignored, so they never gate an accepted vendor
+(`src/app/legal/README.md`,
 `@merqo/ui` bumped to v0.25.0). `TermsAcceptanceCheckbox` no longer
 collects a typed legal name — just the agree checkbox — since a plain
 ToS/Privacy clickwrap doesn't need a signatory name for evidentiary

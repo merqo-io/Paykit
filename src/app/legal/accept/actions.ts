@@ -81,12 +81,21 @@ export async function acceptLegalTerms(formData: FormData): Promise<void> {
     }
   }
 
-  const service = await createServiceClient();
-  await service.from("legal_check_state").upsert({
-    email,
-    checked_at: new Date().toISOString(),
-    is_current: true,
-  });
+  try {
+    const service = await createServiceClient();
+    const { error } = await service.from("legal_check_state").upsert({
+      email,
+      checked_at: new Date().toISOString(),
+      is_current: true,
+    });
+    if (error) {
+      console.error("acceptLegalTerms: cache write failed", error.message);
+    }
+  } catch (err) {
+    // Merqo has already recorded acceptance; the cache only saves a lookup,
+    // so a write failure must not fail the action.
+    console.error("acceptLegalTerms: cache write failed", err);
+  }
 
   const next = z.string().max(512).catch("").parse(formData.get("next"));
   redirect(safeRedirectPath(next, "/dashboard"));

@@ -24,7 +24,7 @@ folder's job is entirely to collect the vendor's consent and forward it.
   recorded `doc_sha256` hashes `getLegalDocSource(docType, "paykit")` —
   the same kit-scoped content `terms/page.tsx` actually renders, not the
   full multi-kit annex. On success it primes the local `legal_check_state`
-  cache and redirects to a `safeRedirectPath`-checked `next` (default
+  cache (a failed cache write is logged and ignored) and redirects to a `safeRedirectPath`-checked `next` (default
   `/dashboard`).
 - The merqo base URL for the `legal-accept` POST comes from `merqoBaseUrl()` in `src/lib/merqo-url.ts` (`MERQO_BASE_URL`, default `https://www.merqo.io`).
 - `actions.test.ts` — covers the two independent posts, the cache prime,
