@@ -35,3 +35,5 @@ The body is optional. A request that is not `multipart/form-data` (no body, or J
 The file is stored before the claim commits (`@/lib/payment-evidence`'s `storeScreenshotEvidence`): if paykit cannot store it the answer is 503 and the transaction stays as it was, so the caller can retry. A screenshot sent for an already-`claimed` transaction replaces the earlier one; one sent for a `confirmed` transaction is ignored, so evidence a vendor confirmed against never changes. The caller reads it back with `GET ../evidence`.
 
 Once a screenshot is stored, `@/lib/proof-amount-check`'s `scheduleProofAmountCheck` reads the transaction's amount out of it after the response has gone out and records the result on the evidence row. It never delays the claim and never decides it; a screenshot that cannot be read leaves the amount unchecked.
+
+The route is a thin call to `runTransition` in `@/lib/payment-transition` (strict limiter, proof read before the row read); the claim itself stays in `@/lib/claim`.

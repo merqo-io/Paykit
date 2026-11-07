@@ -228,3 +228,5 @@ session/service client separation; `payments/` explains checkout builders.
 `security-headers.ts` holds the nonce route list and CSP source lists (including the Vercel toolbar origin outside production); `theme-props.ts` is shared by the root layout and the CSP; `columns.ts` lists the columns each table read selects; `admin.ts` also requires `aal2` in `requireAdmin()`.
 
 The profile name schema message reads "Business name is required".
+
+- `payment-transition.ts` - `runTransition(request, params, spec)`: the pipeline shared by the claim, unclaim and confirm routes (kit auth, per-action rate limit, id check, optional body read, kit-scoped row read), then the spec's `apply`. `conditionalTransition` builds the `apply` for unclaim and confirm: a guarded update, a recheck when it matches no row, then audit and callback.
