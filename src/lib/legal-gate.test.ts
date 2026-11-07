@@ -57,6 +57,49 @@ describe("checkLegalAcceptance", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
+  it("still passes a current vendor when the cache write throws", async () => {
+    const upsert = vi.fn().mockRejectedValue(new Error("cache down"));
+    const { client } = clientWith({ cached: null, upsert });
+    vi.mocked(createServiceClient).mockResolvedValue(client as never);
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        terms: LEGAL_VERSIONS.terms,
+        privacy: LEGAL_VERSIONS.privacy,
+      }),
+    }) as never;
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await checkLegalAcceptance("vendor@example.com");
+
+    expect(result).toBe(true);
+    expect(upsert).toHaveBeenCalledOnce();
+    errorSpy.mockRestore();
+  });
+
+  it("still passes a current vendor when the cache write returns an error", async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: { message: "x" } });
+    const { client } = clientWith({ cached: null, upsert });
+    vi.mocked(createServiceClient).mockResolvedValue(client as never);
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        terms: LEGAL_VERSIONS.terms,
+        privacy: LEGAL_VERSIONS.privacy,
+      }),
+    }) as never;
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await checkLegalAcceptance("vendor@example.com");
+
+    expect(result).toBe(true);
+    expect(errorSpy).toHaveBeenCalledWith(
+      "checkLegalAcceptance: cache write failed",
+      "x",
+    );
+    errorSpy.mockRestore();
+  });
+
   it("calls merqo and caches the result when there is no cache row", async () => {
     const { client, upsert } = clientWith({ cached: null });
     vi.mocked(createServiceClient).mockResolvedValue(client as never);
@@ -186,15 +229,14 @@ describe("requireCurrentLegalAcceptance", () => {
   });
 });
 
-it.each(["client", "read", "write"])(
+it.each(["client", "read"])(
   "fails closed on rejected %s persistence",
   async (stage) => {
-    const { client, maybeSingle, upsert } = clientWith({});
+    const { client, maybeSingle } = clientWith({});
     vi.mocked(createServiceClient).mockResolvedValue(client as never);
     if (stage === "client")
       vi.mocked(createServiceClient).mockRejectedValue(new Error("network"));
     if (stage === "read") maybeSingle.mockRejectedValue(new Error("network"));
-    if (stage === "write") upsert.mockRejectedValue(new Error("network"));
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
