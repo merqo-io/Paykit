@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-11-07
+
 ### Changed
 
 - Claim, unclaim and confirm share one typed handler, `runTransition` in `src/lib/payment-transition.ts`; responses are unchanged.
