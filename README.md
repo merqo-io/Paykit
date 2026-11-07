@@ -102,7 +102,7 @@ transaction for an order with `GET /api/v1/checkout?order_ref=`, a read-only
 lookup that returns the status, the owning `vendor_id` and the stored checkout
 view. A checkout may carry `expires_at`, the time the calling kit gives up on
 the order (migration `0023`, applied by hand); it is stored and returned, and
-nothing acts on it yet. After a claim, unclaim or confirm commits, paykit posts a payment-status
+nothing acts on it yet. The claim, unclaim and confirm routes share one pipeline (`runTransition` in `src/lib/payment-transition.ts`: auth, rate limit, id check, kit-scoped read). After a claim, unclaim or confirm commits, paykit posts a payment-status
 callback to the owning kit's `kit_api_keys.callback_url`, when one is set
 (`src/lib/kit-callback.ts`). It is a hint that the transaction changed, sent
 after the response and never awaited; the kit reads the status back with the

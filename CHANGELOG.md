@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-11-07
+
+### Changed
+
+- Claim, unclaim and confirm share one typed handler, `runTransition` in `src/lib/payment-transition.ts`; responses are unchanged.
+
 ### Fixed
 
 - A failed write to the legal acceptance cache no longer gates a vendor who has accepted the current terms; the failure is logged and the real result is returned. The accept action likewise no longer fails after merqo records acceptance when its cache write fails.

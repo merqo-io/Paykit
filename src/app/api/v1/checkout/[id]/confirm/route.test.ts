@@ -90,13 +90,19 @@ function fakeSupabase() {
   return {
     from: () => ({
       select: () => chain(),
-      update: () => chain(),
+      update: (patch: unknown) => {
+        updatePatches.push(patch);
+        return chain();
+      },
       insert: auditInsert,
     }),
   };
 }
 
+const updatePatches: unknown[] = [];
+
 beforeEach(() => {
+  updatePatches.length = 0;
   verifyKitAuthMock.mockReset().mockResolvedValue({ kitSlug: "qkit" });
   createServiceClientMock.mockReset().mockResolvedValue(fakeSupabase());
   readMaybeSingle.mockReset().mockResolvedValue({ data: ROW, error: null });
@@ -307,5 +313,66 @@ describe("kit scoping", () => {
     const kitFilters = eqCalls.filter(([col]) => col === "kit_slug");
     expect(kitFilters).toHaveLength(2);
     expect(kitFilters.every(([, val]) => val === "qkit")).toBe(true);
+  });
+});
+
+describe("characterisation: rate limit, patch and zero-row update", () => {
+  const CONFIRMED = {
+    ...ROW,
+    status: "confirmed",
+    confirmed_at: "2026-07-15T00:02:00Z",
+  };
+  const zeroRows = { data: null, error: null };
+
+  it("limits per action, kit and address with the per-route budget", async () => {
+    await POST(req(), ctx());
+    expect(rateLimitMock).toHaveBeenCalledWith(
+      expect.anything(),
+      "confirm:qkit:203.0.113.5",
+      60,
+      60,
+    );
+  });
+
+  it("writes the confirmed status and a timestamp", async () => {
+    await POST(req(), ctx());
+    expect(updatePatches).toEqual([
+      { status: "confirmed", confirmed_at: expect.any(String) },
+    ]);
+  });
+
+  it("confirms a pending transaction", async () => {
+    readMaybeSingle.mockResolvedValue({
+      data: { ...ROW, status: "pending", claimed_at: null },
+      error: null,
+    });
+    expect((await POST(req(), ctx())).status).toBe(200);
+    expect(updateSingle).toHaveBeenCalledTimes(1);
+  });
+
+  it("zero rows updated, row now confirmed: returns it without audit", async () => {
+    readMaybeSingle
+      .mockResolvedValueOnce({ data: ROW, error: null })
+      .mockResolvedValueOnce({ data: CONFIRMED, error: null });
+    updateSingle.mockResolvedValue(zeroRows);
+    const res = await POST(req(), ctx());
+    expect(res.status).toBe(200);
+    expect((await res.json()).status).toBe("confirmed");
+    expect(auditInsert).not.toHaveBeenCalled();
+  });
+
+  it("zero rows updated, row gone: 404", async () => {
+    readMaybeSingle
+      .mockResolvedValueOnce({ data: ROW, error: null })
+      .mockResolvedValueOnce({ data: null, error: null });
+    updateSingle.mockResolvedValue(zeroRows);
+    expect((await POST(req(), ctx())).status).toBe(404);
+  });
+
+  it("zero rows updated, row unchanged: 503", async () => {
+    updateSingle.mockResolvedValue(zeroRows);
+    const res = await POST(req(), ctx());
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: "Upstream unavailable" });
   });
 });

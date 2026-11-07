@@ -30,3 +30,5 @@ or missing callback never changes this route's answer.
 The transaction lookup and guarded write both include the authenticated kit slug as well as the transaction ID. Rate-limit failures prevent mutation, and confirmed state remains unchanged. Tests assert ownership predicates and race fallback behavior.
 
 `recordPaymentAudit` takes one object: `{ transactionId, kitSlug, action, detail? }`.
+
+The route is a thin call to `runTransition` and `conditionalTransition` in `@/lib/payment-transition`, which own the shared auth, rate-limit, id and scoped-read pipeline and the guarded update with its recheck.

@@ -148,6 +148,7 @@ provide authorization.
 - `payment-audit.ts` appends real checkout transitions (`recordPaymentAudit(supabase, { transactionId, kitSlug, action, detail })`); idempotent no-ops add no
   transition row. `admin-audit.ts` records administrative and vendor operations
   without exposing its helper as a remotely callable Server Action.
+- `payment-transition.ts` - `runTransition(request, params, spec)`: the pipeline shared by the claim, unclaim and confirm routes (kit auth, per-action rate limit, id check, optional body read, kit-scoped row read), then the spec's `apply`. `conditionalTransition` builds the `apply` for unclaim and confirm: a guarded update, a recheck when it matches no row, then audit and callback.
 
 ## Reads and reports
 
