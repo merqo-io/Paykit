@@ -21,7 +21,9 @@ grant select, insert, update, delete on table paykit.proof_storage_deletions to 
 grant usage, select on sequence paykit.proof_storage_deletions_id_seq to service_role;
 
 -- A row trigger fires for cascade deletes too (transaction delete, vendor
--- delete, auth user delete), which is how most evidence rows disappear.
+-- delete, auth user delete), which is how most evidence rows disappear. It also
+-- fires when a re-upload points the row at a new object, because each upload
+-- attempt gets its own path and the previous object would otherwise be orphaned.
 create or replace function paykit.queue_proof_storage_deletion()
 returns trigger
 language plpgsql
@@ -29,6 +31,9 @@ security definer
 set search_path = ''
 as $$
 begin
+  if tg_op = 'UPDATE' and old.storage_path is not distinct from new.storage_path then
+    return null;
+  end if;
   if old.storage_path is not null then
     insert into paykit.proof_storage_deletions (bucket, path)
     values ('paykit-payment-proofs', old.storage_path);
@@ -41,6 +46,6 @@ revoke execute on function paykit.queue_proof_storage_deletion() from public, an
 
 drop trigger if exists payment_evidence_queue_proof_storage_deletion on paykit.payment_evidence;
 create trigger payment_evidence_queue_proof_storage_deletion
-  after delete on paykit.payment_evidence
+  after delete or update of storage_path on paykit.payment_evidence
   for each row
   execute function paykit.queue_proof_storage_deletion();

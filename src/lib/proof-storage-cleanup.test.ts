@@ -10,7 +10,12 @@ const selectResult = vi.fn<() => Promise<{ data: Row[] | null; error: Err }>>();
 const removeResult = vi.fn<(paths: string[]) => Promise<{ error: Err }>>();
 const deleteResult = vi.fn<() => Promise<{ error: Err }>>();
 const updateResult = vi.fn<() => Promise<{ error: Err }>>();
+const liveResult =
+  vi.fn<
+    () => Promise<{ data: { storage_path: string }[] | null; error: Err }>
+  >();
 const calls = {
+  liveIn: [] as unknown[][],
   lt: [] as unknown[][],
   limit: [] as number[],
   deleteIn: [] as unknown[][],
@@ -21,8 +26,12 @@ const calls = {
 
 function fakeClient() {
   return {
-    from: () => ({
+    from: (table: string) => ({
       select: () => ({
+        in: (...args: unknown[]) => {
+          calls.liveIn.push([table, ...args]);
+          return liveResult();
+        },
         lt: (...args: unknown[]) => {
           calls.lt.push(args);
           return {
@@ -69,6 +78,7 @@ beforeEach(() => {
   for (const list of Object.values(calls)) list.length = 0;
   vi.spyOn(console, "error").mockImplementation(() => {});
   selectResult.mockReset().mockResolvedValue({ data: rows, error: null });
+  liveResult.mockReset().mockResolvedValue({ data: [], error: null });
   removeResult.mockReset().mockResolvedValue({ error: null });
   deleteResult.mockReset().mockResolvedValue({ error: null });
   updateResult.mockReset().mockResolvedValue({ error: null });
@@ -84,6 +94,33 @@ describe("drainProofDeletions", () => {
     expect(removeResult).toHaveBeenCalledWith(["v/t1", "v/t2"]);
     expect(calls.deleteIn).toEqual([["id", [1, 2]]]);
     expect(calls.update).toEqual([]);
+  });
+
+  it("clears but does not remove a queued path that a live evidence row points at", async () => {
+    liveResult.mockResolvedValue({
+      data: [{ storage_path: "v/t1" }],
+      error: null,
+    });
+
+    const result = await drainProofDeletions(fakeClient());
+
+    expect(calls.liveIn).toEqual([
+      ["payment_evidence", "storage_path", ["v/t1", "v/t2"]],
+    ]);
+    expect(removeResult).toHaveBeenCalledTimes(1);
+    expect(removeResult).toHaveBeenCalledWith(["v/t2"]);
+    expect(calls.deleteIn).toEqual([
+      ["id", [1]],
+      ["id", [2]],
+    ]);
+    expect(result).toEqual({ removed: 1, failed: 0 });
+  });
+
+  it("removes nothing when the live-path check fails", async () => {
+    liveResult.mockResolvedValue({ data: null, error: { message: "boom" } });
+    const result = await drainProofDeletions(fakeClient());
+    expect(result).toEqual({ removed: 0, failed: 0 });
+    expect(removeResult).not.toHaveBeenCalled();
   });
 
   it("skips rows that reached the attempts cap", async () => {

@@ -12,7 +12,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabase = await createServiceClient();
-  const result = await drainProofDeletions(supabase);
-  return NextResponse.json(result);
+  try {
+    const supabase = await createServiceClient();
+    const result = await drainProofDeletions(supabase);
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error("proof storage drain unavailable", error);
+    return NextResponse.json({ error: "Drain unavailable" }, { status: 500 });
+  }
 }

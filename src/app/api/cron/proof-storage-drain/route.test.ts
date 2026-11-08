@@ -55,4 +55,13 @@ describe("GET /api/cron/proof-storage-drain", () => {
     expect(await res.json()).toEqual({ removed: 2, failed: 0 });
     expect(drainMock).toHaveBeenCalledWith(client);
   });
+
+  it("returns a JSON 500 when the service client cannot be created", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const { createServiceClient } = await import("@/lib/supabase/server");
+    vi.mocked(createServiceClient).mockRejectedValueOnce(new Error("no env"));
+    const res = await GET(req("Bearer cron-secret"));
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: "Drain unavailable" });
+  });
 });

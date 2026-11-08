@@ -12,11 +12,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- A failed `payment_evidence` write no longer leaves its just-uploaded screenshot in storage (unless an earlier screenshot row exists for that transaction, whose object the upload replaced).
+- A failed `payment_evidence` write no longer leaves its just-uploaded screenshot in storage. Each upload attempt now writes its own object (`vendor/transaction/uuid`), so concurrent uploads cannot delete each other's screenshot; older rows keep their `vendor/transaction` path and readers use the row's `storage_path`.
 
 ### Security
 
-- A payment screenshot is deleted from the `paykit-payment-proofs` bucket when its `payment_evidence` row is deleted, directly or by cascade from the transaction (X-26). Migration 0032 queues the path; `GET /api/cron/proof-storage-drain` (daily Vercel Cron, `CRON_SECRET` bearer) removes the objects.
+- A payment screenshot is deleted from the `paykit-payment-proofs` bucket when its `payment_evidence` row is deleted, directly or by cascade from the transaction (X-26). Migration 0032 queues the path; `GET /api/cron/proof-storage-drain` (daily Vercel Cron, `CRON_SECRET` bearer) removes the objects, skipping any path a live evidence row still uses; an update that changes `storage_path` queues the old object too.
 - `paykit.auth_failures.ip` is set to NULL after 30 days by `purge_auth_failure_ips()` (migration 0031, daily pg_cron job); the failure rows are kept (X-26).
 
 ## [0.5.2] - 2026-11-07

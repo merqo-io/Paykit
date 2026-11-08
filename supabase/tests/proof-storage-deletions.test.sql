@@ -47,7 +47,20 @@ update paykit.payment_evidence
  where transaction_id = '00320000-0000-0000-0000-000000000101';
 select is(
   (select count(*)::int from paykit.proof_storage_deletions), 0,
-  'replacing a screenshot (an update) queues nothing');
+  'an update that keeps the storage path queues nothing');
+
+update paykit.payment_evidence
+   set storage_path = '00320000-0000-0000-0000-00000000000a/00320000-0000-0000-0000-000000000101/new'
+ where transaction_id = '00320000-0000-0000-0000-000000000101';
+select results_eq(
+  $$ select path from paykit.proof_storage_deletions $$,
+  $$ values ('00320000-0000-0000-0000-00000000000a/00320000-0000-0000-0000-000000000101'::text) $$,
+  'an update that changes the storage path queues the old path');
+delete from paykit.proof_storage_deletions;
+update paykit.payment_evidence
+   set storage_path = '00320000-0000-0000-0000-00000000000a/00320000-0000-0000-0000-000000000101'
+ where transaction_id = '00320000-0000-0000-0000-000000000101';
+delete from paykit.proof_storage_deletions;
 
 delete from paykit.payment_evidence
  where transaction_id = '00320000-0000-0000-0000-000000000101';

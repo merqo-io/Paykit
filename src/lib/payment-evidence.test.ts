@@ -105,16 +105,20 @@ describe("hashProof and proofPath", () => {
     expect(hashProof(Buffer.from("abd"))).not.toBe(hash);
   });
 
-  it("puts the object in the vendor's folder, named by the transaction", () => {
-    expect(proofPath(TX)).toBe(PATH);
+  it("puts the object in the vendor's folder, under the transaction, with a unique name", () => {
+    const first = proofPath(TX);
+    expect(first.startsWith(`${PATH}/`)).toBe(true);
+    expect(proofPath(TX)).not.toBe(first);
   });
 });
 
 describe("storeScreenshotEvidence", () => {
   it("uploads the file, then writes one row keyed on the transaction and kind", async () => {
     expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(true);
-    expect(upload).toHaveBeenCalledWith(PATH, PROOF.bytes, {
-      upsert: true,
+    const uploaded = upload.mock.calls[0][0];
+    expect(uploaded.startsWith(`${PATH}/`)).toBe(true);
+    expect(upload).toHaveBeenCalledWith(uploaded, PROOF.bytes, {
+      upsert: false,
       contentType: "image/png",
     });
     expect(upsert).toHaveBeenCalledTimes(1);
@@ -122,7 +126,7 @@ describe("storeScreenshotEvidence", () => {
     expect(row).toMatchObject({
       transaction_id: TX.id,
       kind: "screenshot",
-      storage_path: PATH,
+      storage_path: uploaded,
       content_hash: hashProof(PROOF.bytes),
       detail: {},
     });
@@ -148,34 +152,33 @@ describe("storeScreenshotEvidence", () => {
     );
   });
 
-  it("removes the just-uploaded object when the row write fails and no earlier row existed", async () => {
-    evidenceRow.mockResolvedValue({ data: null, error: null });
+  it("removes the just-uploaded object when the row write fails", async () => {
     upsert.mockResolvedValue({ error: { message: "relation missing" } });
     expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(
       false,
     );
-    expect(remove).toHaveBeenCalledWith([PATH]);
+    const uploaded = upload.mock.calls[0][0];
+    expect(remove).toHaveBeenCalledWith([uploaded]);
   });
 
-  it("keeps the object when the row write fails but an earlier row existed", async () => {
-    upsert.mockResolvedValue({ error: { message: "relation missing" } });
-    expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(
-      false,
-    );
-    expect(remove).not.toHaveBeenCalled();
-  });
-
-  it("keeps the object when the earlier-row lookup fails", async () => {
-    evidenceRow.mockResolvedValue({ data: null, error: { message: "boom" } });
-    upsert.mockResolvedValue({ error: { message: "relation missing" } });
-    expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(
-      false,
-    );
-    expect(remove).not.toHaveBeenCalled();
+  it("uses a fresh object path per attempt, so a failed attempt never removes another attempt's screenshot", async () => {
+    // Attempt A's row write succeeds, attempt B's fails; B removes only B's object.
+    upsert
+      .mockResolvedValueOnce({ error: null })
+      .mockResolvedValueOnce({ error: { message: "relation missing" } });
+    const [a, b] = await Promise.all([
+      storeScreenshotEvidence(fakeSupabase(), TX, PROOF),
+      storeScreenshotEvidence(fakeSupabase(), TX, PROOF),
+    ]);
+    expect([a, b]).toEqual([true, false]);
+    const [pathA, pathB] = upload.mock.calls.map((call) => call[0]);
+    expect(pathA).not.toBe(pathB);
+    expect(remove).toHaveBeenCalledTimes(1);
+    expect(remove).toHaveBeenCalledWith([pathB]);
+    expect(remove).not.toHaveBeenCalledWith([pathA]);
   });
 
   it("still reports failure when the orphan cleanup fails", async () => {
-    evidenceRow.mockResolvedValue({ data: null, error: null });
     upsert.mockResolvedValue({ error: { message: "relation missing" } });
     remove.mockResolvedValue({ error: { message: "storage down" } });
     expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(
@@ -188,7 +191,6 @@ describe("storeScreenshotEvidence", () => {
   });
 
   it("does not remove anything when the row write succeeds", async () => {
-    evidenceRow.mockResolvedValue({ data: null, error: null });
     expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(true);
     expect(remove).not.toHaveBeenCalled();
   });
