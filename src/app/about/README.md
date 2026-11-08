@@ -24,3 +24,5 @@ Linked from `Nav` (`src/components/landing/nav.tsx`) and `Footer`
 ## Parent
 
 [app](../README.md)
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.

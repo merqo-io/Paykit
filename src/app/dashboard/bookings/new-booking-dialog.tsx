@@ -10,8 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+  Button,
+} from "@merqo/ui/primitives";
+
 import { createBookingAction, type BookingActionState } from "./actions";
 import { Field, MoneyField } from "./field";
 

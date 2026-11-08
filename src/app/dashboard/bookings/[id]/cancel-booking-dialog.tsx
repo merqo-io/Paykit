@@ -10,10 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+  Button,
+  Label,
+  Textarea,
+} from "@merqo/ui/primitives";
+
 import { cancelBookingAction } from "../actions";
 import { MoneyField } from "../field";
 import type { Transaction } from "@/lib/types";

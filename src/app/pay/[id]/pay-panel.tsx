@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import QRCode from "react-qr-code";
 import { Download, ImageUp } from "lucide-react";
 import { resizeToWebp } from "@merqo/ui";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@merqo/ui/primitives";
+
 import { useAsyncAction } from "@/hooks/use-async-action";
 import { cn, formatCents } from "@/lib/utils";
 import type { HostedPayment } from "@/lib/hosted-pay";

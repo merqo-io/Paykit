@@ -1,7 +1,8 @@
 "use client";
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button } from "@merqo/ui/primitives";
+
 import { recoverDepositCheckoutAction } from "../deposit-actions";
 import { toastText } from "../toast-text";
 

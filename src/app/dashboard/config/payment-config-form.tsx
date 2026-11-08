@@ -5,9 +5,8 @@ import { RadioOptionCard } from "./radio-option-card";
 import Image from "next/image";
 import QRCode from "react-qr-code";
 import { CheckCircle2, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button, Input, Label } from "@merqo/ui/primitives";
+
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   commitPendingImages,

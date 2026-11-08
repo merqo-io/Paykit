@@ -8,10 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+  Button,
+  Input,
+  Label,
+} from "@merqo/ui/primitives";
+
 import { issueRefundAction, type RefundState } from "./actions";
 
 export function RefundDialog({ transactionId }: { transactionId: string }) {

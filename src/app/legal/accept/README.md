@@ -44,3 +44,5 @@ folder's job is entirely to collect the vendor's consent and forward it.
 [legal](../README.md)
 
 The `next` form field is length-checked by Zod before `safeRedirectPath` runs.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.

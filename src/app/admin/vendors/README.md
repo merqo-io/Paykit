@@ -33,3 +33,5 @@ status, plan (read-only, from the entitlement cache), and transaction count.
 [admin](../README.md)
 
 Page chrome here (PageHeader and EmptyState) comes from `@merqo/ui`; paykit keeps no local copy.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.

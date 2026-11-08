@@ -46,3 +46,5 @@ amount check as the claim endpoint.
 [pay](../README.md)
 
 `claimHostedPayment` and `getHostedPaymentStatus` parse the id and token with `hostedPayRefSchema` before any read.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.

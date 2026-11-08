@@ -2,11 +2,8 @@
 
 import { useActionState } from "react";
 import { DataCollectionNotice } from "@merqo/ui";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Button, Checkbox, Input, Label, Textarea } from "@merqo/ui/primitives";
+
 import { submitInquiryAction, type InquiryActionState } from "./actions";
 
 export type InquiryFormProps = {

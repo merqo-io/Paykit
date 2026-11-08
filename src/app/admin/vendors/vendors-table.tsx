@@ -2,7 +2,8 @@
 
 import { DataTable, type DataTableColumn } from "@merqo/ui";
 import { type VendorRow } from "@/lib/admin-data";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@merqo/ui/primitives";
+
 import { VendorStatusBadge } from "@/app/admin/vendors/vendor-status";
 
 // `columns` holds `cell` render callbacks and `getRowKey` is a function, so

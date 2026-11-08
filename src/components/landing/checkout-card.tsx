@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@merqo/ui/primitives";
 
 /** Decorative checkout stand-in for the hero, not a scannable QR. */
 export function CheckoutCard() {
