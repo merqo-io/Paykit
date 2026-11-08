@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+
+- `paykit.auth_failures.ip` is set to NULL after 30 days by `purge_auth_failure_ips()` (migration 0031, daily pg_cron job); the failure rows are kept (X-26).
+
 ## [0.5.2] - 2026-11-07
 
 ### Changed

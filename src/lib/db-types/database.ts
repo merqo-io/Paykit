@@ -393,6 +393,10 @@ export interface Database {
         Args: Record<string, never>;
         Returns: undefined;
       };
+      purge_auth_failure_ips: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
     };
   };
 }
