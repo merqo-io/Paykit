@@ -19,5 +19,5 @@ Source: `supabase/migrations/0001` to `0025` on `origin/main`. Nothing is droppe
 
 ## Proposed drop list (owner approval needed)
 
-1. `paykit.auth_failures.ip`: needed only for short-term throttling. Null it (or purge rows) after 30 days, as part of X-26 rather than dropping the column.
+1. `paykit.auth_failures.ip`: needed only for short-term throttling. Null it (or purge rows) after 30 days, as part of X-26 rather than dropping the column. Done: migration 0031 nulls the IP after 30 days and keeps the row.
 2. `paykit.payment_evidence.storage_path` and the stored images once a transaction is confirmed and past the dispute window: a purge, not a column drop (X-26).
