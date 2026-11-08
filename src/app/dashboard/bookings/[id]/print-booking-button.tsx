@@ -1,7 +1,7 @@
 "use client";
 
 import { Printer } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@merqo/ui/primitives";
 
 export function PrintBookingButton() {
   return (

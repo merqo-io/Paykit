@@ -8,6 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Replaced the local badge, button, checkbox, dialog, input, label, textarea and tooltip primitives with `@merqo/ui/primitives`. Buttons and inputs grow to 44px on touch screens, and the tooltip uses the shared popover look. Only radio-group and skeleton stay local.
 - Re-pinned `@merqo/ui` to v0.44.0 (commit 250a4edd): new legal text (`LEGAL_VERSIONS` 2026-11-08), so vendors re-accept the terms.
 
 ### Security

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge, Button } from "@merqo/ui/primitives";
+
 import { CheckoutCard } from "./checkout-card";
 import { WAITLIST_URL } from "./waitlist";
 

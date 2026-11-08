@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@merqo/ui/primitives";
+
 import { WAITLIST_URL } from "./waitlist";
 
 /** Inverted button colors keep it legible on the always-dark ink band in both themes. */

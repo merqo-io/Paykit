@@ -1,7 +1,5 @@
 import type { ComponentProps, ReactNode } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { Input, Label, cn } from "@merqo/ui/primitives";
 
 /** Shared look for every bookings form input: tall, rounded, no shadow. */
 export const FIELD_INPUT_CLASS = "h-11 rounded-xl shadow-none";

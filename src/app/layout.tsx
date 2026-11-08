@@ -3,7 +3,8 @@ import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { THEME_PROVIDER_PROPS } from "@/lib/theme-props";
 import { Toaster } from "sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@merqo/ui/primitives";
+
 import "./globals.css";
 
 // Display: family-wide shared face (see docs/business/2026-08-13-typography-family-standard.md).

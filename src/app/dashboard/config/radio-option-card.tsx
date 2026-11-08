@@ -1,6 +1,7 @@
 "use client";
 import { RadioGroupItem } from "@/components/ui/radio-group";
-import { cn } from "@/lib/utils";
+import { cn } from "@merqo/ui/primitives";
+
 export function RadioOptionCard({
   value,
   label,

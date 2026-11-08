@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@merqo/ui/primitives";
+
 import { ElevatedCard } from "@merqo/ui";
 import { Wordmark } from "@/components/landing/wordmark";
 

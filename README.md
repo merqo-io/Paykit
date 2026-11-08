@@ -366,6 +366,10 @@ Retention: migration 0031 nulls `auth_failures.ip` after 30 days through a daily
 
 Every foreign key column is indexed (migration `0027`, applied by hand), which the Supabase advisor checks. `supabase/tests/db-hygiene.test.sql` guards the indexes and RLS on every table.
 
+## UI primitives
+
+Badge, button, checkbox, dialog, input, label, textarea, tooltip and `cn` come from `@merqo/ui/primitives`. Only `radio-group` and `skeleton` live in `src/components/ui/`, because the shared package has no equivalent.
+
 ## Lint
 
 `eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-icon.tsx` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`. The mutation gate skips type-only `src/lib/db-types/`.

@@ -11,10 +11,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+  Button,
+  Checkbox,
+  Label,
+} from "@merqo/ui/primitives";
+
 import { Field } from "./field";
 import {
   saveInquiryFormAction,

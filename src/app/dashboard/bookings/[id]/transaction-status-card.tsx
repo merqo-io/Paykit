@@ -1,6 +1,7 @@
 import { checkoutKind } from "@/lib/checkout-kind";
 import Image from "next/image";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@merqo/ui/primitives";
+
 import { cn, formatCents } from "@/lib/utils";
 import type { Transaction, TxStatus } from "@/lib/types";
 
