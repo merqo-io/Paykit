@@ -75,4 +75,6 @@ Focused pgTAP suites: `deposit-recovery.test.sql` validates atomic deposit linki
 
 `booking-inquiries.test.sql` covers migration `0025`: RLS on `inquiry_forms` and `inquiries`; a form gets a random 16-hex public id the vendor cannot choose; a terms snapshot needs url, version and time together; a vendor reads only their own inquiries and form, cannot insert an inquiry or set `booking_id`, can change status, cannot delete or create another vendor's rows; anon has no access.
 
+`proof-storage-deletions.test.sql` covers migration `0032`: the queue has RLS and no policies; the trigger function is security definer with an empty `search_path`; an update that keeps the storage path queues nothing and one that changes it queues the old path; a direct `payment_evidence` delete and a cascade from deleting the transaction each queue the object path; `anon` and `authenticated` cannot read or write the queue; `service_role` can.
+
 `retention-purges.test.sql` covers migration `0031`: `purge_auth_failure_ips` is security definer with an empty `search_path`; a 31-day-old row loses its ip but keeps `kit_slug`, `reason` and `created_at`; a 29-day-old row keeps its ip; already-null rows are not counted; `anon` and `authenticated` cannot run it; `service_role` can and still has no UPDATE privilege.

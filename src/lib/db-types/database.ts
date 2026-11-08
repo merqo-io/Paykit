@@ -1,4 +1,10 @@
-import type { Admin, AdminAudit, AuthFailure, OpsEvent } from "./admin";
+import type {
+  Admin,
+  AdminAudit,
+  AuthFailure,
+  OpsEvent,
+  ProofStorageDeletion,
+} from "./admin";
 import type {
   Booking,
   BookingStatus,
@@ -317,6 +323,22 @@ export interface Database {
         };
         Update: {
           reason?: string;
+        };
+        Relationships: [];
+      };
+      proof_storage_deletions: {
+        Row: ProofStorageDeletion;
+        Insert: {
+          id?: number;
+          bucket: string;
+          path: string;
+          queued_at?: string;
+          attempts?: number;
+          last_error?: string | null;
+        };
+        Update: {
+          attempts?: number;
+          last_error?: string | null;
         };
         Relationships: [];
       };

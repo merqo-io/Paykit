@@ -22,6 +22,7 @@ type Result = { data: unknown; error: { message: string } | null };
 
 const upload = vi.fn();
 const createSignedUrl = vi.fn();
+const remove = vi.fn();
 const upsert = vi.fn();
 const evidenceRow = vi.fn<() => Promise<Result>>();
 const duplicateRows = vi.fn<() => Promise<Result>>();
@@ -65,7 +66,7 @@ function builder(table: string) {
 function fakeSupabase() {
   return {
     from: (table: string) => builder(table),
-    storage: { from: () => ({ upload, createSignedUrl }) },
+    storage: { from: () => ({ upload, createSignedUrl, remove }) },
   } as unknown as Parameters<typeof storeScreenshotEvidence>[0];
 }
 
@@ -80,6 +81,7 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
   upload.mockReset().mockResolvedValue({ error: null });
   upsert.mockReset().mockResolvedValue({ error: null });
+  remove.mockReset().mockResolvedValue({ error: null });
   createSignedUrl.mockReset().mockResolvedValue({
     data: { signedUrl: "https://storage.example/signed" },
     error: null,
@@ -103,16 +105,20 @@ describe("hashProof and proofPath", () => {
     expect(hashProof(Buffer.from("abd"))).not.toBe(hash);
   });
 
-  it("puts the object in the vendor's folder, named by the transaction", () => {
-    expect(proofPath(TX)).toBe(PATH);
+  it("puts the object in the vendor's folder, under the transaction, with a unique name", () => {
+    const first = proofPath(TX);
+    expect(first.startsWith(`${PATH}/`)).toBe(true);
+    expect(proofPath(TX)).not.toBe(first);
   });
 });
 
 describe("storeScreenshotEvidence", () => {
   it("uploads the file, then writes one row keyed on the transaction and kind", async () => {
     expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(true);
-    expect(upload).toHaveBeenCalledWith(PATH, PROOF.bytes, {
-      upsert: true,
+    const uploaded = upload.mock.calls[0][0];
+    expect(uploaded.startsWith(`${PATH}/`)).toBe(true);
+    expect(upload).toHaveBeenCalledWith(uploaded, PROOF.bytes, {
+      upsert: false,
       contentType: "image/png",
     });
     expect(upsert).toHaveBeenCalledTimes(1);
@@ -120,7 +126,7 @@ describe("storeScreenshotEvidence", () => {
     expect(row).toMatchObject({
       transaction_id: TX.id,
       kind: "screenshot",
-      storage_path: PATH,
+      storage_path: uploaded,
       content_hash: hashProof(PROOF.bytes),
       detail: {},
     });
@@ -144,6 +150,49 @@ describe("storeScreenshotEvidence", () => {
     expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(
       false,
     );
+  });
+
+  it("removes the just-uploaded object when the row write fails", async () => {
+    upsert.mockResolvedValue({ error: { message: "relation missing" } });
+    expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(
+      false,
+    );
+    const uploaded = upload.mock.calls[0][0];
+    expect(remove).toHaveBeenCalledWith([uploaded]);
+  });
+
+  it("uses a fresh object path per attempt, so a failed attempt never removes another attempt's screenshot", async () => {
+    // Attempt A's row write succeeds, attempt B's fails; B removes only B's object.
+    upsert
+      .mockResolvedValueOnce({ error: null })
+      .mockResolvedValueOnce({ error: { message: "relation missing" } });
+    const [a, b] = await Promise.all([
+      storeScreenshotEvidence(fakeSupabase(), TX, PROOF),
+      storeScreenshotEvidence(fakeSupabase(), TX, PROOF),
+    ]);
+    expect([a, b]).toEqual([true, false]);
+    const [pathA, pathB] = upload.mock.calls.map((call) => call[0]);
+    expect(pathA).not.toBe(pathB);
+    expect(remove).toHaveBeenCalledTimes(1);
+    expect(remove).toHaveBeenCalledWith([pathB]);
+    expect(remove).not.toHaveBeenCalledWith([pathA]);
+  });
+
+  it("still reports failure when the orphan cleanup fails", async () => {
+    upsert.mockResolvedValue({ error: { message: "relation missing" } });
+    remove.mockResolvedValue({ error: { message: "storage down" } });
+    expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(
+      false,
+    );
+    expect(console.error).toHaveBeenCalledWith(
+      "payment_evidence: orphan cleanup failed",
+      "storage down",
+    );
+  });
+
+  it("does not remove anything when the row write succeeds", async () => {
+    expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(true);
+    expect(remove).not.toHaveBeenCalled();
   });
 
   it("reports failure instead of throwing when storage throws", async () => {
