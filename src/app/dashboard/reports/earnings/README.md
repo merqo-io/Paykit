@@ -76,3 +76,5 @@ These wrappers retain local callback ownership and historical fix provenance;
 the package no longer applies a blanket client banner.
 
 Page chrome here (EmptyState) comes from `@merqo/ui`; paykit keeps no local copy.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.

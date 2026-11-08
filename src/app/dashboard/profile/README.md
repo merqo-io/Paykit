@@ -37,3 +37,5 @@ behavior.
 The Links group is described by its inline error (`aria-describedby`); `SocialLinksFields` inputs are owned by `@merqo/ui`, so the error is tied to the group rather than each input.
 
 Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.

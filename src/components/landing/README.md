@@ -66,3 +66,5 @@ dashboard and `/about` use it too. `wordmark.tsx` is also used by
 ## Parent
 
 [components](../README.md)
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.

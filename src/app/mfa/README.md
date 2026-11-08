@@ -20,3 +20,5 @@ password alone.
 ## Connectivity
 
 Needs TOTP enrolment and verification enabled in Supabase Auth.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.

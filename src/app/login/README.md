@@ -58,3 +58,5 @@ Google branding uses `GoogleMark` from `@merqo/ui`; no local copy remains.
 [paykit](../../../README.md)
 
 `layout.tsx` also forces per-request rendering so the nonce CSP from `proxy.ts` reaches this page's scripts.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
