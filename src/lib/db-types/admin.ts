@@ -22,6 +22,16 @@ export type AuthFailure = {
   created_at: string;
 };
 
+/** A payment screenshot object waiting to be removed from Storage (migration 0032). */
+export type ProofStorageDeletion = {
+  id: number;
+  bucket: string;
+  path: string;
+  queued_at: string;
+  attempts: number;
+  last_error: string | null;
+};
+
 /** A failure paykit wrote for Merqo's ops view (migration 0026). */
 export type OpsEvent = {
   id: number;

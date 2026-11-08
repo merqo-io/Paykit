@@ -26,7 +26,7 @@ per-vendor entitlement push.
 
 `metrics/`, `vendor-status/`, and `vendor-activity/` each expose a single
 GET `route.ts` and share the same constant-time bearer-token check —
-`bearerOk(request)` (`@/lib/merqo-auth`) — against `MERQO_METRICS_SECRET`.
+`bearerOk(request)` (`@/lib/merqo-auth`; the sibling `src/app/api/cron/` route uses `cronBearerOk` instead) — against `MERQO_METRICS_SECRET`.
 `vendor-provision/` instead uses `provisionBearerOk(request)` (a thin
 `bearerOk` wrapper pinned to `MERQO_PROVISION_SECRET`, same file) — it can
 trigger a real audit-logged action, so it's deliberately not gated by the

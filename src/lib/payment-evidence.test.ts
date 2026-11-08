@@ -22,6 +22,7 @@ type Result = { data: unknown; error: { message: string } | null };
 
 const upload = vi.fn();
 const createSignedUrl = vi.fn();
+const remove = vi.fn();
 const upsert = vi.fn();
 const evidenceRow = vi.fn<() => Promise<Result>>();
 const duplicateRows = vi.fn<() => Promise<Result>>();
@@ -65,7 +66,7 @@ function builder(table: string) {
 function fakeSupabase() {
   return {
     from: (table: string) => builder(table),
-    storage: { from: () => ({ upload, createSignedUrl }) },
+    storage: { from: () => ({ upload, createSignedUrl, remove }) },
   } as unknown as Parameters<typeof storeScreenshotEvidence>[0];
 }
 
@@ -80,6 +81,7 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
   upload.mockReset().mockResolvedValue({ error: null });
   upsert.mockReset().mockResolvedValue({ error: null });
+  remove.mockReset().mockResolvedValue({ error: null });
   createSignedUrl.mockReset().mockResolvedValue({
     data: { signedUrl: "https://storage.example/signed" },
     error: null,
@@ -144,6 +146,51 @@ describe("storeScreenshotEvidence", () => {
     expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(
       false,
     );
+  });
+
+  it("removes the just-uploaded object when the row write fails and no earlier row existed", async () => {
+    evidenceRow.mockResolvedValue({ data: null, error: null });
+    upsert.mockResolvedValue({ error: { message: "relation missing" } });
+    expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(
+      false,
+    );
+    expect(remove).toHaveBeenCalledWith([PATH]);
+  });
+
+  it("keeps the object when the row write fails but an earlier row existed", async () => {
+    upsert.mockResolvedValue({ error: { message: "relation missing" } });
+    expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(
+      false,
+    );
+    expect(remove).not.toHaveBeenCalled();
+  });
+
+  it("keeps the object when the earlier-row lookup fails", async () => {
+    evidenceRow.mockResolvedValue({ data: null, error: { message: "boom" } });
+    upsert.mockResolvedValue({ error: { message: "relation missing" } });
+    expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(
+      false,
+    );
+    expect(remove).not.toHaveBeenCalled();
+  });
+
+  it("still reports failure when the orphan cleanup fails", async () => {
+    evidenceRow.mockResolvedValue({ data: null, error: null });
+    upsert.mockResolvedValue({ error: { message: "relation missing" } });
+    remove.mockResolvedValue({ error: { message: "storage down" } });
+    expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(
+      false,
+    );
+    expect(console.error).toHaveBeenCalledWith(
+      "payment_evidence: orphan cleanup failed",
+      "storage down",
+    );
+  });
+
+  it("does not remove anything when the row write succeeds", async () => {
+    evidenceRow.mockResolvedValue({ data: null, error: null });
+    expect(await storeScreenshotEvidence(fakeSupabase(), TX, PROOF)).toBe(true);
+    expect(remove).not.toHaveBeenCalled();
   });
 
   it("reports failure instead of throwing when storage throws", async () => {

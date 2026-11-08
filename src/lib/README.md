@@ -40,10 +40,17 @@ provide authorization.
   is not multipart, and a 400 or 413 for a bad one. `readProofFile(file)`
   applies the same checks to a file already in hand (the pay page's server
   action). No database access.
+- `proof-storage-cleanup.ts` — `drainProofDeletions(supabase, limit)` removes
+  the Storage objects queued in `proof_storage_deletions` (filled by a trigger
+  on `payment_evidence` deletes, migration 0032), clears the rows that
+  succeeded and counts an attempt on the rest (capped at 5). Never throws;
+  returns `{ removed, failed }`. Called by `/api/cron/proof-storage-drain`.
+- `merqo-auth.ts` also exports `cronBearerOk` (constant-time `CRON_SECRET` check).
 - `payment-evidence.ts` — `storeScreenshotEvidence(supabase, tx, proof)`
   uploads to `{vendor_id}/{transaction_id}` and upserts the transaction's
   one `payment_evidence` row; it returns false on any failure and the claim
-  route then refuses the claim. `loadCheckoutEvidence(supabase, tx)` builds
+  route then refuses the claim. When the row write fails and no earlier row
+  existed, it also removes the object it just uploaded. `loadCheckoutEvidence(supabase, tx)` builds
   the evidence response: a 300-second signed link, the oldest other
   transaction of the same vendor with the same hash, and `amount_match`
   from the row's `detail` (null until something writes it).

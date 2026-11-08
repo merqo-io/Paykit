@@ -10,8 +10,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Re-pinned `@merqo/ui` to v0.44.0 (commit 250a4edd): new legal text (`LEGAL_VERSIONS` 2026-11-08), so vendors re-accept the terms.
 
+### Fixed
+
+- A failed `payment_evidence` write no longer leaves its just-uploaded screenshot in storage (unless an earlier screenshot row exists for that transaction, whose object the upload replaced).
+
 ### Security
 
+- A payment screenshot is deleted from the `paykit-payment-proofs` bucket when its `payment_evidence` row is deleted, directly or by cascade from the transaction (X-26). Migration 0032 queues the path; `GET /api/cron/proof-storage-drain` (daily Vercel Cron, `CRON_SECRET` bearer) removes the objects.
 - `paykit.auth_failures.ip` is set to NULL after 30 days by `purge_auth_failure_ips()` (migration 0031, daily pg_cron job); the failure rows are kept (X-26).
 
 ## [0.5.2] - 2026-11-07

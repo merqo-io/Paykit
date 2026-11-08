@@ -9,4 +9,4 @@ Hand-maintained TypeScript mirror of `supabase/migrations`, split by domain so e
 - `vendor.ts`: social links, plan, verification method, payment config, prefs, entitlement and legal-check types.
 - `payments.ts`: transaction, refund, feedback, payment audit and payment evidence types.
 - `bookings.ts`: booking and inquiry types.
-- `admin.ts`: admin, admin audit, auth failure and ops event types.
+- `admin.ts`: admin, admin audit, auth failure, ops event and proof storage deletion types.

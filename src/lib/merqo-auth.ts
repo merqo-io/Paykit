@@ -18,6 +18,11 @@ export function bearerOk(request: Request): boolean {
   return bearerMatches(request, process.env.MERQO_METRICS_SECRET);
 }
 
+/** Constant-time bearer check against CRON_SECRET, the token Vercel Cron sends. */
+export function cronBearerOk(request: Request): boolean {
+  return bearerMatches(request, process.env.CRON_SECRET);
+}
+
 /** Constant-time bearer check against MERQO_PROVISION_SECRET — deliberately a
  *  DIFFERENT env var from bearerOk's MERQO_METRICS_SECRET, matching qkit/
  *  loopkit's convention: a leak of the routine metrics-polling secret must

@@ -46,6 +46,18 @@ export async function storeScreenshotEvidence(
 ): Promise<boolean> {
   const path = proofPath(tx);
   try {
+    // The upload overwrites the object at this path. If an evidence row already
+    // exists, that object is the previous screenshot and must survive a failed
+    // row write, so cleanup is only safe when there was no earlier row. A
+    // failed lookup counts as "exists": leaking an object beats deleting proof.
+    const { data: earlier, error: earlierError } = await supabase
+      .from("payment_evidence")
+      .select("id")
+      .eq("transaction_id", tx.id)
+      .eq("kind", "screenshot")
+      .maybeSingle();
+    const hadEarlierRow = Boolean(earlier) || Boolean(earlierError);
+
     const { error: uploadError } = await supabase.storage
       .from(PROOF_BUCKET)
       .upload(path, proof.bytes, {
@@ -70,12 +82,25 @@ export async function storeScreenshotEvidence(
     );
     if (error) {
       console.error("payment_evidence: row write failed", error.message);
+      if (!hadEarlierRow) await removeOrphanedUpload(supabase, path);
       return false;
     }
     return true;
   } catch {
     console.error("payment_evidence: storage unavailable");
     return false;
+  }
+}
+
+// Best effort: a failed removal leaves one orphaned object, which is not worth
+// failing the caller's request over.
+async function removeOrphanedUpload(
+  supabase: ServiceClient,
+  path: string,
+): Promise<void> {
+  const { error } = await supabase.storage.from(PROOF_BUCKET).remove([path]);
+  if (error) {
+    console.error("payment_evidence: orphan cleanup failed", error.message);
   }
 }
 
