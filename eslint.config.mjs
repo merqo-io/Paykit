@@ -55,11 +55,6 @@ const eslintConfig = [
     tsPlugin,
   }),
   {
-    // Over the size limit until Task K5 (split long files) shrinks them.
-    files: ["src/lib/types.ts"],
-    rules: { "max-lines": "off" },
-  },
-  {
     // The service client bypasses RLS: keep it in lib helpers and bearer-gated
     // route handlers. A Server Action that needs it states why on the import.
     files: ["src/**/*.{ts,tsx}"],

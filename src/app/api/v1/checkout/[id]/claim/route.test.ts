@@ -475,3 +475,34 @@ describe("kit scoping", () => {
     expect(kitFilters.every(([, val]) => val === "qkit")).toBe(true);
   });
 });
+
+describe("characterisation: zero-row update", () => {
+  const zeroRows = { data: null, error: null };
+
+  it("zero rows updated, row now claimed: returns it without audit", async () => {
+    readMaybeSingle
+      .mockResolvedValueOnce({ data: ROW, error: null })
+      .mockResolvedValueOnce({
+        data: { ...ROW, status: "claimed", claimed_at: "2026-07-15T00:01:00Z" },
+        error: null,
+      });
+    updateSingle.mockResolvedValue(zeroRows);
+    const res = await POST(req(), ctx());
+    expect(res.status).toBe(200);
+    expect((await res.json()).status).toBe("claimed");
+    expect(auditInsert).not.toHaveBeenCalled();
+  });
+
+  it("zero rows updated, row gone: 404", async () => {
+    readMaybeSingle
+      .mockResolvedValueOnce({ data: ROW, error: null })
+      .mockResolvedValueOnce({ data: null, error: null });
+    updateSingle.mockResolvedValue(zeroRows);
+    expect((await POST(req(), ctx())).status).toBe(404);
+  });
+
+  it("zero rows updated, row unchanged: 503", async () => {
+    updateSingle.mockResolvedValue(zeroRows);
+    expect((await POST(req(), ctx())).status).toBe(503);
+  });
+});

@@ -117,6 +117,30 @@ describe("acceptLegalTerms", () => {
     );
   });
 
+  it.each([
+    ["throws", () => upsertMock.mockRejectedValue(new Error("down"))],
+    [
+      "returns an error",
+      () => upsertMock.mockResolvedValue({ error: { message: "x" } }),
+    ],
+  ])(
+    "still redirects when the cache write %s after merqo recorded acceptance",
+    async (_label, arrange) => {
+      getUserMock.mockResolvedValue({
+        data: { user: { id: "u1", email: "vendor@business.sg" } },
+      });
+      global.fetch = okFetch() as never;
+      arrange();
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      await acceptLegalTerms(formData("/dashboard"));
+
+      expect(redirectMock).toHaveBeenCalledWith("/dashboard");
+      expect(errorSpy).toHaveBeenCalled();
+      errorSpy.mockRestore();
+    },
+  );
+
   it("redirects to /dashboard when no next param is given", async () => {
     getUserMock.mockResolvedValue({
       data: { user: { id: "u1", email: "vendor@business.sg" } },

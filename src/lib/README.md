@@ -7,8 +7,10 @@ provide authorization.
 ## Contracts
 
 - `schemas.ts` validates dashboard forms and actions; `api-schemas.ts` validates
-  the peer-kit API. Monetary values are integer cents. `types.ts` mirrors the
-  migration schema and RPC signatures.
+  the peer-kit API. Monetary values are integer cents. `types.ts` is a type-only barrel over `db-types/`, which mirrors the
+  migration schema and RPC signatures: `database.ts` holds the `Database`
+  interface, and `vendor.ts`, `payments.ts`, `bookings.ts`, `admin.ts` and
+  `json.ts` hold the row types and aliases it uses.
 - `checkout.ts` creates and renders a transaction through `payments/provider.ts`.
   A replay of the same kit and order reference must match the vendor, amount,
   checkout kind and payload; a conflicting replay fails. A new checkout
@@ -146,6 +148,7 @@ provide authorization.
 - `payment-audit.ts` appends real checkout transitions (`recordPaymentAudit(supabase, { transactionId, kitSlug, action, detail })`); idempotent no-ops add no
   transition row. `admin-audit.ts` records administrative and vendor operations
   without exposing its helper as a remotely callable Server Action.
+- `payment-transition.ts` - `runTransition(request, params, spec)`: the pipeline shared by the claim, unclaim and confirm routes (kit auth, per-action rate limit, id check, optional body read, kit-scoped row read), then the spec's `apply`. `conditionalTransition` builds the `apply` for unclaim and confirm: a guarded update, a recheck when it matches no row, then audit and callback.
 
 ## Reads and reports
 
@@ -184,7 +187,8 @@ mocked tests do not verify its database locking.
 
 `vendor-session.ts` establishes the vendor session and current legal acceptance.
 `admin.ts` establishes team authorization. `legal-gate.ts` validates Merqo's
-legal-status response and caches it briefly; lookup failures fail closed.
+legal-status response and caches it briefly; lookup failures fail closed, but a
+cache write failure is logged and ignored.
 Sheet feedback/support actions use an inline session check to return an error
 instead of redirecting an open dialog.
 

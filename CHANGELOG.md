@@ -8,6 +8,27 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Re-pinned `@merqo/ui` to v0.44.0 (commit 250a4edd): new legal text (`LEGAL_VERSIONS` 2026-11-08), so vendors re-accept the terms.
+
+### Security
+
+- `paykit.auth_failures.ip` is set to NULL after 30 days by `purge_auth_failure_ips()` (migration 0031, daily pg_cron job); the failure rows are kept (X-26).
+
+## [0.5.2] - 2026-11-07
+
+### Changed
+
+- Claim, unclaim and confirm share one typed handler, `runTransition` in `src/lib/payment-transition.ts`; responses are unchanged.
+
+### Fixed
+
+- A failed write to the legal acceptance cache no longer gates a vendor who has accepted the current terms; the failure is logged and the real result is returned. The accept action likewise no longer fails after merqo records acceptance when its cache write fails.
+
+## [0.5.1] - 2026-11-07
+
+### Changed
+
+- Database types split from one 570-line file into `src/lib/db-types/` by domain, with `src/lib/types.ts` kept as a type-only barrel; no type shapes changed.
 - `@merqo/ui` moved to v0.42.1 (commit 53ec5baa47e29e4d7acc23180cba63aa9539d5af). Page header, empty state, stat card and plan chip now come from the shared package; the local `PageHeader`, `EmptyState`, `Stat` and navigation `TierBadge` are deleted. Page titles lose `tracking-tight`, stat tiles gain the shared card shadow, and the Pro plan chip uses the shared tint instead of mint.
 - Bookings forms and dialogs restyled to the qkit baseline: booking and inquiry detail pages use the shared page header, dialogs share one title, description and footer layout, money fields are labelled S$ decimal inputs with inline errors, free vendors see a refund-tracking hint, and copy drops "checkout" and "Terms version" jargon. Error messages read "Could not ... Try again." and toasts have no trailing period.
 - Payment setup page uses the shared page header; payment method and payee ID type radios sit in labelled fieldsets with accessible names matching their visible text, and the save confirmation is a status message with an icon. The return link now reads "Go back".

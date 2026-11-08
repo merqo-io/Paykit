@@ -24,7 +24,7 @@ in the workspace root for why. Brand theme is "Banknote Engrave"
 of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-icon.tsx`'s
 ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
-The public landing is in pre-launch mode, headlined "One payment setup for every kit.": an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to merqo-ui commit 53ec5baa (v0.42.1), whose `PricingLadder` the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices).
+The public landing is in pre-launch mode, headlined "One payment setup for every kit.": an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to merqo-ui commit 250a4edd (v0.44.0), whose `PricingLadder` the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices).
 
 The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amount (the vendor's payee name, falling back to their inquiry-form business name), reports claim and upload failures inline instead of in toasts, and shows a plain retry notice when the payment cannot be loaded.
 
@@ -102,7 +102,7 @@ transaction for an order with `GET /api/v1/checkout?order_ref=`, a read-only
 lookup that returns the status, the owning `vendor_id` and the stored checkout
 view. A checkout may carry `expires_at`, the time the calling kit gives up on
 the order (migration `0023`, applied by hand); it is stored and returned, and
-nothing acts on it yet. After a claim, unclaim or confirm commits, paykit posts a payment-status
+nothing acts on it yet. The claim, unclaim and confirm routes share one pipeline (`runTransition` in `src/lib/payment-transition.ts`: auth, rate limit, id check, kit-scoped read). After a claim, unclaim or confirm commits, paykit posts a payment-status
 callback to the owning kit's `kit_api_keys.callback_url`, when one is set
 (`src/lib/kit-callback.ts`). It is a hint that the transaction changed, sent
 after the response and never awaited; the kit reads the status back with the
@@ -161,7 +161,9 @@ subtle at a glance, and security bumps of `next` to `16.3.4`,
 `getVendorSession` (`@/lib/vendor-session`) — paykit's single vendor-gate
 entry point — also redirects a signed-in vendor with a stale terms/privacy
 acceptance to `/legal/accept` before any dashboard page renders. paykit
-owns no acceptance record itself; merqo does (`src/app/legal/README.md`,
+owns no acceptance record itself; merqo does. Legal-gate cache write
+failures are logged and ignored, so they never gate an accepted vendor
+(`src/app/legal/README.md`,
 `@merqo/ui` bumped to v0.25.0). `TermsAcceptanceCheckbox` no longer
 collects a typed legal name — just the agree checkbox — since a plain
 ToS/Privacy clickwrap doesn't need a signatory name for evidentiary
@@ -358,13 +360,15 @@ An event vendor can take inquiries before there is a booking. On Bookings they s
 
 `src/proxy.ts` sets the CSP (nonce on per-request routes) and `X-Robots-Tag` off production. The admin area requires TOTP MFA; see `src/app/mfa/README.md` and `docs/security/`.
 
+Retention: migration 0031 nulls `auth_failures.ip` after 30 days through a daily `pg_cron` job (`purge_auth_failure_ips()`); the failure rows themselves are kept.
+
 ## Database indexes
 
 Every foreign key column is indexed (migration `0027`, applied by hand), which the Supabase advisor checks. `supabase/tests/db-hygiene.test.sql` guards the indexes and RLS on every table.
 
 ## Lint
 
-`eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-icon.tsx` and `src/app/global-error.tsx`; `src/lib/types.ts` is the one `max-lines` exception until the split-long-files task.
+`eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-icon.tsx` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`. The mutation gate skips type-only `src/lib/db-types/`.
 
 The `/admin` pages share the dashboard's `PageHeader` and `EmptyState`, with
 section tabs that mark the current page via `aria-current`
