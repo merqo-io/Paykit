@@ -360,6 +360,8 @@ An event vendor can take inquiries before there is a booking. On Bookings they s
 
 `src/proxy.ts` sets the CSP (nonce on per-request routes) and `X-Robots-Tag` off production. The admin area requires TOTP MFA; see `src/app/mfa/README.md` and `docs/security/`.
 
+Retention: migration 0031 nulls `auth_failures.ip` after 30 days through a daily `pg_cron` job (`purge_auth_failure_ips()`); the failure rows themselves are kept.
+
 ## Database indexes
 
 Every foreign key column is indexed (migration `0027`, applied by hand), which the Supabase advisor checks. `supabase/tests/db-hygiene.test.sql` guards the indexes and RLS on every table.
