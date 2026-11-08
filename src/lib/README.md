@@ -42,15 +42,17 @@ provide authorization.
   action). No database access.
 - `proof-storage-cleanup.ts` — `drainProofDeletions(supabase, limit)` removes
   the Storage objects queued in `proof_storage_deletions` (filled by a trigger
-  on `payment_evidence` deletes, migration 0032), clears the rows that
+  on `payment_evidence` deletes, migration 0032), skips and clears queue rows whose path a live
+  evidence row still uses, clears the rows that
   succeeded and counts an attempt on the rest (capped at 5). Never throws;
   returns `{ removed, failed }`. Called by `/api/cron/proof-storage-drain`.
 - `merqo-auth.ts` also exports `cronBearerOk` (constant-time `CRON_SECRET` check).
 - `payment-evidence.ts` — `storeScreenshotEvidence(supabase, tx, proof)`
-  uploads to `{vendor_id}/{transaction_id}` and upserts the transaction's
+  uploads to a fresh `{vendor_id}/{transaction_id}/{uuid}` object per attempt
+  (readers use the row's `storage_path`; older rows keep the two-part path) and upserts the transaction's
   one `payment_evidence` row; it returns false on any failure and the claim
-  route then refuses the claim. When the row write fails and no earlier row
-  existed, it also removes the object it just uploaded. `loadCheckoutEvidence(supabase, tx)` builds
+  route then refuses the claim. When the row write fails, it removes the object it just uploaded;
+  a replaced screenshot's old object is queued by the trigger. `loadCheckoutEvidence(supabase, tx)` builds
   the evidence response: a 300-second signed link, the oldest other
   transaction of the same vendor with the same hash, and `amount_match`
   from the row's `detail` (null until something writes it).

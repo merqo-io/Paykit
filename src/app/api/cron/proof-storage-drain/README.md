@@ -12,3 +12,5 @@
 ## Parent
 
 See the repo root [README.md](../../../../../README.md) for the full layout.
+
+Queued paths that a live `payment_evidence` row still points at are dropped from the queue without touching Storage. A missing service client returns a JSON 500.
