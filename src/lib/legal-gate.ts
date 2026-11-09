@@ -1,85 +1,23 @@
 import { redirect } from "next/navigation";
-import { isLegalCurrent, LEGAL_VERSIONS } from "@merqo/ui/legal";
+import { checkLegalAcceptance as checkSharedLegalAcceptance } from "@merqo/ui/auth";
 import { createServiceClient } from "@/lib/supabase/server";
-import { merqoBaseUrl } from "@/lib/merqo-url";
-
-const TTL_MS = 5 * 60 * 1000;
 
 /**
  * Is this vendor's terms + privacy acceptance current with the versions
  * @merqo/ui's LEGAL_VERSIONS requires?
  *
- * paykit does not own the acceptance record — merqo does — so the real check
- * is an HTTP call to merqo's GET /api/merqo/legal-status. That runs on every
- * gated dashboard render, so the result is cached in paykit.legal_check_state
- * for a short TTL, mirroring merqo's own vendor_sync_state throttle pattern.
- *
- * Fails closed: a missing secret, an unreachable merqo, a non-2xx response, or
- * a malformed body all resolve to `false` ("not current"), which routes the
- * vendor to /legal/accept rather than silently letting them past the gate.
+ * paykit does not own the acceptance record, merqo does, so the shared check
+ * calls merqo's GET /api/merqo/legal-status and caches the answer in
+ * paykit.legal_check_state for a short TTL. It fails closed: a missing
+ * secret, an unreachable merqo, a non-2xx response or a malformed body all
+ * resolve to `false`, which routes the vendor to /legal/accept.
  */
-export async function checkLegalAcceptance(email: string): Promise<boolean> {
-  try {
-    return await readLegalAcceptance(email);
-  } catch {
-    console.error("checkLegalAcceptance unavailable");
-    return false;
-  }
-}
-
-async function readLegalAcceptance(email: string): Promise<boolean> {
-  const normalized = email.toLowerCase();
-  const supabase = await createServiceClient();
-
-  const { data: cached } = await supabase
-    .from("legal_check_state")
-    .select("checked_at, is_current")
-    .eq("email", normalized)
-    .maybeSingle();
-
-  if (cached && Date.now() - new Date(cached.checked_at).getTime() < TTL_MS) {
-    return cached.is_current;
-  }
-
-  const secret = process.env.MERQO_CUSTOMER_SECRET;
-  if (!secret) return false;
-
-  let isCurrent = false;
-  try {
-    const url = new URL("/api/merqo/legal-status", merqoBaseUrl());
-    url.searchParams.set("email", normalized);
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${secret}` },
-      signal: AbortSignal.timeout(5000),
-    });
-    if (res.ok) {
-      const status = (await res.json()) as {
-        terms: string | null;
-        privacy: string | null;
-      };
-      isCurrent = isLegalCurrent(status, LEGAL_VERSIONS);
-    }
-  } catch (err) {
-    console.error("checkLegalAcceptance: merqo legal-status call failed", err);
-    return false;
-  }
-
-  try {
-    const { error } = await supabase.from("legal_check_state").upsert({
-      email: normalized,
-      checked_at: new Date().toISOString(),
-      is_current: isCurrent,
-    });
-    if (error) {
-      console.error("checkLegalAcceptance: cache write failed", error.message);
-    }
-  } catch (err) {
-    // The cache is only an optimisation; a write failure must not gate a
-    // vendor whose acceptance merqo has just confirmed.
-    console.error("checkLegalAcceptance: cache write failed", err);
-  }
-
-  return isCurrent;
+export function checkLegalAcceptance(email: string): Promise<boolean> {
+  return checkSharedLegalAcceptance(email, {
+    createClient: createServiceClient,
+    customerSecret: process.env.MERQO_CUSTOMER_SECRET,
+    merqoBaseUrl: process.env.MERQO_BASE_URL,
+  });
 }
 
 /**

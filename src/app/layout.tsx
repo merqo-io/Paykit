@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { THEME_PROVIDER_PROPS } from "@/lib/theme-props";
+import { themeProps } from "@merqo/ui/next";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@merqo/ui/primitives";
 
@@ -44,7 +44,7 @@ export default function RootLayout({
       className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body>
-        <ThemeProvider {...THEME_PROVIDER_PROPS}>
+        <ThemeProvider {...themeProps}>
           <TooltipProvider>
             {children}
             <Toaster richColors position="top-center" />

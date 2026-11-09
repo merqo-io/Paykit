@@ -94,8 +94,8 @@ describe("checkLegalAcceptance", () => {
 
     expect(result).toBe(true);
     expect(errorSpy).toHaveBeenCalledWith(
-      "checkLegalAcceptance: cache write failed",
-      "x",
+      "checkLegalAcceptance: cache upsert failed",
+      { message: "x" },
     );
     errorSpy.mockRestore();
   });

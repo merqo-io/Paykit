@@ -1,16 +1,7 @@
-import { createBrowserClient } from "@supabase/ssr";
-import { publicEnv } from "@/lib/env";
+import { createSupabaseBrowserClient } from "@merqo/ui/supabase";
 import type { Database } from "@/lib/types";
+import { supabaseConfig } from "./config";
 
 export function createClient() {
-  return createBrowserClient<Database, "paykit">(
-    publicEnv.supabaseUrl,
-    publicEnv.supabasePublishableKey,
-    {
-      db: { schema: "paykit" },
-      cookieOptions: process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN
-        ? { domain: process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN }
-        : undefined,
-    },
-  );
+  return createSupabaseBrowserClient<Database, "paykit">(supabaseConfig());
 }

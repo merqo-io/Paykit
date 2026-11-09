@@ -3,7 +3,7 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { supportMessageSchema } from "@/lib/schemas";
 import { submitSupportMessage } from "@/lib/merqo-support";
-import type { ActionResult } from "@/lib/action-result";
+import type { ActionResult } from "@merqo/ui/kit-api";
 
 /**
  * Submit a vendor's Get-help message. Inline session check, not the

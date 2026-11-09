@@ -74,7 +74,7 @@ describe("verifyKitAuth", () => {
       await verifyKitAuth(req(`Bearer ${"a".repeat(65)}:s3cret`)),
     ).toBeNull();
     expect(maybeSingleMock).not.toHaveBeenCalled();
-    expect(fromMock).not.toHaveBeenCalled();
+    expect(fromMock).not.toHaveBeenCalledWith("kit_api_keys");
   });
 
   it("returns null with no Authorization header", async () => {
@@ -170,16 +170,16 @@ describe("verifyKitAuth", () => {
       expect(warnSpy.mock.calls[0][0]).not.toContain("justasecret");
     });
 
-    it("logs the kit_slug (never the secret) when the kit_slug is unknown", async () => {
+    it("logs the reason (never the secret) when the kit_slug is unknown", async () => {
       maybeSingleMock.mockResolvedValue({ data: null, error: null });
       const { verifyKitAuth } = await import("./kit-auth");
       await verifyKitAuth(req("Bearer ghostkit:s3cret"));
       expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(warnSpy.mock.calls[0][0]).toContain("ghostkit");
+      expect(warnSpy.mock.calls[0][0]).toContain("unknown kit_slug");
       expect(warnSpy.mock.calls[0][0]).not.toContain("s3cret");
     });
 
-    it("logs the kit_slug (never the secret) on a secret mismatch", async () => {
+    it("logs the reason (never the secret) on a secret mismatch", async () => {
       maybeSingleMock.mockResolvedValue({
         data: { secret_hash: hashApiKey("different-secret") },
         error: null,
@@ -187,7 +187,7 @@ describe("verifyKitAuth", () => {
       const { verifyKitAuth } = await import("./kit-auth");
       await verifyKitAuth(req("Bearer qkit:s3cret"));
       expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(warnSpy.mock.calls[0][0]).toContain("qkit");
+      expect(warnSpy.mock.calls[0][0]).toContain("secret mismatch");
       expect(warnSpy.mock.calls[0][0]).not.toContain("s3cret");
     });
 
@@ -208,7 +208,7 @@ describe("verifyKitAuth", () => {
       await verifyKitAuth(req(undefined, "203.0.113.5"));
       expect(insertMock).toHaveBeenCalledWith({
         kit_slug: null,
-        reason: "missing/malformed Authorization header",
+        reason: "missing or malformed Authorization header",
         ip: "203.0.113.5",
       });
     });
@@ -218,7 +218,7 @@ describe("verifyKitAuth", () => {
       await verifyKitAuth(req("Bearer justasecret"));
       expect(insertMock).toHaveBeenCalledWith({
         kit_slug: null,
-        reason: "malformed bearer token",
+        reason: "missing or malformed Authorization header",
         ip: "unknown",
       });
     });

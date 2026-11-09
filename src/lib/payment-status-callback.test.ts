@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   notifyKitPaymentStatus,
   schedulePaymentStatusCallback,
-} from "./kit-callback";
+} from "./payment-status-callback";
 
 const {
   maybeSingleMock,

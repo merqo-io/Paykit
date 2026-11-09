@@ -18,7 +18,7 @@ Response shape is the shared `TransactionStatusResponse`
 (`src/lib/api-schemas.ts`'s `toStatusResponse`).
 
 A real transition also schedules one payment-status callback to the kit that
-owns the transaction (`@/lib/kit-callback`), sent after the response. An
+owns the transaction (`@/lib/payment-status-callback`), sent after the response. An
 idempotent no-op, a lost race and every error path send none, and a failed
 or missing callback never changes this route's answer.
 

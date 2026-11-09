@@ -3,7 +3,7 @@ import { getVendorSession } from "@/lib/vendor-session";
 import { txCountThisMonth } from "@/lib/transactions";
 import { resolvePlanView } from "@/lib/plan-view";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
-import { merqoBaseUrl } from "@/lib/merqo-url";
+import { merqoBaseUrl } from "@merqo/ui/kit-api";
 import { PricingLadder, fetchPlanCatalog } from "@merqo/ui";
 import { PageHeader } from "@merqo/ui";
 

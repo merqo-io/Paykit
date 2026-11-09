@@ -8,6 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Replaced the kit-local copies of `@merqo/ui` pieces with the shared exports and deleted them: `action-result`, `merqo-url`, `theme-props`, `brand-icon`, `security-headers`, `hooks/use-async-action` and `cn`. Supabase clients, rate limiting, kit auth and the legal gate stay as thin wrappers that bind the shared factories to paykit's schema, env and RPC store; `kit-callback` is now `payment-status-callback` and posts through `postKitCallback`. `merqoNoLocalCopies` is enabled in `eslint.config.mjs` so copies cannot return. Behaviour changes from the shared code: an invalid IP header counts as `unknown`, kit auth also rate-limits per kit slug, and callback and auth failure logs carry less detail.
 - Replaced the local badge, button, checkbox, dialog, input, label, textarea and tooltip primitives with `@merqo/ui/primitives`. Buttons and inputs grow to 44px on touch screens, and the tooltip uses the shared popover look. Only radio-group and skeleton stay local.
 - Re-pinned `@merqo/ui` to v0.44.0 (commit 250a4edd): new legal text (`LEGAL_VERSIONS` 2026-11-08), so vendors re-accept the terms.
 

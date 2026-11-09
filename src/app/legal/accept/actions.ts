@@ -8,7 +8,7 @@ import { z } from "zod";
 import { createServerClient, createServiceClient } from "@/lib/supabase/server";
 import { safeRedirectPath } from "@merqo/ui";
 import { clientIp } from "@/lib/rate-limit";
-import { merqoBaseUrl } from "@/lib/merqo-url";
+import { merqoBaseUrl } from "@merqo/ui/kit-api";
 import { getLegalDocSource, LEGAL_VERSIONS } from "@merqo/ui/legal";
 
 const DOC_TYPES = ["terms", "privacy"] as const;

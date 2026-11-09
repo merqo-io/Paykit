@@ -1,9 +1,8 @@
 import { after } from "next/server";
+import { postKitCallback } from "@merqo/ui/kit-api";
 import { createServiceClient } from "@/lib/supabase/server";
 import { paymentStatusCallbackSchema } from "@/lib/api-schemas";
 import { recordOpsEvent } from "@/lib/ops-events";
-
-const CALLBACK_TIMEOUT_MS = 5000;
 
 type ServiceClient = Awaited<ReturnType<typeof createServiceClient>>;
 
@@ -14,19 +13,6 @@ export type CallbackTransaction = {
   order_ref: string;
   status: string;
 };
-
-// The secret travels in a header, so anything but https would expose it. An
-// address with credentials in it is refused too: fetch rejects one with an
-// error that quotes the whole URL.
-function httpsUrl(value: string): URL | null {
-  try {
-    const url = new URL(value);
-    if (url.protocol !== "https:" || url.username || url.password) return null;
-    return url;
-  } catch {
-    return null;
-  }
-}
 
 /**
  * Tells the kit that owns a transaction that its status changed. The target
@@ -52,9 +38,6 @@ export async function notifyKitPaymentStatus(
     return;
   }
 
-  const controller = new AbortController();
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  let sent: ServiceClient | null = null;
   const recordFailure = (supabase: ServiceClient, code: string) =>
     recordOpsEvent(supabase, {
       vendorId: tx.vendor_id,
@@ -84,47 +67,20 @@ export async function notifyKitPaymentStatus(
       return;
     }
 
-    const url = httpsUrl(data.callback_url);
-    if (!url) {
-      console.error(
-        `notifyKitPaymentStatus: ${tx.kit_slug} callback_url is not a plain https URL`,
-      );
-      return;
-    }
-
-    timer = setTimeout(() => controller.abort(), CALLBACK_TIMEOUT_MS);
-    sent = supabase;
-    const res = await fetch(url, {
-      method: "POST",
-      cache: "no-store",
-      redirect: "error",
-      signal: controller.signal,
-      headers: {
-        Authorization: `Bearer ${data.callback_secret}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body.data),
-    });
-    if (!res.ok) {
-      console.error(
-        `notifyKitPaymentStatus: ${tx.kit_slug} returned ${res.status}`,
-      );
-      await recordFailure(supabase, `http_${res.status}`);
-    }
+    const result = await postKitCallback(
+      { url: data.callback_url, secret: data.callback_secret },
+      body.data,
+    );
+    if (result.ok || result.reason === "invalid_url") return;
+    await recordFailure(
+      supabase,
+      result.reason === "http_error" ? `http_${result.status}` : result.reason,
+    );
   } catch (err) {
-    // The name only. A fetch error's message can quote the Authorization
-    // header or the URL it was given.
     console.error(
       "notifyKitPaymentStatus failed",
       err instanceof Error ? err.name : "unknown error",
     );
-    if (sent)
-      await recordFailure(
-        sent,
-        controller.signal.aborted ? "timeout" : "network_error",
-      );
-  } finally {
-    clearTimeout(timer);
   }
 }
 

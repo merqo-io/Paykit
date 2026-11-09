@@ -19,7 +19,7 @@ const { verifyKitAuthMock, auditMock, callbackMock, readMock, updateMock } =
 
 vi.mock("@/lib/kit-auth", () => ({ verifyKitAuth: verifyKitAuthMock }));
 vi.mock("@/lib/payment-audit", () => ({ recordPaymentAudit: auditMock }));
-vi.mock("@/lib/kit-callback", () => ({
+vi.mock("@/lib/payment-status-callback", () => ({
   schedulePaymentStatusCallback: callbackMock,
 }));
 vi.mock("@/lib/rate-limit", () => ({

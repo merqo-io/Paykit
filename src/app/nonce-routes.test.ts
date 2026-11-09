@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import * as loginLayout from "./login/layout";
-import { NONCE_PREFIXES } from "@/lib/security-headers";
+import { NONCE_PREFIXES } from "@/lib/nonce-prefixes";
 
 // A nonce CSP only works on pages rendered per request; a prerendered page
 // has no nonce on its scripts and would be blocked.
