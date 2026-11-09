@@ -1,5 +1,5 @@
 import { formatDate } from "@/lib/utils";
-import { merqoBaseUrl } from "@/lib/merqo-url";
+import { merqoBaseUrl } from "@merqo/ui/kit-api";
 
 /** Plain text: merqo sends it with no parse mode. No link, so a forged inquiry cannot carry one. */
 export function inquiryAlertText(

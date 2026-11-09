@@ -21,7 +21,7 @@ now uses — see `docs/business/2026-08-13-typography-family-standard.md`
 in the workspace root for why. Brand theme is "Banknote Engrave"
 (engraved teal-green primary, warm-grey secondary — was steel-blue until
 2026-08-25, changed since it read too close to the primary's own hue) as
-of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-icon.tsx`'s
+of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-mark.ts`'s
 ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
 The public landing is in pre-launch mode, headlined "One payment setup for every kit.": an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to merqo-ui commit 250a4edd (v0.44.0), whose `PricingLadder` the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices).
@@ -104,7 +104,7 @@ view. A checkout may carry `expires_at`, the time the calling kit gives up on
 the order (migration `0023`, applied by hand); it is stored and returned, and
 nothing acts on it yet. The claim, unclaim and confirm routes share one pipeline (`runTransition` in `src/lib/payment-transition.ts`: auth, rate limit, id check, kit-scoped read). After a claim, unclaim or confirm commits, paykit posts a payment-status
 callback to the owning kit's `kit_api_keys.callback_url`, when one is set
-(`src/lib/kit-callback.ts`). It is a hint that the transaction changed, sent
+(`src/lib/payment-status-callback.ts`). It is a hint that the transaction changed, sent
 after the response and never awaited; the kit reads the status back with the
 lookup above. Checkout creation itself
 goes through a pluggable `PaymentProvider` seam
@@ -372,8 +372,10 @@ Badge, button, checkbox, dialog, input, label, textarea, tooltip and `cn` come f
 
 ## Lint
 
-`eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-icon.tsx` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`. The mutation gate skips type-only `src/lib/db-types/`.
+`eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-mark.ts` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`. The mutation gate skips type-only `src/lib/db-types/`.
 
 The `/admin` pages share the dashboard's `PageHeader` and `EmptyState`, with
 section tabs that mark the current page via `aria-current`
 (`src/app/admin/README.md`).
+
+`package.json` no longer lists `clsx`, `tailwind-merge` or `class-variance-authority`; class composition comes from `@merqo/ui/primitives`.

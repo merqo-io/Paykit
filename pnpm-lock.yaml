@@ -40,12 +40,6 @@ importers:
       bmp-js:
         specifier: 0.1.0
         version: 0.1.0
-      class-variance-authority:
-        specifier: ^0.7.1
-        version: 0.7.1
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
       lucide-react:
         specifier: ^0.468.0
         version: 0.468.0(react@19.2.7)
@@ -76,9 +70,6 @@ importers:
       sonner:
         specifier: ^1.7.1
         version: 1.7.4(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      tailwind-merge:
-        specifier: ^2.5.5
-        version: 2.6.1
       tesseract.js:
         specifier: 5.1.1
         version: 5.1.1

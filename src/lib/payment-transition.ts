@@ -6,7 +6,7 @@ import {
   recordPaymentAudit,
   type PaymentAuditAction,
 } from "@/lib/payment-audit";
-import { schedulePaymentStatusCallback } from "@/lib/kit-callback";
+import { schedulePaymentStatusCallback } from "@/lib/payment-status-callback";
 import {
   clientIp,
   PER_ROUTE_LIMIT,

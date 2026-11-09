@@ -25,6 +25,9 @@ export default defineConfig({
       NEXT_PUBLIC_SUPABASE_URL: "http://localhost:54321",
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "test-publishable-anon-key",
     },
+    // Inlined so vi.mock reaches @supabase/ssr and next/* as imported by the
+    // shared kit modules, and so their bare next/server imports resolve.
+    server: { deps: { inline: [/@merqo\/ui/] } },
     passWithNoTests: true,
     setupFiles: ["./test/setup.ts"],
     include: [

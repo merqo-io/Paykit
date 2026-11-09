@@ -55,3 +55,5 @@ Global Tailwind base rules stay in the base layer so component utility classes c
 `mfa/` is the TOTP enrol/verify page that `requireAdmin()` redirects password-only admins to. `robots.ts` disallows crawling except on production. The login layout forces per-request rendering so the nonce reaches its scripts.
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+The root layout takes its theme props from `@merqo/ui/next`, and the icon routes build their mark with `brandIcon` from `@merqo/ui` and the options in `lib/brand-mark.ts`.

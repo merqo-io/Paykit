@@ -8,6 +8,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Kit auth failure reasons in `auth_failures` changed to the shared wording: `missing/malformed Authorization header` is now `missing or malformed Authorization header`, and a malformed bearer token (`malformed bearer token`) is now recorded with that same new reason. The unknown-slug and secret-mismatch console warnings no longer include the kit slug; it is still in `auth_failures`.
+- Client IP detection stops at the first trusted header that is present: a bad `x-vercel-forwarded-for` gives no address and the request goes to the `unknown` rate-limit bucket instead of falling through to `x-real-ip`.
+- Kit auth counts attempts per kit slug as a backstop of 3000 per minute, far above the 300 per minute per-IP limit, so junk requests for one slug cannot lock that kit out.
+- Removed the unused `class-variance-authority` dependency.
+- Replaced the kit-local copies of `@merqo/ui` pieces with the shared exports and deleted them: `action-result`, `merqo-url`, `theme-props`, `brand-icon`, `security-headers`, `hooks/use-async-action` and `cn`. Supabase clients, rate limiting, kit auth and the legal gate stay as thin wrappers that bind the shared factories to paykit's schema, env and RPC store; `kit-callback` is now `payment-status-callback` and posts through `postKitCallback`. `merqoNoLocalCopies` is enabled in `eslint.config.mjs` so copies cannot return. Behaviour changes from the shared code: an invalid IP header counts as `unknown`, kit auth also rate-limits per kit slug, and callback and auth failure logs carry less detail.
 - Replaced the local badge, button, checkbox, dialog, input, label, textarea and tooltip primitives with `@merqo/ui/primitives`. Buttons and inputs grow to 44px on touch screens, and the tooltip uses the shared popover look. Only radio-group and skeleton stay local.
 - Re-pinned `@merqo/ui` to v0.44.0 (commit 250a4edd): new legal text (`LEGAL_VERSIONS` 2026-11-08), so vendors re-accept the terms.
 

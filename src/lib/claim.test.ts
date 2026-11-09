@@ -12,7 +12,7 @@ vi.mock("@/lib/payment-evidence", () => ({
 vi.mock("@/lib/proof-amount-check", () => ({
   scheduleProofAmountCheck: amountCheckMock,
 }));
-vi.mock("@/lib/kit-callback", () => ({
+vi.mock("@/lib/payment-status-callback", () => ({
   schedulePaymentStatusCallback: callbackMock,
 }));
 

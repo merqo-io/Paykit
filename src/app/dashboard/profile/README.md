@@ -19,7 +19,7 @@ the previous object; returned save errors restore the visible previous avatar
 and attempt unused-upload cleanup. Uncertain network outcomes must not be
 interpreted as proof that a metadata write did not commit.
 
-`hooks/use-async-action.ts` supplies the per-call pending/error contract.
+`useAsyncAction` from `@merqo/ui` supplies the per-call pending/error contract.
 Action and DOM tests cover validation, field patches, account updates and form
 failures; mocked tests do not establish database grants or live shared-session
 behavior.
