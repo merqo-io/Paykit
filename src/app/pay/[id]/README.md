@@ -48,3 +48,5 @@ amount check as the claim endpoint.
 `claimHostedPayment` and `getHostedPaymentStatus` parse the id and token with `hostedPayRefSchema` before any read.
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+The pay panel uses `useAsyncAction` from `@merqo/ui` and `cn` from `@merqo/ui/primitives`; `callHandler` in `lib/utils.ts` adapts the server-action thunk.
