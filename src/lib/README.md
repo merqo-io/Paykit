@@ -239,3 +239,5 @@ session/service client separation; `payments/` explains checkout builders.
 `nonce-prefixes.ts` holds the nonce route list, while CSP source lists and theme props come from `@merqo/ui`; `columns.ts` lists the columns each table read selects; `admin.ts` also requires `aal2` in `requireAdmin()`.
 
 The profile name schema message reads "Business name is required".
+
+`kit-auth.ts` passes a per-slug backstop of 3000 attempts per minute to the shared verifier, well above the 300 per minute per-IP limit, so junk requests for one slug cannot lock that kit out. `payment-status-callback.ts` logs the kit slug and transaction id when a kit has an invalid `callback_url`.

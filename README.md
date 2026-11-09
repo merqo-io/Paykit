@@ -377,3 +377,5 @@ Badge, button, checkbox, dialog, input, label, textarea, tooltip and `cn` come f
 The `/admin` pages share the dashboard's `PageHeader` and `EmptyState`, with
 section tabs that mark the current page via `aria-current`
 (`src/app/admin/README.md`).
+
+`package.json` no longer lists `clsx`, `tailwind-merge` or `class-variance-authority`; class composition comes from `@merqo/ui/primitives`.
