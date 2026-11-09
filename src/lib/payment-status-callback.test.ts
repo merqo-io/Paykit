@@ -222,7 +222,11 @@ describe("notifyKitPaymentStatus", () => {
       configured({ callback_url, callback_secret: "shared-secret" });
       await expect(notifyKitPaymentStatus(TX)).resolves.toBeUndefined();
       expect(fetchMock).not.toHaveBeenCalled();
-      expect(errorSpy).toHaveBeenCalled();
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          `${TX.kit_slug} has an invalid callback_url (transaction ${TX.id})`,
+        ),
+      );
     },
   );
 

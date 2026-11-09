@@ -71,7 +71,13 @@ export async function notifyKitPaymentStatus(
       { url: data.callback_url, secret: data.callback_secret },
       body.data,
     );
-    if (result.ok || result.reason === "invalid_url") return;
+    if (result.ok) return;
+    if (result.reason === "invalid_url") {
+      console.error(
+        `notifyKitPaymentStatus: ${tx.kit_slug} has an invalid callback_url (transaction ${tx.id})`,
+      );
+      return;
+    }
     await recordFailure(
       supabase,
       result.reason === "http_error" ? `http_${result.status}` : result.reason,

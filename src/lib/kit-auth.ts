@@ -9,6 +9,11 @@ import { rpcRateLimitStore, PER_ROUTE_WINDOW_SECONDS } from "@/lib/rate-limit";
 // Every attempt counts, failed or not, so key guessing is bounded per address.
 const AUTH_ATTEMPT_LIMIT = 300;
 
+// The shared verifier also counts attempts per kit slug before it checks the
+// secret, so anyone can send junk for a slug. Kept far above honest traffic so
+// it is only a backstop and cannot lock a kit out the way the per-IP limit can.
+const SLUG_BACKSTOP_LIMIT = 3000;
+
 type ServiceClient = Awaited<ReturnType<typeof createServiceClient>>;
 
 // Failure logging and the last_used_at touch are best effort: the shared
@@ -50,6 +55,7 @@ export async function verifyKitAuth(
     rateLimit: {
       store: rpcRateLimitStore(supabase),
       limit: AUTH_ATTEMPT_LIMIT,
+      slugLimit: SLUG_BACKSTOP_LIMIT,
       windowSeconds: PER_ROUTE_WINDOW_SECONDS,
       failOpen: true,
     },
