@@ -1,6 +1,6 @@
 import next from "eslint-config-next";
 import sonarjs from "eslint-plugin-sonarjs";
-import { merqoEslintPreset } from "@merqo/ui/eslint";
+import { merqoEslintPreset, merqoNoLocalCopies } from "@merqo/ui/eslint";
 
 const tsPlugin = next.find((c) => c.plugins?.["@typescript-eslint"]).plugins[
   "@typescript-eslint"
@@ -53,6 +53,19 @@ const eslintConfig = [
   ...merqoEslintPreset({
     sonarjsPlugin: sonarjs.configs.recommended.plugins.sonarjs,
     tsPlugin,
+  }),
+  // Each allowed path is a thin paykit wrapper that binds the shared factory to
+  // paykit's schema, env or RPC store; importers use it instead of the factory.
+  ...merqoNoLocalCopies({
+    allow: [
+      "supabase-client",
+      "supabase-server",
+      "supabase-middleware",
+      "rate-limit",
+      "kit-auth",
+      "legal-gate",
+      "dashboard-tour",
+    ],
   }),
   {
     // The service client bypasses RLS: keep it in lib helpers and bearer-gated

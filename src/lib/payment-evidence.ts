@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import type { createServiceClient } from "@/lib/supabase/server";
 import type { CheckoutEvidenceResponse } from "@/lib/api-schemas";
 import { PROOF_BUCKET, type ProofFile } from "@/lib/proof-file";
@@ -25,17 +25,20 @@ export function hashProof(bytes: Buffer): string {
 
 /**
  * Where a transaction's screenshot lives in the proof bucket. The first
- * folder is the vendor, which the bucket's read policy keys on. There is no
- * file extension, so a second upload of another image type replaces the
- * first instead of leaving it behind.
+ * folder is the vendor, which the bucket's read policy keys on. Every upload
+ * attempt gets its own object so a failed attempt can remove its own upload
+ * without touching another attempt's live screenshot. Rows written before this
+ * layout keep the older `vendor/transaction` path, so readers must use the
+ * row's storage_path and never recompute it.
  */
 export function proofPath(tx: EvidenceTransaction): string {
-  return `${tx.vendor_id}/${tx.id}`;
+  return `${tx.vendor_id}/${tx.id}/${randomUUID()}`;
 }
 
 /**
  * Stores a payment screenshot for a transaction: the file, then its row.
- * A second screenshot for the same transaction replaces the first. Returns
+ * A second screenshot for the same transaction replaces the first row; the
+ * database trigger queues the superseded object for deletion. Returns
  * false on any failure and never throws; the caller must not claim the
  * transaction when this returns false.
  */
@@ -49,7 +52,7 @@ export async function storeScreenshotEvidence(
     const { error: uploadError } = await supabase.storage
       .from(PROOF_BUCKET)
       .upload(path, proof.bytes, {
-        upsert: true,
+        upsert: false,
         contentType: proof.contentType,
       });
     if (uploadError) {
@@ -70,12 +73,25 @@ export async function storeScreenshotEvidence(
     );
     if (error) {
       console.error("payment_evidence: row write failed", error.message);
+      await removeOrphanedUpload(supabase, path);
       return false;
     }
     return true;
   } catch {
     console.error("payment_evidence: storage unavailable");
     return false;
+  }
+}
+
+// Best effort: a failed removal leaves one orphaned object, which is not worth
+// failing the caller's request over.
+async function removeOrphanedUpload(
+  supabase: ServiceClient,
+  path: string,
+): Promise<void> {
+  const { error } = await supabase.storage.from(PROOF_BUCKET).remove([path]);
+  if (error) {
+    console.error("payment_evidence: orphan cleanup failed", error.message);
   }
 }
 

@@ -48,3 +48,5 @@ drawers.
 ## Parent
 
 [app](../README.md)
+
+Server actions here return the shared `ActionResult` shape from `@merqo/ui/kit-api`; paykit keeps no local copy.

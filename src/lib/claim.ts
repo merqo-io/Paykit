@@ -1,7 +1,7 @@
 import type { createServiceClient } from "@/lib/supabase/server";
 import { claimTransition } from "@/lib/tx-state";
 import { recordPaymentAudit } from "@/lib/payment-audit";
-import { schedulePaymentStatusCallback } from "@/lib/kit-callback";
+import { schedulePaymentStatusCallback } from "@/lib/payment-status-callback";
 import { storeScreenshotEvidence } from "@/lib/payment-evidence";
 import { scheduleProofAmountCheck } from "@/lib/proof-amount-check";
 import type { ProofFile } from "@/lib/proof-file";

@@ -52,3 +52,7 @@ Pro plan. The gating itself (RLS and server action checks) is unchanged. The
 page reads the plan with `readVendorPlan`.
 
 Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+Class composition (`cn`) comes from `@merqo/ui/primitives`.

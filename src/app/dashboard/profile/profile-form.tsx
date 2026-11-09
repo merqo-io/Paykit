@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
 import { Store, UserRound } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button, Input, Label } from "@merqo/ui/primitives";
+
 import {
   ImageUploader,
   Section,
@@ -19,14 +18,14 @@ import {
   removeReplacedAvatar,
 } from "@/lib/image-upload-adapter";
 import { createClient } from "@/lib/supabase/client";
-import { useAsyncAction } from "@/hooks/use-async-action";
+import { useAsyncAction } from "@merqo/ui";
 import {
   profileNameSchema,
   displayNameSchema,
   passwordChangeSchema,
   socialLinksSchema,
 } from "@/lib/schemas";
-import { FORM_ERROR_CLASS, FORM_LABEL_CLASS } from "@/lib/utils";
+import { callHandler, FORM_ERROR_CLASS, FORM_LABEL_CLASS } from "@/lib/utils";
 import type { SocialLinks } from "@/lib/types";
 import { updateStallName, updateSocialLinks } from "./actions";
 
@@ -63,7 +62,7 @@ export function ProfileForm({
   // action (RLS + RPC ownership check, not a client-side write).
   const [name, setName] = useState(stallName);
   const [nameError, setNameError] = useState<string | null>(null);
-  const { pending: savingName, run: runName } = useAsyncAction();
+  const { pending: savingName, run: runName } = useAsyncAction(callHandler);
 
   // Profile picture (auth user_metadata.avatar_url) — the ImageUploader handles
   // the storage upload (shared `vendor-images` bucket); we persist the
@@ -73,19 +72,20 @@ export function ProfileForm({
   // Display name (auth user_metadata) — persisted via the browser auth client.
   const [display, setDisplay] = useState(displayName);
   const [displayError, setDisplayError] = useState<string | null>(null);
-  const { pending: savingDisplay, run: runDisplay } = useAsyncAction();
+  const { pending: savingDisplay, run: runDisplay } =
+    useAsyncAction(callHandler);
 
   // Change password — persisted via the browser auth client.
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [pwError, setPwError] = useState<string | null>(null);
-  const { pending: savingPw, run: runPw } = useAsyncAction();
+  const { pending: savingPw, run: runPw } = useAsyncAction(callHandler);
 
   // Social/website links — shared merqo.vendor_profile, same write path as
   // business name.
   const [links, setLinks] = useState<SocialLinks>(socialLinks);
   const [linksError, setLinksError] = useState<string | null>(null);
-  const { pending: savingLinks, run: runLinks } = useAsyncAction();
+  const { pending: savingLinks, run: runLinks } = useAsyncAction(callHandler);
 
   function saveBusinessName() {
     const parsed = profileNameSchema.safeParse({ name });

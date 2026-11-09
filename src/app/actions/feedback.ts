@@ -2,7 +2,7 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { feedbackSchema, type FeedbackInput } from "@/lib/schemas";
 import { submitVendorFeedback } from "@/lib/merqo-vendor-feedback";
-import type { ActionResult } from "@/lib/action-result";
+import type { ActionResult } from "@merqo/ui/kit-api";
 
 /**
  * Submit vendor NPS feedback for paykit into the shared cross-kit

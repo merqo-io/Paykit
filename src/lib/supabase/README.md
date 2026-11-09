@@ -11,6 +11,9 @@ deliberate.
 
 ## Contents
 
+- `config.ts` — `supabaseConfig()`: the paykit schema, public env and
+  cookie domain, bound to the `@merqo/ui/supabase` factories that `client.ts`,
+  `server.ts` and `middleware.ts` wrap.
 - `client.ts` — `createClient()`: browser client for Client Components,
   built with `NEXT_PUBLIC_SUPABASE_*` (publishable key, RLS-enforced).
   Passes `cookieOptions: { domain: process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN }`

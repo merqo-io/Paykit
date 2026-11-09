@@ -31,7 +31,7 @@ vi.mock("@/lib/rate-limit", () => ({
 const { scheduleCallbackMock } = vi.hoisted(() => ({
   scheduleCallbackMock: vi.fn(),
 }));
-vi.mock("@/lib/kit-callback", () => ({
+vi.mock("@/lib/payment-status-callback", () => ({
   schedulePaymentStatusCallback: scheduleCallbackMock,
 }));
 beforeEach(() => {

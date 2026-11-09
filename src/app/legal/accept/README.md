@@ -26,7 +26,7 @@ folder's job is entirely to collect the vendor's consent and forward it.
   full multi-kit annex. On success it primes the local `legal_check_state`
   cache (a failed cache write is logged and ignored) and redirects to a `safeRedirectPath`-checked `next` (default
   `/dashboard`).
-- The merqo base URL for the `legal-accept` POST comes from `merqoBaseUrl()` in `src/lib/merqo-url.ts` (`MERQO_BASE_URL`, default `https://www.merqo.io`).
+- The merqo base URL for the `legal-accept` POST comes from `merqoBaseUrl()` in `@merqo/ui/kit-api` (`MERQO_BASE_URL`, default `https://www.merqo.io`).
 - `actions.test.ts` — covers the two independent posts, the cache prime,
   `next`-param safety, and the no-user/missing-secret branches, and a
   non-2xx throw.
@@ -44,3 +44,5 @@ folder's job is entirely to collect the vendor's consent and forward it.
 [legal](../README.md)
 
 The `next` form field is length-checked by Zod before `safeRedirectPath` runs.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.

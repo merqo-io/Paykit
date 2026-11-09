@@ -98,3 +98,5 @@ The config read lists its columns (`CONFIG_COLUMNS`).
 The save action's fallback validation error reads "Check the highlighted fields and try again".
 
 Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.

@@ -48,3 +48,5 @@ is read-only. `activity/page.tsx` pulls `admin-data.ts`'s `auditLog()`
 [app](../README.md)
 
 Every page and action is gated by `requireAdmin()`, which needs `aal2`; a password-only session is redirected to `/mfa`. Service-client imports carry an eslint-disable reason.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.

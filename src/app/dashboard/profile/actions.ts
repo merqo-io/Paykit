@@ -9,7 +9,7 @@ import {
   type ProfileNameInput,
   type SocialLinksInput,
 } from "@/lib/schemas";
-import type { ActionResult } from "@/lib/action-result";
+import type { ActionResult } from "@merqo/ui/kit-api";
 
 /**
  * Update the vendor's shared business name. Persisted in

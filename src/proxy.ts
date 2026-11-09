@@ -1,13 +1,23 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { buildCsp, robotsHeaderFor, withNonceCsp } from "@merqo/ui/security";
-import { updateSession } from "@/lib/supabase/middleware";
 import {
-  cspOptions,
+  buildCsp,
+  buildSecurityHeaders,
   needsNonce,
-  nonceCspOptions,
-} from "@/lib/security-headers";
+  robotsHeaderFor,
+  withNonceCsp,
+} from "@merqo/ui/security";
+import { updateSession } from "@/lib/supabase/middleware";
+import { NONCE_PREFIXES } from "@/lib/nonce-prefixes";
 
 const CSP = "Content-Security-Policy";
+
+const securityHeaders = (isDev: boolean, nonce: boolean) =>
+  buildSecurityHeaders({
+    isDev,
+    nonce,
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    vercelEnv: process.env.VERCEL_ENV,
+  });
 
 // Browsers enforce frame-ancestors on localhost too, which blocks IDE preview panes.
 const devCsp = (csp: string) => csp.replace("; frame-ancestors 'none'", "");
@@ -17,15 +27,15 @@ const devCsp = (csp: string) => csp.replace("; frame-ancestors 'none'", "");
 function contentSecurityPolicy(request: NextRequest): string | null {
   const isDev = process.env.NODE_ENV !== "production";
   // Dev renders the theme script differently and needs eval, so it keeps the static policy.
-  if (isDev || !needsNonce(request.nextUrl.pathname)) {
-    const csp = buildCsp(cspOptions(isDev));
+  if (isDev || !needsNonce(request.nextUrl.pathname, NONCE_PREFIXES)) {
+    const csp = buildCsp(securityHeaders(isDev, false));
     return isDev ? devCsp(csp) : csp;
   }
   // The nonce must be on the request before updateSession builds its response.
   return withNonceCsp(
     request,
     NextResponse.next(),
-    nonceCspOptions(isDev),
+    securityHeaders(isDev, true),
   ).headers.get(CSP);
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@merqo/ui/primitives";
+
 import { earningsReportToCsv } from "@/lib/earnings-csv";
 import type { EarningsReport } from "@/lib/earnings-report";
 

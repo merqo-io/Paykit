@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import QRCode from "react-qr-code";
 import { Download, ImageUp } from "lucide-react";
-import { resizeToWebp } from "@merqo/ui";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { useAsyncAction } from "@/hooks/use-async-action";
-import { cn, formatCents } from "@/lib/utils";
+import { resizeToWebp, useAsyncAction } from "@merqo/ui";
+import { Button, buttonVariants, cn } from "@merqo/ui/primitives";
+
+import { callHandler, formatCents } from "@/lib/utils";
 import type { HostedPayment } from "@/lib/hosted-pay";
 import { claimHostedPayment, getHostedPaymentStatus } from "./actions";
 import { leaveTo } from "./leave";
@@ -186,7 +186,7 @@ export function PayPanel({
   amountCents: number;
   view: HostedPayment["view"];
 }) {
-  const { pending: busy, run } = useAsyncAction();
+  const { pending: busy, run } = useAsyncAction(callHandler);
   const [proof, setProof] = useState<Proof | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);

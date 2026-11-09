@@ -19,7 +19,7 @@ the previous object; returned save errors restore the visible previous avatar
 and attempt unused-upload cleanup. Uncertain network outcomes must not be
 interpreted as proof that a metadata write did not commit.
 
-`hooks/use-async-action.ts` supplies the per-call pending/error contract.
+`useAsyncAction` from `@merqo/ui` supplies the per-call pending/error contract.
 Action and DOM tests cover validation, field patches, account updates and form
 failures; mocked tests do not establish database grants or live shared-session
 behavior.
@@ -37,3 +37,5 @@ behavior.
 The Links group is described by its inline error (`aria-describedby`); `SocialLinksFields` inputs are owned by `@merqo/ui`, so the error is tied to the group rather than each input.
 
 Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.

@@ -1,7 +1,8 @@
 import { checkoutKind } from "@/lib/checkout-kind";
 import Image from "next/image";
-import { Badge } from "@/components/ui/badge";
-import { cn, formatCents } from "@/lib/utils";
+import { Badge, cn } from "@merqo/ui/primitives";
+
+import { formatCents } from "@/lib/utils";
 import type { Transaction, TxStatus } from "@/lib/types";
 
 // Same treatment as `dashboard/transactions/transaction-table.tsx` — `claimed`

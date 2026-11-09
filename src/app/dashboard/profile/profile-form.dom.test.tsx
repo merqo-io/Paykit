@@ -2,7 +2,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@merqo/ui/primitives";
+
 import { ProfileForm } from "./profile-form";
 
 const {

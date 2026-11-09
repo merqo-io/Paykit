@@ -61,3 +61,7 @@ Each feature folder documents its own boundary and behavior coverage.
 The dashboard navigation uses the existing local `Wordmark`, preserving its typography and link destination.
 
 Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+The merqo base URL and the `ActionResult` shape come from `@merqo/ui/kit-api`; `useAsyncAction` comes from `@merqo/ui`.

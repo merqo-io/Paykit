@@ -6,7 +6,8 @@ import { stampTourSeen } from "@/lib/tour-prefs";
 import { getConfig } from "./config/actions";
 import type { VendorPaymentConfig } from "@/lib/types";
 import { PageHeader } from "@merqo/ui";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@merqo/ui/primitives";
+
 import { FORM_LABEL_CLASS } from "@/lib/utils";
 
 export const metadata: Metadata = {

@@ -5,7 +5,8 @@ import {
   recentActivity,
   securityStats,
 } from "@/lib/admin-data";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@merqo/ui/primitives";
+
 import { EmptyState, PageHeader, StatCard } from "@merqo/ui";
 import type { TxStatus } from "@/lib/types";
 import { formatCents, pctChange } from "@/lib/utils";

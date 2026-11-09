@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { Badge, cn } from "@merqo/ui/primitives";
+
 import type { Inquiry, InquiryStatus } from "@/lib/types";
 
 const STATUS_LABEL: Record<InquiryStatus, string> = {

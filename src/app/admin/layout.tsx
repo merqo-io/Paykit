@@ -2,8 +2,8 @@ import { LogOut } from "lucide-react";
 import { requireAdmin } from "@/lib/admin";
 import { signOutAction } from "@/app/actions/auth";
 import { Wordmark } from "@/components/landing/wordmark";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge, Button } from "@merqo/ui/primitives";
+
 import { AdminNav } from "@/app/admin/admin-nav";
 
 export default async function AdminLayout({

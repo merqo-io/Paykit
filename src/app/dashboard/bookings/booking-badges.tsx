@@ -1,6 +1,6 @@
 import { StatusBadge } from "@merqo/ui";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { Badge, cn } from "@merqo/ui/primitives";
+
 import { balanceDueBadge } from "@/lib/booking-status";
 import type { Booking, BookingStatus } from "@/lib/types";
 

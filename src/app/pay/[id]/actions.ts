@@ -12,7 +12,7 @@ import {
 import { readProofFile } from "@/lib/proof-file";
 import { clientIp } from "@/lib/rate-limit";
 import { hostedPayRefSchema } from "@/lib/schemas";
-import type { ActionResult } from "@/lib/action-result";
+import type { ActionResult } from "@merqo/ui/kit-api";
 import type { TxStatus } from "@/lib/types";
 
 // These two actions are the hosted pay page's whole write and read surface.

@@ -40,10 +40,19 @@ provide authorization.
   is not multipart, and a 400 or 413 for a bad one. `readProofFile(file)`
   applies the same checks to a file already in hand (the pay page's server
   action). No database access.
+- `proof-storage-cleanup.ts` — `drainProofDeletions(supabase, limit)` removes
+  the Storage objects queued in `proof_storage_deletions` (filled by a trigger
+  on `payment_evidence` deletes, migration 0032), skips and clears queue rows whose path a live
+  evidence row still uses, clears the rows that
+  succeeded and counts an attempt on the rest (capped at 5). Never throws;
+  returns `{ removed, failed }`. Called by `/api/cron/proof-storage-drain`.
+- `merqo-auth.ts` also exports `cronBearerOk` (constant-time `CRON_SECRET` check).
 - `payment-evidence.ts` — `storeScreenshotEvidence(supabase, tx, proof)`
-  uploads to `{vendor_id}/{transaction_id}` and upserts the transaction's
+  uploads to a fresh `{vendor_id}/{transaction_id}/{uuid}` object per attempt
+  (readers use the row's `storage_path`; older rows keep the two-part path) and upserts the transaction's
   one `payment_evidence` row; it returns false on any failure and the claim
-  route then refuses the claim. `loadCheckoutEvidence(supabase, tx)` builds
+  route then refuses the claim. When the row write fails, it removes the object it just uploaded;
+  a replaced screenshot's old object is queued by the trigger. `loadCheckoutEvidence(supabase, tx)` builds
   the evidence response: a 300-second signed link, the oldest other
   transaction of the same vendor with the same hash, and `amount_match`
   from the row's `detail` (null until something writes it).
@@ -93,7 +102,7 @@ provide authorization.
   database. `hostedPayAllowed` counts a page action per address and per token
   and answers `allowed`, `limited` or `unavailable` (the limiter could not
   answer; still denied, but not reported as too many tries).
-- `kit-callback.ts` — `notifyKitPaymentStatus(tx)` posts
+- `payment-status-callback.ts` — `notifyKitPaymentStatus(tx)` posts
   `{ order_ref, transaction_id, status }` to the `callback_url` of the kit
   that owns the transaction (`transactions.kit_slug`), with
   `Authorization: Bearer <callback_secret>`, both read from `kit_api_keys`.
@@ -175,7 +184,7 @@ that could become a spreadsheet formula.
 
 `booking-status.ts` provides dashboard-only due badges. `plan-view.ts` derives
 the Free/Pro label (a local map, because `@merqo/ui`'s `tierLabel` is client-only) and transaction-count copy; the plan page renders merqo's
-catalog separately. `merqo-url.ts` exports `merqoBaseUrl()` (`MERQO_BASE_URL`,
+catalog separately. `merqoBaseUrl()` comes from `@merqo/ui/kit-api` (`MERQO_BASE_URL`,
 default `https://www.merqo.io`), shared by the merqo callers. `vendor-entitlement.ts` reads the
 entitlement cache merqo pushes (`resolvePlan`, `readVendorPlan`,
 `readAllVendorPlans`), and `merqo-entitlement-contract.ts` is the Zod schema of
@@ -217,7 +226,7 @@ path on this app.
 
 Redirect validation and image resizing come from `@merqo/ui`; there are no
 local `safe-redirect.ts` or `image-resize.ts` copies. `utils.ts` holds local
-formatters and class composition; `brand-icon.tsx` supplies icon-route markup.
+formatters and the `callHandler` adapter; `brand-mark.ts` holds the icon-route mark options.
 `env.ts` exposes required public configuration. The `supabase/` README explains
 session/service client separation; `payments/` explains checkout builders.
 
@@ -227,6 +236,8 @@ session/service client separation; `payments/` explains checkout builders.
 
 `money.ts` converts form dollars into integer cents for booking/refund actions; their schemas validate range and finite values. Empty/null form values retain the existing Number conversion to zero.
 
-`security-headers.ts` holds the nonce route list and CSP source lists (including the Vercel toolbar origin outside production); `theme-props.ts` is shared by the root layout and the CSP; `columns.ts` lists the columns each table read selects; `admin.ts` also requires `aal2` in `requireAdmin()`.
+`nonce-prefixes.ts` holds the nonce route list, while CSP source lists and theme props come from `@merqo/ui`; `columns.ts` lists the columns each table read selects; `admin.ts` also requires `aal2` in `requireAdmin()`.
 
 The profile name schema message reads "Business name is required".
+
+`kit-auth.ts` passes a per-slug backstop of 3000 attempts per minute to the shared verifier, well above the 300 per minute per-IP limit, so junk requests for one slug cannot lock that kit out. `payment-status-callback.ts` logs the kit slug and transaction id when a kit has an invalid `callback_url`.

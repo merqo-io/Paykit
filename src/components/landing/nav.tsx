@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LandingNav } from "@merqo/ui";
-import { Button } from "@/components/ui/button";
+import { Button } from "@merqo/ui/primitives";
+
 import { Wordmark } from "./wordmark";
 import { WAITLIST_URL } from "./waitlist";
 

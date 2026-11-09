@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn } from "@merqo/ui/primitives";
+
 import { reportsHref, type ReportTab } from "./search-params";
 
 const TABS: { tab: ReportTab; label: string }[] = [
