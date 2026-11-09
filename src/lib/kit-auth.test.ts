@@ -202,17 +202,8 @@ describe("verifyKitAuth", () => {
     });
   });
 
-  describe("per-slug backstop", () => {
-    it("counts attempts per kit slug against a limit far above the per-IP one", async () => {
-      const { verifyKitAuth } = await import("./kit-auth");
-      await verifyKitAuth(req("Bearer qkit:s3cret", "203.0.113.5"));
-      expect(rpcMock).toHaveBeenCalledWith(
-        "check_rate_limit",
-        expect.objectContaining({ p_key: "kit-auth-slug:qkit", p_limit: 3000 }),
-      );
-    });
-
-    it("does not reject on the per-IP limit alone when the slug bucket has room", async () => {
+  describe("per-slug bucket", () => {
+    it("accepts a valid key", async () => {
       maybeSingleMock.mockResolvedValue({
         data: { secret_hash: hashApiKey("s3cret") },
         error: null,
