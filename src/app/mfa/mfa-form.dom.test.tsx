@@ -87,4 +87,27 @@ it("rejects a non-numeric code before calling Supabase", async () => {
   await user.type(screen.getByLabelText("6-digit code"), "12ab");
   await user.click(screen.getByRole("button", { name: "Verify" }));
   expect(mocks.challengeAndVerify).not.toHaveBeenCalled();
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Enter the 6-digit code from your authenticator app.",
+  );
+});
+
+it("shows the setup error when enrolment fails", async () => {
+  mocks.enroll.mockResolvedValue({ data: null, error: { message: "no" } });
+  const user = userEvent.setup();
+  render(<MfaForm verifiedFactorId={null} staleFactorIds={[]} />);
+  await user.click(
+    screen.getByRole("button", { name: "Set up authenticator" }),
+  );
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Could not start setup. Try again.",
+  );
+  expect(screen.queryByLabelText("6-digit code")).not.toBeInTheDocument();
+});
+
+it("keeps one-time-code autofill and the numeric keypad on the input", () => {
+  render(<MfaForm verifiedFactorId="f1" staleFactorIds={[]} />);
+  const input = screen.getByLabelText("6-digit code");
+  expect(input).toHaveAttribute("autocomplete", "one-time-code");
+  expect(input).toHaveAttribute("inputmode", "numeric");
 });

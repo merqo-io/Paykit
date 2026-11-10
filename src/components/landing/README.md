@@ -46,7 +46,8 @@ file. Presentational only — no data fetching, no client state beyond the
   (same href as `hero.tsx`'s). A standalone section, not a band inside the family footer
   (`src/components/site-footer.tsx`), which stays CTA-free.
 - `BackToTop` — shared scroll-to-top control imported from `@merqo/ui`.
-- `wordmark.tsx` — `Wordmark`: the "Pay**kit**" mark, mint accent on "Pay"
+- `wordmark.tsx` — `Wordmark`: thin wrapper over the shared `Wordmark` shell
+  from `@merqo/ui` (weight, tracking, size); supplies the "Pay**kit**" letters, mint accent on "Pay"
   (distinct from qkit's ember / loopkit's gold) — visual mark only, prose
   stays lowercase "paykit" per
   `Merqo Business/docs/business/2026-07-15-kit-brand-naming-convention.md`.
