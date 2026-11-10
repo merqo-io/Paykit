@@ -358,7 +358,7 @@ An event vendor can take inquiries before there is a booking. On Bookings they s
 
 ## Security headers and MFA
 
-`src/proxy.ts` sets the CSP (nonce on per-request routes) and `X-Robots-Tag` off production. The admin area requires TOTP MFA; see `src/app/mfa/README.md` and `docs/security/`.
+`src/proxy.ts` sets the CSP (nonce on per-request routes) and `X-Robots-Tag` off production. The admin area requires TOTP MFA; see `src/app/mfa/README.md` and `docs/security/`. The MFA form and the wordmark are thin adapters over the shared `MfaForm` and `Wordmark` from `@merqo/ui`.
 
 Retention: migration 0031 nulls `auth_failures.ip` after 30 days through a daily `pg_cron` job (`purge_auth_failure_ips()`); the failure rows themselves are kept. Migration 0032 queues a payment screenshot's storage path when its `payment_evidence` row is deleted, and the daily Vercel Cron route `/api/cron/proof-storage-drain` (`CRON_SECRET`) removes the object, skipping any path a live evidence row still uses.
 

@@ -1,4 +1,4 @@
-import { cn } from "@merqo/ui/primitives";
+import { Wordmark as WordmarkShell } from "@merqo/ui";
 
 /** PayKit wordmark. PascalCase compound (Apple's -Kit-style precedent,
  *  matching qkit/loopkit's logo-mark convention) with a mint-green accent
@@ -8,10 +8,8 @@ import { cn } from "@merqo/ui/primitives";
  *  docs/business/2026-07-15-kit-brand-naming-convention.md. */
 export function Wordmark({ className }: { className?: string }) {
   return (
-    <span
-      className={cn("font-display font-semibold tracking-tight", className)}
-    >
+    <WordmarkShell className={className}>
       <span className="text-mint">Pay</span>Kit
-    </span>
+    </WordmarkShell>
   );
 }
