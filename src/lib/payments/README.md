@@ -44,3 +44,5 @@ the config row any more.
 ## Parent
 
 [lib](../README.md)
+
+`provider.ts` keeps `ProviderCheckoutStatus` module-private; only `PaymentProvider` and its input types are exported.

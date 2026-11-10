@@ -6,8 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-10
+
+### Added
+
+- Loading skeletons for `/admin/*` and `/mfa`, so these pages no longer show a blank screen while their data loads.
+- `knip.json` for the dead-code check (`pnpm dlx knip@6.44.2 --no-progress`), and a sweep record in `docs/meta/2026-10-24-fresh-eyes-sweep.md`.
+
 ### Changed
 
+- Removed the unused `@eslint/eslintrc` and `@tailwindcss/typography` dev dependencies, and deleted or un-exported symbols nothing imports (unused form input types, `FIELD_INPUT_CLASS`, `REPORT_TABS`, `MAX_INPUT_PIXELS` and similar). `metrics.ts` now reuses `MS_PER_DAY` from `utils.ts`. No behaviour change.
 - Kit auth failure reasons in `auth_failures` changed to the shared wording: `missing/malformed Authorization header` is now `missing or malformed Authorization header`, and a malformed bearer token (`malformed bearer token`) is now recorded with that same new reason. The unknown-slug and secret-mismatch console warnings no longer include the kit slug; it is still in `auth_failures`.
 - Client IP detection stops at the first trusted header that is present: a bad `x-vercel-forwarded-for` gives no address and the request goes to the `unknown` rate-limit bucket instead of falling through to `x-real-ip`.
 - Bumped `@merqo/ui` to 0.44.1: the shared kit-auth per-slug bucket counts failed attempts only, so a valid key is never blocked and paykit no longer needs a slug backstop.

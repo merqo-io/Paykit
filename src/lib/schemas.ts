@@ -78,10 +78,6 @@ export const vendorPaymentConfigInputSchema = z
     }
   });
 
-export type VendorPaymentConfigInput = z.infer<
-  typeof vendorPaymentConfigInputSchema
->;
-
 // Postgres `integer` (int4) upper bound — refunded_amount_cents is stored in
 // an `integer` column (supabase/migrations/0001_paykit_core.sql), so this
 // keeps the Zod boundary in sync with what the DB will actually accept.
@@ -101,8 +97,6 @@ export const issueRefundInputSchema = z.object({
     .optional()
     .or(z.literal("")),
 });
-
-export type IssueRefundInput = z.infer<typeof issueRefundInputSchema>;
 
 // ── Bookings (dashboard/bookings) ────────────────────────────────────────
 // A vendor's own `<input type="date">` gives an ISO "YYYY-MM-DD" string —
@@ -155,8 +149,6 @@ export const createBookingInputSchema = z
       });
     }
   });
-export type CreateBookingInput = z.infer<typeof createBookingInputSchema>;
-
 export const cancelBookingInputSchema = z
   .object({
     booking_id: z.uuid("Invalid booking"),
@@ -183,15 +175,9 @@ export const cancelBookingInputSchema = z
       });
     }
   });
-export type CancelBookingInput = z.infer<typeof cancelBookingInputSchema>;
-
 export const createBalanceCheckoutInputSchema = z.object({
   booking_id: z.uuid("Invalid booking"),
 });
-export type CreateBalanceCheckoutInput = z.infer<
-  typeof createBalanceCheckoutInputSchema
->;
-
 export const rescheduleBookingInputSchema = z
   .object({
     booking_id: z.uuid("Invalid booking"),
@@ -207,10 +193,6 @@ export const rescheduleBookingInputSchema = z
       });
     }
   });
-export type RescheduleBookingInput = z.infer<
-  typeof rescheduleBookingInputSchema
->;
-
 // ── Profile settings (dashboard/profile) ─────────────────────────────────
 // Cross-kit standard, not paykit-specific — see `Merqo Business/docs/business/
 // 2026-07-21-profile-settings-page-standard.md`. Stall/shop name + social
@@ -228,8 +210,6 @@ export type ProfileNameInput = z.infer<typeof profileNameSchema>;
 export const displayNameSchema = z.object({
   displayName: z.string().trim().max(60, "Display name is too long"),
 });
-export type DisplayNameInput = z.infer<typeof displayNameSchema>;
-
 // New password + confirm. Min length mirrors Supabase auth's own minimum (8);
 // confirm must match.
 export const passwordChangeSchema = z
@@ -241,8 +221,6 @@ export const passwordChangeSchema = z
     message: "Passwords do not match",
     path: ["confirm"],
   });
-export type PasswordChangeInput = z.infer<typeof passwordChangeSchema>;
-
 const socialUrl = z
   .string()
   .trim()

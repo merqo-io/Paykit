@@ -11,7 +11,7 @@ import { renderCheckout } from "./adapter";
 import type { CheckoutView } from "./adapter";
 import type { TxStatus, VendorPaymentConfig } from "@/lib/types";
 
-export type ProviderCheckoutStatus = { status: TxStatus } | null;
+type ProviderCheckoutStatus = { status: TxStatus } | null;
 
 export interface PaymentProvider {
   name: string;

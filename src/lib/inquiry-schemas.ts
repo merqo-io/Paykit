@@ -32,10 +32,6 @@ export const inquiryFormSettingsSchema = z
       });
     }
   });
-export type InquiryFormSettingsInput = z.infer<
-  typeof inquiryFormSettingsSchema
->;
-
 export const publicIdSchema = z.string().regex(/^[0-9a-f]{16}$/);
 
 export const publicInquirySchema = z.object({

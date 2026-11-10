@@ -1,0 +1,9 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignore": [".claude/**"],
+  "ignoreIssues": {
+    "src/lib/api-schemas.ts": ["exports", "types"],
+    "src/lib/metrics.ts": ["types"],
+    "src/lib/merqo-entitlement-contract.ts": ["types"]
+  }
+}

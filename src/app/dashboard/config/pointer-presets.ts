@@ -2,7 +2,7 @@
 // docs/superpowers/specs/2026-08-14-paykit-byo-preset-directory-design.md.
 
 export type PointerPresetId = "stripe" | "hitpay" | "paylah" | "other";
-export type PointerPresetMode = "link" | "qr" | "choice";
+type PointerPresetMode = "link" | "qr" | "choice";
 
 export type PointerPreset = {
   id: PointerPresetId;

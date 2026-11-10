@@ -241,3 +241,5 @@ session/service client separation; `payments/` explains checkout builders.
 The profile name schema message reads "Business name is required".
 
 `kit-auth.ts` passes no `slugLimit`: the shared verifier's per-slug bucket counts failed attempts only (since `@merqo/ui` 0.44.1), so a valid key is never blocked. `payment-status-callback.ts` logs the kit slug and transaction id when a kit has an invalid `callback_url`.
+
+Removed or made module-private by the knip sweep: the unused `z.infer` `*Input` types in `schemas.ts` and `inquiry-schemas.ts` (deleted), `MAX_INPUT_PIXELS`, `WrittenKind`, `ServiceClient` and `VendorActivityMetric`. `metrics.ts` takes `MS_PER_DAY` from `utils.ts`.

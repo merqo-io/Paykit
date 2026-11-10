@@ -22,3 +22,5 @@ password alone.
 Needs TOTP enrolment and verification enabled in Supabase Auth.
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+`loading.tsx` is the loading fallback for the sign-in card; like the page it keeps a `<main>` landmark and an inner `role="status"` element with an sr-only "Loading" label.
