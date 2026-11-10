@@ -1,6 +1,6 @@
 {
   "name": "paykit",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "private": true,
   "packageManager": "pnpm@11.10.0",
   "engines": {
@@ -20,7 +20,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@merqo/ui": "github:merqo-io/merqo-ui#250a4edd5399809b3c182cd381ba310d12dec5a7",
+    "@merqo/ui": "github:merqo-io/merqo-ui#c2c18963872f7d4b65a7ca6a656a126d1bc6bf62",
     "@sentry/nextjs": "10.76.2",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "2.110.4",
@@ -43,12 +43,10 @@
   },
   "devDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "4.8.1",
-    "@eslint/eslintrc": "^3.2.0",
     "@playwright/test": "1.61.1",
     "@stryker-mutator/core": "^9.6.1",
     "@stryker-mutator/vitest-runner": "^9.6.1",
     "@tailwindcss/postcss": "^4.0.0",
-    "@tailwindcss/typography": "^0.5.15",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

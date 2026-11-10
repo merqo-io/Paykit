@@ -23,7 +23,7 @@ const CONTRAST_OFFSET = -100;
 
 // A 1 MB PNG can declare dimensions that decode to gigabytes, so the header
 // is checked before any pixel is decoded. Uploads are 1600px WebP, far below.
-export const MAX_INPUT_PIXELS = 25_000_000;
+const MAX_INPUT_PIXELS = 25_000_000;
 const SHARP_OPTIONS = {
   limitInputPixels: MAX_INPUT_PIXELS,
   failOn: "error",

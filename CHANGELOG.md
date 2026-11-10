@@ -8,9 +8,21 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- `AGENTS.md` now points schema edits at `src/lib/db-types/` (the hand-maintained files behind the `src/lib/types.ts` barrel) instead of `src/lib/types.ts`.
+
+## [0.6.0] - 2026-11-10
+
+### Added
+
+- Loading skeletons for `/admin/*` and `/mfa`, so these pages no longer show a blank screen while their data loads.
+- `knip.json` for the dead-code check (`pnpm dlx knip@6.44.2 --no-progress`), and a sweep record in `docs/meta/2026-10-24-fresh-eyes-sweep.md`.
+
+### Changed
+
+- Removed the unused `@eslint/eslintrc` and `@tailwindcss/typography` dev dependencies, and deleted or un-exported symbols nothing imports (unused form input types, `FIELD_INPUT_CLASS`, `REPORT_TABS`, `MAX_INPUT_PIXELS` and similar). `metrics.ts` now reuses `MS_PER_DAY` from `utils.ts`. No behaviour change.
 - Kit auth failure reasons in `auth_failures` changed to the shared wording: `missing/malformed Authorization header` is now `missing or malformed Authorization header`, and a malformed bearer token (`malformed bearer token`) is now recorded with that same new reason. The unknown-slug and secret-mismatch console warnings no longer include the kit slug; it is still in `auth_failures`.
 - Client IP detection stops at the first trusted header that is present: a bad `x-vercel-forwarded-for` gives no address and the request goes to the `unknown` rate-limit bucket instead of falling through to `x-real-ip`.
-- Kit auth counts attempts per kit slug as a backstop of 3000 per minute, far above the 300 per minute per-IP limit, so junk requests for one slug cannot lock that kit out.
+- Bumped `@merqo/ui` to 0.44.1: the shared kit-auth per-slug bucket counts failed attempts only, so a valid key is never blocked and paykit no longer needs a slug backstop.
 - Removed the unused `class-variance-authority` dependency.
 - Replaced the kit-local copies of `@merqo/ui` pieces with the shared exports and deleted them: `action-result`, `merqo-url`, `theme-props`, `brand-icon`, `security-headers`, `hooks/use-async-action` and `cn`. Supabase clients, rate limiting, kit auth and the legal gate stay as thin wrappers that bind the shared factories to paykit's schema, env and RPC store; `kit-callback` is now `payment-status-callback` and posts through `postKitCallback`. `merqoNoLocalCopies` is enabled in `eslint.config.mjs` so copies cannot return. Behaviour changes from the shared code: an invalid IP header counts as `unknown`, kit auth also rate-limits per kit slug, and callback and auth failure logs carry less detail.
 - Replaced the local badge, button, checkbox, dialog, input, label, textarea and tooltip primitives with `@merqo/ui/primitives`. Buttons and inputs grow to 44px on touch screens, and the tooltip uses the shared popover look. Only radio-group and skeleton stay local.

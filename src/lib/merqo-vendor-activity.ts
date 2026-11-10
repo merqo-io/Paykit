@@ -2,7 +2,7 @@ import { vendorStatus, type VendorStatus } from "@/lib/vendor-health";
 import type { TxStatus, VendorPlan } from "@/lib/types";
 import { MS_PER_DAY, formatCents } from "@/lib/utils";
 
-export type VendorActivityMetric = { label: string; value: string };
+type VendorActivityMetric = { label: string; value: string };
 
 export type VendorActivity = {
   active: boolean;

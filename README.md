@@ -24,7 +24,7 @@ in the workspace root for why. Brand theme is "Banknote Engrave"
 of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-mark.ts`'s
 ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
-The public landing is in pre-launch mode, headlined "One payment setup for every kit.": an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to merqo-ui commit 250a4edd (v0.44.0), whose `PricingLadder` the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices).
+The public landing is in pre-launch mode, headlined "One payment setup for every kit.": an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to merqo-ui commit c2c18963 (v0.44.1), whose `PricingLadder` the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices).
 
 The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amount (the vendor's payee name, falling back to their inquiry-form business name), reports claim and upload failures inline instead of in toasts, and shows a plain retry notice when the payment cannot be loaded.
 
@@ -372,10 +372,14 @@ Badge, button, checkbox, dialog, input, label, textarea, tooltip and `cn` come f
 
 ## Lint
 
-`eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-mark.ts` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`. The mutation gate skips type-only `src/lib/db-types/`.
+`eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-mark.ts` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`; those hand-maintained `*.ts` files are updated by hand after each migration. The mutation gate skips type-only `src/lib/db-types/`.
 
 The `/admin` pages share the dashboard's `PageHeader` and `EmptyState`, with
 section tabs that mark the current page via `aria-current`
 (`src/app/admin/README.md`).
 
-`package.json` no longer lists `clsx`, `tailwind-merge` or `class-variance-authority`; class composition comes from `@merqo/ui/primitives`.
+`package.json` no longer lists `clsx`, `tailwind-merge` or `class-variance-authority`; class composition comes from `@merqo/ui/primitives`. It also drops the unused `@eslint/eslintrc` and `@tailwindcss/typography` dev dependencies.
+
+## Dead-code check
+
+`knip.json` configures `pnpm dlx knip@6.44.2 --no-progress` (knip is not a dependency). It ignores `.claude/**` and keeps the exported HTTP-contract types in `api-schemas.ts`, `metrics.ts` and `merqo-entitlement-contract.ts`. Results and leftovers: `docs/meta/2026-10-24-fresh-eyes-sweep.md`.

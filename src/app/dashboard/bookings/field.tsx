@@ -2,7 +2,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { Input, Label, cn } from "@merqo/ui/primitives";
 
 /** Shared look for every bookings form input: tall, rounded, no shadow. */
-export const FIELD_INPUT_CLASS = "h-11 rounded-xl shadow-none";
+const FIELD_INPUT_CLASS = "h-11 rounded-xl shadow-none";
 
 /**
  * Label, input, hint and inline error with the aria wiring in one place, so
