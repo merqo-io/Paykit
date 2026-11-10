@@ -1,6 +1,5 @@
 import type { TxStatus, VendorPlan } from "@/lib/types";
-
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
+import { MS_PER_DAY } from "@/lib/utils";
 
 // Mirrors merqo's `metricsPayloadSchema` (../merqo/src/lib/metrics-schema.ts).
 // Defined locally rather than imported — cross-repo runtime imports aren't

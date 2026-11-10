@@ -94,3 +94,5 @@ and toasts have no trailing period.
 Page chrome here (EmptyState) comes from `@merqo/ui`; paykit keeps no local copy.
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+Internal-only helpers in `field.tsx` (`FIELD_INPUT_CLASS`) are not exported; knip flags unused exports.

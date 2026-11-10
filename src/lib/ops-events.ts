@@ -5,7 +5,7 @@ import { readAllRows } from "@/lib/read-all-rows";
 type ServiceClient = Awaited<ReturnType<typeof createServiceClient>>;
 
 /** The kinds paykit writes; anything else is computed, never stored. */
-export type WrittenKind = Extract<IncidentKind, "payment_callback_failed">;
+type WrittenKind = Extract<IncidentKind, "payment_callback_failed">;
 
 export type OpsEventInput = {
   vendorId: string;

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const REPORT_TABS = ["overview", "earnings"] as const;
+const REPORT_TABS = ["overview", "earnings"] as const;
 export type ReportTab = (typeof REPORT_TABS)[number];
 
 const first = (v: unknown): unknown => (Array.isArray(v) ? v[0] : v);

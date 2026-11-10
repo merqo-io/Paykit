@@ -378,4 +378,8 @@ The `/admin` pages share the dashboard's `PageHeader` and `EmptyState`, with
 section tabs that mark the current page via `aria-current`
 (`src/app/admin/README.md`).
 
-`package.json` no longer lists `clsx`, `tailwind-merge` or `class-variance-authority`; class composition comes from `@merqo/ui/primitives`.
+`package.json` no longer lists `clsx`, `tailwind-merge` or `class-variance-authority`; class composition comes from `@merqo/ui/primitives`. It also drops the unused `@eslint/eslintrc` and `@tailwindcss/typography` dev dependencies.
+
+## Dead-code check
+
+`knip.json` configures `pnpm dlx knip@6.44.2 --no-progress` (knip is not a dependency). It ignores `.claude/**` and keeps the exported HTTP-contract types in `api-schemas.ts`, `metrics.ts` and `merqo-entitlement-contract.ts`. Results and leftovers: `docs/meta/2026-10-24-fresh-eyes-sweep.md`.

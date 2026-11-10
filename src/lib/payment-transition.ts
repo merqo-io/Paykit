@@ -16,7 +16,7 @@ import { TRANSACTION_COLUMNS } from "@/lib/columns";
 import type { TxStatus } from "@/lib/tx-state";
 import type { Transaction } from "@/lib/types";
 
-export type ServiceClient = Awaited<ReturnType<typeof createServiceClient>>;
+type ServiceClient = Awaited<ReturnType<typeof createServiceClient>>;
 
 type Limiter = (
   supabase: ServiceClient,
