@@ -8,6 +8,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- The MFA form and the wordmark now use the shared `MfaForm` and `Wordmark` from `@merqo/ui`; `src/app/mfa/mfa-form.tsx` and `src/components/landing/wordmark.tsx` are thin adapters that keep paykit's Supabase wiring and "Pay" accent. Same messages and redirect; the shared form uses `rounded-xl` controls (was `rounded-lg`), strips non-digits as you type (`pattern="[0-9]*"`), disables the input while checking, clears the error on edit, stays pending after a successful verify until the route changes, shows "Verifying" while checking, and shows thrown errors as the same wrong-code or setup copy.
+- The `/supabase-migrate` skill no longer tells readers to regenerate DB types: it applies migrations, and `src/lib/db-types/` is edited by hand.
 - `AGENTS.md` now points schema edits at `src/lib/db-types/` (the hand-maintained files behind the `src/lib/types.ts` barrel) instead of `src/lib/types.ts`.
 
 ## [0.6.0] - 2026-11-10

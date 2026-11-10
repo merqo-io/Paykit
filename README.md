@@ -358,7 +358,7 @@ An event vendor can take inquiries before there is a booking. On Bookings they s
 
 ## Security headers and MFA
 
-`src/proxy.ts` sets the CSP (nonce on per-request routes) and `X-Robots-Tag` off production. The admin area requires TOTP MFA; see `src/app/mfa/README.md` and `docs/security/`.
+`src/proxy.ts` sets the CSP (nonce on per-request routes) and `X-Robots-Tag` off production. The admin area requires TOTP MFA; see `src/app/mfa/README.md` and `docs/security/`. The MFA form and the wordmark are thin adapters over the shared `MfaForm` and `Wordmark` from `@merqo/ui`.
 
 Retention: migration 0031 nulls `auth_failures.ip` after 30 days through a daily `pg_cron` job (`purge_auth_failure_ips()`); the failure rows themselves are kept. Migration 0032 queues a payment screenshot's storage path when its `payment_evidence` row is deleted, and the daily Vercel Cron route `/api/cron/proof-storage-drain` (`CRON_SECRET`) removes the object, skipping any path a live evidence row still uses.
 
@@ -372,7 +372,7 @@ Badge, button, checkbox, dialog, input, label, textarea, tooltip and `cn` come f
 
 ## Lint
 
-`eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-mark.ts` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`; those hand-maintained `*.ts` files are updated by hand after each migration. The mutation gate skips type-only `src/lib/db-types/`.
+`eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-mark.ts` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`; those hand-maintained `*.ts` files are updated by hand after each migration. The mutation gate skips type-only `src/lib/db-types/`. The `/supabase-migrate` skill applies migrations but never touches types.
 
 The `/admin` pages share the dashboard's `PageHeader` and `EmptyState`, with
 section tabs that mark the current page via `aria-current`

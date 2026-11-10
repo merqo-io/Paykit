@@ -12,10 +12,16 @@ password alone.
   `/admin` so the `aal2` gate cannot loop back), forwards an `aal2` session to
   `/admin`, otherwise passes the verified TOTP factor (or stale unverified ones)
   to the form.
-- `mfa-form.tsx` — client form: enrol an authenticator (QR plus manual key) or
-  verify a 6-digit code with `challengeAndVerify`, then enter `/admin`.
+- `mfa-form.tsx` — thin adapter over the shared `MfaForm` from `@merqo/ui`: it
+  supplies the Supabase TOTP enrol (dropping stale factors first) and
+  `challengeAndVerify` calls, then enters `/admin`. Every failure, including a
+  thrown network error, maps to the fixed setup or wrong-code copy. Shared-form
+  behaviour: the input has `pattern="[0-9]*"` and strips non-digits as typed,
+  is disabled while pending, clears the error on edit, and controls are
+  `rounded-xl`. After a successful verify the form stays pending until the
+  route changes, so a used code cannot be resubmitted.
 - The card is a flat surface with a 2px bottom border (no blurred shadow); the code input and button are 44px tall with 16px text.
-- `mfa-form.dom.test.tsx` — verify, wrong code, enrol-then-verify, bad input.
+- `mfa-form.dom.test.tsx` — verify, wrong code, short code, enrol-then-verify, enrol failure, input attributes.
 
 ## Connectivity
 
