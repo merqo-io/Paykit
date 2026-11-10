@@ -105,6 +105,54 @@ it("shows the setup error when enrolment fails", async () => {
   expect(screen.queryByLabelText("6-digit code")).not.toBeInTheDocument();
 });
 
+it("shows the setup error when enrolment throws", async () => {
+  mocks.enroll.mockRejectedValue(new Error("network down"));
+  const user = userEvent.setup();
+  render(<MfaForm verifiedFactorId={null} staleFactorIds={[]} />);
+  await user.click(
+    screen.getByRole("button", { name: "Set up authenticator" }),
+  );
+  const alert = await screen.findByRole("alert");
+  expect(alert).toHaveTextContent("Could not start setup. Try again.");
+  expect(alert).not.toHaveTextContent("network down");
+});
+
+it("keeps the wrong-code copy for a rate-limit style verify error", async () => {
+  mocks.challengeAndVerify.mockResolvedValue({
+    error: { code: "unlisted_code", message: "Too many requests, slow down" },
+  });
+  const user = userEvent.setup();
+  render(<MfaForm verifiedFactorId="f1" staleFactorIds={[]} />);
+  await user.type(screen.getByLabelText("6-digit code"), "111111");
+  await user.click(screen.getByRole("button", { name: "Verify" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "That code did not work. Check the time on your phone and try again.",
+  );
+});
+
+it("verifies a pasted code containing a space", async () => {
+  const user = userEvent.setup();
+  render(<MfaForm verifiedFactorId="f1" staleFactorIds={[]} />);
+  await user.click(screen.getByLabelText("6-digit code"));
+  await user.paste("123 456");
+  await user.click(screen.getByRole("button", { name: "Verify" }));
+  expect(mocks.challengeAndVerify).toHaveBeenCalledWith({
+    factorId: "f1",
+    code: "123456",
+  });
+});
+
+it("shows the wrong-code copy when verify throws", async () => {
+  mocks.challengeAndVerify.mockRejectedValue(new Error("offline"));
+  const user = userEvent.setup();
+  render(<MfaForm verifiedFactorId="f1" staleFactorIds={[]} />);
+  await user.type(screen.getByLabelText("6-digit code"), "123456");
+  await user.click(screen.getByRole("button", { name: "Verify" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "That code did not work",
+  );
+});
+
 it("keeps one-time-code autofill and the numeric keypad on the input", () => {
   render(<MfaForm verifiedFactorId="f1" staleFactorIds={[]} />);
   const input = screen.getByLabelText("6-digit code");

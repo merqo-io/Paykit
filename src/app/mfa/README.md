@@ -14,7 +14,11 @@ password alone.
   to the form.
 - `mfa-form.tsx` — thin adapter over the shared `MfaForm` from `@merqo/ui`: it
   supplies the Supabase TOTP enrol (dropping stale factors first) and
-  `challengeAndVerify` calls, then enters `/admin`.
+  `challengeAndVerify` calls, then enters `/admin`. Every failure, including a
+  thrown network error, maps to the fixed setup or wrong-code copy. Shared-form
+  behaviour: the input has `pattern="[0-9]*"` and strips non-digits as typed,
+  is disabled while pending, clears the error on edit, and controls are
+  `rounded-xl`.
 - The card is a flat surface with a 2px bottom border (no blurred shadow); the code input and button are 44px tall with 16px text.
 - `mfa-form.dom.test.tsx` — verify, wrong code, short code, enrol-then-verify, enrol failure, input attributes.
 
