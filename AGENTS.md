@@ -64,7 +64,7 @@ Tables, constraints and RLS detail: [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md). 
 
 - Authorization is RLS in Postgres; a vendor reads/writes only their own rows. `kit_api_keys` and `admin_audit` writes, and the cross-kit API (`/checkout`, `/claim`, `/confirm`), are service-role + bearer-secret, server-only.
 - `plan` (`free`|`pro`) gates refund tracking only; `bookings` transaction-id link columns are service-role only.
-- Schema edits update both `supabase/migrations/` and `src/lib/types.ts`.
+- Schema edits update both `supabase/migrations/` and the matching file in `src/lib/db-types/`.
 - Keep `admin_audit` rows for 5 years (IRAS norm); the service role cannot `update`/`delete` them.
 
 ## Rules (always)
@@ -86,7 +86,7 @@ Tables, constraints and RLS detail: [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md). 
 - paykit never touches funds. Do not add a payment-provider SDK, a webhook
   that moves money, or a real auto-verify integration.
 - After editing the schema, update both `supabase/migrations/` and
-  `src/lib/types.ts`.
+  the matching file in `src/lib/db-types/`.
 
 ## Git Workflow
 
