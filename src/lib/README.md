@@ -240,4 +240,4 @@ session/service client separation; `payments/` explains checkout builders.
 
 The profile name schema message reads "Business name is required".
 
-`kit-auth.ts` passes a per-slug backstop of 3000 attempts per minute to the shared verifier, well above the 300 per minute per-IP limit, so junk requests for one slug cannot lock that kit out. `payment-status-callback.ts` logs the kit slug and transaction id when a kit has an invalid `callback_url`.
+`kit-auth.ts` passes no `slugLimit`: the shared verifier's per-slug bucket counts failed attempts only (since `@merqo/ui` 0.44.1), so a valid key is never blocked. `payment-status-callback.ts` logs the kit slug and transaction id when a kit has an invalid `callback_url`.
