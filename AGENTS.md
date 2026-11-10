@@ -102,7 +102,7 @@ Tables, constraints and RLS detail: [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md). 
 | Skill               | What it does                                                 |
 | ------------------- | ------------------------------------------------------------ |
 | `/next-verify`      | typecheck + lint + test in one pass                          |
-| `/supabase-migrate` | apply `supabase/migrations` + regenerate types (safety gate) |
+| `/supabase-migrate` | apply `supabase/migrations`, types edited by hand (safety gate) |
 
 ### templateCentral plugin skills
 
