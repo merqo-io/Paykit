@@ -372,7 +372,7 @@ Badge, button, checkbox, dialog, input, label, textarea, tooltip and `cn` come f
 
 ## Lint
 
-`eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-mark.ts` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`; those hand-maintained `*.ts` files are updated by hand after each migration. The mutation gate skips type-only `src/lib/db-types/`.
+`eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-mark.ts` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`; those hand-maintained `*.ts` files are updated by hand after each migration. The mutation gate skips type-only `src/lib/db-types/`. The `/supabase-migrate` skill applies migrations but never touches types.
 
 The `/admin` pages share the dashboard's `PageHeader` and `EmptyState`, with
 section tabs that mark the current page via `aria-current`

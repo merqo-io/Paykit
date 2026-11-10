@@ -8,7 +8,7 @@
   "richReadme": true,
   "seeded_files": {
     "AGENTS.md": {
-      "origin_hash": "546ad954b06bda6e4fa186f536a2e99afe4a9804098d31f29f01127de53c9e95",
+      "origin_hash": "e0f90e43a1bcc07161f783162d88a0499336b99e1418a9f074d05a7212129368",
       "path": "AGENTS.md"
     },
     ".claude/settings.json": {
@@ -64,7 +64,7 @@
       "path": ".claude/skills/next-verify/SKILL.md"
     },
     ".claude/skills/supabase-migrate/SKILL.md": {
-      "origin_hash": "6b47293d3f6c7ba3c532023007dc90ea277ed3c325bea6295b8be489e79a34f5",
+      "origin_hash": "8d89cb6e0136bab4407a16e50632ccfab6af813eacd1229b6d9b2cba348a83c1",
       "path": ".claude/skills/supabase-migrate/SKILL.md"
     },
     ".husky/pre-commit": {

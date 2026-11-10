@@ -1,6 +1,6 @@
 ---
 name: supabase-migrate
-description: Apply Supabase schema migrations and regenerate DB types, with a safety gate.
+description: Apply Supabase schema migrations, with a safety gate; DB types in src/lib/db-types/ are updated by hand.
 allowed-tools: "Bash(supabase *), Bash(pnpm *)"
 disable-model-invocation: true
 ---
@@ -15,24 +15,22 @@ paykit uses Supabase (Postgres + RLS), not Drizzle. Migrations live in
 - `supabase migration up` — apply pending migrations to the running local DB.
   (Or `supabase db reset` to rebuild local from `supabase/migrations/` + re-run
   the seed — destructive to local data only.)
-- After any schema change, regenerate types from the local schema:
-  `supabase gen types typescript --local --schema paykit,merqo > types.generated.ts`.
 
 **Linked (hosted) project — only when intentionally changing the deployed DB:**
 
 - `supabase db push` — applies pending migrations to the linked project.
-- Regenerate types: `supabase gen types typescript --linked --schema paykit,merqo > types.generated.ts`.
 
 **Without the CLI:**
 
 - Paste the migration SQL into Supabase → SQL Editor → Run.
-- Manually update `src/lib/types.ts` to match (keep `Relationships` on each table
-  and the `Views`/`Functions`/`CompositeTypes` keys, or supabase-js types resolve
-  to `never`).
 
-Generate only the owned `paykit` schema and the shared `merqo` profile RPC schema.
-Reconcile the generated definitions into `src/lib/types.ts` while retaining its
-hand-authored domain aliases. Remove the temporary `types.generated.ts` after review.
+## Types
+
+DB types are hand-maintained, never generated. After each migration, update the
+matching file in `src/lib/db-types/`. `src/lib/types.ts` is only the barrel that
+re-exports them and must never be overwritten. Keep `Relationships` on each table
+and the `Views`/`Functions`/`CompositeTypes` keys, or supabase-js types resolve
+to `never`.
 
 ## Safety gate (before running against a non-local project)
 
