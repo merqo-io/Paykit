@@ -18,7 +18,8 @@ password alone.
   thrown network error, maps to the fixed setup or wrong-code copy. Shared-form
   behaviour: the input has `pattern="[0-9]*"` and strips non-digits as typed,
   is disabled while pending, clears the error on edit, and controls are
-  `rounded-xl`.
+  `rounded-xl`. After a successful verify the form stays pending until the
+  route changes, so a used code cannot be resubmitted.
 - The card is a flat surface with a 2px bottom border (no blurred shadow); the code input and button are 44px tall with 16px text.
 - `mfa-form.dom.test.tsx` — verify, wrong code, short code, enrol-then-verify, enrol failure, input attributes.
 

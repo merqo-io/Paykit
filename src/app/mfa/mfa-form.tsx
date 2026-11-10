@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { MfaForm as SharedMfaForm } from "@merqo/ui";
+import { MfaForm as SharedMfaForm, navigatingAway } from "@merqo/ui";
 import { createClient } from "@/lib/supabase/client";
 
 type Props = {
@@ -14,9 +14,13 @@ const SHORT_CODE_ERROR = "Enter the 6-digit code from your authenticator app.";
 const VERIFY_ERROR =
   "That code did not work. Check the time on your phone and try again.";
 
-// The shared form replaces any returned string with its own default copy
-// unless mapError is given; every string here is already final vendor copy.
-const showCopy = (copy: string) => copy;
+const FIXED_COPY = new Set([ENROL_ERROR, SHORT_CODE_ERROR, VERIFY_ERROR]);
+
+// Without mapError the shared form swaps any returned string for its own
+// default copy. The three strings above are final vendor copy and pass
+// through; anything else (a thrown router error, say) must never reach the
+// screen raw, so it becomes the wrong-code copy.
+const showCopy = (raw: string) => (FIXED_COPY.has(raw) ? raw : VERIFY_ERROR);
 
 /** Binds the shared form to Supabase TOTP: stale unverified factors are
  *  dropped before a new enrolment so abandoned setups never pile up. */
@@ -57,6 +61,9 @@ export function MfaForm({ verifiedFactorId, staleFactorIds }: Props) {
     }
     router.replace("/admin");
     router.refresh();
+    // Keeps the form pending until the route changes so a second tap cannot
+    // resubmit a code that was already used.
+    await navigatingAway();
   }
 
   return (

@@ -28,6 +28,7 @@ import { MfaForm } from "./mfa-form";
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.replace.mockReset();
   mocks.challengeAndVerify.mockResolvedValue({ error: null });
   mocks.enroll.mockResolvedValue({
     data: {
@@ -151,6 +152,33 @@ it("shows the wrong-code copy when verify throws", async () => {
   expect(await screen.findByRole("alert")).toHaveTextContent(
     "That code did not work",
   );
+  expect(mocks.replace).not.toHaveBeenCalled();
+  expect(mocks.refresh).not.toHaveBeenCalled();
+});
+
+it("maps an unknown raw error to the wrong-code copy", async () => {
+  mocks.replace.mockImplementation(() => {
+    throw new Error("raw router failure");
+  });
+  const user = userEvent.setup();
+  render(<MfaForm verifiedFactorId="f1" staleFactorIds={[]} />);
+  await user.type(screen.getByLabelText("6-digit code"), "123456");
+  await user.click(screen.getByRole("button", { name: "Verify" }));
+  const alert = await screen.findByRole("alert");
+  expect(alert).toHaveTextContent("That code did not work");
+  expect(alert).not.toHaveTextContent("raw router failure");
+});
+
+it("stays pending after a successful verify until the route changes", async () => {
+  const user = userEvent.setup();
+  render(<MfaForm verifiedFactorId="f1" staleFactorIds={[]} />);
+  await user.type(screen.getByLabelText("6-digit code"), "123456");
+  await user.click(screen.getByRole("button", { name: "Verify" }));
+  await waitFor(() => expect(mocks.refresh).toHaveBeenCalled());
+  const button = screen.getByRole("button", { name: "Verifying" });
+  expect(button).toBeDisabled();
+  expect(screen.getByLabelText("6-digit code")).toBeDisabled();
+  expect(mocks.challengeAndVerify).toHaveBeenCalledTimes(1);
 });
 
 it("keeps one-time-code autofill and the numeric keypad on the input", () => {
