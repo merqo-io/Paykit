@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `AGENTS.md` now points schema edits at `src/lib/db-types/` (the hand-maintained files behind the `src/lib/types.ts` barrel) instead of `src/lib/types.ts`.
+
 ## [0.6.0] - 2026-11-10
 
 ### Added
