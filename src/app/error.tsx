@@ -22,9 +22,10 @@ export default function RootError({
       error={error}
       reset={reset}
       wordmark={<Wordmark className="text-xl" />}
+      description="Could not load this page. Try again, or go back home."
       onError={(caught) => console.error("Root error boundary caught", caught)}
       actions={
-        <Button asChild variant="outline" className="h-11 w-full">
+        <Button asChild variant="outline" className="h-11 w-full rounded-lg">
           <Link href="/">Back to home</Link>
         </Button>
       }

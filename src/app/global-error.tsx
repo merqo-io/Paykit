@@ -4,7 +4,7 @@ import { GlobalError } from "@merqo/ui";
 
 /**
  * Renders when the root layout itself throws, before globals.css has loaded,
- * so the colours are literal copies of the light tokens in globals.css.
+ * so the colours and radius are literal copies of the light tokens in globals.css. The font stack is a fallback because the layout's font variable is not loaded when the root layout fails.
  */
 export default function GlobalErrorPage({ reset }: { reset: () => void }) {
   return (
@@ -18,7 +18,7 @@ export default function GlobalErrorPage({ reset }: { reset: () => void }) {
         primaryForeground: "oklch(0.949 0.015 88)",
       }}
       fontFamily="ui-sans-serif, system-ui, sans-serif"
-      radius="0.5rem"
+      radius="0.625rem"
     />
   );
 }
