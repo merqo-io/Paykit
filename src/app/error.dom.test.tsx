@@ -23,6 +23,7 @@ describe("RootError", () => {
       screen.getByRole("heading", { name: /something went wrong/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(/could not load this page/i)).toBeInTheDocument();
+    expect(screen.getByText("Reference: xyz789")).toBeInTheDocument();
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       "Root error boundary caught",
       error,

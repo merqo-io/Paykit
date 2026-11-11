@@ -8,7 +8,7 @@ import type { VendorPaymentConfig } from "@/lib/types";
 import { PageHeader } from "@merqo/ui";
 import { buttonVariants } from "@merqo/ui/primitives";
 
-import { FORM_LABEL_CLASS } from "@/lib/utils";
+import { FORM_LABEL_CLASS } from "@merqo/ui";
 
 export const metadata: Metadata = {
   title: "Dashboard",

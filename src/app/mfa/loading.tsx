@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@merqo/ui/primitives";
 
 /**
  * Loading fallback for /mfa, shaped like the centred sign-in card. The page
