@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- `new-booking-dialog.dom.test.tsx` no longer fails intermittently: the amount-error assertions now wait for the form action to set the error instead of reading it synchronously after the click.
+
 ### Changed
 
 - Bumped `@merqo/ui` to 0.44.2: the terms, privacy policy, pilot agreement and About text are reworded so charging and incorporation are conditional and Merqo is described as a personal software project. The terms and privacy versions move to 2026-11-10, so signed-in vendors are asked to accept again.

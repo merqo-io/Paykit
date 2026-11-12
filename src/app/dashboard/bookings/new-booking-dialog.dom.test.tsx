@@ -126,10 +126,12 @@ describe("NewBookingDialog amounts", () => {
     await user.clear(balance);
     await user.type(balance, "5");
     await user.click(screen.getByRole("button", { name: /create booking/i }));
-    expect(balance).toHaveAttribute("aria-invalid", "true");
-    expect(balance).toHaveAccessibleDescription(
-      "Deposit and balance must add up to the total.",
-    );
+    await waitFor(() => {
+      expect(balance).toHaveAttribute("aria-invalid", "true");
+      expect(balance).toHaveAccessibleDescription(
+        "Deposit and balance must add up to the total.",
+      );
+    });
     expect(createBookingActionMock).not.toHaveBeenCalled();
   });
 
@@ -144,8 +146,10 @@ describe("NewBookingDialog amounts", () => {
     await user.type(balance, "700");
     await user.type(screen.getByLabelText("Deposit"), "x");
     await user.click(screen.getByRole("button", { name: /create booking/i }));
-    expect(screen.getByLabelText("Balance")).toHaveAccessibleDescription(
-      "Enter a valid amount.",
+    await waitFor(() =>
+      expect(screen.getByLabelText("Balance")).toHaveAccessibleDescription(
+        "Enter a valid amount.",
+      ),
     );
     expect(createBookingActionMock).not.toHaveBeenCalled();
   });
