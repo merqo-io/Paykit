@@ -64,6 +64,7 @@ vendor can paste into qkit's booth settings.
 Tests cover scoped reads, validation, retained-booking recovery, guarded links,
 returned/rejected failures, cancellation/refund outcomes and dialog behavior.
 Mocked action tests do not establish database RLS, locking or trigger behavior.
+`new-booking-dialog.dom.test.tsx` covers the dialog; the form action runs in a React transition, so assertions on the amount errors it sets use `waitFor`.
 
 ## Tab title
 

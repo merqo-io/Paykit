@@ -321,7 +321,7 @@ See `AGENTS.md` for stack, commands, rules, and a summary of the AI
 harness (the file layout, data model, full harness reference and
 templateCentral adoption log live in `docs/FILE-LAYOUT.md`,
 `docs/DATA-MODEL.md` and `docs/meta/`); `CHANGELOG.md`
-for what's shipped since the MVP, including the "Name | Tagline" Title Case
+for what's shipped since the MVP (test-only fixes are listed under Fixed), including the "Name | Tagline" Title Case
 browser-tab title convention shared across every merqo kit. Folder-level `README.md`s (`src/lib/`,
 `src/components/`, and their subfolders) cover what each module does and
 how it's wired together. See
