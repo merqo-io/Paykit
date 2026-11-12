@@ -65,6 +65,8 @@ const eslintConfig = [
       "kit-auth",
       "legal-gate",
       "dashboard-tour",
+      // Renders inside the dashboard shell, so the full-screen shared page does not fit.
+      "src/app/dashboard/error",
     ],
   }),
   {

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import QRCode from "react-qr-code";
 import { Download, ImageUp } from "lucide-react";
-import { resizeToWebp, useAsyncAction } from "@merqo/ui";
+import { FormError, resizeToWebp, useAsyncAction } from "@merqo/ui";
 import { Button, buttonVariants, cn } from "@merqo/ui/primitives";
 
 import { callHandler, formatCents } from "@/lib/utils";
@@ -74,15 +74,7 @@ async function shareOrDownloadPng(blob: Blob): Promise<void> {
 }
 
 function InlineError({ id, message }: { id?: string; message: string }) {
-  return (
-    <p
-      id={id}
-      role="alert"
-      className="text-center text-sm font-medium text-destructive"
-    >
-      {message}
-    </p>
-  );
+  return <FormError id={id} message={message} className="text-center" />;
 }
 
 function ImageQr({ url }: { url: string }) {

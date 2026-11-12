@@ -32,7 +32,7 @@ behavior.
 
 [dashboard](../README.md)
 
-`profile-form.tsx` renders its inline errors through a small `FieldError` component.
+`profile-form.tsx` renders its inline errors through `@merqo/ui`'s `FormError`, which adds `role="alert"`.
 
 The Links group is described by its inline error (`aria-describedby`); `SocialLinksFields` inputs are owned by `@merqo/ui`, so the error is tied to the group rather than each input.
 

@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@merqo/ui/primitives";
 
 /**
  * Route-segment loading fallback for every /admin/* page. The gated layout

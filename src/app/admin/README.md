@@ -51,4 +51,4 @@ Every page and action is gated by `requireAdmin()`, which needs `aal2`; a passwo
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
-`loading.tsx` is the `/admin/*` loading fallback: it keeps the page's `<main>` landmark and marks an inner element `role="status"` with an sr-only "Loading" label.
+`loading.tsx` is the `/admin/*` loading fallback (shared `Skeleton`): it keeps the page's `<main>` landmark and marks an inner element `role="status"` with an sr-only "Loading" label.

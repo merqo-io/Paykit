@@ -7,12 +7,6 @@ export const MS_PER_HOUR = 3_600_000;
 /** Milliseconds in one day. Shared by rolling-window stats cutoffs. */
 export const MS_PER_DAY = 86_400_000;
 
-export const FORM_LABEL_CLASS =
-  "text-xs font-semibold uppercase tracking-wider text-muted-foreground";
-
-/** Shared inline field-error style across the vendor form pages. */
-export const FORM_ERROR_CLASS = "text-sm font-medium text-destructive";
-
 /** Formats an integer cents amount as an SGD currency string ("$4.50"). */
 export function formatCents(cents: number): string {
   return new Intl.NumberFormat("en-SG", {
