@@ -8,6 +8,8 @@ import { Store, UserRound } from "lucide-react";
 import { Button, Input, Label } from "@merqo/ui/primitives";
 
 import {
+  FORM_LABEL_CLASS,
+  FormError,
   ImageUploader,
   Section,
   SocialLinksFields,
@@ -25,7 +27,7 @@ import {
   passwordChangeSchema,
   socialLinksSchema,
 } from "@/lib/schemas";
-import { callHandler, FORM_ERROR_CLASS, FORM_LABEL_CLASS } from "@/lib/utils";
+import { callHandler } from "@/lib/utils";
 import type { SocialLinks } from "@/lib/types";
 import { updateStallName, updateSocialLinks } from "./actions";
 
@@ -36,15 +38,6 @@ interface Props {
   email: string;
   avatarUrl: string | null;
   socialLinks: SocialLinks;
-}
-
-function FieldError({ id, message }: { id?: string; message: string | null }) {
-  if (!message) return null;
-  return (
-    <p id={id} className={FORM_ERROR_CLASS}>
-      {message}
-    </p>
-  );
 }
 
 export function ProfileForm({
@@ -206,7 +199,7 @@ export function ProfileForm({
             aria-invalid={!!nameError}
             aria-describedby={nameError ? "business-name-error" : undefined}
           />
-          <FieldError id="business-name-error" message={nameError} />
+          <FormError id="business-name-error" message={nameError} />
         </div>
         <div className="flex justify-end">
           <Button
@@ -238,7 +231,7 @@ export function ProfileForm({
             onChange={setLinks}
             idPrefix="profile"
           />
-          <FieldError id="links-error" message={linksError} />
+          <FormError id="links-error" message={linksError} />
           <div className="flex justify-end">
             <Button
               type="button"
@@ -296,7 +289,7 @@ export function ProfileForm({
             aria-invalid={!!displayError}
             aria-describedby={displayError ? "display-name-error" : undefined}
           />
-          <FieldError id="display-name-error" message={displayError} />
+          <FormError id="display-name-error" message={displayError} />
         </div>
         <div className="flex justify-end">
           <Button
@@ -355,7 +348,7 @@ export function ProfileForm({
               aria-invalid={!!pwError}
               aria-describedby={pwError ? "confirm-password-error" : undefined}
             />
-            <FieldError id="confirm-password-error" message={pwError} />
+            <FormError id="confirm-password-error" message={pwError} />
           </div>
           <div className="flex justify-end">
             <Button
