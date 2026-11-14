@@ -179,7 +179,7 @@ through the root layout's `%s | Paykit` template, and an unknown route gets a
 branded `not-found.tsx` beside the existing error boundary. The plan page
 compares Free and Pro with the shared `PlanComparisonTable`, with no price.
 
-Sign-in (`/login`) supports email+password (with a "Check your email"
+Sign-in (`/login`, built on the shared `AuthShell` and `LoginForm`) supports email+password (with a "Check your email"
 confirmation state and a real forgot-password flow) and Google OAuth. Once
 signed in, a vendor's plan comes from merqo, which owns pricing and pushes
 each vendor's entitlement to `POST /api/merqo/entitlement`; paykit caches it
