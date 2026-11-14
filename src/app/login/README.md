@@ -2,13 +2,13 @@
 
 ## Purpose
 
-The single sign-in/sign-up page (`/login`) — email+password and Google
+The single sign-in/sign-up page (`/login`): email+password and Google
 OAuth, plus password reset. No separate `/signup` or `/reset-password`
 route; mode is a client-side toggle on this one page.
 
 ## Contents
 
-- `page.tsx` — `LoginPage()` wraps `LoginScreen` in `<Suspense>` (it reads
+- `page.tsx`: `LoginPage()` wraps `LoginScreen` in `<Suspense>` (it reads
   `useSearchParams()` for `?error=oauth` and `?mode=signup`). The screen is
   the shared `AuthShell` and `LoginForm` from `@merqo/ui`; this file supplies
   the Supabase callbacks:
@@ -36,13 +36,13 @@ route; mode is a client-side toggle on this one page.
     `onModeChange`.
   - Gaps against the shared components are in
     [`docs/merqo-ui-login-gaps.md`](../../../docs/merqo-ui-login-gaps.md).
-- `page.test.tsx` — RTL/jsdom tests: the `?error=oauth` banner, the
+- `page.test.tsx`: RTL/jsdom tests: the `?error=oauth` banner, the
   check-your-email state on a sessionless sign-up (and returning from it via
   "Back to sign in"), the redirect-on-session-present path, password sign-in
   and Google sign-in by touch, the mode toggle, and the Forgot password flow
   (visible only in sign-in mode, sends a reset email and toasts, asks for an
   email when empty, shows plain copy on a failed reset call).
-- `login-page.dom.test.tsx` — RTL/jsdom test asserting the page renders a
+- `login-page.dom.test.tsx`: RTL/jsdom test asserting the page renders a
   single top-level heading alongside the Google and email/password form.
 
 ## Connectivity

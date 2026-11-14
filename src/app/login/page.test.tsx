@@ -322,6 +322,57 @@ describe("LoginPage", () => {
   });
 });
 
+describe("check-your-email card", () => {
+  async function reachCard(user: ReturnType<typeof userEvent.setup>) {
+    signUpMock.mockResolvedValue({ data: { session: null }, error: null });
+    await user.click(
+      screen.getByRole("button", { name: /create an account/i }),
+    );
+    await user.type(screen.getByLabelText(/email/i), "new@example.com");
+    await user.type(screen.getByLabelText(/^password/i), "password123");
+    await user.click(screen.getByRole("button", { name: /create account/i }));
+    await screen.findByText(/check your email/i);
+  }
+
+  it("drops the ?error=oauth line after the card is shown and dismissed", async () => {
+    useSearchParamsMock.mockReturnValue(new URLSearchParams("error=oauth"));
+    const user = userEvent.setup();
+    render(<LoginPage />);
+
+    await reachCard(user);
+    await user.click(screen.getByRole("button", { name: /back to sign in/i }));
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("shows the typed address and keeps a 44px Back to sign in button", async () => {
+    const user = userEvent.setup();
+    render(<LoginPage />);
+
+    await reachCard(user);
+
+    expect(screen.getByText("new@example.com")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /back to sign in/i }),
+    ).toHaveClass("h-11");
+  });
+
+  it("sends the confirmation link back through /auth/callback", async () => {
+    const user = userEvent.setup();
+    render(<LoginPage />);
+
+    await reachCard(user);
+
+    expect(signUpMock).toHaveBeenCalledWith({
+      email: "new@example.com",
+      password: "password123",
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+  });
+});
+
 describe("auth transport recovery", () => {
   it.each(["signin", "signup", "reset", "oauth"])(
     "re-enables controls after %s network rejection",

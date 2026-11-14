@@ -51,6 +51,9 @@ function LoginScreen() {
   // The shared form can only show an inline notice, so the full "check your
   // email" card stays local.
   const [checkEmail, setCheckEmail] = useState<string | null>(null);
+  // The form remounts after "Back to sign in"; without this the carried-back
+  // OAuth error would replay on the fresh form.
+  const [showInitialError, setShowInitialError] = useState(true);
   const isSignin = mode === "signin";
 
   const signIn = ({ email, password }: LoginCredentials) =>
@@ -77,6 +80,7 @@ function LoginScreen() {
       });
       if (error) return friendlyAuthError(error, "signup");
       if (!result.session) {
+        setShowInitialError(false);
         setCheckEmail(email);
         return;
       }
@@ -164,7 +168,7 @@ function LoginScreen() {
         onForgotPassword={forgotPassword}
         mapError={(raw) => raw}
         initialError={
-          searchParams.get("error") === "oauth"
+          showInitialError && searchParams.get("error") === "oauth"
             ? OAUTH_ERROR_MESSAGE
             : undefined
         }
