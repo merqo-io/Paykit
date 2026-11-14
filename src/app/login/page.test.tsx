@@ -163,23 +163,96 @@ describe("LoginPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows an inline field error and sends no reset email when the email field is empty", async () => {
+  it("asks for an email and sends no reset email when the email field is empty", async () => {
     const user = userEvent.setup();
 
     render(<LoginPage />);
 
     await user.click(screen.getByRole("button", { name: /forgot password/i }));
 
-    expect(screen.getByText("Enter your email first")).toHaveAttribute(
-      "id",
-      "email-error",
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Enter your email first",
     );
     expect(screen.getByLabelText("Email")).toHaveAttribute(
-      "aria-describedby",
-      "email-error",
+      "aria-invalid",
+      "true",
     );
     expect(toast.error).not.toHaveBeenCalled();
     expect(resetPasswordForEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("announces a reset link with a toast and keeps the form usable", async () => {
+    const user = userEvent.setup();
+
+    render(<LoginPage />);
+
+    await user.type(screen.getByLabelText(/email/i), "vendor@example.com");
+    await user.click(screen.getByRole("button", { name: /forgot password/i }));
+
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith(
+        "Password reset link sent to vendor@example.com",
+      ),
+    );
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("signs in with the typed credentials and redirects to the dashboard", async () => {
+    const push = vi.fn();
+    const refresh = vi.fn();
+    useRouterMock.mockReturnValue({ push, refresh });
+    const user = userEvent.setup();
+
+    render(<LoginPage />);
+
+    await user.type(screen.getByLabelText("Email"), "vendor@example.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: "Sign in" }),
+    });
+
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/dashboard"));
+    expect(signInWithPasswordMock).toHaveBeenCalledWith({
+      email: "vendor@example.com",
+      password: "password123",
+    });
+    expect(refresh).toHaveBeenCalled();
+  });
+
+  it("starts Google sign-in on touch and returns through /auth/callback", async () => {
+    const user = userEvent.setup();
+
+    render(<LoginPage />);
+
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: /continue with google/i }),
+    });
+
+    await waitFor(() =>
+      expect(signInWithOAuthMock).toHaveBeenCalledWith({
+        provider: "google",
+        options: expect.objectContaining({
+          redirectTo: expect.stringMatching(/\/auth\/callback$/),
+        }),
+      }),
+    );
+  });
+
+  it("switches the heading with the mode toggle", async () => {
+    const user = userEvent.setup();
+
+    render(<LoginPage />);
+
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: /create an account/i }),
+    });
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Create your account" }),
+    ).toBeInTheDocument();
   });
 
   it("shows a plain sentence instead of the raw Supabase error on a wrong password", async () => {
@@ -246,6 +319,57 @@ describe("LoginPage", () => {
     expect(
       screen.getByRole("heading", { name: /welcome back/i }),
     ).toBeInTheDocument();
+  });
+});
+
+describe("check-your-email card", () => {
+  async function reachCard(user: ReturnType<typeof userEvent.setup>) {
+    signUpMock.mockResolvedValue({ data: { session: null }, error: null });
+    await user.click(
+      screen.getByRole("button", { name: /create an account/i }),
+    );
+    await user.type(screen.getByLabelText(/email/i), "new@example.com");
+    await user.type(screen.getByLabelText(/^password/i), "password123");
+    await user.click(screen.getByRole("button", { name: /create account/i }));
+    await screen.findByText(/check your email/i);
+  }
+
+  it("drops the ?error=oauth line after the card is shown and dismissed", async () => {
+    useSearchParamsMock.mockReturnValue(new URLSearchParams("error=oauth"));
+    const user = userEvent.setup();
+    render(<LoginPage />);
+
+    await reachCard(user);
+    await user.click(screen.getByRole("button", { name: /back to sign in/i }));
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("shows the typed address and keeps a 44px Back to sign in button", async () => {
+    const user = userEvent.setup();
+    render(<LoginPage />);
+
+    await reachCard(user);
+
+    expect(screen.getByText("new@example.com")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /back to sign in/i }),
+    ).toHaveClass("h-11");
+  });
+
+  it("sends the confirmation link back through /auth/callback", async () => {
+    const user = userEvent.setup();
+    render(<LoginPage />);
+
+    await reachCard(user);
+
+    expect(signUpMock).toHaveBeenCalledWith({
+      email: "new@example.com",
+      password: "password123",
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
   });
 });
 
