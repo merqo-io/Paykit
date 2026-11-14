@@ -8,35 +8,40 @@ route; mode is a client-side toggle on this one page.
 
 ## Contents
 
-- `page.tsx` — `LoginPage()` wraps the actual `LoginForm` client component
-  in `<Suspense>` (it reads `useSearchParams()` for `?error=oauth`).
-  `LoginForm` handles:
+- `page.tsx` — `LoginPage()` wraps `LoginScreen` in `<Suspense>` (it reads
+  `useSearchParams()` for `?error=oauth` and `?mode=signup`). The screen is
+  the shared `AuthShell` and `LoginForm` from `@merqo/ui`; this file supplies
+  the Supabase callbacks:
   - Google OAuth via `supabase.auth.signInWithOAuth`, redirecting through
     `/auth/callback`; `queryParams: { hl: "en" }` forces an English consent
-    screen regardless of the visitor's browser/account locale.
+    screen regardless of the visitor's browser/account locale. The button
+    stays disabled after success (`navigatingAway()`) while the browser leaves.
   - Email+password sign-in/sign-up via `supabase.auth.signInWithPassword`/
     `signUp`. A sign-up that returns no session (email confirmation on)
-    shows a "Check your email" state instead of silently redirecting to a
-    dashboard the unconfirmed user can't reach yet; "Back to sign in"
-    returns to the normal form in sign-in mode.
+    swaps the form for a local "Check your email" card instead of silently
+    redirecting to a dashboard the unconfirmed user can't reach yet; "Back to
+    sign in" returns to the form in sign-in mode. The shared form's inline
+    `{ notice }` cannot express that card, so it stays local.
   - "Forgot password?" (sign-in mode only) calls
-    `supabase.auth.resetPasswordForEmail`, showing an inline field error if
-    the email is empty, a plain sentence if the call fails, and a success
-    toast otherwise. Every Supabase error goes through `auth-errors.ts`
-    (`friendlyAuthError`), which maps known codes to plain sentences and
-    never echoes the raw message. The
-    reset link lands on `/auth/callback`, which establishes a recovery
-    session and forwards to `/dashboard/profile`, where "Change password"
-    already lets a signed-in (recovery counts) user set a new one — no
-    separate reset-password page needed.
-  - `Wordmark` (`@/components/landing/wordmark`) and `GoogleMark`
-    (`@merqo/ui`) brand the card; the card container is `ElevatedCard`
-    (`@merqo/ui`), matching every other kit's login page.
+    `supabase.auth.resetPasswordForEmail`. The shared form asks for the
+    email first, a failed call shows a plain sentence, and success toasts.
+    Every callback maps Supabase errors through `auth-errors.ts`
+    (`friendlyAuthError`) and returns the final copy; a thrown failure shows
+    "Could not connect. Try again.". `mapError` is the identity because the
+    form only passes it a string, which would lose the HTTP status the
+    rate-limit rule matches. The reset link lands on `/auth/callback`, which
+    establishes a recovery session and forwards to `/dashboard/profile`.
+  - `Wordmark` (`@/components/landing/wordmark`) and the tagline fill
+    `AuthShell`'s wordmark slot; the heading and subtitle follow the mode via
+    `onModeChange`.
+  - Gaps against the shared components are in
+    [`docs/merqo-ui-login-gaps.md`](../../../docs/merqo-ui-login-gaps.md).
 - `page.test.tsx` — RTL/jsdom tests: the `?error=oauth` banner, the
   check-your-email state on a sessionless sign-up (and returning from it via
-  "Back to sign in"), the redirect-on-session-present path, and the Forgot
-  password flow (visible only in sign-in mode, sends a reset email, toasts
-  an error on an empty email or a failed reset call).
+  "Back to sign in"), the redirect-on-session-present path, password sign-in
+  and Google sign-in by touch, the mode toggle, and the Forgot password flow
+  (visible only in sign-in mode, sends a reset email and toasts, asks for an
+  email when empty, shows plain copy on a failed reset call).
 - `login-page.dom.test.tsx` — RTL/jsdom test asserting the page renders a
   single top-level heading alongside the Google and email/password form.
 

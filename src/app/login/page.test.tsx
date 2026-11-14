@@ -163,23 +163,96 @@ describe("LoginPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows an inline field error and sends no reset email when the email field is empty", async () => {
+  it("asks for an email and sends no reset email when the email field is empty", async () => {
     const user = userEvent.setup();
 
     render(<LoginPage />);
 
     await user.click(screen.getByRole("button", { name: /forgot password/i }));
 
-    expect(screen.getByText("Enter your email first")).toHaveAttribute(
-      "id",
-      "email-error",
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Enter your email first",
     );
     expect(screen.getByLabelText("Email")).toHaveAttribute(
-      "aria-describedby",
-      "email-error",
+      "aria-invalid",
+      "true",
     );
     expect(toast.error).not.toHaveBeenCalled();
     expect(resetPasswordForEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("announces a reset link with a toast and keeps the form usable", async () => {
+    const user = userEvent.setup();
+
+    render(<LoginPage />);
+
+    await user.type(screen.getByLabelText(/email/i), "vendor@example.com");
+    await user.click(screen.getByRole("button", { name: /forgot password/i }));
+
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith(
+        "Password reset link sent to vendor@example.com",
+      ),
+    );
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("signs in with the typed credentials and redirects to the dashboard", async () => {
+    const push = vi.fn();
+    const refresh = vi.fn();
+    useRouterMock.mockReturnValue({ push, refresh });
+    const user = userEvent.setup();
+
+    render(<LoginPage />);
+
+    await user.type(screen.getByLabelText("Email"), "vendor@example.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: "Sign in" }),
+    });
+
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/dashboard"));
+    expect(signInWithPasswordMock).toHaveBeenCalledWith({
+      email: "vendor@example.com",
+      password: "password123",
+    });
+    expect(refresh).toHaveBeenCalled();
+  });
+
+  it("starts Google sign-in on touch and returns through /auth/callback", async () => {
+    const user = userEvent.setup();
+
+    render(<LoginPage />);
+
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: /continue with google/i }),
+    });
+
+    await waitFor(() =>
+      expect(signInWithOAuthMock).toHaveBeenCalledWith({
+        provider: "google",
+        options: expect.objectContaining({
+          redirectTo: expect.stringMatching(/\/auth\/callback$/),
+        }),
+      }),
+    );
+  });
+
+  it("switches the heading with the mode toggle", async () => {
+    const user = userEvent.setup();
+
+    render(<LoginPage />);
+
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: /create an account/i }),
+    });
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Create your account" }),
+    ).toBeInTheDocument();
   });
 
   it("shows a plain sentence instead of the raw Supabase error on a wrong password", async () => {
