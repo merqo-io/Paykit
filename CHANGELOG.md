@@ -12,6 +12,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Bumped `@merqo/ui` to v0.46.0: the plan page price ladder now shows a notice that Merqo is free during the pilot.
 - Bumped `@merqo/ui` to 0.45.1 (commit 6bd6bd7b; never 0.45.0, which does not build on clean installs). Root `error.tsx`, `not-found.tsx` and a new `global-error.tsx` now render the shared `ErrorPage`, `NotFound` and `GlobalError`, with the same copy and actions. The error page now also shows Next's digest as a "Reference: <digest>" line when one is supplied. `dashboard/error.tsx` stays local because it renders inside the dashboard shell, with a path-scoped `merqoNoLocalCopies` allow entry.
 - `Skeleton`, `FORM_LABEL_CLASS`, `FORM_ERROR_CLASS` and `FormError` come from `@merqo/ui`; the local `src/components/ui/skeleton.tsx` and the form-class constants in `src/lib/utils.ts` are removed. Skeleton now stops pulsing under reduced motion. The profile form and the pay page render inline errors through `FormError`; profile errors gain `role="alert"`.
 - Bumped `@merqo/ui` to 0.44.2: the terms, privacy policy, pilot agreement and About text are reworded so charging and incorporation are conditional and Merqo is described as a personal software project. The terms and privacy versions move to 2026-11-10, so signed-in vendors are asked to accept again.
