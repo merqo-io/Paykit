@@ -7,7 +7,8 @@ The vendor's plan page: current plan, this month's transaction count, the line
 `@merqo/ui`'s `PricingLadder`. Merqo owns pricing and subscriptions, so paykit
 stores no price: the catalog is fetched from merqo's public `/api/plans`, and
 when it is unreachable the page shows a calm "Prices are unavailable" line. The
-plan is read from the entitlement cache.
+plan is read from the entitlement cache. Since `@merqo/ui` v0.46.0 the ladder renders a pilot notice above the
+plans ("Merqo is free during the pilot...").
 
 ## Contents
 
@@ -22,7 +23,7 @@ plan is read from the entitlement cache.
 - `page.dom.test.tsx` — awaits `PlanPage()` directly and renders the result
   (same pattern as `dashboard/layout.dom.test.tsx`): Free and Pro plan copy,
   the Merqo account pointer, prices only from a mocked catalog, and the
-  null/rejected catalog fallback with no price.
+  null/rejected catalog fallback with no price. It also asserts the pilot notice renders.
 
 ## Connectivity
 

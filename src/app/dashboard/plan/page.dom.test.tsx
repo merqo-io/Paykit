@@ -81,6 +81,9 @@ describe("PlanPage", () => {
     );
     expect(screen.getByText(/43\.21/)).toBeInTheDocument();
     expect(screen.queryByText(/unavailable/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/Merqo is free during the pilot\./),
+    ).toBeInTheDocument();
   });
 
   it("shows the plan and a calm line, with no price, when the catalog is null", async () => {
