@@ -6,7 +6,6 @@ import {
   sumFreeRevenue,
 } from "./free-limits";
 
-// 2026-11-16 10:00 SGT
 const NOW = new Date("2026-11-16T02:00:00Z");
 
 const tx = (created_at: string, amount_cents = 100, status = "confirmed") => ({
