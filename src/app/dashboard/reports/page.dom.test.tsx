@@ -8,7 +8,11 @@ const {
   listAllTransactionsMock,
   listAllBookingsMock,
   RevenueChartMock,
+  readVendorPlanMock,
+  listConfirmedBetweenMock,
 } = vi.hoisted(() => ({
+  readVendorPlanMock: vi.fn(),
+  listConfirmedBetweenMock: vi.fn(),
   getVendorSessionMock: vi.fn(),
   listAllTransactionsMock: vi.fn(),
   listAllBookingsMock: vi.fn(),
@@ -20,6 +24,10 @@ vi.mock("@/lib/vendor-session", () => ({
 }));
 vi.mock("@/lib/transactions", () => ({
   listAllTransactions: listAllTransactionsMock,
+  listConfirmedBetween: listConfirmedBetweenMock,
+}));
+vi.mock("@/lib/vendor-entitlement", () => ({
+  readVendorPlan: readVendorPlanMock,
 }));
 vi.mock("@/lib/bookings", () => ({ listAllBookings: listAllBookingsMock }));
 // ResponsiveContainer needs real layout, which jsdom does not provide.
@@ -68,6 +76,8 @@ beforeEach(() => {
   listAllTransactionsMock.mockReset().mockResolvedValue([TX]);
   listAllBookingsMock.mockReset().mockResolvedValue([BOOKING]);
   RevenueChartMock.mockClear();
+  readVendorPlanMock.mockReset().mockResolvedValue("pro");
+  listConfirmedBetweenMock.mockReset().mockResolvedValue([]);
 });
 
 describe("ReportsPage", () => {
@@ -86,14 +96,14 @@ describe("ReportsPage", () => {
     );
   });
 
-  it("shows the revenue chart on the overview tab for every plan", async () => {
+  it("shows the revenue chart on the overview tab for a paid plan", async () => {
     await renderPage();
     expect(screen.getByTestId("revenue-chart")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Overview" })).toHaveAttribute(
       "aria-current",
       "page",
     );
-    expect(screen.queryByText(/pro/i)).not.toBeInTheDocument();
+    expect(listConfirmedBetweenMock).not.toHaveBeenCalled();
   });
 
   it("shows a dashed empty state on the overview tab with no revenue", async () => {
@@ -148,5 +158,64 @@ describe("ReportsPage", () => {
   it("falls back to Overview for an unknown tab", async () => {
     await renderPage({ tab: "nope" });
     expect(screen.getByTestId("revenue-chart")).toBeInTheDocument();
+  });
+
+  describe("on the Free plan", () => {
+    beforeEach(() => {
+      readVendorPlanMock.mockResolvedValue("free");
+      listConfirmedBetweenMock.mockResolvedValue([
+        { ...TX, created_at: new Date().toISOString(), amount_cents: 2500 },
+      ]);
+    });
+
+    it("shows only today and yesterday totals with a lock for the rest", async () => {
+      await renderPage();
+      expect(screen.getByText("Today")).toBeInTheDocument();
+      expect(screen.getByText("Yesterday")).toBeInTheDocument();
+      expect(screen.getByText("$25.00")).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", {
+          name: "Weekly and monthly revenue are included with Starter and Pro",
+        }),
+      ).toHaveAttribute("href", "/dashboard/plan");
+      expect(screen.queryByTestId("revenue-chart")).not.toBeInTheDocument();
+    });
+
+    it("loads only the today-yesterday window, never the full history", async () => {
+      await renderPage();
+      const [vendor, start, end] = listConfirmedBetweenMock.mock.calls[0];
+      expect(vendor).toBe("v1");
+      expect(Date.parse(end) - Date.parse(start)).toBe(2 * 86_400_000);
+      expect(listAllTransactionsMock).not.toHaveBeenCalled();
+    });
+
+    it("locks the earnings tab and ships no export dataset or CSV button", async () => {
+      await renderPage({ tab: "earnings", year: "2026" });
+      expect(
+        screen.getByRole("link", {
+          name: "Earnings reports and CSV export are included with Starter and Pro",
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Download CSV" }),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText("Jane Tan")).not.toBeInTheDocument();
+      expect(listAllTransactionsMock).not.toHaveBeenCalled();
+      expect(listAllBookingsMock).not.toHaveBeenCalled();
+    });
+
+    it("treats an unreadable plan as Free", async () => {
+      readVendorPlanMock.mockResolvedValue(null);
+      await renderPage();
+      expect(listAllTransactionsMock).not.toHaveBeenCalled();
+      expect(screen.getByText("Today")).toBeInTheDocument();
+    });
+  });
+
+  it("offers the CSV download on the earnings tab for a paid plan", async () => {
+    await renderPage({ tab: "earnings", year: "2026" });
+    expect(
+      screen.getByRole("button", { name: "Download CSV" }),
+    ).toBeInTheDocument();
   });
 });

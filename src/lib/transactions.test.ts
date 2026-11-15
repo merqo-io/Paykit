@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { orderMock, rpcMock, maybeSingleMock, createServerClientMock } =
+const { orderMock, gteMock, rpcMock, maybeSingleMock, createServerClientMock } =
   vi.hoisted(() => ({
     orderMock: vi.fn(),
+    gteMock: vi.fn(),
     rpcMock: vi.fn(),
     maybeSingleMock: vi.fn(),
     createServerClientMock: vi.fn(),
@@ -16,6 +17,7 @@ beforeEach(() => {
   orderMock
     .mockReset()
     .mockResolvedValue({ data: [{ id: "tx1" }], error: null });
+  gteMock.mockReset().mockReturnValue({ order: () => ({ limit: orderMock }) });
   rpcMock.mockReset().mockResolvedValue({ data: 7, error: null });
   maybeSingleMock
     .mockReset()
@@ -25,6 +27,7 @@ beforeEach(() => {
       select: () => ({
         eq: () => ({
           order: () => ({ limit: orderMock }),
+          gte: gteMock,
           eq: () => ({ maybeSingle: maybeSingleMock }),
         }),
       }),
@@ -37,6 +40,18 @@ describe("listTransactions", () => {
   it("returns the vendor's transactions", async () => {
     const { listTransactions } = await import("./transactions");
     expect(await listTransactions("v1")).toEqual([{ id: "tx1" }]);
+    expect(gteMock).not.toHaveBeenCalled();
+  });
+
+  it("filters to rows created on or after `since` when given", async () => {
+    const { listTransactions } = await import("./transactions");
+    expect(await listTransactions("v1", "2026-10-17T00:00:00.000Z")).toEqual([
+      { id: "tx1" },
+    ]);
+    expect(gteMock).toHaveBeenCalledWith(
+      "created_at",
+      "2026-10-17T00:00:00.000Z",
+    );
   });
 });
 
@@ -112,5 +127,63 @@ describe("claimedTxCount", () => {
     expect(await claimedTxCount("v1")).toBe(0);
     expect(errorSpy).toHaveBeenCalledWith("claimedTxCount failed", "boom");
     errorSpy.mockRestore();
+  });
+});
+
+describe("countTransactionsBefore", () => {
+  const ltClient = (result: {
+    count: number | null;
+    error: { message: string } | null;
+  }) => {
+    const ltMock = vi.fn().mockResolvedValue(result);
+    createServerClientMock.mockResolvedValue({
+      from: () => ({
+        select: () => ({ eq: () => ({ lt: ltMock }) }),
+      }),
+    });
+    return ltMock;
+  };
+
+  it("head-counts rows older than the cutoff", async () => {
+    const ltMock = ltClient({ count: 4, error: null });
+    const { countTransactionsBefore } = await import("./transactions");
+    expect(await countTransactionsBefore("v1", "2026-10-17T00:00:00Z")).toBe(4);
+    expect(ltMock).toHaveBeenCalledWith("created_at", "2026-10-17T00:00:00Z");
+  });
+
+  it("logs and returns 0 on a query error", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    ltClient({ count: null, error: { message: "boom" } });
+    const { countTransactionsBefore } = await import("./transactions");
+    expect(await countTransactionsBefore("v1", "x")).toBe(0);
+    expect(errorSpy).toHaveBeenCalledWith(
+      "countTransactionsBefore failed",
+      "boom",
+    );
+    errorSpy.mockRestore();
+  });
+});
+
+describe("listConfirmedBetween", () => {
+  it("bounds confirmed rows to [start, end)", async () => {
+    const rangeMock = vi
+      .fn()
+      .mockResolvedValueOnce({ data: [{ id: "tx1" }], error: null })
+      .mockResolvedValueOnce({ data: [], error: null });
+    const calls: [string, ...unknown[]][] = [];
+    const chain: Record<string, unknown> = {};
+    for (const name of ["select", "eq", "gte", "lt", "order"]) {
+      chain[name] = (...args: unknown[]) => {
+        calls.push([name, ...args]);
+        return chain;
+      };
+    }
+    chain.range = rangeMock;
+    createServerClientMock.mockResolvedValue({ from: () => chain });
+    const { listConfirmedBetween } = await import("./transactions");
+    expect(await listConfirmedBetween("v1", "S", "E")).toEqual([{ id: "tx1" }]);
+    expect(calls).toContainEqual(["eq", "status", "confirmed"]);
+    expect(calls).toContainEqual(["gte", "created_at", "S"]);
+    expect(calls).toContainEqual(["lt", "created_at", "E"]);
   });
 });

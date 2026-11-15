@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The Free plan now shows the last 30 days of transactions with a note that older ones are kept, reports show only today's and yesterday's totals (Singapore date), and the earnings report, CSV export and automatic proof amount check need a paid plan. Nothing is deleted; payments and manual confirmation stay unlimited. Shared windows live in `src/lib/free-limits.ts`.
+
 ### Fixed
 
 - `new-booking-dialog.dom.test.tsx` no longer fails intermittently: the amount-error assertions now wait for the form action to set the error instead of reading it synchronously after the click.

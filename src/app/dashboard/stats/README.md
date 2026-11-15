@@ -4,8 +4,9 @@
 
 Home of the revenue chart that backs the Reports Overview tab
 (`/dashboard/reports`), plus a redirect for the old `/dashboard/stats` URL.
-Revenue stats are free for every vendor regardless of plan; only refund
-tracking is Pro (see `dashboard/plan/`).
+The chart is for paid plans; a Free vendor sees today's and yesterday's
+totals instead (see `dashboard/reports/`). Refund tracking is also paid (see
+`dashboard/plan/`).
 
 ## Contents
 

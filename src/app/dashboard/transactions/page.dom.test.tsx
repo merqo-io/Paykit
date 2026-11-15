@@ -12,12 +12,17 @@ import { render, screen } from "@testing-library/react";
 import TransactionsPage from "./page";
 import type { Transaction } from "@/lib/types";
 
-const { getVendorSessionMock, readVendorPlanMock, listTransactionsMock } =
-  vi.hoisted(() => ({
-    getVendorSessionMock: vi.fn(),
-    readVendorPlanMock: vi.fn(),
-    listTransactionsMock: vi.fn(),
-  }));
+const {
+  getVendorSessionMock,
+  readVendorPlanMock,
+  listTransactionsMock,
+  countBeforeMock,
+} = vi.hoisted(() => ({
+  getVendorSessionMock: vi.fn(),
+  readVendorPlanMock: vi.fn(),
+  listTransactionsMock: vi.fn(),
+  countBeforeMock: vi.fn(),
+}));
 
 vi.mock("@/lib/vendor-session", () => ({
   getVendorSession: getVendorSessionMock,
@@ -27,6 +32,7 @@ vi.mock("@/lib/vendor-entitlement", () => ({
 }));
 vi.mock("@/lib/transactions", () => ({
   listTransactions: listTransactionsMock,
+  countTransactionsBefore: countBeforeMock,
 }));
 
 const TX: Transaction = {
@@ -49,6 +55,7 @@ beforeEach(() => {
   });
   readVendorPlanMock.mockReset();
   listTransactionsMock.mockReset();
+  countBeforeMock.mockReset().mockResolvedValue(0);
 });
 
 describe("TransactionsPage", () => {
@@ -88,7 +95,37 @@ describe("TransactionsPage", () => {
     expect(
       screen.getByRole("columnheader", { name: /refund/i }),
     ).toBeInTheDocument();
-    expect(listTransactionsMock).toHaveBeenCalledWith("v1");
+    expect(listTransactionsMock).toHaveBeenCalledWith("v1", undefined);
+    expect(countBeforeMock).not.toHaveBeenCalled();
+    expect(screen.queryByText(/older transactions/i)).not.toBeInTheDocument();
+  });
+
+  it("limits a Free vendor's list to the last 30 days and notes hidden rows", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    listTransactionsMock.mockResolvedValue([TX]);
+    countBeforeMock.mockResolvedValue(3);
+
+    render(await TransactionsPage());
+
+    const since = listTransactionsMock.mock.calls[0][1] as string;
+    const ageDays = (Date.now() - Date.parse(since)) / 86_400_000;
+    expect(ageDays).toBeCloseTo(30, 1);
+    expect(countBeforeMock).toHaveBeenCalledWith("v1", since);
+    expect(
+      screen.getByText(
+        "Older transactions are kept and show on Starter and Pro.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("shows no older-transactions line when a Free vendor has none hidden", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    listTransactionsMock.mockResolvedValue([TX]);
+    countBeforeMock.mockResolvedValue(0);
+
+    render(await TransactionsPage());
+
+    expect(screen.queryByText(/older transactions/i)).not.toBeInTheDocument();
   });
 
   it("treats a vendor with no config yet as Free (no Refund column)", async () => {
