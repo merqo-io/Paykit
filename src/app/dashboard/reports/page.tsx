@@ -1,13 +1,19 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { PageHeader } from "@merqo/ui";
-import { EmptyState } from "@merqo/ui";
+import { EmptyState, PageHeader, ProLock } from "@merqo/ui";
 import { getVendorSession } from "@/lib/vendor-session";
-import { listAllTransactions } from "@/lib/transactions";
+import { readVendorPlan } from "@/lib/vendor-entitlement";
+import {
+  freeRevenueWindow,
+  isPaidPlan,
+  sumFreeRevenue,
+} from "@/lib/free-limits";
+import { listAllTransactions, listConfirmedBetween } from "@/lib/transactions";
 import { listAllBookings } from "@/lib/bookings";
 import { buildEarningsReport } from "@/lib/earnings-report";
 import { aggregateRevenueByDay } from "@/lib/revenue-report";
 import { RevenueChart } from "../stats/revenue-chart";
+import { FreeRevenueSummary } from "./free-revenue-summary";
 import { EarningsPanel } from "./earnings/earnings-panel";
 import { ReportsTabs } from "./reports-tabs";
 import { parseReportsParams } from "./search-params";
@@ -21,12 +27,28 @@ export default async function ReportsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { user } = await getVendorSession();
+  const { supabase, user } = await getVendorSession();
   const { tab, year } = parseReportsParams(await searchParams);
+  const isPaid = isPaidPlan(await readVendorPlan(supabase, user.id));
 
-  // Only the active tab's data is fetched.
+  // Only the active tab's data is fetched, and Free never loads beyond today and yesterday.
   let content: ReactNode;
-  if (tab === "overview") {
+  if (!isPaid) {
+    if (tab === "overview") {
+      const { startIso, endIso } = freeRevenueWindow();
+      const totals = sumFreeRevenue(
+        await listConfirmedBetween(user.id, startIso, endIso),
+      );
+      content = <FreeRevenueSummary {...totals} />;
+    } else {
+      content = (
+        <ProLock
+          label="Earnings reports and CSV export are included with Starter and Pro"
+          href="/dashboard/plan"
+        />
+      );
+    }
+  } else if (tab === "overview") {
     const data = aggregateRevenueByDay(await listAllTransactions(user.id));
     content =
       data.length === 0 ? (

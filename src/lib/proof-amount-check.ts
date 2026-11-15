@@ -3,10 +3,14 @@ import type { createServiceClient } from "@/lib/supabase/server";
 import { hashProof } from "@/lib/payment-evidence";
 import type { ProofFile } from "@/lib/proof-file";
 import { recognizeText } from "@/lib/proof-ocr";
+import { isPaidPlan } from "@/lib/free-limits";
+import { readVendorPlan } from "@/lib/vendor-entitlement";
 
 type ServiceClient = Awaited<ReturnType<typeof createServiceClient>>;
 
 type CheckedTransaction = { id: string; amount_cents: number };
+
+type ScheduledTransaction = CheckedTransaction & { vendor_id: string };
 
 // A money amount with two decimals, standing by itself: "12.50" and
 // "1,250.00" are amounts; the "5.50" inside "15.50" is not.
@@ -93,15 +97,19 @@ export async function checkProofAmount(
 /**
  * Runs the amount check once the claim's response has gone out. Reading a
  * screenshot takes a second or more, and the calling kit is waiting on the
- * claim, so the check must not hold the response.
+ * claim, so the check must not hold the response. Automatic confirmation is
+ * a paid feature, so the vendor's plan is read after the response, not before.
  */
 export function scheduleProofAmountCheck(
   supabase: ServiceClient,
-  tx: CheckedTransaction,
+  tx: ScheduledTransaction,
   proof: ProofFile,
 ): void {
   try {
-    after(() => checkProofAmount(supabase, tx, proof));
+    after(async () => {
+      if (!isPaidPlan(await readVendorPlan(supabase, tx.vendor_id))) return;
+      await checkProofAmount(supabase, tx, proof);
+    });
   } catch {
     // `after` throws where there is no request to outlive. The claim has
     // already been decided; the amount simply stays unchecked.

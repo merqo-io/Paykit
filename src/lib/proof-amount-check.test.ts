@@ -1,16 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { afterMock, recognizeTextMock, updateMock, eqMock, updateResult } =
-  vi.hoisted(() => ({
-    afterMock: vi.fn(),
-    recognizeTextMock: vi.fn(),
-    updateMock: vi.fn(),
-    eqMock: vi.fn(),
-    updateResult: { value: { error: null as { message: string } | null } },
-  }));
+const {
+  afterMock,
+  recognizeTextMock,
+  updateMock,
+  eqMock,
+  updateResult,
+  readVendorPlanMock,
+} = vi.hoisted(() => ({
+  readVendorPlanMock: vi.fn(),
+  afterMock: vi.fn(),
+  recognizeTextMock: vi.fn(),
+  updateMock: vi.fn(),
+  eqMock: vi.fn(),
+  updateResult: { value: { error: null as { message: string } | null } },
+}));
 
 vi.mock("next/server", () => ({ after: afterMock }));
 vi.mock("@/lib/proof-ocr", () => ({ recognizeText: recognizeTextMock }));
+vi.mock("@/lib/vendor-entitlement", () => ({
+  readVendorPlan: readVendorPlanMock,
+}));
 
 import {
   amountInRaisedCentsText,
@@ -22,6 +32,7 @@ import { hashProof } from "./payment-evidence";
 import type { ProofFile } from "./proof-file";
 
 const TX = { id: "11111111-1111-1111-8111-111111111111", amount_cents: 1250 };
+const SCHEDULED = { ...TX, vendor_id: "vendor-1" };
 const PROOF: ProofFile = {
   bytes: Buffer.from("fake image bytes"),
   contentType: "image/webp",
@@ -49,6 +60,7 @@ function fakeSupabase() {
 beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
   afterMock.mockReset();
+  readVendorPlanMock.mockReset().mockResolvedValue("pro");
   recognizeTextMock.mockReset().mockResolvedValue("Transfer\nSGD 12.50\n");
   updateMock.mockReset();
   eqMock.mockReset();
@@ -180,20 +192,35 @@ describe("checkProofAmount", () => {
 
 describe("scheduleProofAmountCheck", () => {
   it("hands the check to after() and does not run it inline", async () => {
-    scheduleProofAmountCheck(fakeSupabase(), TX, PROOF);
+    scheduleProofAmountCheck(fakeSupabase(), SCHEDULED, PROOF);
     expect(afterMock).toHaveBeenCalledTimes(1);
     expect(recognizeTextMock).not.toHaveBeenCalled();
     await afterMock.mock.calls[0][0]();
+    expect(readVendorPlanMock).toHaveBeenCalledWith(
+      expect.anything(),
+      "vendor-1",
+    );
     expect(recognizeTextMock).toHaveBeenCalledWith(PROOF.bytes);
     expect(updateMock).toHaveBeenCalledTimes(1);
   });
+
+  it.each([["free"], [null]])(
+    "skips the check when the vendor plan is %s",
+    async (plan) => {
+      readVendorPlanMock.mockResolvedValue(plan);
+      scheduleProofAmountCheck(fakeSupabase(), SCHEDULED, PROOF);
+      await afterMock.mock.calls[0][0]();
+      expect(recognizeTextMock).not.toHaveBeenCalled();
+      expect(updateMock).not.toHaveBeenCalled();
+    },
+  );
 
   it("does not throw where there is no request to outlive", () => {
     afterMock.mockImplementation(() => {
       throw new Error("after called outside a request scope");
     });
     expect(() =>
-      scheduleProofAmountCheck(fakeSupabase(), TX, PROOF),
+      scheduleProofAmountCheck(fakeSupabase(), SCHEDULED, PROOF),
     ).not.toThrow();
   });
 });
