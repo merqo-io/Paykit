@@ -187,8 +187,8 @@ in `paykit.vendor_entitlements` and gates Pro features on the cache (paid and
 unexpired, or an event pass running). The dashboard's Plan page shows the
 current plan and points to the Merqo account. A Merqo-team-only admin console
 (`/admin`, gated by an `admins` allow-list) shows platform-wide stats and a
-read-only per-vendor plan column. Pro's one remaining gate is refund tracking;
-revenue stats are free for every vendor. `/api/merqo/vendor-status` (merqo hub's own vendor-active/plan
+read-only per-vendor plan column. Free sees the last 30 days of payments and
+today and yesterday totals; weekly and monthly revenue, earnings, CSV export, automatic confirmation and refund tracking need a paid plan. `/api/merqo/vendor-status` (merqo hub's own vendor-active/plan
 lookup) paginates the Supabase admin-users API properly, via the same
 `listAllUsers` helper the admin console uses — it no longer silently
 truncates at the first 1000 auth users. `/api/merqo/metrics` now exists too
@@ -228,7 +228,7 @@ against its one unambiguously confirmed transaction, reusing the existing
 Pro-gated `refunds` ledger rather than a second mechanism. Creating a
 booking or its balance checkout now logs to the admin audit trail too,
 closing the last two real gaps in that coverage. An accrual-aware
-earnings report (`/dashboard/reports?tab=earnings`, free for every vendor) —
+earnings report (`/dashboard/reports?tab=earnings`, paid plans) —
 revenue by month and by booking, tagged by event date rather than
 claim/confirm date, CSV export — rounds out the event-cart bookings
 feature set. A calling kit whose own vendor already knows their booking's

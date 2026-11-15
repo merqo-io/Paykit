@@ -9,6 +9,9 @@ across every kit — plus, for Pro vendors, a per-payment refund action.
 
 - `page.tsx` — `TransactionsPage()` (server): calls `getVendorSession()`/
   `readVendorPlan()` (`@/lib/vendor-entitlement`) and `listTransactions()`, renders `TransactionTable`.
+  A Free vendor's list is limited to the last 30 days (`freeListCutoff`) and a
+  count-only `countTransactionsBefore()` drives a one-line note that older
+  transactions are kept; nothing is deleted.
   Titled "Payments" through the shared `PageHeader`; content sits in a
   plain div (not `<main>` — the parent `dashboard/layout.tsx` owns that
   landmark and the `max-w-7xl` outer width), same as the overview page.

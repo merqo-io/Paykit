@@ -73,7 +73,11 @@ provide authorization.
   `detail.amount_match` on the evidence row matched by transaction and file
   hash; writes nothing when the image cannot be read) and
   `scheduleProofAmountCheck(...)`, which runs it with `after()` once the
-  claim's response is sent.
+  claim's response is sent, and only when the vendor is on a paid plan.
+- `free-limits.ts` — the Free-plan windows in one place: `isPaidPlan(plan)`
+  (an unreadable plan is not paid), `FREE_LIST_DAYS` and `freeListCutoff()`
+  for the 30-day transaction list, `freeRevenueWindow()` (Singapore midnight
+  bounds for today and yesterday) and `sumFreeRevenue()`.
 - `pay-token.ts` — the hosted pay page's token: `mintPayToken()` (32 random
   bytes as 43 base64url characters, with the sha256 hex to store),
   `hashPayToken`, `payTokenMatches(token, storedHash)` (constant time; false
@@ -162,7 +166,9 @@ provide authorization.
 ## Reads and reports
 
 `transactions.ts` and `bookings.ts` read vendor-owned records with the session
-client; `claimedTxCount` is an RLS-scoped head/count of claimed (awaiting
+client; `listTransactions(vendorId, since?)` takes the Free list cutoff,
+`countTransactionsBefore` counts hidden older rows and `listConfirmedBetween`
+reads a bounded window for the Free totals; `claimedTxCount` is an RLS-scoped head/count of claimed (awaiting
 confirmation) transactions for the dashboard home. `read-all-rows.ts` follows ordered numeric ranges to an empty page and rejects
 partial collections on later errors; it does not provide a transaction snapshot.
 `list-all-users.ts` paginates auth users and reports its safety ceiling as failure.
