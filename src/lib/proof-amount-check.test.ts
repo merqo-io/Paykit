@@ -215,6 +215,14 @@ describe("scheduleProofAmountCheck", () => {
     },
   );
 
+  it("treats a failing plan read as Free without rejecting", async () => {
+    readVendorPlanMock.mockRejectedValue(new Error("db down"));
+    scheduleProofAmountCheck(fakeSupabase(), SCHEDULED, PROOF);
+    await expect(afterMock.mock.calls[0][0]()).resolves.toBeUndefined();
+    expect(recognizeTextMock).not.toHaveBeenCalled();
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+
   it("does not throw where there is no request to outlive", () => {
     afterMock.mockImplementation(() => {
       throw new Error("after called outside a request scope");

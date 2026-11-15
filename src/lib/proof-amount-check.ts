@@ -107,7 +107,10 @@ export function scheduleProofAmountCheck(
 ): void {
   try {
     after(async () => {
-      if (!isPaidPlan(await readVendorPlan(supabase, tx.vendor_id))) return;
+      const plan = await readVendorPlan(supabase, tx.vendor_id).catch(
+        () => null,
+      );
+      if (!isPaidPlan(plan)) return;
       await checkProofAmount(supabase, tx, proof);
     });
   } catch {
