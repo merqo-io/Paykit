@@ -80,6 +80,21 @@ describe("buildEarningsReport", () => {
     expect(report.lines[0].label).toBe("Other checkout (no linked booking)");
   });
 
+  it("files a standalone checkout made after 16:00 UTC under the next Singapore month and year", () => {
+    const report = buildEarningsReport(
+      [
+        tx({ id: "a", created_at: "2026-03-31T16:00:00Z" }),
+        tx({ id: "b", created_at: "2026-12-31T16:00:00Z" }),
+      ],
+      [],
+      2026,
+    );
+    expect(report.lines.map((l) => l.event_date)).toEqual(["2026-04-01"]);
+    expect(
+      report.months.find((m) => m.month === "2026-04")?.revenue_cents,
+    ).toBe(30000);
+  });
+
   it("collapses a booking's deposit and balance transactions into one line", () => {
     const report = buildEarningsReport(
       [
