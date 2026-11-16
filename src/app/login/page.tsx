@@ -17,6 +17,8 @@ import { Wordmark } from "@/components/landing/wordmark";
 import { friendlyAuthError } from "./auth-errors";
 
 const OAUTH_ERROR_MESSAGE = "Could not sign in with Google. Try again.";
+const LINK_ERROR_MESSAGE =
+  "That link is invalid or has expired. Request a new one.";
 const CONNECT_ERROR_MESSAGE = "Could not connect. Try again.";
 
 export default function LoginPage() {
@@ -55,6 +57,10 @@ function LoginScreen() {
   // OAuth error would replay on the fresh form.
   const [showInitialError, setShowInitialError] = useState(true);
   const isSignin = mode === "signin";
+  const errorParam = searchParams.get("error");
+  let urlError: string | undefined;
+  if (errorParam === "oauth") urlError = OAUTH_ERROR_MESSAGE;
+  else if (errorParam === "link") urlError = LINK_ERROR_MESSAGE;
 
   const signIn = ({ email, password }: LoginCredentials) =>
     guarded(async () => {
@@ -167,11 +173,7 @@ function LoginScreen() {
         onGoogleSignIn={google}
         onForgotPassword={forgotPassword}
         mapError={(raw) => raw}
-        initialError={
-          showInitialError && searchParams.get("error") === "oauth"
-            ? OAUTH_ERROR_MESSAGE
-            : undefined
-        }
+        initialError={showInitialError ? urlError : undefined}
       />
     </AuthShell>
   );

@@ -9,7 +9,7 @@ route; mode is a client-side toggle on this one page.
 ## Contents
 
 - `page.tsx`: `LoginPage()` wraps `LoginScreen` in `<Suspense>` (it reads
-  `useSearchParams()` for `?error=oauth` and `?mode=signup`). The screen is
+  `useSearchParams()` for `?error=oauth`, `?error=link` and `?mode=signup`). The screen is
   the shared `AuthShell` and `LoginForm` from `@merqo/ui`; this file supplies
   the Supabase callbacks:
   - Google OAuth via `supabase.auth.signInWithOAuth`, redirecting through
@@ -36,7 +36,7 @@ route; mode is a client-side toggle on this one page.
     `onModeChange`.
   - Gaps against the shared components are in
     [`docs/merqo-ui-login-gaps.md`](../../../docs/merqo-ui-login-gaps.md).
-- `page.test.tsx`: RTL/jsdom tests: the `?error=oauth` banner, the
+- `page.test.tsx`: RTL/jsdom tests: the `?error=oauth` and `?error=link` banners, the
   check-your-email state on a sessionless sign-up (and returning from it via
   "Back to sign in"), the redirect-on-session-present path, password sign-in
   and Google sign-in by touch, the mode toggle, and the Forgot password flow
