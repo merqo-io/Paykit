@@ -31,7 +31,7 @@ vi.mock("@merqo/ui", async (importOriginal) => ({
 const catalog = {
   plans: [
     {
-      slug: "all_access",
+      slug: "bundle",
       kind: "bundle",
       name: "All-Access",
       monthly_cents: 4321,
@@ -40,6 +40,21 @@ const catalog = {
     },
   ],
   event_pass: { per_cup_cents: 50, min_cents: 1000, cap_cents: 5000, days: 3 },
+};
+
+const proCatalog = {
+  ...catalog,
+  plans: [
+    {
+      slug: "qkit",
+      kind: "kit",
+      name: "Pro Plan",
+      monthly_cents: 1000,
+      annual_cents: 10000,
+      kits: ["qkit"],
+    },
+    ...catalog.plans,
+  ],
 };
 
 vi.mock("@/lib/vendor-session", () => ({
@@ -78,12 +93,38 @@ describe("PlanPage", () => {
     ).toBeInTheDocument();
     expect(fetchPlanCatalogMock).toHaveBeenCalledWith(
       expect.stringMatching(/^https?:\/\//),
+      undefined,
     );
     expect(screen.getByText(/43\.21/)).toBeInTheDocument();
     expect(screen.queryByText(/unavailable/i)).not.toBeInTheDocument();
     expect(
       screen.getByText(/Merqo is free during the pilot\./),
     ).toBeInTheDocument();
+  });
+
+  it("sends the kit bearer credential to the catalog when it is configured", async () => {
+    vi.stubEnv("MERQO_CUSTOMER_SECRET", "test-secret");
+    readVendorPlanMock.mockResolvedValue("free");
+    txCountThisMonthMock.mockResolvedValue(0);
+
+    render(await PlanPage());
+
+    expect(fetchPlanCatalogMock).toHaveBeenCalledWith(expect.any(String), {
+      headers: { Authorization: "Bearer test-secret" },
+    });
+    vi.unstubAllEnvs();
+  });
+
+  it("highlights the Pro plan", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    txCountThisMonthMock.mockResolvedValue(0);
+    fetchPlanCatalogMock.mockResolvedValue(proCatalog);
+
+    render(await PlanPage());
+
+    const current = screen.getByRole("listitem", { current: true });
+    expect(current).toHaveTextContent("Pro Plan");
+    expect(current).toHaveTextContent("Recommended");
   });
 
   it("shows the plan and a calm line, with no price, when the catalog is null", async () => {

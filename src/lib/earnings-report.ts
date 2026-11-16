@@ -1,3 +1,4 @@
+import { sgtDate } from "@/lib/free-limits";
 import type { Booking, Transaction } from "@/lib/types";
 
 export type EarningsMonth = { month: string; revenue_cents: number };
@@ -54,7 +55,7 @@ function emptyMonths(year: number): EarningsMonth[] {
  * is for (a linked booking's `event_date`), not the date it was claimed or
  * confirmed. A confirmed transaction with no linked booking (a one-shot,
  * non-booking checkout — paykit also serves those) falls back to its own
- * `created_at` date instead of being dropped. Revenue only, never profit —
+ * `created_at` Singapore date instead of being dropped. Revenue only, never profit —
  * paykit never sees a vendor's costs. Deposit and balance transactions on
  * the same booking collapse into one line. */
 export function buildEarningsReport(
@@ -70,7 +71,7 @@ export function buildEarningsReport(
   for (const tx of transactions) {
     if (tx.status !== "confirmed") continue;
     const booking = bookingByTxId.get(tx.id);
-    const eventDate = booking?.event_date ?? tx.created_at.slice(0, 10);
+    const eventDate = booking?.event_date ?? sgtDate(tx.created_at);
     if (Number(eventDate.slice(0, 4)) !== year) continue;
 
     const key = booking ? `booking:${booking.id}` : `tx:${tx.id}`;

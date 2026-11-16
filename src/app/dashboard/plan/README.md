@@ -5,7 +5,7 @@
 The vendor's plan page: current plan, this month's transaction count, the line
 "Change plan from your Merqo account." and merqo's plan catalog rendered by
 `@merqo/ui`'s `PricingLadder`. Merqo owns pricing and subscriptions, so paykit
-stores no price: the catalog is fetched from merqo's public `/api/plans`, and
+stores no price: the catalog is fetched from merqo's `/api/plans` (sent with the kit bearer from `MERQO_CUSTOMER_SECRET` when set), and
 when it is unreachable the page shows a calm "Prices are unavailable" line. The
 plan is read from the entitlement cache. Since `@merqo/ui` v0.46.0 the ladder renders a pilot notice above the
 plans ("Merqo is free during the pilot...").
@@ -17,7 +17,7 @@ plans ("Merqo is free during the pilot...").
   back to Free when the read fails) and `txCountThisMonth()` and
   `fetchPlanCatalog(merqoBaseUrl())` in parallel, resolves the view through
   `resolvePlanView()` (`@/lib/plan-view`), and renders the plan card and
-  `<PricingLadder highlight="all_access" />` (or the unavailable line). Content sits in a plain
+  `<PricingLadder highlight="qkit" />` (Pro) (or the unavailable line). Content sits in a plain
   `mx-auto max-w-2xl` div (not `<main>`, the parent `dashboard/layout.tsx`
   owns that landmark). The header is the local `PageHeader` (eyebrow "Billing"); there is no back button, since the avatar menu and wordmark lead home.
 - `page.dom.test.tsx` — awaits `PlanPage()` directly and renders the result
