@@ -13,12 +13,19 @@ export const metadata: Metadata = {
 
 export const revalidate = 0;
 
+function catalogInit(): RequestInit | undefined {
+  const secret = process.env.MERQO_CUSTOMER_SECRET;
+  return secret
+    ? { headers: { Authorization: `Bearer ${secret}` } }
+    : undefined;
+}
+
 export default async function PlanPage() {
   const { supabase, user } = await getVendorSession();
   const [plan, count, catalog] = await Promise.all([
     readVendorPlan(supabase, user.id),
     txCountThisMonth(user.id),
-    fetchPlanCatalog(merqoBaseUrl()).catch(() => null),
+    fetchPlanCatalog(merqoBaseUrl(), catalogInit()).catch(() => null),
   ]);
   const view = resolvePlanView(plan ?? "free", count);
 
@@ -37,7 +44,7 @@ export default async function PlanPage() {
       </div>
 
       {catalog ? (
-        <PricingLadder catalog={catalog} highlight="all_access" />
+        <PricingLadder catalog={catalog} highlight="qkit" />
       ) : (
         <p className="text-sm text-muted-foreground">
           Prices are unavailable right now. Your plan is unaffected.

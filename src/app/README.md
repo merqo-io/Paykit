@@ -14,7 +14,7 @@ for this project.
 - `admin/`, Merqo-team internal admin console (`/admin`), gated by `requireAdmin()`, platform overview stats and a cross-vendor table with each vendor's plan (read-only).
 - `api/` — the cross-kit `v1` payment API (`checkout`, `vendors`) plus internal `merqo/*` provisioning routes.
 - `apple-icon.tsx` — `AppleIcon` route handler; renders `brandIcon(180)` as a 180×180 PNG for iOS home-screen touch icons.
-- `auth/` — Supabase auth callback route (OAuth code exchange).
+- `auth/` — Supabase auth routes: `callback/` (OAuth code exchange) and `confirm/` (own-domain email links, verified on a button POST).
 - `dashboard/` — authenticated vendor area (payment config, transactions, reports, profile, plan).
 - `legal/` — public `/legal/terms` + `/legal/privacy` pages (rendered from `@merqo/ui`'s shared content) and the `/legal/accept` interstitial a signed-in vendor is bounced to when their accepted terms/privacy versions fall behind `@merqo/ui`'s `LEGAL_VERSIONS` — see `src/lib/legal-gate.ts` and its hook in `getVendorSession` (`@/lib/vendor-session`).
 - `error.tsx` — root-level error boundary (`"use client"`) rendering `@merqo/ui`'s `ErrorPage` for every route not covered by a more specific one (landing, login, auth, admin; `dashboard/` has its own `error.tsx` because it renders inside the dashboard shell). Keeps the paykit wordmark, a "Try again" (`reset()`) and a "Back to home" (`next/link`) action, logs the caught error to the console, and shows Next's digest as a "Reference: <digest>" line when it supplies one.

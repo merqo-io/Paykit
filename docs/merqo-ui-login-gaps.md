@@ -1,6 +1,6 @@
 # @merqo/ui login gaps (paykit pilot)
 
-paykit's `/login` renders `AuthShell` and `LoginForm` from `@merqo/ui` v0.46.0.
+paykit's `/login` renders `AuthShell` and `LoginForm` from `@merqo/ui` v0.49.1.
 Every sign-in behaviour is kept. This lists where the shared components fall
 short, so the other five kits know what to expect before they adopt them. Each
 "smallest change" is a prop or type on `@merqo/ui`.

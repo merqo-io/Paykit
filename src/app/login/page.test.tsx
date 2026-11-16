@@ -70,6 +70,16 @@ describe("LoginPage", () => {
     );
   });
 
+  it("shows the expired-link message when the URL has ?error=link", async () => {
+    useSearchParamsMock.mockReturnValue(new URLSearchParams("error=link"));
+
+    render(<LoginPage />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "That link is invalid or has expired. Request a new one.",
+    );
+  });
+
   it("does not show an error message when there is no error param", async () => {
     render(<LoginPage />);
 

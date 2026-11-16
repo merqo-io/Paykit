@@ -77,7 +77,8 @@ provide authorization.
 - `free-limits.ts` — the Free-plan windows in one place: `isPaidPlan(plan)`
   (an unreadable plan is not paid), `FREE_LIST_DAYS` and `freeListCutoff()`
   for the 30-day transaction list, `freeRevenueWindow()` (Singapore midnight
-  bounds for today and yesterday) and `sumFreeRevenue()`.
+  bounds for today and yesterday) `sumFreeRevenue()` and `sgtDate()`, the Singapore calendar date of a timestamp
+  that reports and earnings also use to bucket days and months.
 - `pay-token.ts` — the hosted pay page's token: `mintPayToken()` (32 random
   bytes as 43 base64url characters, with the sha256 hex to store),
   `hashPayToken`, `payTokenMatches(token, storedHash)` (constant time; false
@@ -183,8 +184,8 @@ past their `expires_at` (`payment_claim_stuck`, code `expired`) into
 `incidents` per kind and the 10 newest `recent`; it throws on a failed read.
 `merqo-vendor-status.ts` resolves a known auth user to that user's config.
 `vendor-health.ts` owns triage bands. `revenue-report.ts` groups confirmed
-transactions by day; `earnings-report.ts` groups booking revenue by event date,
-falling back to transaction creation for unlinked checkouts. These are revenue
+transactions by Singapore day; `earnings-report.ts` groups booking revenue by event date,
+falling back to the transaction's Singapore creation date for unlinked checkouts. These are revenue
 records, not profit or tax submissions. `earnings-csv.ts` escapes customer text
 that could become a spreadsheet formula.
 

@@ -22,7 +22,8 @@ earnings and export. Free never loads the hidden ranges.
   two `StatTile`s (amount and payment count) and a `ProLock` to the plan page
   for the weekly and monthly ranges.
 - `search-params.ts` — `parseReportsParams()` (Zod, `.catch` defaults) and
-  `reportsHref()`, the single place that builds report URLs.
+  `reportsHref()`, the single place that builds report URLs. The default
+  earnings year is the Singapore year. `search-params.test.ts` covers it.
 - `reports-tabs.tsx` — `ReportsTabs`: plain `Link`s with `aria-current`, so
   tabs are deep-linkable with no client state.
 - `page.dom.test.tsx` — tabs, overview/earnings rendering, year arrow labels,
