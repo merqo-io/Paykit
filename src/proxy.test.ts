@@ -97,6 +97,22 @@ describe("proxy nonce CSP", () => {
     expect(response.status).toBe(307);
     expect(csp(response)).toContain("'nonce-");
   });
+
+  it.each(["/auth/callback", "/auth/confirm", "/auth/confirm/verify"])(
+    "carries the nonce CSP on %s and does not redirect signed-out visitors",
+    async (path) => {
+      createServerClient.mockImplementation(() => ({
+        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null } }) },
+      }));
+      const response = await proxy(
+        new NextRequest(`https://paykit.merqo.io${path}`),
+      );
+
+      expect(response.status).toBe(200);
+      expect(csp(response)).toContain("'nonce-");
+      expect(response.headers.get("x-middleware-request-x-nonce")).toBeTruthy();
+    },
+  );
 });
 
 describe("proxy X-Robots-Tag", () => {
