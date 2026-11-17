@@ -115,6 +115,18 @@ describe("PlanPage", () => {
     vi.unstubAllEnvs();
   });
 
+  it("hides the Event Pass block", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    txCountThisMonthMock.mockResolvedValue(0);
+    fetchPlanCatalogMock.mockResolvedValue(catalog);
+
+    render(await PlanPage());
+
+    expect(screen.getByText(/43\.21/)).toBeInTheDocument();
+    expect(screen.queryByText(/event pass/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/per cup/i)).not.toBeInTheDocument();
+  });
+
   it("highlights the Pro plan", async () => {
     readVendorPlanMock.mockResolvedValue("free");
     txCountThisMonthMock.mockResolvedValue(0);
