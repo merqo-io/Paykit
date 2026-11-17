@@ -12,6 +12,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - `/auth/confirm` and `/auth/confirm/verify`: Supabase auth emails can link to this app's own origin. The page only shows a Continue button; the button's POST verifies the token, then lands on `/dashboard` (recovery goes to `/dashboard/profile`). Failures go to `/login?error=link`, which now shows "That link is invalid or has expired. Request a new one." `/auth/callback` is unchanged.
 
+- Sign-up: a weak password now shows the rule that failed (too short, missing character types, or found in a data breach) instead of "Choose a longer password and try again.", and a "Password requirements" tap hint appears in sign-up mode.
+
 ### Changed
 
 - `@merqo/ui` moves to v0.50.1 (from v0.50.0). Footer links now have a 44px minimum touch height and a visible focus ring at every width, and the footer reserves bottom padding so the fixed Back to top button no longer covers links. No paykit source change.
