@@ -3,7 +3,7 @@ import { Badge } from "@merqo/ui/primitives";
 /** Decorative checkout stand-in for the hero, not a scannable QR. */
 export function CheckoutCard() {
   return (
-    <div className="w-full max-w-sm rounded-2xl border bg-card p-5">
+    <div className="w-full max-w-sm rounded-lg border bg-card p-5">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           Scan to pay with PayNow

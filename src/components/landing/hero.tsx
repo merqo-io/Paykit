@@ -14,15 +14,6 @@ const STATS = [
 export function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 -top-32 h-96 opacity-40 blur-3xl"
-        style={{
-          background:
-            "radial-gradient(45% 60% at 20% 30%, var(--color-mint), transparent 70%), radial-gradient(40% 55% at 80% 20%, var(--color-flow), transparent 70%)",
-        }}
-      />
-
       <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-20 sm:py-28 lg:grid-cols-2 lg:items-center">
         <div className="fade-rise">
           <div className="flex flex-wrap items-center gap-3">
