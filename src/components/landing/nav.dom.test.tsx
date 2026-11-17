@@ -4,11 +4,11 @@ import { render, screen } from "@testing-library/react";
 import { Nav } from "./nav";
 
 describe("Nav", () => {
-  it("shows an FAQ link jumping to the #faq section", () => {
+  it("links to the FAQ page on every screen size", () => {
     render(<Nav />);
     expect(screen.getByRole("link", { name: "FAQ" })).toHaveAttribute(
       "href",
-      "#faq",
+      "/faq",
     );
   });
 

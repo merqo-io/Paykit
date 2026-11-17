@@ -8,6 +8,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `/faq`: a public page with nine answers in three groups, built on `FaqPage` from `@merqo/ui` v0.50.0 (repinned from v0.49.1), with FAQPage JSON-LD. The nav's FAQ link now goes to `/faq` on every screen size instead of jumping to the landing section on wide screens only.
+
 - `/auth/confirm` and `/auth/confirm/verify`: Supabase auth emails can link to this app's own origin. The page only shows a Continue button; the button's POST verifies the token, then lands on `/dashboard` (recovery goes to `/dashboard/profile`). Failures go to `/login?error=link`, which now shows "That link is invalid or has expired. Request a new one." `/auth/callback` is unchanged.
 
 ### Changed
