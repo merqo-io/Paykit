@@ -11,6 +11,9 @@ for this project.
 - `about/` — `AboutPage`, the public "Why Merqo" page: `@merqo/ui`'s
   shared `AboutMerqo` (the qkit origin story), wrapped in this app's own
   `Nav` and `SiteFooter` with a link back to `/#how`. Linked from both.
+- `faq/` � `FaqRoute`, the public `/faq` page: `@merqo/ui`'s shared
+  `FaqPage` in this app's own `Nav` and `SiteFooter`, with nine rows in three
+  groups and FAQPage JSON-LD. Linked from `Nav`.
 - `admin/`, Merqo-team internal admin console (`/admin`), gated by `requireAdmin()`, platform overview stats and a cross-vendor table with each vendor's plan (read-only).
 - `api/` — the cross-kit `v1` payment API (`checkout`, `vendors`) plus internal `merqo/*` provisioning routes.
 - `apple-icon.tsx` — `AppleIcon` route handler; renders `brandIcon(180)` as a 180×180 PNG for iOS home-screen touch icons.
