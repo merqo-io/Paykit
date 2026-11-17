@@ -44,7 +44,11 @@ export default async function PlanPage() {
       </div>
 
       {catalog ? (
-        <PricingLadder catalog={catalog} highlight="qkit" />
+        <PricingLadder
+          catalog={catalog}
+          highlight="qkit"
+          showEventPass={false}
+        />
       ) : (
         <p className="text-sm text-muted-foreground">
           Prices are unavailable right now. Your plan is unaffected.

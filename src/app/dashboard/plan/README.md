@@ -17,13 +17,13 @@ plans ("Merqo is free during the pilot...").
   back to Free when the read fails) and `txCountThisMonth()` and
   `fetchPlanCatalog(merqoBaseUrl())` in parallel, resolves the view through
   `resolvePlanView()` (`@/lib/plan-view`), and renders the plan card and
-  `<PricingLadder highlight="qkit" />` (Pro) (or the unavailable line). Content sits in a plain
+  `<PricingLadder highlight="qkit" showEventPass={false} />` (Pro; Event Pass is a qkit offer, so the ladder hides it) (or the unavailable line). Content sits in a plain
   `mx-auto max-w-2xl` div (not `<main>`, the parent `dashboard/layout.tsx`
   owns that landmark). The header is the local `PageHeader` (eyebrow "Billing"); there is no back button, since the avatar menu and wordmark lead home.
 - `page.dom.test.tsx` — awaits `PlanPage()` directly and renders the result
   (same pattern as `dashboard/layout.dom.test.tsx`): Free and Pro plan copy,
   the Merqo account pointer, prices only from a mocked catalog, and the
-  null/rejected catalog fallback with no price. It also asserts the pilot notice renders.
+  null/rejected catalog fallback with no price. It also asserts the pilot notice renders and the Event Pass block does not.
 
 ## Connectivity
 
