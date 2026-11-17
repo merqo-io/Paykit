@@ -33,8 +33,24 @@ describe("friendlyAuthError", () => {
       "An account with this email already exists. Sign in instead.",
     );
     expect(friendlyAuthError({ code: "weak_password" }, "signup")).toBe(
-      "Choose a longer password and try again.",
+      "That password is too weak. Choose a longer, less common one.",
     );
+    expect(
+      friendlyAuthError(
+        {
+          code: "weak_password",
+          reasons: ["length"],
+          message: "Password should be at least 8 characters.",
+        },
+        "signup",
+      ),
+    ).toBe("Password is too short. Use at least 8 characters.");
+    expect(
+      friendlyAuthError(
+        { message: "Password should be at least 6 characters." },
+        "signup",
+      ),
+    ).toBe("Password is too short. Use at least 6 characters.");
     expect(friendlyAuthError({ code: "user_already_exists" }, "signin")).toBe(
       "Could not sign in. Try again.",
     );

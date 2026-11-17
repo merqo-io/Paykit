@@ -33,4 +33,11 @@ describe("LoginPage", () => {
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument();
   });
+
+  it("does not show the password requirements hint in sign-in mode", () => {
+    render(<LoginPage />);
+    expect(
+      screen.queryByRole("button", { name: "Password requirements" }),
+    ).not.toBeInTheDocument();
+  });
 });

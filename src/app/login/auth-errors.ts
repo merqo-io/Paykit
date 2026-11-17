@@ -1,6 +1,13 @@
 export type AuthErrorContext = "signin" | "signup" | "reset" | "oauth";
 
-type AuthErrorLike = { message?: string; code?: string; status?: number };
+import { weakPasswordMessage } from "./weak-password";
+
+type AuthErrorLike = {
+  message?: string;
+  code?: string;
+  status?: number;
+  reasons?: readonly string[];
+};
 
 const GENERIC: Record<AuthErrorContext, string> = {
   signin: "Could not sign in. Try again.",
@@ -14,7 +21,7 @@ type Rule = {
   codes: string[];
   phrases: string[];
   status?: number;
-  text: string;
+  text: string | ((error: AuthErrorLike) => string);
 };
 
 const RULES: Rule[] = [
@@ -44,8 +51,8 @@ const RULES: Rule[] = [
   {
     contexts: ["signup"],
     codes: ["weak_password"],
-    phrases: ["password should be"],
-    text: "Choose a longer password and try again.",
+    phrases: ["password should"],
+    text: weakPasswordMessage,
   },
 ];
 
@@ -70,5 +77,6 @@ export function friendlyAuthError(
   const rule = RULES.find(
     (r) => (!r.contexts || r.contexts.includes(context)) && matches(r, error),
   );
-  return rule ? rule.text : GENERIC[context];
+  if (!rule) return GENERIC[context];
+  return typeof rule.text === "function" ? rule.text(error) : rule.text;
 }
