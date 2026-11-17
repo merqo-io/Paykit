@@ -38,6 +38,7 @@ const PAGES: [string, () => Promise<MetadataModule>, string][] = [
   ["/admin/activity", () => import("./admin/activity/page"), "Activity"],
   ["not-found", () => import("./not-found"), "Page not found"],
   ["/about", () => import("./about/page"), "About"],
+  ["/faq", () => import("./faq/page"), "FAQ"],
   ["/login", () => import("./login/layout"), "Sign in"],
   ["/pay/[id]", () => import("./pay/[id]/page"), "Pay"],
   [

@@ -169,7 +169,10 @@ collects a typed legal name — just the agree checkbox — since a plain
 ToS/Privacy clickwrap doesn't need a signatory name for evidentiary
 strength beyond the existing acceptance record. `/about` is a public
 "Why Merqo" page rendering `@merqo/ui`'s shared `AboutMerqo` content,
-linked from the landing `Nav` and footer.
+linked from the landing `Nav` and footer. `/faq` is a public page built on
+`@merqo/ui`'s `FaqPage` (v0.50.0): nine rows in three groups, no contact line,
+schema.org JSON-LD, linked from the landing `Nav`. The copy says paykit is in
+build and names no plans or prices.
 
 The page chrome matches the other merqo kits. `src/components/site-footer.tsx`
 wraps `@merqo/ui`'s `Footer` (with a `Vendor sign in →` link on the landing

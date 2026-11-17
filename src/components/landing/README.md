@@ -8,12 +8,12 @@ file. Presentational only — no data fetching, no client state beyond the
 
 ## Contents
 
-- `nav.tsx` — sticky top nav: `Wordmark` + an `/about` link + an `#faq`
-  anchor link (sm+, same-page hash jump to `faq.tsx`'s section) +
+- `nav.tsx` — sticky top nav: `Wordmark` + an `/about` link + an `/faq`
+  link (all screen sizes, the full FAQ page) +
   sign-in/dashboard link. Composes `@merqo/ui`'s `LandingNav` shell
   (v0.9.0) for the sticky header/`max-w-6xl` row instead of hand-rolling
   it — this file now owns only the `wordmark` slot (the `Wordmark` link +
-  sr-only text) and the `end` slot (About link, FAQ button,
+  sr-only text) and the `end` slot (About and FAQ links,
   sign-in/dashboard links), both passed straight through as `ReactNode`
   props. Visual output is unchanged from the pre-migration markup, aside
   from the shared shell's own `end`-row gap (`gap-2 sm:gap-4`, replacing a
