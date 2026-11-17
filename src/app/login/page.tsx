@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   AuthShell,
+  InfoTooltip,
   LoginForm,
   navigatingAway,
   type LoginCredentials,
@@ -15,6 +16,7 @@ import { Button } from "@merqo/ui/primitives";
 import { createClient } from "@/lib/supabase/client";
 import { Wordmark } from "@/components/landing/wordmark";
 import { friendlyAuthError } from "./auth-errors";
+import { PASSWORD_REQUIREMENTS_HINT } from "./weak-password";
 
 const OAUTH_ERROR_MESSAGE = "Could not sign in with Google. Try again.";
 const LINK_ERROR_MESSAGE =
@@ -165,6 +167,16 @@ function LoginScreen() {
           : "Set up a paykit account in seconds."
       }
     >
+      {!isSignin && (
+        <div className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground">
+          <span>Password requirements</span>
+          <InfoTooltip
+            content={PASSWORD_REQUIREMENTS_HINT}
+            ariaLabel="Password requirements"
+            trigger="tap"
+          />
+        </div>
+      )}
       <LoginForm
         defaultMode={mode}
         onModeChange={setMode}

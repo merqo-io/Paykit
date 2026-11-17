@@ -31,11 +31,16 @@ route; mode is a client-side toggle on this one page.
     form only passes it a string, which would lose the HTTP status the
     rate-limit rule matches. The reset link lands on `/auth/callback`, which
     establishes a recovery session and forwards to `/dashboard/profile`.
+  - In sign-up mode a "Password requirements" row with a tap-to-open
+    `InfoTooltip` (`PASSWORD_REQUIREMENTS_HINT`) sits above the form; the
+    shared `LoginForm` has no slot beside its own Password label.
   - `Wordmark` (`@/components/landing/wordmark`) and the tagline fill
     `AuthShell`'s wordmark slot; the heading and subtitle follow the mode via
     `onModeChange`.
   - Gaps against the shared components are in
     [`docs/merqo-ui-login-gaps.md`](../../../docs/merqo-ui-login-gaps.md).
+- `auth-errors.ts`: `friendlyAuthError(error, context)` maps Supabase errors to plain copy; the sign-up `weak_password` case goes through `weakPasswordMessage`.
+- `weak-password.ts`: `weakPasswordMessage({ reasons, message })` names the failed rule (length, character classes, breached) from what the server reported, and exports `PASSWORD_REQUIREMENTS_HINT`. `weak-password.test.ts` covers it.
 - `page.test.tsx`: RTL/jsdom tests: the `?error=oauth` and `?error=link` banners, the
   check-your-email state on a sessionless sign-up (and returning from it via
   "Back to sign in"), the redirect-on-session-present path, password sign-in

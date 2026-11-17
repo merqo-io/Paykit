@@ -1,4 +1,5 @@
 import LoginPage from "./page";
+import { PASSWORD_REQUIREMENTS_HINT } from "./weak-password";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
@@ -114,7 +115,7 @@ describe("LoginPage", () => {
       screen.getByRole("button", { name: /create an account/i }),
     );
     await user.type(screen.getByLabelText(/email/i), "new@example.com");
-    await user.type(screen.getByLabelText(/^password/i), "password123");
+    await user.type(screen.getByLabelText("Password"), "password123");
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => {
@@ -137,7 +138,7 @@ describe("LoginPage", () => {
       screen.getByRole("button", { name: /create an account/i }),
     );
     await user.type(screen.getByLabelText(/email/i), "new@example.com");
-    await user.type(screen.getByLabelText(/^password/i), "password123");
+    await user.type(screen.getByLabelText("Password"), "password123");
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => expect(push).toHaveBeenCalledWith("/dashboard"));
@@ -316,7 +317,7 @@ describe("LoginPage", () => {
       screen.getByRole("button", { name: /create an account/i }),
     );
     await user.type(screen.getByLabelText(/email/i), "new@example.com");
-    await user.type(screen.getByLabelText(/^password/i), "password123");
+    await user.type(screen.getByLabelText("Password"), "password123");
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => {
@@ -339,7 +340,7 @@ describe("check-your-email card", () => {
       screen.getByRole("button", { name: /create an account/i }),
     );
     await user.type(screen.getByLabelText(/email/i), "new@example.com");
-    await user.type(screen.getByLabelText(/^password/i), "password123");
+    await user.type(screen.getByLabelText("Password"), "password123");
     await user.click(screen.getByRole("button", { name: /create account/i }));
     await screen.findByText(/check your email/i);
   }
@@ -380,6 +381,44 @@ describe("check-your-email card", () => {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
+  });
+});
+
+describe("weak password on sign-up", () => {
+  it("shows the specific rule that failed", async () => {
+    signUpMock.mockResolvedValue({
+      data: { session: null },
+      error: {
+        code: "weak_password",
+        status: 422,
+        reasons: ["length"],
+        message: "Password should be at least 8 characters.",
+      },
+    });
+    const user = userEvent.setup();
+    render(<LoginPage />);
+    await user.type(screen.getByLabelText("Email"), "new@example.com");
+    await user.click(screen.getByRole("button", { name: "Create an account" }));
+    await user.type(screen.getByLabelText("Password"), "short");
+    await user.click(screen.getByRole("button", { name: "Create account" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Password is too short. Use at least 8 characters.",
+    );
+  });
+
+  it("shows the requirements hint only in sign-up mode", async () => {
+    const user = userEvent.setup();
+    render(<LoginPage />);
+    expect(
+      screen.queryByRole("button", { name: "Password requirements" }),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Create an account" }));
+    await user.click(
+      screen.getByRole("button", { name: "Password requirements" }),
+    );
+    expect(
+      await screen.findByText(PASSWORD_REQUIREMENTS_HINT),
+    ).toBeInTheDocument();
   });
 });
 
