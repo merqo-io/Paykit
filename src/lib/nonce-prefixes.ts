@@ -7,5 +7,6 @@ export const NONCE_PREFIXES = [
   "/inquire",
   "/auth",
   "/login",
+  "/reset-password",
   "/legal/accept",
 ] as const;

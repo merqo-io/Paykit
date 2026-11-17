@@ -56,6 +56,27 @@ describe("friendlyAuthError", () => {
     );
   });
 
+  it("maps weak passwords and generic failures for the update context", () => {
+    expect(
+      friendlyAuthError(
+        {
+          code: "weak_password",
+          reasons: ["pwned"],
+          message: "Password is known to be weak",
+        },
+        "update",
+      ),
+    ).toBe(
+      "This password has appeared in a data breach. Choose a different one.",
+    );
+    expect(friendlyAuthError({ message: "x" }, "update")).toBe(
+      "Could not update your password. Try again.",
+    );
+    expect(friendlyAuthError({ status: 429 }, "update")).toBe(
+      "Too many attempts. Wait a minute and try again.",
+    );
+  });
+
   it("falls back to a generic sentence and never echoes raw messages", () => {
     expect(friendlyAuthError({ message: "db exploded" }, "signin")).toBe(
       "Could not sign in. Try again.",

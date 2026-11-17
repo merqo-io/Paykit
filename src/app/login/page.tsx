@@ -111,14 +111,14 @@ function LoginScreen() {
       await navigatingAway();
     });
 
-  // The reset link lands on /auth/callback, which establishes a recovery
-  // session and forwards to /dashboard/profile, where "Change password"
-  // already lets a signed-in (recovery counts) user set a new one.
+  // The reset link must land on /auth/callback (the path the Supabase
+  // redirect allowlist permits), which establishes a recovery session and
+  // forwards to /reset-password, where the vendor chooses a new password.
   const forgotPassword = (email: string) =>
     guarded(async () => {
       const supabase = createClient();
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard/profile`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
       });
       if (error) return friendlyAuthError(error, "reset");
       toast.success(`Password reset link sent to ${email}`);
