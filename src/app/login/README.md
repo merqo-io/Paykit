@@ -3,8 +3,9 @@
 ## Purpose
 
 The single sign-in/sign-up page (`/login`): email+password and Google
-OAuth, plus password reset. No separate `/signup` or `/reset-password`
-route; mode is a client-side toggle on this one page.
+OAuth, plus a request for a password-reset link. No separate `/signup`
+route; mode is a client-side toggle on this one page. Choosing the new
+password happens on `/reset-password`.
 
 ## Contents
 
@@ -30,7 +31,7 @@ route; mode is a client-side toggle on this one page.
     "Could not connect. Try again.". `mapError` is the identity because the
     form only passes it a string, which would lose the HTTP status the
     rate-limit rule matches. The reset link lands on `/auth/callback`, which
-    establishes a recovery session and forwards to `/dashboard/profile`.
+    establishes a recovery session and forwards to `/reset-password`.
   - In sign-up mode a "Password requirements" row with a tap-to-open
     `InfoTooltip` (`PASSWORD_REQUIREMENTS_HINT`) sits above the form; the
     shared `LoginForm` has no slot beside its own Password label.

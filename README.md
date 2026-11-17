@@ -183,7 +183,7 @@ branded `not-found.tsx` beside the existing error boundary. The plan page
 compares Free and Pro with the shared `PlanComparisonTable`, with no price.
 
 Sign-in (`/login`, built on the shared `AuthShell` and `LoginForm`) supports email+password (with a "Check your email"
-confirmation state and a real forgot-password flow) and Google OAuth. On sign-up, a weak password shows the rule that failed (from Supabase's reasons) and a tap "Password requirements" hint sits above the form. Once
+confirmation state and a real forgot-password flow) and Google OAuth. On sign-up, a weak password shows the rule that failed (from Supabase's reasons) and a tap "Password requirements" hint sits above the form. A reset email lands on `/reset-password`, where the vendor chooses a new password (same weak-password feedback and hint); links sent through `/auth/confirm` still land on `/dashboard/profile` until its recovery path is repointed. Once
 signed in, a vendor's plan comes from merqo, which owns pricing and pushes
 each vendor's entitlement to `POST /api/merqo/entitlement`; paykit caches it
 in `paykit.vendor_entitlements` and gates Pro features on the cache (paid and

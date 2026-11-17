@@ -161,7 +161,7 @@ describe("LoginPage", () => {
       expect(resetPasswordForEmailMock).toHaveBeenCalledWith(
         "vendor@example.com",
         expect.objectContaining({
-          redirectTo: expect.stringContaining("/dashboard/profile"),
+          redirectTo: expect.stringContaining("next=/reset-password"),
         }),
       );
     });
