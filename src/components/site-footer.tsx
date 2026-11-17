@@ -13,6 +13,7 @@ export function SiteFooter({ showSignIn = false }: { showSignIn?: boolean }) {
       kitName="paykit"
       tagline="A shared payment setup for merqo vendors."
       showSignIn={showSignIn}
+      faqHref="/faq"
       wordmark={
         <Link
           href="/"
