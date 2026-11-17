@@ -117,7 +117,7 @@ provider implementation, not a route rewrite. `pnpm-workspace.yaml`'s
 past known-vulnerable versions Next.js itself and dev tooling still
 bundle; `.claude/deps-gate.sh` (a fail-closed `pnpm audit --prod` high/critical gate) is CI's hard gate — bump
 the relevant floor here when a new advisory lands, and re-check after any
-`next` upgrade in case it's safe to drop one. `next`/`eslint-config-next` versions are pinned in `package.json`; check that manifest for the current security release. Isolated build validation and its limitations are recorded in the audit evidence. The dashboard nav, account
+`next` upgrade in case it's safe to drop one. `next`/`eslint-config-next` versions are pinned in `package.json`; check that manifest for the current security release. `next` 16.4.6 clears GHSA-mfr8-8qww-v76h; `pnpm audit` still reports moderate `qs`, `glob` and `minimatch` advisories (not from `next`). Isolated build validation and its limitations are recorded in the audit evidence. The dashboard nav, account
 menu, profile-page layout, image upload, onboarding tour, and landing nav
 now delegate to the shared `@merqo/ui` package (pinned in `package.json`;
 kit-family consistency; `BackButton`, `ElevatedCard`, and the landing
