@@ -12,7 +12,8 @@ Paykit-specific client adapters and presentation. Shared controls live in
   family footer: `@merqo/ui`'s `Footer` with the paykit wordmark (linking to
   `/`), the tagline "A shared payment setup for merqo vendors." and `kitName`.
   It renders the wordmark, tagline, copyright
-  line, an `/about` link, Terms/Privacy and, with `showSignIn`, a
+  line, an `/about` link, a `/faq` link (the shared `Footer`'s `faqHref`),
+  Terms/Privacy and, with `showSignIn`, a
   `Vendor sign in →` link. The landing page and `/about` pass `showSignIn`;
   the dashboard leaves it off. Same shape as printkit's `site-footer.tsx`.
   `site-footer.dom.test.tsx` covers both forms.

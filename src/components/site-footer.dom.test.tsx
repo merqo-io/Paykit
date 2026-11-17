@@ -37,6 +37,14 @@ describe("SiteFooter", () => {
       "/about",
     );
   });
+
+  it("links to the public FAQ page", () => {
+    render(<SiteFooter showSignIn />);
+    expect(screen.getByRole("link", { name: "FAQ" })).toHaveAttribute(
+      "href",
+      "/faq",
+    );
+  });
 });
 
 describe("SiteFooter in the dashboard", () => {
@@ -46,5 +54,9 @@ describe("SiteFooter in the dashboard", () => {
       screen.queryByRole("link", { name: "Vendor sign in →" }),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "About" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "FAQ" })).toHaveAttribute(
+      "href",
+      "/faq",
+    );
   });
 });
