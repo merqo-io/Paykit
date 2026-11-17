@@ -243,7 +243,7 @@ session/service client separation; `payments/` explains checkout builders.
 
 `money.ts` converts form dollars into integer cents for booking/refund actions; their schemas validate range and finite values. Empty/null form values retain the existing Number conversion to zero.
 
-`nonce-prefixes.ts` holds the nonce route list, while CSP source lists and theme props come from `@merqo/ui`; `columns.ts` lists the columns each table read selects; `admin.ts` also requires `aal2` in `requireAdmin()`.
+`nonce-prefixes.ts` holds the nonce route list (including `/login` and `/reset-password`, whose layouts force dynamic rendering), while CSP source lists and theme props come from `@merqo/ui`; `columns.ts` lists the columns each table read selects; `admin.ts` also requires `aal2` in `requireAdmin()`.
 
 The profile name schema message reads "Business name is required".
 
