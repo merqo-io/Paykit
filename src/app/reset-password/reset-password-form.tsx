@@ -55,21 +55,25 @@ export function ResetPasswordForm() {
   }, [supabase, retryKey]);
 
   const { pending, run } = useAsyncAction(async (newPassword: string) => {
+    let updateError;
     try {
-      const { error: updateError } = await supabase.auth.updateUser({
+      ({ error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
-      });
-      if (updateError) {
-        setError(friendlyAuthError(updateError, "update"));
-        return;
-      }
-      toast.success("Password updated");
-      router.push("/dashboard");
-      router.refresh();
-      await navigatingAway();
+      }));
     } catch {
       setError(CONNECT_ERROR_MESSAGE);
+      return;
     }
+    if (updateError) {
+      setError(friendlyAuthError(updateError, "update"));
+      return;
+    }
+    // Navigation stays outside the try so a router failure after a successful
+    // update is not reported as a connection error.
+    toast.success("Password updated");
+    router.push("/dashboard");
+    router.refresh();
+    await navigatingAway();
   });
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {

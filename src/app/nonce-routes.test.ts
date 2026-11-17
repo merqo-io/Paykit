@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import * as loginLayout from "./login/layout";
+import * as resetPasswordLayout from "./reset-password/layout";
 import { NONCE_PREFIXES } from "@/lib/nonce-prefixes";
 
 // A nonce CSP only works on pages rendered per request; a prerendered page
@@ -8,6 +9,10 @@ import { NONCE_PREFIXES } from "@/lib/nonce-prefixes";
 describe("nonce routes render per request", () => {
   it("the login layout forces dynamic rendering", () => {
     expect(loginLayout.dynamic).toBe("force-dynamic");
+  });
+
+  it("the reset-password layout forces dynamic rendering", () => {
+    expect(resetPasswordLayout.dynamic).toBe("force-dynamic");
   });
 
   it("lists only routes that exist", () => {
