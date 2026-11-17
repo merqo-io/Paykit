@@ -14,6 +14,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- `@merqo/ui` moves to v0.50.1 (from v0.50.0). Footer links now have a 44px minimum touch height and a visible focus ring at every width, and the footer reserves bottom padding so the fixed Back to top button no longer covers links. No paykit source change.
 - A proxy test now pins the CSP nonce and signed-out reachability of `/auth/callback`, `/auth/confirm` and `/auth/confirm/verify`.
 - The Free plan now shows the last 30 days of transactions with a note that older ones are kept, reports show only today's and yesterday's totals (Singapore date), and the earnings report, CSV export and automatic proof amount check need a paid plan. Nothing is deleted; payments and manual confirmation stay unlimited. Shared windows live in `src/lib/free-limits.ts`.
 
