@@ -1,4 +1,5 @@
-export type AuthErrorContext = "signin" | "signup" | "reset" | "oauth";
+export type AuthErrorContext =
+  "signin" | "signup" | "reset" | "oauth" | "update";
 
 import { weakPasswordMessage } from "./weak-password";
 
@@ -14,6 +15,7 @@ const GENERIC: Record<AuthErrorContext, string> = {
   signup: "Could not create your account. Try again.",
   reset: "Could not send the reset link. Try again.",
   oauth: "Could not sign in with Google. Try again.",
+  update: "Could not update your password. Try again.",
 };
 
 type Rule = {
@@ -49,7 +51,7 @@ const RULES: Rule[] = [
     text: "An account with this email already exists. Sign in instead.",
   },
   {
-    contexts: ["signup"],
+    contexts: ["signup", "update"],
     codes: ["weak_password"],
     phrases: ["password should"],
     text: weakPasswordMessage,
