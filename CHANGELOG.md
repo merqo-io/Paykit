@@ -8,6 +8,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `DESIGN.md`: paykit's own design values, starting with a "Public pages" section that links to the shared public-page rules in `@merqo/ui`.
+
 - `/reset-password`: a page where a vendor who followed a password-reset email chooses a new password, with the same weak-password feedback and "Password requirements" tap hint as sign-up, and an expired-link state that points back to sign-in. "Forgot password?" now sends the link to it through `/auth/callback?next=/reset-password`. Links sent through `/auth/confirm` still land on `/dashboard/profile` until the recovery path in `/auth/confirm/verify` is pointed at it.
 
 - The footer, on the public pages and in the dashboard, now links to `/faq` after About, using the new `faqHref` prop from `@merqo/ui` v0.51.0 (repinned from v0.50.1).
