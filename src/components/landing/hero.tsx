@@ -15,7 +15,7 @@ export function Hero() {
   return (
     <section className="relative overflow-hidden">
       <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-20 sm:py-28 lg:grid-cols-2 lg:items-center">
-        <div className="fade-rise">
+        <div>
           <div className="flex flex-wrap items-center gap-3">
             <Badge variant="outline" className="text-xs">
               In build
@@ -60,7 +60,7 @@ export function Hero() {
           </dl>
         </div>
 
-        <div className="fade-rise flex justify-center lg:justify-end">
+        <div className="flex justify-center lg:justify-end">
           <CheckoutCard />
         </div>
       </div>

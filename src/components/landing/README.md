@@ -56,8 +56,8 @@ file. Presentational only — no data fetching, no client state beyond the
 ## Surfaces
 
 The checkout card, benefit tiles and FAQ items use `rounded-lg`, the single
-small radius for page surfaces, and the hero carries no glow or shadow, per
-the shared public page rules.
+small radius for page surfaces, and the hero carries no glow or shadow and no
+load-time animation, per the shared public page rules.
 
 ## Connectivity
 
