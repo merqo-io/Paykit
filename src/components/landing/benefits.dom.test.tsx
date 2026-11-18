@@ -21,7 +21,7 @@ it("states the proven QR engine as a vendor benefit", () => {
   ).not.toBeNull();
   expect(
     getByText(
-      "Your QR codes come from the same engine qkit already runs for vendors, so it is proven, not new.",
+      "Your QR codes come from the same engine qkit already runs for vendors, not a brand-new one.",
     ),
   ).not.toBeNull();
 });

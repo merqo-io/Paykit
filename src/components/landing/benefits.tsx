@@ -41,7 +41,7 @@ export function Benefits() {
           </h3>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Your QR codes come from the same engine qkit already runs for
-            vendors, so it is proven, not new.
+            vendors, not a brand-new one.
           </p>
         </div>
       </div>
