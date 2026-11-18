@@ -29,8 +29,10 @@ file. Presentational only — no data fetching, no client state beyond the
   hero (not a real scannable QR, a stand-in with a status pill using the
   waiting/paid/confirmed steps; the API's internal states are pending,
   claimed and confirmed).
-- `benefits.tsx` — the "why paykit" feature grid; its pricing tile renders
-  `PILOT_PRICING_LINE`.
+- `benefits.tsx` — the "why paykit" feature grid: one large tile beside two
+  stacked small ones. It carries no pricing tile (pricing lives in the FAQ via
+  `PILOT_PRICING_LINE`); the engine tile states that the QR comes from the
+  engine qkit already runs.
 - `how-it-works.tsx` — 3-step explainer (connect method → share checkout →
   confirm).
 - `faq.tsx` — Q&A list, including "does paykit hold my money?" and "what
