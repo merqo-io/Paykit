@@ -1,5 +1,4 @@
-import { Link2, ShieldCheck, Gauge, History } from "lucide-react";
-import { PILOT_PRICING_LINE } from "./waitlist";
+import { Link2, ShieldCheck, History } from "lucide-react";
 
 export function Benefits() {
   return (
@@ -38,19 +37,11 @@ export function Benefits() {
         <div className="rounded-lg border bg-card p-6">
           <History className="size-6 text-mint" aria-hidden />
           <h3 className="mt-4 font-display text-lg font-bold">
-            Extracted, not rewritten
+            A QR engine already in use
           </h3>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            The QR engine is ported from qkit&apos;s, not rewritten from
-            scratch.
-          </p>
-        </div>
-
-        <div className="rounded-lg border bg-card p-6 sm:col-span-3">
-          <Gauge className="size-6 text-mint" aria-hidden />
-          <h3 className="mt-4 font-display text-lg font-bold">Pricing</h3>
-          <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-            {PILOT_PRICING_LINE}
+            Your QR codes come from the same engine qkit already runs for
+            vendors, not a brand-new one.
           </p>
         </div>
       </div>

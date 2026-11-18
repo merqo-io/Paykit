@@ -22,6 +22,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Landing "Why paykit" grid: the Pricing tile is removed (the FAQ still carries the pilot pricing line), and the "Extracted, not rewritten" tile becomes "A QR engine already in use", saying the QR codes come from the engine qkit already runs for vendors.
 - `DESIGN.md`: the two "Open items" about landing radius and the hero glow are removed because both are fixed, and the Radius and Product object bullets are split onto separate lines.
 - Landing surfaces (benefits, checkout card, FAQ) use `rounded-lg`, and the blurred glow behind the hero is removed, following the shared public-page rules. The hero no longer fades in on load, and the unused `fade-rise` animation is removed.
 - Next.js and `eslint-config-next` move to 16.4.6 (from 16.4.2), clearing GHSA-mfr8-8qww-v76h (information disclosure through `'use cache'` and `unstable_cache`, affecting 16.3.0 to 16.4.4). No paykit source change.
