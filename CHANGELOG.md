@@ -8,6 +8,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `DESIGN.md`: paykit's own design values, starting with a "Public pages" section that links to the shared public-page rules in `@merqo/ui`.
+
 - `/reset-password`: a page where a vendor who followed a password-reset email chooses a new password, with the same weak-password feedback and "Password requirements" tap hint as sign-up, and an expired-link state that points back to sign-in. "Forgot password?" now sends the link to it through `/auth/callback?next=/reset-password`. Links sent through `/auth/confirm` still land on `/dashboard/profile` until the recovery path in `/auth/confirm/verify` is pointed at it.
 
 - The footer, on the public pages and in the dashboard, now links to `/faq` after About, using the new `faqHref` prop from `@merqo/ui` v0.51.0 (repinned from v0.50.1).
@@ -20,6 +22,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Landing surfaces (benefits, checkout card, FAQ) use `rounded-lg`, and the blurred glow behind the hero is removed, following the shared public-page rules. The hero no longer fades in on load, and the unused `fade-rise` animation is removed.
 - Next.js and `eslint-config-next` move to 16.4.6 (from 16.4.2), clearing GHSA-mfr8-8qww-v76h (information disclosure through `'use cache'` and `unstable_cache`, affecting 16.3.0 to 16.4.4). No paykit source change.
 - `@merqo/ui` moves to v0.50.1 (from v0.50.0). Footer links now have a 44px minimum touch height and a visible focus ring at every width, and the footer reserves bottom padding so the fixed Back to top button no longer covers links. No paykit source change.
 - A proxy test now pins the CSP nonce and signed-out reachability of `/auth/callback`, `/auth/confirm` and `/auth/confirm/verify`.

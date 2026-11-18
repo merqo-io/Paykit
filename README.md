@@ -9,7 +9,7 @@ their own bank/payment app, and a human confirms receipt. A calling kit
 without its own vendor-session UI can also write the config directly via
 `POST /api/v1/vendors/{vendor_id}/config` (bearer-secret authenticated,
 same schema the dashboard's own config form uses) — see
-`src/app/api/v1/vendors/[vendor_id]/config/README.md`. A vendor setting up
+`src/app/api/v1/vendors/[vendor_id]/config/README.md`. Design values for the public pages are in `DESIGN.md`. A vendor setting up
 their own BYO payment link/QR picks from a four-card preset directory
 (Stripe Payment Link, HitPay Payment Link, PayLah! QR, or Other/Custom —
 `src/app/dashboard/config/pointer-presets.ts`) that shows tailored
@@ -24,7 +24,7 @@ in the workspace root for why. Brand theme is "Banknote Engrave"
 of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-mark.ts`'s
 ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
-The public landing is in pre-launch mode, headlined "One payment setup for every kit.": an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. `@merqo/ui` is pinned to merqo-ui commit aeed30bc (v0.51.0), whose `PricingLadder` the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices); the ladder hides the qkit-only Event Pass block.
+The public landing is in pre-launch mode, headlined "One payment setup for every kit.": an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only). Sign-in and the dashboard stay reachable by direct URL. Landing surfaces (checkout card, benefit tiles, FAQ items) use one small `rounded-lg` radius and the hero has no glow, per the shared public page rules. `@merqo/ui` is pinned to merqo-ui commit aeed30bc (v0.51.0), whose `PricingLadder` the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices); the ladder hides the qkit-only Event Pass block.
 
 The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amount (the vendor's payee name, falling back to their inquiry-form business name), reports claim and upload failures inline instead of in toasts, and shows a plain retry notice when the payment cannot be loaded.
 
