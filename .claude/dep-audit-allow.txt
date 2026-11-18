@@ -2,4 +2,4 @@
 #   <GHSA-... | CVE-...> <YYYY-MM-DD expiry> <reason>
 # An entry stops suppressing on its expiry date and may not be more than 180 days out.
 # Add an entry only for an advisory that was audited and cannot be fixed by upgrading yet.
-GHSA-fc5q-39xc-vjpf 2026-12-18 picomatch ReDoS: no patched release exists (all versions <= 4.0.7 affected); reached only via @sentry/nextjs > @rollup/plugin-commonjs (build tooling), globs come from our own config, not user input
+GHSA-fc5q-39xc-vjpf 2026-12-18 picomatch ReDoS: no patched release exists (all versions <= 4.0.7 affected); reached only via @sentry/nextjs > @rollup/plugin-commonjs (build tooling)
