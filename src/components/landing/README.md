@@ -53,6 +53,12 @@ file. Presentational only — no data fetching, no client state beyond the
   stays lowercase "paykit" per
   `Merqo Business/docs/business/2026-07-15-kit-brand-naming-convention.md`.
 
+## Surfaces
+
+The checkout card, benefit tiles and FAQ items use `rounded-lg`, the single
+small radius for page surfaces, and the hero carries no glow or shadow and no
+load-time animation, per the shared public page rules.
+
 ## Connectivity
 
 Assembled by `src/app/page.tsx` in the order listed above (nav → hero →

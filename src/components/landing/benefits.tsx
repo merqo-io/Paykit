@@ -12,7 +12,7 @@ export function Benefits() {
       </h2>
 
       <div className="mt-10 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border bg-card p-6 sm:col-span-2 sm:row-span-2">
+        <div className="rounded-lg border bg-card p-6 sm:col-span-2 sm:row-span-2">
           <Link2 className="size-6 text-mint" aria-hidden />
           <h3 className="mt-4 font-display text-xl font-bold">
             One setup, kept in one place
@@ -24,7 +24,7 @@ export function Benefits() {
           </p>
         </div>
 
-        <div className="rounded-2xl border bg-card p-6">
+        <div className="rounded-lg border bg-card p-6">
           <ShieldCheck className="size-6 text-mint" aria-hidden />
           <h3 className="mt-4 font-display text-lg font-bold">
             Never touches the money
@@ -35,7 +35,7 @@ export function Benefits() {
           </p>
         </div>
 
-        <div className="rounded-2xl border bg-card p-6">
+        <div className="rounded-lg border bg-card p-6">
           <History className="size-6 text-mint" aria-hidden />
           <h3 className="mt-4 font-display text-lg font-bold">
             Extracted, not rewritten
@@ -46,7 +46,7 @@ export function Benefits() {
           </p>
         </div>
 
-        <div className="rounded-2xl border bg-card p-6 sm:col-span-3">
+        <div className="rounded-lg border bg-card p-6 sm:col-span-3">
           <Gauge className="size-6 text-mint" aria-hidden />
           <h3 className="mt-4 font-display text-lg font-bold">Pricing</h3>
           <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
