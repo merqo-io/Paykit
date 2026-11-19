@@ -22,6 +22,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Moved `@merqo/ui` to v0.54.0 (commit 378bd898), from v0.51.0. paykit now defines the `--success` token (light and dark) and exposes it as the `success` colour, which `DeltaPill`'s up state needs.
+
 - Landing "Why paykit" grid: the Pricing tile is removed (the FAQ still carries the pilot pricing line), and the "Extracted, not rewritten" tile becomes "A QR engine already in use", saying the QR codes come from the engine qkit already runs for vendors.
 - `DESIGN.md`: the two "Open items" about landing radius and the hero glow are removed because both are fixed, and the Radius and Product object bullets are split onto separate lines.
 - Landing surfaces (benefits, checkout card, FAQ) use `rounded-lg`, and the blurred glow behind the hero is removed, following the shared public-page rules. The hero no longer fades in on load, and the unused `fade-rise` animation is removed.
