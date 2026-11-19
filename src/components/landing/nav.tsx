@@ -14,7 +14,7 @@ export function navAccount(user: {
   user_metadata?: Record<string, unknown>;
 }): NavAccount {
   const meta = user.user_metadata ?? {};
-  const full = typeof meta.full_name === "string" ? meta.full_name : "";
+  const full = typeof meta.full_name === "string" ? meta.full_name.trim() : "";
   const avatar =
     typeof meta.avatar_url === "string" ? meta.avatar_url : undefined;
   return { name: full || user.email || "Account", avatarUrl: avatar };

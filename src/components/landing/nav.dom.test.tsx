@@ -96,6 +96,15 @@ describe("navAccount", () => {
     ).toEqual({ name: "Ana", avatarUrl: "https://x/a.png" });
   });
 
+  it("treats a whitespace-only full name as missing and trims the rest", () => {
+    expect(
+      navAccount({ email: "a@b.co", user_metadata: { full_name: "   " } }).name,
+    ).toBe("a@b.co");
+    expect(navAccount({ user_metadata: { full_name: "  Ana " } }).name).toBe(
+      "Ana",
+    );
+  });
+
   it("falls back to the email, then a generic label", () => {
     expect(navAccount({ email: "a@b.co" })).toEqual({
       name: "a@b.co",
