@@ -8,7 +8,7 @@ The public "Why Merqo" page, linked from the landing `Nav` and `Footer`.
 
 - `page.tsx` — `AboutPage`, an async Server Component. Reflects the
   session (same pattern as `src/app/page.tsx`) so `Nav` shows
-  Dashboard/Sign in correctly. The story itself is `@merqo/ui`'s shared
+  Dashboard and the account menu (with Sign out) or Sign in correctly. The story itself is `@merqo/ui`'s shared
   `AboutMerqo` component (one source, reused by merqo and every other
   kit's own `/about` page) — this page supplies only `Nav`/`SiteFooter` and a
   "See how paykit works" CTA linking to `/#how`. Its typed
