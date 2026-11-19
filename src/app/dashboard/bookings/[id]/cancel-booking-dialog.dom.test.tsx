@@ -122,6 +122,22 @@ describe("CancelBookingDialog refund field", () => {
     expect(screen.getByText("S$")).toBeInTheDocument();
   });
 
+  it("does not cancel when Enter is pressed in the refund field", async () => {
+    const user = userEvent.setup();
+    render(
+      <CancelBookingDialog bookingId="b1" depositTx={CONFIRMED_DEPOSIT} />,
+    );
+    await user.click(screen.getByRole("button", { name: "Cancel booking" }));
+    await user.type(
+      screen.getByLabelText("Refund amount (optional)"),
+      "12{Enter}",
+    );
+    expect(cancelBookingActionMock).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole("button", { name: /confirm cancellation/i }),
+    ).toBeEnabled();
+  });
+
   it("rejects a non-positive refund inline without calling the action", async () => {
     const user = userEvent.setup();
     render(

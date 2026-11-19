@@ -104,6 +104,13 @@ export function CancelBookingDialog({
         </DialogHeader>
         <form
           className="space-y-4"
+          // Enter in a text field would otherwise submit a half-typed refund
+          // amount; only an explicit tap on the confirm button may cancel.
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && e.target instanceof HTMLInputElement) {
+              e.preventDefault();
+            }
+          }}
           onSubmit={(e) => {
             e.preventDefault();
             onConfirm();
