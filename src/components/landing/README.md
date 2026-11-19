@@ -26,6 +26,7 @@ file. Presentational only — no data fetching, no client state beyond the
   Dashboard button, then this menu. `navAccount(user)` in `nav.tsx` derives
   the name (full name, else email) and avatar from the auth user, so the
   public pages (`/`, `/about`, `/faq`) pass `account` without a profile query.
+- `account-menu.dom.test.tsx` — sign-out by touch, and the help and feedback handlers (success, failure, category fallback, empty message).
 - `nav.dom.test.tsx` — asserts the About link, the Sign in/Join the
   waitlist/Dashboard state switch, and that the account menu opens by touch
   and offers Sign out.
