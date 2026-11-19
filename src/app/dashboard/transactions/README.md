@@ -43,7 +43,8 @@ across every kit — plus, for Pro vendors, a per-payment refund action.
   hint text is absent until the info button is tapped, then appears (an
   `InfoTooltip` `trigger="tap"` Popover only renders its content once
   open, so this can't be asserted via `renderToStaticMarkup`).
-- `refund-dialog.tsx` — Pro-only dialog: calls `issueRefundAction` to file a
+- `refund-dialog.tsx` — Pro-only dialog (submit is `AsyncSubmitButton` from
+  `@merqo/ui`): calls `issueRefundAction` to file a
   refund against a `confirmed` transaction (bookkeeping only — no real
   money movement, see `AGENTS.md`'s data model). The amount field is
   dollar-denominated (`refunded_amount`, `type="number" step="0.01"`),
