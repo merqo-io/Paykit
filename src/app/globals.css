@@ -33,6 +33,9 @@
      loopkit's gold. Carries the "Pay" segment of the PayKit wordmark. */
   --mint: oklch(0.6 0.15 155);
   --mint-foreground: oklch(0.16 0.03 155);
+  /* DeltaPill's up state (@merqo/ui) tints with this at 12%; the hue is
+     mint's, darkened so text-success keeps 4.5:1 on that tint over the card. */
+  --success: oklch(0.45 0.12 155);
   /* payment-flow complement — a cooler teal-blue paired with mint in the
      hero's gradient mesh, evoking money moving between kits. */
   --flow: oklch(0.62 0.14 220);
@@ -67,6 +70,7 @@
 
   --mint: oklch(0.72 0.16 155);
   --mint-foreground: oklch(0.14 0.03 155);
+  --success: oklch(0.88 0.15 155);
   --flow: oklch(0.74 0.13 220);
   --ink: oklch(0.09 0.008 255);
   --ink-foreground: oklch(0.96 0.005 255);
@@ -95,6 +99,7 @@
   --color-ring: var(--ring);
   --color-mint: var(--mint);
   --color-mint-foreground: var(--mint-foreground);
+  --color-success: var(--success);
   --color-flow: var(--flow);
   --color-ink: var(--ink);
   --color-ink-foreground: var(--ink-foreground);
