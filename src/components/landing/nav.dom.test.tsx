@@ -2,7 +2,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Nav } from "./nav";
+import { Nav, navAccount } from "./nav";
 
 vi.mock("@/app/actions/auth", () => ({ signOutAction: vi.fn() }));
 vi.mock("@/app/actions/feedback", () => ({ submitFeedbackAction: vi.fn() }));
@@ -83,5 +83,26 @@ describe("Nav account menu", () => {
   it("has no account menu when signed out", () => {
     render(<Nav />);
     expect(screen.queryByRole("button", { name: /account/i })).toBeNull();
+  });
+});
+
+describe("navAccount", () => {
+  it("prefers the full name and reads the avatar from metadata", () => {
+    expect(
+      navAccount({
+        email: "a@b.co",
+        user_metadata: { full_name: "Ana", avatar_url: "https://x/a.png" },
+      }),
+    ).toEqual({ name: "Ana", avatarUrl: "https://x/a.png" });
+  });
+
+  it("falls back to the email, then a generic label", () => {
+    expect(navAccount({ email: "a@b.co" })).toEqual({
+      name: "a@b.co",
+      avatarUrl: undefined,
+    });
+    expect(navAccount({ user_metadata: { avatar_url: 3 } }).name).toBe(
+      "Account",
+    );
   });
 });
