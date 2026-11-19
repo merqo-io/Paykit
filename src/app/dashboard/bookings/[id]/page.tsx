@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CopyButton } from "@merqo/ui";
+import { BookingIdCopy } from "./booking-id-copy";
 import { checkoutKind } from "@/lib/checkout-kind";
 import { RecoverDepositButton } from "./recover-deposit-button";
 import { notFound } from "next/navigation";
@@ -85,11 +85,7 @@ export default async function BookingDetailPage({
             >
               {booking.id}
             </code>
-            <CopyButton
-              value={booking.id}
-              label="Copy ID"
-              aria-label="Copy booking ID"
-            />
+            <BookingIdCopy bookingId={booking.id} />
           </dd>
           <dt className="text-muted-foreground">Customer phone</dt>
           <dd>{booking.customer_phone ?? "Not set"}</dd>

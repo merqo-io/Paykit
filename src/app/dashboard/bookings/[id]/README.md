@@ -26,7 +26,7 @@ original display type. A displayed instruction is not payment verification.
   Its refund field appears when exactly one linked transaction is confirmed;
   otherwise refunds remain available from the transaction page.
 - `reschedule-booking-dialog.tsx` edits event and balance-due dates.
-- The booking ID row uses `CopyButton` from `@merqo/ui` so vendors can copy the identifier for qkit booth linking.
+- The booking ID row uses `booking-id-copy.tsx`, a client wrapper around `CopyButton` from `@merqo/ui` that toasts on clipboard failure, so vendors can copy the identifier for qkit booth linking.
 - `print-booking-button.tsx` prints the summary; action controls are print-hidden.
 
 Cancelled bookings hide mutation controls. Every action revalidates its inputs

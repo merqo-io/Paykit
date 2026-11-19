@@ -82,6 +82,32 @@ describe("InquiryDetailActions", () => {
     expect(toastMock.success).toHaveBeenCalledWith("Inquiry deleted");
   });
 
+  it("calls delete once when the confirm is tapped twice while pending", async () => {
+    let resolve: (v: { status: "ok" }) => void = () => {};
+    deleteMock.mockReturnValue(
+      new Promise((r) => {
+        resolve = r;
+      }),
+    );
+    const user = userEvent.setup();
+    render(<InquiryDetailActions inquiryId="i1" status="declined" />);
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: "Delete" }),
+    });
+    const confirm = await screen.findByRole("button", {
+      name: "Delete inquiry",
+    });
+    await user.pointer({ keys: "[TouchA]", target: confirm });
+    await user.pointer({ keys: "[TouchA]", target: confirm });
+    expect(deleteMock).toHaveBeenCalledTimes(1);
+    resolve({ status: "ok" });
+    await waitFor(() =>
+      expect(pushMock).toHaveBeenCalledWith("/dashboard/bookings"),
+    );
+    expect(deleteMock).toHaveBeenCalledTimes(1);
+  });
+
   it("stays open and does not navigate when delete fails", async () => {
     const user = userEvent.setup();
     deleteMock.mockResolvedValue({ status: "error", message: "Could not" });

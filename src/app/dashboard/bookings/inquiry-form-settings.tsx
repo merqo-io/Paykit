@@ -47,6 +47,8 @@ export function InquiryFormSettings({ form }: { form: InquiryForm | null }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       {form?.enabled && (
+        // CopyButton takes a static value, so the origin is read at render;
+        // the guard covers the server pass, where the value is never copied.
         <CopyButton
           value={inquiryLink(
             typeof window === "undefined" ? "" : window.location.origin,

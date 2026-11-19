@@ -49,6 +49,64 @@ describe("RefundDialog", () => {
     expect(screen.getByLabelText("Amount")).toHaveValue(null);
   });
 
+  it("disables the submit and shows Recording while pending, by touch", async () => {
+    let resolve: (v: { status: "ok" }) => void = () => {};
+    issueRefundActionMock.mockReturnValue(
+      new Promise((r) => {
+        resolve = r;
+      }),
+    );
+    const user = userEvent.setup();
+    render(<RefundDialog transactionId="tx1" />);
+
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: /refund/i }),
+    });
+    await user.type(await screen.findByLabelText("Amount"), "4.50");
+    const submit = screen.getByRole("button", { name: /record refund/i });
+    await user.pointer({ keys: "[TouchA]", target: submit });
+
+    const pendingButton = await screen.findByRole("button", {
+      name: /recording/i,
+    });
+    expect(pendingButton).toBeDisabled();
+    await user.pointer({ keys: "[TouchA]", target: pendingButton });
+    expect(issueRefundActionMock).toHaveBeenCalledTimes(1);
+    resolve({ status: "ok" });
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith("Refund recorded"),
+    );
+  });
+
+  it("shows the validation error returned for a bad amount, by touch", async () => {
+    issueRefundActionMock.mockResolvedValue({
+      status: "error",
+      message: "Enter an amount greater than 0.",
+    });
+    const user = userEvent.setup();
+    render(<RefundDialog transactionId="tx1" />);
+
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: /refund/i }),
+    });
+    await user.type(await screen.findByLabelText("Amount"), "1");
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: /record refund/i }),
+    });
+
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Enter an amount greater than 0.",
+      ),
+    );
+    expect(
+      screen.getByRole("button", { name: /record refund/i }),
+    ).toBeEnabled();
+  });
+
   it("keeps the dialog open and shows the error on failure", async () => {
     issueRefundActionMock.mockResolvedValue({
       status: "error",

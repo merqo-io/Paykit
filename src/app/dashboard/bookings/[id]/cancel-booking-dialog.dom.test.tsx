@@ -163,6 +163,35 @@ describe("CancelBookingDialog refund field", () => {
     );
   });
 
+  it("disables the confirm and shows Cancelling while pending, by touch", async () => {
+    let resolve: (v: { status: "ok" }) => void = () => {};
+    cancelBookingActionMock.mockReturnValue(
+      new Promise((r) => {
+        resolve = r;
+      }),
+    );
+    const user = userEvent.setup();
+    render(<CancelBookingDialog bookingId="b1" />);
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: "Cancel booking" }),
+    });
+    await user.pointer({
+      keys: "[TouchA]",
+      target: await screen.findByRole("button", {
+        name: /confirm cancellation/i,
+      }),
+    });
+    const pendingButton = await screen.findByRole("button", {
+      name: /cancelling/i,
+    });
+    expect(pendingButton).toBeDisabled();
+    await user.pointer({ keys: "[TouchA]", target: pendingButton });
+    expect(cancelBookingActionMock).toHaveBeenCalledTimes(1);
+    resolve({ status: "ok" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  });
+
   it("closes with Keep booking", async () => {
     const user = userEvent.setup();
     render(<CancelBookingDialog bookingId="b1" />);
