@@ -140,6 +140,25 @@ describe("BookingDetailPage", () => {
     ).toBeInTheDocument();
   });
 
+  it("copies the booking id by touch", async () => {
+    getBookingMock.mockResolvedValue(BOOKING);
+    getTransactionMock.mockResolvedValue(null);
+    const { default: userEvent } = await import("@testing-library/user-event");
+    const user = userEvent.setup();
+    const writeText = vi.spyOn(navigator.clipboard, "writeText");
+    const jsx = await BookingDetailPage({
+      params: Promise.resolve({ id: "b1" }),
+    });
+    render(jsx);
+
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: /copy booking id/i }),
+    });
+
+    expect(writeText).toHaveBeenCalledWith("b1");
+  });
+
   it("offers Create balance payment once the deposit exists and balance doesn't yet", async () => {
     getBookingMock.mockResolvedValue(BOOKING);
     const jsx = await BookingDetailPage({

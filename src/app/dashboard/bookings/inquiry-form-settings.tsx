@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Copy } from "lucide-react";
 import { toast } from "sonner";
+import { CopyButton } from "@merqo/ui";
 import {
   Dialog,
   DialogContent,
@@ -44,21 +44,18 @@ export function InquiryFormSettings({ form }: { form: InquiryForm | null }) {
     { status: "idle" },
   );
 
-  async function copyLink() {
-    if (!form) return;
-    await navigator.clipboard.writeText(
-      inquiryLink(window.location.origin, form.public_id),
-    );
-    toast.success("Inquiry link copied");
-  }
-
   return (
     <div className="flex flex-wrap items-center gap-2">
       {form?.enabled && (
-        <Button variant="outline" size="sm" onClick={copyLink}>
-          <Copy className="size-3.5" />
-          Copy inquiry link
-        </Button>
+        <CopyButton
+          value={inquiryLink(
+            typeof window === "undefined" ? "" : window.location.origin,
+            form.public_id,
+          )}
+          label="Copy inquiry link"
+          onCopied={() => toast.success("Inquiry link copied")}
+          onError={() => toast.error("Could not copy the inquiry link")}
+        />
       )}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>

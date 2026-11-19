@@ -14,7 +14,7 @@ another vendor's.
   prefilled with the client's name, phone and event date and carrying the
   inquiry id. A converted one links to its booking instead.
 - `inquiry-detail-actions.tsx`: "Mark contacted" (new only), "Decline" and
-  "Delete" behind a confirm dialog. Delete is how a vendor honours a
+  "Delete" behind the shared `ConfirmDialog` (destructive, with the consequence spelled out). Delete is how a vendor honours a
   client's request to remove their data.
 
 ## Tab title

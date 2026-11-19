@@ -1,18 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  Button,
-} from "@merqo/ui/primitives";
+import { ConfirmDialog } from "@merqo/ui";
+import { Button } from "@merqo/ui/primitives";
 
 import {
   deleteInquiryAction,
@@ -30,7 +22,6 @@ export function InquiryDetailActions({
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
-  const [confirmOpen, setConfirmOpen] = useState(false);
 
   function setStatus(next: "contacted" | "declined") {
     start(async () => {
@@ -43,16 +34,11 @@ export function InquiryDetailActions({
     });
   }
 
-  function remove() {
-    start(async () => {
-      const result = await deleteInquiryAction(inquiryId);
-      if (result.status === "error") {
-        toast.error(toastText(result.message));
-        return;
-      }
-      toast.success("Inquiry deleted");
-      router.push("/dashboard/bookings");
-    });
+  async function remove() {
+    const result = await deleteInquiryAction(inquiryId);
+    if (result.status === "error") throw new Error(toastText(result.message));
+    toast.success("Inquiry deleted");
+    router.push("/dashboard/bookings");
   }
 
   return (
@@ -77,39 +63,21 @@ export function InquiryDetailActions({
           Decline
         </Button>
       )}
-      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <DialogTrigger asChild>
+      <ConfirmDialog
+        trigger={
           <Button variant="ghost" size="sm" disabled={pending}>
             Delete
           </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete this inquiry?</DialogTitle>
-            <DialogDescription>
-              The client&apos;s details and message are removed for good. Do
-              this when a client asks you to delete their data.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              className="rounded-xl"
-              onClick={() => setConfirmOpen(false)}
-            >
-              Keep inquiry
-            </Button>
-            <Button
-              variant="destructive"
-              className="rounded-xl"
-              disabled={pending}
-              onClick={remove}
-            >
-              Delete inquiry
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        }
+        title="Delete this inquiry?"
+        description="Do this when a client asks you to delete their data."
+        consequence="The client's details and message are removed for good and cannot be recovered."
+        variant="destructive"
+        confirmLabel="Delete inquiry"
+        cancelLabel="Keep inquiry"
+        pendingLabel="Deleting"
+        onConfirm={remove}
+      />
     </>
   );
 }
