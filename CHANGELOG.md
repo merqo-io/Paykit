@@ -34,6 +34,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Signed-in vendors on `/`, `/about` and `/faq` now get the account menu (avatar, Get help, Feedback, Sign out) next to a Dashboard link in the nav, instead of a lone Dashboard button with no way to sign out.
+
 - `@merqo/ui` repinned to v0.54.1: the legal gate no longer caches a failed legal-status check and retries idempotent Supabase and merqo calls once on a dropped connection, which fixes the sign-in loop through `/legal/accept`.
 - The plan page no longer shows the Event Pass block; Event Pass is a qkit offer.
 - Paid revenue reports and the earnings report now group payments by Singapore date instead of UTC, so a payment made between 00:00 and 07:59 SGT lands on the right day and matches the Free Today and Yesterday totals; the default earnings year follows the Singapore year too. The plan page now highlights Pro and sends the kit credential when it fetches the plan catalog (the page still renders without it).

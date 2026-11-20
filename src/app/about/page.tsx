@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AboutMerqo } from "@merqo/ui";
-import { Nav } from "@/components/landing/nav";
+import { Nav, navAccount } from "@/components/landing/nav";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@merqo/ui/primitives";
 
@@ -20,7 +20,7 @@ export default async function AboutPage() {
 
   return (
     <>
-      <Nav authed={authed} />
+      <Nav authed={authed} account={user ? navAccount(user) : undefined} />
       <main>
         <AboutMerqo kitName="paykit">
           <Button asChild size="lg">
