@@ -5,6 +5,8 @@ import { themeProps } from "@merqo/ui/next";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@merqo/ui/primitives";
 
+import { AppLinks } from "@/components/app-link-provider";
+
 import "./globals.css";
 
 // Display: family-wide shared face (see docs/business/2026-08-13-typography-family-standard.md).
@@ -46,7 +48,7 @@ export default function RootLayout({
       <body>
         <ThemeProvider {...themeProps}>
           <TooltipProvider>
-            {children}
+            <AppLinks>{children}</AppLinks>
             <Toaster richColors position="top-center" />
           </TooltipProvider>
         </ThemeProvider>

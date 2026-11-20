@@ -14,8 +14,8 @@ live in the avatar menu.
 
 The navigation wrapper uses `contents print:hidden` so it does not constrain the
 shared sticky header. One layout-level `main` owns the outer content width;
-pages may use narrower inner containers. `LinkComponent={Link}` is supplied by
-the client adapter for client-side navigation. Function props cannot be passed
+pages may use narrower inner containers. Links come from the root `AppLinks`
+provider (client-side navigation). Function props cannot be passed
 from a Server Component directly to a shared Client Component.
 
 The shell is a `flex min-h-screen flex-col` column: `main` is `flex-1`, so

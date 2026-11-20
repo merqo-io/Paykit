@@ -14,6 +14,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - The dashboard account menu now shows the vendor's stall name, using the shared `accountLabel` from `@merqo/ui` v0.58.0 (repinned from v0.56.0), so it matches the landing nav. With no stall name it falls back to the auth name or the email local part, never the full email, and the "Your account" fallback is gone.
+- Repinned `@merqo/ui` to v0.57.0 and mounted its `AppLinkProvider` (with `next/link`) once in the root layout through `components/app-link-provider.tsx`. The dashboard navigation and landing account nav no longer take a `LinkComponent` prop, so a Server Component can no longer pass a function into a client export.
 - Repinned `@merqo/ui` to v0.56.0. The landing page, `/about` and `/faq` now use the shared `LandingAccountNav` and `toNavUser` in place of paykit's own account menu wrapper. The nav shows the vendor's stall name, falling back to the auth name or email.
 
 ### Added
