@@ -6,6 +6,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Signed-in visitors got HTTP 500 on the landing page, `/about` and `/faq` because `next/link` was passed from a Server Component into the shared `LandingAccountNav`. The nav is now wired inside a Client Component (`components/landing/account-nav.tsx`).
+- Every dashboard page returned HTTP 500 ("Invalid hook call") because `tour-steps.ts` rendered the transaction status badge at import time, and that badge now includes a hook-using `InfoTooltip`. The example badge is rendered when the tour starts instead.
+
+### Changed
+
+- Repinned `@merqo/ui` to v0.56.0. The landing page, `/about` and `/faq` now use the shared `LandingAccountNav` and `toNavUser` in place of paykit's own account menu wrapper. The nav shows the vendor's stall name, falling back to the auth name or email.
+
 ### Added
 
 - `DESIGN.md`: paykit's own design values, starting with a "Public pages" section that links to the shared public-page rules in `@merqo/ui`.
@@ -22,6 +31,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Deleting an inquiry now uses the shared `ConfirmDialog` from `@merqo/ui`: it names what is lost, stays open with the error if the delete fails, and works by touch.
+- The "Copy inquiry link" button uses `CopyButton`: it now shows a "Copied" state and a failure toast when the clipboard is blocked. The booking ID copy button also toasts when the clipboard is blocked. The cancel-booking dialog confirm is now an `AsyncSubmitButton` styled with the semantic destructive classes inside a form, keeping its "Cancelling…" pending label. `MoneyField` stays because its decimal-string form value does not match `useMoneyField`'s cents contract.
+- The booking ID copy button, the earnings CSV download and the refund submit button use `CopyButton`, `downloadBlob` and `AsyncSubmitButton` from `@merqo/ui` instead of local copies. The "Booking ID copied" toast is gone; the button shows its own "Copied" state.
 - Moved `@merqo/ui` to v0.54.0 (commit 378bd898), from v0.51.0. paykit now defines the `--success` token (light and dark) and exposes it as the `success` colour, which `DeltaPill`'s up state needs.
 
 - Landing "Why paykit" grid: the Pricing tile is removed (the FAQ still carries the pilot pricing line), and the "Extracted, not rewritten" tile becomes "A QR engine already in use", saying the QR codes come from the engine qkit already runs for vendors.

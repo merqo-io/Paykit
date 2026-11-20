@@ -11,6 +11,7 @@ sub-route — sign-out, the two Sheet-embedded widgets reachable from
 - `auth.ts` — `signOutAction()`: signs the current session out
   (`supabase.auth.signOut()`) and redirects to `/login`. Backs
   `DashboardNav`'s real `<form action={signOut}>` submit.
+- `landing-account.ts` — `submitLandingSupport` and `submitLandingFeedback`: adapters from `LandingAccountNav`'s field names (`message`) to `submitSupportMessageAction` (`body`) and `submitFeedbackAction`. A `"use server"` module so the Server Component nav can pass them to the shared client component. Covered by `landing-account.test.ts`.
 - `feedback.ts` — `submitFeedbackAction(input: FeedbackInput)`: validates
   with `feedbackSchema`, calls `submitVendorFeedback`
   (`@/lib/merqo-vendor-feedback`) to file into the shared cross-kit

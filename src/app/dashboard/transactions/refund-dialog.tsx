@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useState } from "react";
 import { toast } from "sonner";
+import { AsyncSubmitButton } from "@merqo/ui";
 import {
   Dialog,
   DialogContent,
@@ -74,9 +75,9 @@ export function RefundDialog({ transactionId }: { transactionId: string }) {
               {state.message}
             </p>
           )}
-          <Button type="submit" disabled={pending}>
-            {pending ? "Recording…" : "Record refund"}
-          </Button>
+          <AsyncSubmitButton pending={pending} pendingChildren="Recording…">
+            Record refund
+          </AsyncSubmitButton>
         </form>
       </DialogContent>
     </Dialog>

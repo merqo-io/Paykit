@@ -122,6 +122,22 @@ describe("CancelBookingDialog refund field", () => {
     expect(screen.getByText("S$")).toBeInTheDocument();
   });
 
+  it("does not cancel when Enter is pressed in the refund field", async () => {
+    const user = userEvent.setup();
+    render(
+      <CancelBookingDialog bookingId="b1" depositTx={CONFIRMED_DEPOSIT} />,
+    );
+    await user.click(screen.getByRole("button", { name: "Cancel booking" }));
+    await user.type(
+      screen.getByLabelText("Refund amount (optional)"),
+      "12{Enter}",
+    );
+    expect(cancelBookingActionMock).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole("button", { name: /confirm cancellation/i }),
+    ).toBeEnabled();
+  });
+
   it("rejects a non-positive refund inline without calling the action", async () => {
     const user = userEvent.setup();
     render(
@@ -161,6 +177,35 @@ describe("CancelBookingDialog refund field", () => {
     await waitFor(() =>
       expect(cancelBookingActionMock).toHaveBeenCalledWith("b1", ""),
     );
+  });
+
+  it("disables the confirm and shows Cancelling while pending, by touch", async () => {
+    let resolve: (v: { status: "ok" }) => void = () => {};
+    cancelBookingActionMock.mockReturnValue(
+      new Promise((r) => {
+        resolve = r;
+      }),
+    );
+    const user = userEvent.setup();
+    render(<CancelBookingDialog bookingId="b1" />);
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: "Cancel booking" }),
+    });
+    await user.pointer({
+      keys: "[TouchA]",
+      target: await screen.findByRole("button", {
+        name: /confirm cancellation/i,
+      }),
+    });
+    const pendingButton = await screen.findByRole("button", {
+      name: /cancelling/i,
+    });
+    expect(pendingButton).toBeDisabled();
+    await user.pointer({ keys: "[TouchA]", target: pendingButton });
+    expect(cancelBookingActionMock).toHaveBeenCalledTimes(1);
+    resolve({ status: "ok" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 
   it("closes with Keep booking", async () => {

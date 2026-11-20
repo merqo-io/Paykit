@@ -24,7 +24,7 @@ in the workspace root for why. Brand theme is "Banknote Engrave"
 of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-mark.ts`'s
 ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
-The public landing is in pre-launch mode, headlined "One payment setup for every kit.": an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only, carried by the FAQ rather than a benefit tile). Sign-in and the dashboard stay reachable by direct URL. When signed in, the landing, About and FAQ nav shows a Dashboard link and the account menu with Sign out. Landing surfaces (checkout card, benefit tiles, FAQ items) use one small `rounded-lg` radius and the hero has no glow, per the shared public page rules. `@merqo/ui` is pinned to merqo-ui commit 272bf23c (v0.54.1), whose `PricingLadder` the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices); the ladder hides the qkit-only Event Pass block.
+The public landing is in pre-launch mode, headlined "One payment setup for every kit.": an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only, carried by the FAQ rather than a benefit tile). Sign-in and the dashboard stay reachable by direct URL. When signed in, the landing, About and FAQ nav shows a Dashboard link and the shared `LandingAccountNav` (Dashboard link and account menu with Sign out), named from the vendor profile's stall name. Landing surfaces (checkout card, benefit tiles, FAQ items) use one small `rounded-lg` radius and the hero has no glow, per the shared public page rules. `@merqo/ui` is pinned to merqo-ui commit 9705d396 (v0.56.0), whose `PricingLadder` the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices); the ladder hides the qkit-only Event Pass block. The dashboard also uses its `ConfirmDialog` (inquiry delete), `CopyButton` (booking ID), `downloadBlob` (earnings CSV) and `AsyncSubmitButton` (refund) rather than local copies.
 
 The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amount (the vendor's payee name, falling back to their inquiry-form business name), reports claim and upload failures inline instead of in toasts, and shows a plain retry notice when the payment cannot be loaded.
 
@@ -90,7 +90,10 @@ so that distinction survives past the one-time tour — tap, not the
 component's hover default, since a native hover hint has no touch equivalent
 and most vendors check this on a
 phone. The tour covers Payments, Bookings and Reports in the nav, and
-points Payment setup at the avatar menu.
+points Payment setup at the avatar menu. The tour renders its example badge
+only when it starts (never at import), and the landing nav's signed-in menu
+is wired in the client component `src/components/landing/account-nav.tsx`;
+both keep signed-in pages from returning HTTP 500.
 `@merqo/ui`'s `DashboardNav`
 (v0.10.0+) is now wired with `LinkComponent={Link}`
 (`src/app/dashboard/dashboard-nav.tsx`), so its nav links do a

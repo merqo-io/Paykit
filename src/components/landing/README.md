@@ -8,6 +8,7 @@ file. Presentational only — no data fetching, no client state beyond the
 
 ## Contents
 
+- `account-nav.tsx` — Client Component that wires `@merqo/ui`'s `LandingAccountNav` (needs `next/link` as `LinkComponent`, which a Server Component cannot serialise into props). `nav.tsx` renders it for signed-in users.
 - `nav.tsx` — sticky top nav: `Wordmark` + an `/about` link + an `/faq`
   link (all screen sizes, the full FAQ page) +
   sign-in/dashboard link. Composes `@merqo/ui`'s `LandingNav` shell
@@ -19,14 +20,13 @@ file. Presentational only — no data fetching, no client state beyond the
   from the shared shell's own `end`-row gap (`gap-2 sm:gap-4`, replacing a
   fixed `gap-3`) — a byproduct of adopting the shared component's
   contract, same as qkit's landing nav will pick up once it migrates.
-- `account-menu.tsx` — client wrapper around `@merqo/ui`'s `AccountMenu`
-  (avatar dropdown with Sign out, Get help, Feedback). The help and feedback
-  handlers are closures, so they live here and `nav.tsx` stays a Server
-  Component. When signed in, the nav's `end` slot shows About, FAQ, a ghost
-  Dashboard button, then this menu. `navAccount(user)` in `nav.tsx` derives
-  the name (full name, else email) and avatar from the auth user, so the
-  public pages (`/`, `/about`, `/faq`) pass `account` without a profile query.
-- `account-menu.dom.test.tsx` — sign-out by touch, and the help and feedback handlers (success, failure, category fallback, empty message).
+- The nav's `end` slot shows About, FAQ, then, when signed in, `@merqo/ui`'s
+  `LandingAccountNav` (Dashboard link plus account menu with Sign out, Get
+  help, Feedback), or Sign in and Join the waitlist when signed out. `Nav`
+  takes a `user` (`NavUser | null`) built by `landingNavUser` in
+  `@/lib/landing-nav-user`; the help and feedback server actions come from
+  `@/app/actions/landing-account`. Errors use the shared sonner toast, and
+  the root layout mounts the `Toaster`.
 - `nav.dom.test.tsx` — asserts the About link, the Sign in/Join the
   waitlist/Dashboard state switch, and that the account menu opens by touch
   and offers Sign out.

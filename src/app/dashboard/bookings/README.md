@@ -84,9 +84,9 @@ Booking and transaction reads list their columns (`@/lib/columns`).
 
 `field.tsx` holds `Field` (visible label, hint and inline error wired with
 `aria-describedby` and `aria-invalid`, `h-11` input, no shadow) and
-`MoneyField`, an S$-prefixed decimal text input. `@merqo/ui` `MoneyInput` was
-not adopted: the installed version could not be inspected, so this fallback
-keeps amounts as text parsed on the server. New booking, inquiry form settings,
+`MoneyField`, an S$-prefixed decimal text input. `@merqo/ui` `MoneyInput` is
+not used: it is a controlled input that commits integer cents, while these
+forms submit the typed text through `FormData` for the server to parse. New booking, inquiry form settings,
 and the cancel and reschedule dialogs share it. Dialogs use one title,
 description and `DialogFooter` with a single filled primary; destructive
 actions use the destructive variant. Errors read "Could not ... Try again."
