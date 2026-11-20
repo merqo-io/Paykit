@@ -19,8 +19,17 @@ file. Presentational only — no data fetching, no client state beyond the
   from the shared shell's own `end`-row gap (`gap-2 sm:gap-4`, replacing a
   fixed `gap-3`) — a byproduct of adopting the shared component's
   contract, same as qkit's landing nav will pick up once it migrates.
-- `nav.dom.test.tsx` — asserts the About link and the Sign in/Join the
-  waitlist/Dashboard state switch.
+- `account-menu.tsx` — client wrapper around `@merqo/ui`'s `AccountMenu`
+  (avatar dropdown with Sign out, Get help, Feedback). The help and feedback
+  handlers are closures, so they live here and `nav.tsx` stays a Server
+  Component. When signed in, the nav's `end` slot shows About, FAQ, a ghost
+  Dashboard button, then this menu. `navAccount(user)` in `nav.tsx` derives
+  the name (full name, else email) and avatar from the auth user, so the
+  public pages (`/`, `/about`, `/faq`) pass `account` without a profile query.
+- `account-menu.dom.test.tsx` — sign-out by touch, and the help and feedback handlers (success, failure, category fallback, empty message).
+- `nav.dom.test.tsx` — asserts the About link, the Sign in/Join the
+  waitlist/Dashboard state switch, and that the account menu opens by touch
+  and offers Sign out.
 - `hero.tsx` — "In build" badge with the readiness line, headline, stat row,
   waitlist CTA, and the decorative `CheckoutCard`.
 - `waitlist.ts` — `WAITLIST_URL` (every signup CTA) and `PILOT_PRICING_LINE`

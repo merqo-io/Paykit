@@ -1,4 +1,4 @@
-import { Nav } from "@/components/landing/nav";
+import { Nav, navAccount } from "@/components/landing/nav";
 import { Hero } from "@/components/landing/hero";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { Benefits } from "@/components/landing/benefits";
@@ -16,7 +16,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <Nav authed={!!user} />
+      <Nav authed={!!user} account={user ? navAccount(user) : undefined} />
       <main>
         <Hero />
         <HowItWorks />
