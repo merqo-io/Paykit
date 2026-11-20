@@ -4,29 +4,16 @@ import { Button } from "@merqo/ui/primitives";
 
 import { Wordmark } from "./wordmark";
 import { WAITLIST_URL } from "./waitlist";
-import { LandingAccountMenu } from "./account-menu";
+import { LandingAccountNav } from "@merqo/ui";
+import type { NavUser } from "@merqo/ui";
+import { signOutAction } from "@/app/actions/auth";
+import {
+  submitLandingFeedback,
+  submitLandingSupport,
+} from "@/app/actions/landing-account";
+import { SUPPORT_CATEGORY_LABELS } from "@/lib/schemas";
 
-export type NavAccount = { name: string; avatarUrl?: string };
-
-/** Display name and avatar from the auth user alone, so public pages need no profile lookup. */
-export function navAccount(user: {
-  email?: string;
-  user_metadata?: Record<string, unknown>;
-}): NavAccount {
-  const meta = user.user_metadata ?? {};
-  const full = typeof meta.full_name === "string" ? meta.full_name.trim() : "";
-  const avatar =
-    typeof meta.avatar_url === "string" ? meta.avatar_url : undefined;
-  return { name: full || user.email || "Account", avatarUrl: avatar };
-}
-
-export function Nav({
-  authed = false,
-  account,
-}: {
-  authed?: boolean;
-  account?: NavAccount;
-}) {
+export function Nav({ user }: { user?: NavUser | null }) {
   return (
     <LandingNav
       wordmark={
@@ -52,16 +39,19 @@ export function Nav({
           >
             FAQ
           </Link>
-          {authed ? (
-            <>
-              <Button asChild size="sm" variant="ghost">
-                <Link href="/dashboard">Dashboard</Link>
-              </Button>
-              <LandingAccountMenu
-                name={account?.name || "Account"}
-                avatarUrl={account?.avatarUrl}
-              />
-            </>
+          {user ? (
+            <LandingAccountNav
+              kit="paykit"
+              dashboardHref="/dashboard"
+              user={user}
+              signOutAction={signOutAction}
+              actions={{
+                submitSupport: submitLandingSupport,
+                submitFeedback: submitLandingFeedback,
+              }}
+              supportCategories={SUPPORT_CATEGORY_LABELS}
+              LinkComponent={Link}
+            />
           ) : (
             <>
               <Link

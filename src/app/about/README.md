@@ -7,7 +7,7 @@ The public "Why Merqo" page, linked from the landing `Nav` and `Footer`.
 ## Contents
 
 - `page.tsx` — `AboutPage`, an async Server Component. Reflects the
-  session (same pattern as `src/app/page.tsx`) so `Nav` shows
+  session (same pattern as `src/app/page.tsx`) so `Nav` shows (the vendor stall name comes from `landingNavUser`)
   Dashboard and the account menu (with Sign out) or Sign in correctly. The story itself is `@merqo/ui`'s shared
   `AboutMerqo` component (one source, reused by merqo and every other
   kit's own `/about` page) — this page supplies only `Nav`/`SiteFooter` and a
