@@ -13,6 +13,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Repinned `@merqo/ui` to v0.57.0 and mounted its `AppLinkProvider` (with `next/link`) once in the root layout through `components/app-link-provider.tsx`. The dashboard navigation and landing account nav no longer take a `LinkComponent` prop, so a Server Component can no longer pass a function into a client export.
 - Repinned `@merqo/ui` to v0.56.0. The landing page, `/about` and `/faq` now use the shared `LandingAccountNav` and `toNavUser` in place of paykit's own account menu wrapper. The nav shows the vendor's stall name, falling back to the auth name or email.
 
 ### Added
