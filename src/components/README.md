@@ -3,6 +3,7 @@
 Paykit-specific client adapters and presentation. Shared controls live in
 `@merqo/ui`; raw CLI-managed primitives live under `ui/`.
 
+- `app-link-provider.tsx` — `AppLinks`, a Client Component mounting `@merqo/ui`'s `AppLinkProvider` with `next/link`; the root layout renders it once. `app-link-provider.dom.test.tsx` covers it.
 - `dashboard-tour.tsx` adapts routing, mark-seen action and `tour-steps.ts` to
   the shared tour (its Reports step anchors on `nav-reports`). Step descriptions render the real transaction-status badge
   into static markup when steps are requested, never at import (an import-time render breaks SSR); their HTML is authored configuration, not customer input.

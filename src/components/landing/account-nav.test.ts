@@ -10,7 +10,7 @@ const read = (file: string) => readFileSync(path.join(__dirname, file), "utf8");
 describe("landing account nav client boundary", () => {
   it("wires LandingAccountNav inside a Client Component", () => {
     expect(read("account-nav.tsx").trimStart()).toMatch(/^"use client";/);
-    expect(read("account-nav.tsx")).toContain("LinkComponent={Link}");
+    expect(read("account-nav.tsx")).not.toContain("LinkComponent");
   });
 
   it("keeps nav.tsx (a Server Component) from passing props to LandingAccountNav", () => {

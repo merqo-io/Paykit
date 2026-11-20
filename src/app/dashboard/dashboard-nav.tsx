@@ -88,7 +88,6 @@ export function DashboardNav({
         </Link>
       }
       navLinks={LINKS}
-      LinkComponent={Link}
       isActiveHref={(href) => isActive(path, href)}
       tourAnchor={tourAnchor}
       vendor={{
