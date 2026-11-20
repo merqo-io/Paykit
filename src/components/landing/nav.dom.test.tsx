@@ -1,7 +1,14 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { Nav } from "./nav";
+import userEvent from "@testing-library/user-event";
+import { Nav, navAccount } from "./nav";
+
+vi.mock("@/app/actions/auth", () => ({ signOutAction: vi.fn() }));
+vi.mock("@/app/actions/feedback", () => ({ submitFeedbackAction: vi.fn() }));
+vi.mock("@/app/actions/support", () => ({
+  submitSupportMessageAction: vi.fn(),
+}));
 
 describe("Nav", () => {
   it("links to the FAQ page on every screen size", () => {
@@ -59,5 +66,52 @@ describe("Nav", () => {
     expect(
       screen.queryByRole("link", { name: "Sign in" }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("Nav account menu", () => {
+  it("opens an account menu with Sign out by touch when authed", async () => {
+    const user = userEvent.setup();
+    render(<Nav authed account={{ name: "Ana's Stall" }} />);
+    const trigger = screen.getByRole("button", { name: /account|ana/i });
+    await user.pointer({ keys: "[TouchA]", target: trigger });
+    expect(
+      await screen.findByRole("menuitem", { name: /sign out/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("has no account menu when signed out", () => {
+    render(<Nav />);
+    expect(screen.queryByRole("button", { name: /account/i })).toBeNull();
+  });
+});
+
+describe("navAccount", () => {
+  it("prefers the full name and reads the avatar from metadata", () => {
+    expect(
+      navAccount({
+        email: "a@b.co",
+        user_metadata: { full_name: "Ana", avatar_url: "https://x/a.png" },
+      }),
+    ).toEqual({ name: "Ana", avatarUrl: "https://x/a.png" });
+  });
+
+  it("treats a whitespace-only full name as missing and trims the rest", () => {
+    expect(
+      navAccount({ email: "a@b.co", user_metadata: { full_name: "   " } }).name,
+    ).toBe("a@b.co");
+    expect(navAccount({ user_metadata: { full_name: "  Ana " } }).name).toBe(
+      "Ana",
+    );
+  });
+
+  it("falls back to the email, then a generic label", () => {
+    expect(navAccount({ email: "a@b.co" })).toEqual({
+      name: "a@b.co",
+      avatarUrl: undefined,
+    });
+    expect(navAccount({ user_metadata: { avatar_url: 3 } }).name).toBe(
+      "Account",
+    );
   });
 });

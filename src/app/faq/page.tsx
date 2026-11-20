@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { FaqPage } from "@merqo/ui";
 
-import { Nav } from "@/components/landing/nav";
+import { Nav, navAccount } from "@/components/landing/nav";
 import { SiteFooter } from "@/components/site-footer";
 import { createServerClient } from "@/lib/supabase/server";
 
@@ -19,7 +19,7 @@ export default async function FaqRoute() {
 
   return (
     <>
-      <Nav authed={!!user} />
+      <Nav authed={!!user} account={user ? navAccount(user) : undefined} />
       <main>
         <FaqPage
           title="Frequently asked questions"

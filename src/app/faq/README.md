@@ -8,8 +8,8 @@ landing page.
 ## Contents
 
 - `page.tsx`: `FaqRoute`, an async Server Component. Reflects the session
-  (same pattern as `src/app/about/page.tsx`) so `Nav` shows Dashboard or Sign
-  in, then renders `@merqo/ui`'s shared `FaqPage` between `Nav` and
+  (same pattern as `src/app/about/page.tsx`) so `Nav` shows Dashboard and the account
+  menu (with Sign out) or Sign in, then renders `@merqo/ui`'s shared `FaqPage` between `Nav` and
   `SiteFooter`. No `closing` line is passed, and the schema.org JSON-LD is on.
   Its typed `metadata.title` is "FAQ", shown as "FAQ | paykit".
 - `faq-content.ts`: the intro and the three groups of rows (nine in total).
