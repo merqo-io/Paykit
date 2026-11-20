@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { tourSteps } from "./tour-steps";
 
@@ -62,5 +62,21 @@ describe("tourSteps", () => {
     expect(bookings?.description).toMatch(/deposit|balance/i);
     expect(reports?.description).toMatch(/revenue|earnings/i);
     expect(account?.description).toMatch(/Payment setup/);
+  });
+});
+
+describe("tour-steps module load", () => {
+  // The module is imported by a server-rendered Client Component. Rendering the
+  // hook-using badge at import time threw "Invalid hook call" during SSR and
+  // 500'd every dashboard page, so nothing may render until a tour starts.
+  it("does not render markup on import, only when steps are requested", async () => {
+    vi.resetModules();
+    const render = vi.fn(() => "<span></span>");
+    vi.doMock("react-dom/server", () => ({ renderToStaticMarkup: render }));
+    const fresh = await import("./tour-steps");
+    expect(render).not.toHaveBeenCalled();
+    fresh.tourSteps(false);
+    expect(render).toHaveBeenCalledTimes(1);
+    vi.doUnmock("react-dom/server");
   });
 });
