@@ -34,6 +34,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- `@merqo/ui` repinned to v0.54.1: the legal gate no longer caches a failed legal-status check and retries idempotent Supabase and merqo calls once on a dropped connection, which fixes the sign-in loop through `/legal/accept`.
 - The plan page no longer shows the Event Pass block; Event Pass is a qkit offer.
 - Paid revenue reports and the earnings report now group payments by Singapore date instead of UTC, so a payment made between 00:00 and 07:59 SGT lands on the right day and matches the Free Today and Yesterday totals; the default earnings year follows the Singapore year too. The plan page now highlights Pro and sends the kit credential when it fetches the plan catalog (the page still renders without it).
 - `new-booking-dialog.dom.test.tsx` no longer fails intermittently: the amount-error assertions now wait for the form action to set the error instead of reading it synchronously after the click.
