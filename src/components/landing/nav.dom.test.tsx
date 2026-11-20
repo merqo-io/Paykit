@@ -2,12 +2,12 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Nav, navAccount } from "./nav";
+import { Nav } from "./nav";
 
 vi.mock("@/app/actions/auth", () => ({ signOutAction: vi.fn() }));
-vi.mock("@/app/actions/feedback", () => ({ submitFeedbackAction: vi.fn() }));
-vi.mock("@/app/actions/support", () => ({
-  submitSupportMessageAction: vi.fn(),
+vi.mock("@/app/actions/landing-account", () => ({
+  submitLandingSupport: vi.fn(),
+  submitLandingFeedback: vi.fn(),
 }));
 
 describe("Nav", () => {
@@ -34,7 +34,7 @@ describe("Nav", () => {
   });
 
   it("shows a Dashboard link, not Sign in / Join the waitlist, when authed", () => {
-    render(<Nav authed />);
+    render(<Nav user={{ name: "Ana's Stall" }} />);
     expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
       "href",
       "/dashboard",
@@ -56,9 +56,9 @@ describe("Nav", () => {
   });
 
   it("updates account links when the signed-in state changes", () => {
-    const { rerender } = render(<Nav authed={false} />);
+    const { rerender } = render(<Nav user={null} />);
     expect(screen.getByRole("link", { name: "Sign in" })).toBeInTheDocument();
-    rerender(<Nav authed />);
+    rerender(<Nav user={{ name: "Ana's Stall" }} />);
     expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
       "href",
       "/dashboard",
@@ -72,7 +72,7 @@ describe("Nav", () => {
 describe("Nav account menu", () => {
   it("opens an account menu with Sign out by touch when authed", async () => {
     const user = userEvent.setup();
-    render(<Nav authed account={{ name: "Ana's Stall" }} />);
+    render(<Nav user={{ name: "Ana's Stall" }} />);
     const trigger = screen.getByRole("button", { name: /account|ana/i });
     await user.pointer({ keys: "[TouchA]", target: trigger });
     expect(
@@ -83,35 +83,5 @@ describe("Nav account menu", () => {
   it("has no account menu when signed out", () => {
     render(<Nav />);
     expect(screen.queryByRole("button", { name: /account/i })).toBeNull();
-  });
-});
-
-describe("navAccount", () => {
-  it("prefers the full name and reads the avatar from metadata", () => {
-    expect(
-      navAccount({
-        email: "a@b.co",
-        user_metadata: { full_name: "Ana", avatar_url: "https://x/a.png" },
-      }),
-    ).toEqual({ name: "Ana", avatarUrl: "https://x/a.png" });
-  });
-
-  it("treats a whitespace-only full name as missing and trims the rest", () => {
-    expect(
-      navAccount({ email: "a@b.co", user_metadata: { full_name: "   " } }).name,
-    ).toBe("a@b.co");
-    expect(navAccount({ user_metadata: { full_name: "  Ana " } }).name).toBe(
-      "Ana",
-    );
-  });
-
-  it("falls back to the email, then a generic label", () => {
-    expect(navAccount({ email: "a@b.co" })).toEqual({
-      name: "a@b.co",
-      avatarUrl: undefined,
-    });
-    expect(navAccount({ user_metadata: { avatar_url: 3 } }).name).toBe(
-      "Account",
-    );
   });
 });
