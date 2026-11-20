@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DownloadCsvButton } from "./download-csv-button";
 import type { EarningsReport } from "@/lib/earnings-report";
@@ -46,7 +46,10 @@ describe("DownloadCsvButton", () => {
     const user = userEvent.setup();
     render(<DownloadCsvButton report={REPORT} />);
 
-    await user.click(screen.getByRole("button", { name: /download csv/i }));
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: /download csv/i }),
+    });
 
     expect(blobCalls).toHaveLength(1);
     expect(downloads).toEqual(["paykit-earnings-2026.csv"]);
@@ -54,6 +57,9 @@ describe("DownloadCsvButton", () => {
     expect(blobCalls[0].parts[0]).toContain("Jane Tan");
     expect(blobCalls[0].parts[0]).toContain("Total,1000.00");
     expect(URL.createObjectURL).toHaveBeenCalled();
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
+    await waitFor(
+      () => expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url"),
+      { timeout: 2000 },
+    );
   });
 });

@@ -26,6 +26,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Deleting an inquiry now uses the shared `ConfirmDialog` from `@merqo/ui`: it names what is lost, stays open with the error if the delete fails, and works by touch.
+- The "Copy inquiry link" button uses `CopyButton`: it now shows a "Copied" state and a failure toast when the clipboard is blocked. The booking ID copy button also toasts when the clipboard is blocked. The cancel-booking dialog confirm is now an `AsyncSubmitButton` styled with the semantic destructive classes inside a form, keeping its "Cancelling…" pending label. `MoneyField` stays because its decimal-string form value does not match `useMoneyField`'s cents contract.
+- The booking ID copy button, the earnings CSV download and the refund submit button use `CopyButton`, `downloadBlob` and `AsyncSubmitButton` from `@merqo/ui` instead of local copies. The "Booking ID copied" toast is gone; the button shows its own "Copied" state.
 - Moved `@merqo/ui` to v0.54.0 (commit 378bd898), from v0.51.0. paykit now defines the `--success` token (light and dark) and exposes it as the `success` colour, which `DeltaPill`'s up state needs.
 
 - Landing "Why paykit" grid: the Pricing tile is removed (the FAQ still carries the pilot pricing line), and the "Extracted, not rewritten" tile becomes "A QR engine already in use", saying the QR codes come from the engine qkit already runs for vendors.

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { AsyncSubmitButton } from "@merqo/ui";
 import {
   Dialog,
   DialogContent,
@@ -101,59 +102,74 @@ export function CancelBookingDialog({
             of any payment already made.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-2">
-          <Label htmlFor="cancel_reason">Reason (optional)</Label>
-          <Textarea
-            id="cancel_reason"
-            className="rounded-xl shadow-none"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-          />
-        </div>
-        {refundTx && isPro && (
-          <MoneyField
-            id="cancel_refund_amount"
-            label="Refund amount (optional)"
-            value={refundAmount}
-            onChange={(e) => {
-              setRefundAmount(e.target.value);
-              setAmountError(null);
-            }}
-            placeholder="0.00"
-            error={amountError}
-          />
-        )}
-        {refundTx && !isPro && (
-          <p
-            id="cancel_refund_hint"
-            className="rounded-xl border border-dashed p-3 text-sm text-muted-foreground"
-          >
-            Refund tracking is on the Pro plan. You can still cancel this
-            booking.
-          </p>
-        )}
-        {error && (
-          <p role="alert" className="text-sm font-medium text-destructive">
-            {error}
-          </p>
-        )}
-        <DialogFooter>
-          <Button
-            variant="outline"
-            className="rounded-xl"
-            onClick={() => setOpen(false)}
-          >
-            Keep booking
-          </Button>
-          <Button
-            variant="destructive"
-            className="rounded-xl"
-            disabled={pending}
-            onClick={onConfirm}
-          >
-            {pending ? "Cancelling…" : "Confirm cancellation"}
-          </Button>
-        </DialogFooter>
+        <form
+          className="space-y-4"
+          // Enter in a text field would otherwise submit a half-typed refund
+          // amount; only an explicit tap on the confirm button may cancel.
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && e.target instanceof HTMLInputElement) {
+              e.preventDefault();
+            }
+          }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            onConfirm();
+          }}
+        >
+          <div className="space-y-2">
+            <Label htmlFor="cancel_reason">Reason (optional)</Label>
+            <Textarea
+              id="cancel_reason"
+              className="rounded-xl shadow-none"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+            />
+          </div>
+          {refundTx && isPro && (
+            <MoneyField
+              id="cancel_refund_amount"
+              label="Refund amount (optional)"
+              value={refundAmount}
+              onChange={(e) => {
+                setRefundAmount(e.target.value);
+                setAmountError(null);
+              }}
+              placeholder="0.00"
+              error={amountError}
+            />
+          )}
+          {refundTx && !isPro && (
+            <p
+              id="cancel_refund_hint"
+              className="rounded-xl border border-dashed p-3 text-sm text-muted-foreground"
+            >
+              Refund tracking is on the Pro plan. You can still cancel this
+              booking.
+            </p>
+          )}
+          {error && (
+            <p role="alert" className="text-sm font-medium text-destructive">
+              {error}
+            </p>
+          )}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-xl"
+              onClick={() => setOpen(false)}
+            >
+              Keep booking
+            </Button>
+            <AsyncSubmitButton
+              pending={pending}
+              pendingChildren="Cancelling…"
+              className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Confirm cancellation
+            </AsyncSubmitButton>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

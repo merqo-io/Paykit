@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BookingIdCopy } from "./booking-id-copy";
 import { checkoutKind } from "@/lib/checkout-kind";
 import { RecoverDepositButton } from "./recover-deposit-button";
 import { notFound } from "next/navigation";
@@ -17,7 +18,6 @@ import { CreateBalanceCheckoutButton } from "./create-balance-checkout-button";
 import { CancelBookingDialog } from "./cancel-booking-dialog";
 import { RescheduleBookingDialog } from "./reschedule-booking-dialog";
 import { PrintBookingButton } from "./print-booking-button";
-import { CopyBookingIdButton } from "./copy-booking-id-button";
 
 export const metadata: Metadata = {
   title: "Booking",
@@ -85,7 +85,7 @@ export default async function BookingDetailPage({
             >
               {booking.id}
             </code>
-            <CopyBookingIdButton bookingId={booking.id} />
+            <BookingIdCopy bookingId={booking.id} />
           </dd>
           <dt className="text-muted-foreground">Customer phone</dt>
           <dd>{booking.customer_phone ?? "Not set"}</dd>

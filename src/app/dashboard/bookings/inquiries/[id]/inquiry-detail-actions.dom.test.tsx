@@ -45,27 +45,83 @@ describe("InquiryDetailActions", () => {
     await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Nope"));
   });
 
-  it("deletes after confirming, then goes back to Bookings", async () => {
+  it("opens the shared confirm by touch and cancel does nothing", async () => {
+    const user = userEvent.setup();
     render(<InquiryDetailActions inquiryId="i1" status="declined" />);
-    expect(screen.queryByRole("button", { name: "Decline" })).toBeNull();
-    await userEvent.click(screen.getByRole("button", { name: "Delete" }));
-    await userEvent.click(
-      screen.getByRole("button", { name: "Delete inquiry" }),
-    );
-    await waitFor(() => expect(deleteMock).toHaveBeenCalledWith("i1"));
-    expect(pushMock).toHaveBeenCalledWith("/dashboard/bookings");
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: "Delete" }),
+    });
+    expect(await screen.findByRole("alertdialog")).toBeTruthy();
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: "Keep inquiry" }),
+    });
+    await waitFor(() => expect(screen.queryByRole("alertdialog")).toBeNull());
+    expect(deleteMock).not.toHaveBeenCalled();
+    expect(pushMock).not.toHaveBeenCalled();
   });
 
-  it("stays put when delete fails", async () => {
+  it("deletes once after confirming by touch, then goes back to Bookings", async () => {
+    const user = userEvent.setup();
+    render(<InquiryDetailActions inquiryId="i1" status="declined" />);
+    expect(screen.queryByRole("button", { name: "Decline" })).toBeNull();
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: "Delete" }),
+    });
+    await user.pointer({
+      keys: "[TouchA]",
+      target: await screen.findByRole("button", { name: "Delete inquiry" }),
+    });
+    await waitFor(() =>
+      expect(pushMock).toHaveBeenCalledWith("/dashboard/bookings"),
+    );
+    expect(deleteMock).toHaveBeenCalledTimes(1);
+    expect(deleteMock).toHaveBeenCalledWith("i1");
+    expect(toastMock.success).toHaveBeenCalledWith("Inquiry deleted");
+  });
+
+  it("calls delete once when the confirm is tapped twice while pending", async () => {
+    let resolve: (v: { status: "ok" }) => void = () => {};
+    deleteMock.mockReturnValue(
+      new Promise((r) => {
+        resolve = r;
+      }),
+    );
+    const user = userEvent.setup();
+    render(<InquiryDetailActions inquiryId="i1" status="declined" />);
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: "Delete" }),
+    });
+    const confirm = await screen.findByRole("button", {
+      name: "Delete inquiry",
+    });
+    await user.pointer({ keys: "[TouchA]", target: confirm });
+    await user.pointer({ keys: "[TouchA]", target: confirm });
+    expect(deleteMock).toHaveBeenCalledTimes(1);
+    resolve({ status: "ok" });
+    await waitFor(() =>
+      expect(pushMock).toHaveBeenCalledWith("/dashboard/bookings"),
+    );
+    expect(deleteMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("stays open and does not navigate when delete fails", async () => {
+    const user = userEvent.setup();
     deleteMock.mockResolvedValue({ status: "error", message: "Could not" });
     render(<InquiryDetailActions inquiryId="i1" status="new" />);
-    await userEvent.click(screen.getByRole("button", { name: "Delete" }));
-    await userEvent.click(
-      screen.getByRole("button", { name: "Delete inquiry" }),
-    );
-    await waitFor(() =>
-      expect(toastMock.error).toHaveBeenCalledWith("Could not"),
-    );
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: "Delete" }),
+    });
+    await user.pointer({
+      keys: "[TouchA]",
+      target: await screen.findByRole("button", { name: "Delete inquiry" }),
+    });
+    expect(await screen.findByText("Could not")).toBeTruthy();
+    expect(screen.getByRole("alertdialog")).toBeTruthy();
     expect(pushMock).not.toHaveBeenCalled();
   });
 });

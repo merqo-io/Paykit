@@ -43,9 +43,9 @@ being silently dropped.
 - `download-csv-button.tsx` — `DownloadCsvButton({report})`, client:
   builds the CSV via `@/lib/earnings-csv`'s `earningsReportToCsv()`
   entirely client-side (the report data is already on the page, non-secret,
-  the vendor's own — no server round-trip needed), then a `Blob` +
-  `URL.createObjectURL` + a temporary anchor's `.click()` to trigger the
-  browser download (`paykit-earnings-<year>.csv`).
+  the vendor's own — no server round-trip needed), then hands a `Blob` to
+  `downloadBlob` from `@merqo/ui` to trigger the browser download
+  (`paykit-earnings-<year>.csv`).
 - `download-csv-button.dom.test.tsx` — stubs the global `Blob` constructor
   to capture what was actually serialized, and `URL.createObjectURL`/
   `revokeObjectURL`, asserting the CSV content and that the object URL is

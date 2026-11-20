@@ -71,6 +71,41 @@ describe("InquiryFormSettings", () => {
     expect(toastMock.success).toHaveBeenCalledWith("Inquiry link copied");
   });
 
+  it("copies the public link by touch and shows the copied state", async () => {
+    const user = userEvent.setup();
+    const writeText = vi
+      .spyOn(navigator.clipboard, "writeText")
+      .mockResolvedValue(undefined);
+    render(<InquiryFormSettings form={FORM} />);
+    await user.pointer({
+      keys: "[TouchA]",
+      target: screen.getByRole("button", { name: /copy inquiry link/i }),
+    });
+    expect(writeText).toHaveBeenCalledWith(
+      `${window.location.origin}/inquire/0123456789abcdef`,
+    );
+    await waitFor(() =>
+      expect(screen.getByRole("status")).toHaveTextContent("Copied"),
+    );
+  });
+
+  it("reports a clipboard failure instead of a copied state", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(navigator.clipboard, "writeText").mockRejectedValue(
+      new Error("denied"),
+    );
+    render(<InquiryFormSettings form={FORM} />);
+    await user.click(
+      screen.getByRole("button", { name: /copy inquiry link/i }),
+    );
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith(
+        "Could not copy the inquiry link",
+      ),
+    );
+    expect(toastMock.success).not.toHaveBeenCalledWith("Inquiry link copied");
+  });
+
   it("prefills the saved settings and saves", async () => {
     render(<InquiryFormSettings form={FORM} />);
     await userEvent.click(screen.getByRole("button", { name: "Inquiry form" }));
