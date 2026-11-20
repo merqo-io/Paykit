@@ -42,6 +42,7 @@ for page render/data failures; it offers "Try again" and a "Back to dashboard" l
   free. The old `stats/` and `reports/earnings/` URLs redirect to the matching tab.
 - `plan/` shows the current plan and points to the Merqo account; merqo owns pricing.
 - `profile/` saves shared stall name/social links and Supabase account metadata.
+- `layout.tsx` labels the account menu with `accountLabel(user, stall_name)` from `@merqo/ui`: the stall name, else the auth name, else the email local part.
 
 `tour-actions.ts` and the overview's server-render stamp delegate to
 `lib/tour-prefs.ts`. Both are best-effort; navigation or a failed write can
