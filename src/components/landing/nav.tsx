@@ -4,14 +4,8 @@ import { Button } from "@merqo/ui/primitives";
 
 import { Wordmark } from "./wordmark";
 import { WAITLIST_URL } from "./waitlist";
-import { LandingAccountNav } from "@merqo/ui";
 import type { NavUser } from "@merqo/ui";
-import { signOutAction } from "@/app/actions/auth";
-import {
-  submitLandingFeedback,
-  submitLandingSupport,
-} from "@/app/actions/landing-account";
-import { SUPPORT_CATEGORY_LABELS } from "@/lib/schemas";
+import { AccountNav } from "./account-nav";
 
 export function Nav({ user }: { user?: NavUser | null }) {
   return (
@@ -40,18 +34,7 @@ export function Nav({ user }: { user?: NavUser | null }) {
             FAQ
           </Link>
           {user ? (
-            <LandingAccountNav
-              kit="paykit"
-              dashboardHref="/dashboard"
-              user={user}
-              signOutAction={signOutAction}
-              actions={{
-                submitSupport: submitLandingSupport,
-                submitFeedback: submitLandingFeedback,
-              }}
-              supportCategories={SUPPORT_CATEGORY_LABELS}
-              LinkComponent={Link}
-            />
+            <AccountNav user={user} />
           ) : (
             <>
               <Link

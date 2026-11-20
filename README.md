@@ -90,7 +90,10 @@ so that distinction survives past the one-time tour — tap, not the
 component's hover default, since a native hover hint has no touch equivalent
 and most vendors check this on a
 phone. The tour covers Payments, Bookings and Reports in the nav, and
-points Payment setup at the avatar menu.
+points Payment setup at the avatar menu. The tour renders its example badge
+only when it starts (never at import), and the landing nav's signed-in menu
+is wired in the client component `src/components/landing/account-nav.tsx`;
+both keep signed-in pages from returning HTTP 500.
 `@merqo/ui`'s `DashboardNav`
 (v0.10.0+) is now wired with `LinkComponent={Link}`
 (`src/app/dashboard/dashboard-nav.tsx`), so its nav links do a

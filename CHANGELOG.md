@@ -6,6 +6,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Signed-in visitors got HTTP 500 on the landing page, `/about` and `/faq` because `next/link` was passed from a Server Component into the shared `LandingAccountNav`. The nav is now wired inside a Client Component (`components/landing/account-nav.tsx`).
+- Every dashboard page returned HTTP 500 ("Invalid hook call") because `tour-steps.ts` rendered the transaction status badge at import time, and that badge now includes a hook-using `InfoTooltip`. The example badge is rendered when the tour starts instead.
+
 ### Changed
 
 - Repinned `@merqo/ui` to v0.56.0. The landing page, `/about` and `/faq` now use the shared `LandingAccountNav` and `toNavUser` in place of paykit's own account menu wrapper. The nav shows the vendor's stall name, falling back to the auth name or email.
