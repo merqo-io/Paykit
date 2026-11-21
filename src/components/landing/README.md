@@ -10,7 +10,7 @@ file. Presentational only — no data fetching, no client state beyond the
 
 - `account-nav.tsx` — Client Component that wires `@merqo/ui`'s `LandingAccountNav` (a Client Component so the server actions can be passed in; links come from the root `AppLinks` provider). `nav.tsx` renders it for signed-in users.
 - `nav.tsx` — sticky top nav built on `@merqo/ui`'s `LandingNav` shell
-  (v0.59.0). The `wordmark` slot holds the `Wordmark` link; About and FAQ
+  (v0.59.1). The `wordmark` slot holds the `Wordmark` link; About and FAQ
   (`/about`, `/faq`) are passed as plain-data `links`, which the shell shows
   inline from `sm` up and collapses into a burger menu below it, so the
   header stays one line on phones. The `end` slot holds only the account
