@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The landing nav collapses About and FAQ into a burger menu below `sm` (`@merqo/ui` v0.59.0 `LandingNav` `links`), keeping the header on one line on phones.
+
 ### Fixed
 
 - Signed-in visitors got HTTP 500 on the landing page, `/about` and `/faq` because `next/link` was passed from a Server Component into the shared `LandingAccountNav`. The nav is now wired inside a Client Component (`components/landing/account-nav.tsx`).

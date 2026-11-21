@@ -10,6 +10,10 @@ import { AccountNav } from "./account-nav";
 export function Nav({ user }: { user?: NavUser | null }) {
   return (
     <LandingNav
+      links={[
+        { label: "About", href: "/about" },
+        { label: "FAQ", href: "/faq" },
+      ]}
       wordmark={
         <Link
           href="/"
@@ -21,18 +25,6 @@ export function Nav({ user }: { user?: NavUser | null }) {
       }
       end={
         <>
-          <Link
-            href="/about"
-            className="rounded-sm px-1 text-sm text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
-          >
-            About
-          </Link>
-          <Link
-            href="/faq"
-            className="rounded-sm px-1 text-sm text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
-          >
-            FAQ
-          </Link>
           {user ? (
             <AccountNav user={user} />
           ) : (
