@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { accountLabel } from "@merqo/ui";
 import { getVendorSession } from "@/lib/vendor-session";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
 import { getOrCreateVendorProfile } from "@/lib/merqo-vendor-profile";
@@ -54,7 +55,7 @@ export default async function DashboardLayout({
       <div className="contents print:hidden">
         <DashboardNav
           signOut={signOutAction}
-          vendorName={profile.stall_name || (user.email ?? "Account")}
+          vendorName={accountLabel(user, profile.stall_name)}
           avatarUrl={avatarUrl}
           plan={plan ?? "free"}
         />

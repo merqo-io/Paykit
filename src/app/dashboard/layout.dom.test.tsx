@@ -3,6 +3,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import DashboardLayout from "./layout";
+import { getOrCreateVendorProfile } from "@/lib/merqo-vendor-profile";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/dashboard" }));
 vi.mock("@/lib/vendor-session", () => ({
@@ -63,5 +64,25 @@ describe("DashboardLayout", () => {
     expect(
       screen.queryByRole("link", { name: "Vendor sign in →" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("labels the account menu with the stall name", async () => {
+    const jsx = await DashboardLayout({ children: <div>page content</div> });
+    render(jsx);
+
+    expect(screen.getAllByText("Kopitiam Cart").length).toBeGreaterThan(0);
+  });
+
+  it("falls back to the email local part, never the full email, when the stall name is empty", async () => {
+    vi.mocked(getOrCreateVendorProfile).mockResolvedValueOnce({
+      stall_name: "",
+      social_links: {},
+    } as Awaited<ReturnType<typeof getOrCreateVendorProfile>>);
+    const jsx = await DashboardLayout({ children: <div>page content</div> });
+    render(jsx);
+
+    expect(screen.getAllByText("vendor").length).toBeGreaterThan(0);
+    expect(screen.queryByText("vendor@example.com")).not.toBeInTheDocument();
+    expect(screen.queryByText("Your account")).not.toBeInTheDocument();
   });
 });
