@@ -8,17 +8,17 @@ to it and, on `accept/`, records the vendor's acceptance with merqo.
 
 ## Contents
 
-- `legal-page-client.tsx` — `PaykitLegalPage`, a `"use client"` wrapper that
+- `legal-page-client.tsx` — `LegalPageClient`, a `"use client"` wrapper that
   renders `@merqo/ui`'s `LegalPage` with paykit's `Wordmark` and `next/link`.
   It exists because the published `LegalPage` bundle loses the `"use client"`
   boundary of the `LegalDocument` inside it (a Back button with an
   `onClick`), which fails prerender when `LegalPage` runs in a Server
   Component. Delete it once the package fixes that.
 - `terms/page.tsx` — `TermsPage`, a Server Component rendering
-  `<PaykitLegalPage doc="terms" kit="paykit" />` (see `legal-page-client.tsx`)
+  `<LegalPageClient doc="terms" kit="paykit" />` (see `legal-page-client.tsx`)
   with the paykit wordmark (the component brings its own prose container, so there's no
   local layout).
-- `privacy/page.tsx` — `PrivacyPage`, the same for `<PaykitLegalPage doc="privacy" />`.
+- `privacy/page.tsx` — `PrivacyPage`, the same for `<LegalPageClient doc="privacy" />`.
 - `accept/page.tsx` — `LegalAcceptPage`. The interstitial
   `getVendorSession` (`@/lib/vendor-session`) redirects a signed-in vendor to
   when their accepted terms/privacy versions are behind `@merqo/ui`'s

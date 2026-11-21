@@ -8,7 +8,7 @@ import { Wordmark } from "@/components/landing/wordmark";
 // "Back" button with an onClick, and the published bundle drops that
 // module's "use client" boundary when LegalPage imports it. Rendering from
 // a client module keeps the handler legal until the package fixes that.
-export function PaykitLegalPage({
+export function LegalPageClient({
   doc,
   kit,
 }: {
