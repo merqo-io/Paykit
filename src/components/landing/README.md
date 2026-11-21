@@ -8,7 +8,7 @@ file. Presentational only — no data fetching, no client state beyond the
 
 ## Contents
 
-- `account-nav.tsx` — Client Component that wires `@merqo/ui`'s `LandingAccountNav` (needs `next/link` as `LinkComponent`, which a Server Component cannot serialise into props). `nav.tsx` renders it for signed-in users.
+- `account-nav.tsx` — Client Component that wires `@merqo/ui`'s `LandingAccountNav` (a Client Component so the server actions can be passed in; links come from the root `AppLinks` provider). `nav.tsx` renders it for signed-in users.
 - `nav.tsx` — sticky top nav: `Wordmark` + an `/about` link + an `/faq`
   link (all screen sizes, the full FAQ page) +
   sign-in/dashboard link. Composes `@merqo/ui`'s `LandingNav` shell

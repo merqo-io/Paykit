@@ -14,8 +14,8 @@ live in the avatar menu.
 
 The navigation wrapper uses `contents print:hidden` so it does not constrain the
 shared sticky header. One layout-level `main` owns the outer content width;
-pages may use narrower inner containers. `LinkComponent={Link}` is supplied by
-the client adapter for client-side navigation. Function props cannot be passed
+pages may use narrower inner containers. Links come from the root `AppLinks`
+provider (client-side navigation). Function props cannot be passed
 from a Server Component directly to a shared Client Component.
 
 The shell is a `flex min-h-screen flex-col` column: `main` is `flex-1`, so
@@ -42,6 +42,7 @@ for page render/data failures; it offers "Try again" and a "Back to dashboard" l
   free. The old `stats/` and `reports/earnings/` URLs redirect to the matching tab.
 - `plan/` shows the current plan and points to the Merqo account; merqo owns pricing.
 - `profile/` saves shared stall name/social links and Supabase account metadata.
+- `layout.tsx` labels the account menu with `accountLabel(user, stall_name)` from `@merqo/ui`: the stall name, else the auth name, else the email local part.
 
 `tour-actions.ts` and the overview's server-render stamp delegate to
 `lib/tour-prefs.ts`. Both are best-effort; navigation or a failed write can

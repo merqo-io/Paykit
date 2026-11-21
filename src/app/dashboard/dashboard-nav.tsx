@@ -88,18 +88,15 @@ export function DashboardNav({
         </Link>
       }
       navLinks={LINKS}
-      LinkComponent={Link}
       isActiveHref={(href) => isActive(path, href)}
       tourAnchor={tourAnchor}
       vendor={{
-        name: vendorName || "Account",
+        name: vendorName,
         avatarUrl: avatarUrl ?? undefined,
         tier: plan,
-        // `subtitle` is the only line @merqo/ui's AccountMenu renders next
-        // to the trigger and in the dropdown header, so it can't carry both
-        // a generic descriptor and the vendor's real name — the actual
-        // vendor name is far more useful here than a static label.
-        subtitle: vendorName || "Your account",
+        // AccountMenu renders only `subtitle` beside the trigger, so it carries
+        // the same label as `name`.
+        subtitle: vendorName,
       }}
       signOutAction={signOut}
       tierBadge={<TierChip tier={plan} />}

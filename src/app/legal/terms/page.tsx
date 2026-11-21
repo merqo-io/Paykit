@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { LegalDocument } from "@merqo/ui";
+import { legalPageMetadata } from "@merqo/ui";
+import { LegalPageClient } from "../legal-page-client";
 
-export const metadata: Metadata = {
-  title: "Terms of Service",
-};
+export const metadata: Metadata = legalPageMetadata("terms");
 
 export default function TermsPage() {
-  return <LegalDocument doc="terms" kit="paykit" />;
+  return <LegalPageClient doc="terms" kit="paykit" />;
 }
