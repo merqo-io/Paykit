@@ -9,6 +9,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - The landing nav collapses About and FAQ into a burger menu below `sm` (`@merqo/ui` v0.59.0 `LandingNav` `links`), keeping the header on one line on phones.
+- `/legal/terms`, `/legal/privacy` and `/legal/accept` now render the shared `LegalPage` and `AcceptTermsPage` from `@merqo/ui` (with the paykit wordmark linked home); the local `accept-form.tsx` is removed. `LegalPage` is rendered through a small client wrapper because the published bundle drops `LegalDocument`'s client boundary.
 
 ### Fixed
 
