@@ -129,7 +129,7 @@ or structurally identical to the other kits' copies before promoting;
 paykit keeps its own wordmark, nav links, tier badge, and feedback/support
 wiring as thin adapters over the shared components). `/legal/terms` now
 renders only paykit's own Annex schedule
-(`<LegalDocument doc="terms" kit="paykit" />`), not every sibling kit's —
+(`<LegalPage doc="terms" kit="paykit" />`), not every sibling kit's —
 previously every kit's `/legal/terms` page showed the full multi-kit annex
 since none passed kit context. `legal/accept/actions.ts`'s recorded
 `doc_sha256` hashes that same scoped content. The earnings report's

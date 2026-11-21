@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `/legal/terms`, `/legal/privacy` and `/legal/accept` now render the shared `LegalPage` and `AcceptTermsPage` from `@merqo/ui` (with the paykit wordmark linked home); the local `accept-form.tsx` is removed. `LegalPage` is rendered through a small client wrapper because the published bundle drops `LegalDocument`'s client boundary.
+
 ### Fixed
 
 - Signed-in visitors got HTTP 500 on the landing page, `/about` and `/faq` because `next/link` was passed from a Server Component into the shared `LandingAccountNav`. The nav is now wired inside a Client Component (`components/landing/account-nav.tsx`).

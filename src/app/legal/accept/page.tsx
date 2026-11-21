@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { AcceptForm } from "./accept-form";
-import { safeRedirectPath } from "@merqo/ui";
+import { AcceptTermsPage, safeRedirectPath } from "@merqo/ui";
+import { Wordmark } from "@/components/landing/wordmark";
+import { acceptLegalTerms } from "./actions";
 
 export const metadata: Metadata = {
   title: "Accept the updated terms",
@@ -12,6 +13,8 @@ export const revalidate = 0;
 // page is what that gate redirects TO, so gating it the same way is an
 // infinite redirect loop. acceptLegalTerms (actions.ts) re-checks for a
 // signed-in user on submit and sends a signed-out visitor to /login.
+// AcceptTermsPage is a client component, so only serialisable props cross
+// the boundary: no LinkComponent here.
 export default async function LegalAcceptPage({
   searchParams,
 }: {
@@ -20,14 +23,12 @@ export default async function LegalAcceptPage({
   const { next } = await searchParams;
 
   return (
-    <div className="mx-auto max-w-md px-5 py-16">
-      <h1 className="mb-3 font-display text-2xl font-bold tracking-tight">
-        Our terms have changed
-      </h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Read and accept them to continue.
-      </p>
-      <AcceptForm next={safeRedirectPath(next, "/dashboard")} />
-    </div>
+    <AcceptTermsPage
+      action={acceptLegalTerms}
+      next={safeRedirectPath(next, "/dashboard")}
+      wordmark={<Wordmark className="text-xl" />}
+      title="Our terms have changed"
+      description="Read and accept them to continue."
+    />
   );
 }

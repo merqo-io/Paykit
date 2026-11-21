@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { LegalDocument } from "@merqo/ui";
+import { legalPageMetadata } from "@merqo/ui";
+import { PaykitLegalPage } from "../legal-page-client";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-};
+export const metadata: Metadata = legalPageMetadata("privacy");
 
 export default function PrivacyPage() {
-  return <LegalDocument doc="privacy" />;
+  return <PaykitLegalPage doc="privacy" />;
 }

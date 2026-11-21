@@ -8,21 +8,24 @@ to it and, on `accept/`, records the vendor's acceptance with merqo.
 
 ## Contents
 
-- `terms/page.tsx` — `TermsPage`, a one-line Server Component rendering
-  `@merqo/ui`'s `<LegalDocument doc="terms" />` (the component brings its own
-  `mx-auto max-w-3xl` prose container, so there's no local layout).
-- `privacy/page.tsx` — `PrivacyPage`, the same for `<LegalDocument doc="privacy" />`.
+- `legal-page-client.tsx` — `PaykitLegalPage`, a `"use client"` wrapper that
+  renders `@merqo/ui`'s `LegalPage` with paykit's `Wordmark` and `next/link`.
+  It exists because the published `LegalPage` bundle loses the `"use client"`
+  boundary of the `LegalDocument` inside it (a Back button with an
+  `onClick`), which fails prerender when `LegalPage` runs in a Server
+  Component. Delete it once the package fixes that.
+- `terms/page.tsx` — `TermsPage`, a Server Component rendering
+  `<PaykitLegalPage doc="terms" kit="paykit" />` (see `legal-page-client.tsx`)
+  with the paykit wordmark (the component brings its own prose container, so there's no
+  local layout).
+- `privacy/page.tsx` — `PrivacyPage`, the same for `<PaykitLegalPage doc="privacy" />`.
 - `accept/page.tsx` — `LegalAcceptPage`. The interstitial
   `getVendorSession` (`@/lib/vendor-session`) redirects a signed-in vendor to
   when their accepted terms/privacy versions are behind `@merqo/ui`'s
   `LEGAL_VERSIONS`. Reads the `next` search param (through
-  `safeRedirectPath`, `@merqo/ui`) and renders the client form.
+  `safeRedirectPath`, `@merqo/ui`) and renders `@merqo/ui`'s `AcceptTermsPage`.
   Deliberately runs **no** legal-gate check itself — it is what the gate
   redirects to, so gating it would loop.
-- `accept/accept-form.tsx` — `AcceptForm`, a client component wrapping
-  `@merqo/ui`'s `TermsAcceptanceCheckbox` (just the agree checkbox — no
-  typed name); the submit button is disabled until it's checked. Posts to
-  `acceptLegalTerms`.
 - `accept/actions.ts` — `acceptLegalTerms` server action. Re-checks for a
   signed-in user (redirects to `/login` otherwise), reads the vendor's
   real `ip`/`user_agent` (via `headers()`/`clientIp` from

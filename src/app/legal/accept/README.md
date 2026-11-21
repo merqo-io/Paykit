@@ -10,12 +10,12 @@ folder's job is entirely to collect the vendor's consent and forward it.
 ## Contents
 
 - `page.tsx` — `LegalAcceptPage`. Reads the `next` search param (through
-  `safeRedirectPath`, `@merqo/ui`) and renders the client form.
+  `safeRedirectPath`, `@merqo/ui`) and renders `@merqo/ui`'s `AcceptTermsPage` (a client component, so only
+  serialisable props: the server action, the sanitised `next`, the wordmark).
   Deliberately runs no legal-gate check itself — it is what the gate
   redirects to, so gating it would loop. The heading reads "Our terms have changed" and shows no version numbers.
-- `accept-form.tsx` — `AcceptForm`, a client component wrapping `@merqo/ui`'s
-  `TermsAcceptanceCheckbox` (just the agree checkbox — no typed name); the
-  submit button is disabled until it's checked. Posts to `acceptLegalTerms`.
+- The shared form is just the agree checkbox (no typed name); the submit
+  button is disabled until it's checked. It posts to `acceptLegalTerms`.
 - `actions.ts` — `acceptLegalTerms` server action. Re-checks for a signed-in
   user (redirects to `/login` otherwise), reads the vendor's real
   `ip`/`user_agent`, then `POST`s `/api/merqo/legal-accept` on merqo once
