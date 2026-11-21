@@ -31,7 +31,7 @@ export function Nav({ user }: { user?: NavUser | null }) {
             <>
               <Link
                 href="/login"
-                className="rounded-sm px-1 text-sm text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                className="whitespace-nowrap rounded-sm px-1 text-sm text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
               >
                 Sign in
               </Link>
