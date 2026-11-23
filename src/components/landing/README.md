@@ -9,24 +9,18 @@ file. Presentational only — no data fetching, no client state beyond the
 ## Contents
 
 - `account-nav.tsx` — Client Component that wires `@merqo/ui`'s `LandingAccountNav` (a Client Component so the server actions can be passed in; links come from the root `AppLinks` provider). `nav.tsx` renders it for signed-in users.
-- `nav.tsx` — sticky top nav: `Wordmark` + an `/about` link + an `/faq`
-  link (all screen sizes, the full FAQ page) +
-  sign-in/dashboard link. Composes `@merqo/ui`'s `LandingNav` shell
-  (v0.9.0) for the sticky header/`max-w-6xl` row instead of hand-rolling
-  it — this file now owns only the `wordmark` slot (the `Wordmark` link +
-  sr-only text) and the `end` slot (About and FAQ links,
-  sign-in/dashboard links), both passed straight through as `ReactNode`
-  props. Visual output is unchanged from the pre-migration markup, aside
-  from the shared shell's own `end`-row gap (`gap-2 sm:gap-4`, replacing a
-  fixed `gap-3`) — a byproduct of adopting the shared component's
-  contract, same as qkit's landing nav will pick up once it migrates.
-- The nav's `end` slot shows About, FAQ, then, when signed in, `@merqo/ui`'s
-  `LandingAccountNav` (Dashboard link plus account menu with Sign out, Get
-  help, Feedback), or Sign in and Join the waitlist when signed out. `Nav`
-  takes a `user` (`NavUser | null`) built by `landingNavUser` in
-  `@/lib/landing-nav-user`; the help and feedback server actions come from
-  `@/app/actions/landing-account`. Errors use the shared sonner toast, and
-  the root layout mounts the `Toaster`.
+- `nav.tsx` — sticky top nav built on `@merqo/ui`'s `LandingNav` shell
+  (v0.59.1). The `wordmark` slot holds the `Wordmark` link; About and FAQ
+  (`/about`, `/faq`) are passed as plain-data `links`, which the shell shows
+  inline from `sm` up and collapses into a burger menu below it, so the
+  header stays one line on phones. The `end` slot holds only the account
+  controls: `@merqo/ui`'s `LandingAccountNav` (Dashboard link plus account
+  menu with Sign out, Get help, Feedback) when signed in, or Sign in and
+  Join the waitlist when signed out. `Nav` takes a `user` (`NavUser | null`)
+  built by `landingNavUser` in `@/lib/landing-nav-user`; the help and
+  feedback server actions come from `@/app/actions/landing-account`.
+  Errors use the shared sonner toast, and the root layout mounts the
+  `Toaster`.
 - `nav.dom.test.tsx` — asserts the About link, the Sign in/Join the
   waitlist/Dashboard state switch, and that the account menu opens by touch
   and offers Sign out.
