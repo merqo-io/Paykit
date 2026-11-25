@@ -54,8 +54,11 @@ password happens on `/reset-password`.
 ## Connectivity
 
 Signed-out visitors land here from `landing/nav.tsx`'s "Log in"/"Get
-started" links. On success it calls `router.push("/dashboard")` +
-`router.refresh()`; `/dashboard`'s `layout.tsx` (`getVendorSession()`) is
+started" links. On success it calls `router.push(next)` +
+`router.refresh()`, where `next` is the `?next=` query value if it is a
+same-origin relative path (`redirectPathSchema`) and `/dashboard` otherwise;
+the Google and email-link callbacks carry the same `next` to
+`/auth/callback`; `/dashboard`'s `layout.tsx` (`getVendorSession()`) is
 the actual auth gate this page's happy path leads into.
 
 Google branding uses `GoogleMark` from `@merqo/ui`; no local copy remains.
