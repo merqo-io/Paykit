@@ -400,7 +400,7 @@ section tabs that mark the current page via `aria-current`
 
 ## Public pages and the legal gate
 
-The pay and inquiry pages give every dead end a plain next step. A failed Merqo terms check still blocks the vendor, but `/legal/accept?reason=unavailable` says the check failed instead of claiming the terms changed.
+The pay and inquiry pages give every dead end a plain next step. A failed Merqo terms check still blocks the vendor, but `/legal/accept?reason=unavailable` says the check failed instead of claiming the terms changed. The status read that tells the two apart opts out of Next's fetch memoization, so it sees the row the shared check just wrote.
 
 The ledger, bookings and admin lists share one failed-read card, one link-based pager and one filter select class from `src/components/list/`.
 
