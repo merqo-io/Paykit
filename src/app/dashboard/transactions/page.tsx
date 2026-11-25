@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getVendorSession } from "@/lib/vendor-session";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
@@ -7,12 +6,15 @@ import {
   freeListCutoff,
   isPaidPlan,
   resolveListRange,
+  sgtDate,
+  sgtDayStartIso,
 } from "@/lib/free-limits";
 import { countTransactionsBefore, queryTransactions } from "@/lib/transactions";
-import { EmptyState, PageHeader } from "@merqo/ui";
+import { PageHeader } from "@merqo/ui";
 import { TransactionTable } from "./transaction-table";
 import { TransactionFilters } from "./transaction-filters";
 import { TransactionsPager } from "./transactions-pager";
+import { FreeRangeNote, HiddenNote, LoadError } from "./transaction-notices";
 import {
   parseTransactionsParams,
   TRANSACTIONS_PAGE_SIZE,
@@ -22,6 +24,11 @@ import {
 export const metadata: Metadata = {
   title: "Payments",
 };
+
+/** Free's list stops at the cutoff; true when the requested `from` reaches past it. */
+function cutRangeShort(cutoff: string | undefined, from: string | undefined) {
+  return Boolean(cutoff && from && sgtDayStartIso(from) < cutoff);
+}
 
 export default async function TransactionsPage({
   searchParams,
@@ -72,20 +79,14 @@ export default async function TransactionsPage({
             : "Your payments from the last 30 days."
         }
       />
-      <TransactionFilters params={params} isPaid={isPaid} />
+      <TransactionFilters
+        params={params}
+        isPaid={isPaid}
+        minDate={cutoff ? sgtDate(cutoff) : undefined}
+      />
+      {cutRangeShort(cutoff, params.from) && <FreeRangeNote />}
       {result.failed ? (
-        <EmptyState
-          title="Couldn't load payments"
-          description="Something went wrong reading your payments."
-          actions={
-            <Link
-              href={transactionsHref(linkParams)}
-              className="text-sm underline"
-            >
-              Try again
-            </Link>
-          }
-        />
+        <LoadError retryHref={transactionsHref(linkParams)} />
       ) : (
         <>
           <TransactionTable
@@ -96,15 +97,7 @@ export default async function TransactionsPage({
           <TransactionsPager params={linkParams} pageCount={pageCount} />
         </>
       )}
-      {hiddenCount > 0 && (
-        <p className="mt-4 text-sm text-muted-foreground">
-          {hiddenCount} older payment{hiddenCount === 1 ? "" : "s"} hidden on
-          Free. They are kept; Starter and Pro show your full history.{" "}
-          <Link href="/dashboard/plan" className="underline">
-            See plans
-          </Link>
-        </p>
-      )}
+      <HiddenNote count={hiddenCount} />
     </div>
   );
 }

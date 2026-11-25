@@ -43,7 +43,7 @@ export default async function ReportsPage({
     } else {
       content = (
         <ProLock
-          label="See which days and hours bring in the most, and export to CSV for your accountant. Included with Starter and Pro"
+          label="Best days and hours, plus CSV export for your accountant. Included with Starter and Pro."
           href="/dashboard/plan"
         />
       );

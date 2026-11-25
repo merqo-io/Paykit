@@ -15,9 +15,12 @@ const SELECT_CLASS =
 export function TransactionFilters({
   params,
   isPaid,
+  minDate,
 }: {
   params: TransactionsParams;
   isPaid: boolean;
+  /** Earliest selectable Singapore day for Free, whose list stops at the cutoff. */
+  minDate?: string;
 }) {
   const active = Boolean(params.q || params.status || params.from || params.to);
   return (
@@ -73,6 +76,7 @@ export function TransactionFilters({
           id="tx-from"
           name="from"
           type="date"
+          min={minDate}
           defaultValue={params.from}
         />
       </div>
@@ -80,7 +84,13 @@ export function TransactionFilters({
         <Label htmlFor="tx-to" className={FORM_LABEL_CLASS}>
           To
         </Label>
-        <Input id="tx-to" name="to" type="date" defaultValue={params.to} />
+        <Input
+          id="tx-to"
+          name="to"
+          type="date"
+          min={minDate}
+          defaultValue={params.to}
+        />
       </div>
       <div className="flex items-center gap-3">
         <Button type="submit">Apply</Button>

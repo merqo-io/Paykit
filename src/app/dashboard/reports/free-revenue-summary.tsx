@@ -3,7 +3,9 @@ import type { DayTotal } from "@/lib/free-limits";
 import { formatCents } from "@/lib/utils";
 
 export const FREE_REVENUE_LOCK_LABEL =
-  "See weekly and monthly revenue and your best days, included with Starter and Pro";
+  "See weekly and monthly revenue and your best days. Included with Starter and Pro.";
+
+const paymentCount = (n: number) => `${n} payment${n === 1 ? "" : "s"}`;
 
 export function FreeRevenueSummary({
   today,
@@ -18,18 +20,16 @@ export function FreeRevenueSummary({
         <StatCard
           label="Today"
           value={formatCents(today.cents)}
+          caption={paymentCount(today.count)}
           className="tabular-nums"
         />
         <StatCard
           label="Yesterday"
           value={formatCents(yesterday.cents)}
+          caption={paymentCount(yesterday.count)}
           className="tabular-nums"
         />
       </div>
-      <p className="text-sm text-muted-foreground tabular-nums">
-        {today.count} payment{today.count === 1 ? "" : "s"} today,{" "}
-        {yesterday.count} yesterday.
-      </p>
       <ProLock label={FREE_REVENUE_LOCK_LABEL} href="/dashboard/plan" />
     </div>
   );

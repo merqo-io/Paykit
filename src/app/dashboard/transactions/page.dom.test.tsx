@@ -192,6 +192,31 @@ describe("TransactionsPage", () => {
     await renderPage();
     expect(screen.getByText("Couldn't load payments")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Try again" })).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Couldn't load payments",
+    );
+  });
+
+  it("limits the date pickers for Free and says so when a range was cut short", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    queryTransactionsMock.mockResolvedValue(ok([TX]));
+    const { unmount } = await renderPage({ from: "2020-01-01" });
+    expect(screen.getByLabelText("From")).toHaveAttribute("min");
+    expect(screen.getByLabelText("To")).toHaveAttribute("min");
+    expect(
+      screen.getByText(/free shows the last 30 days/i),
+    ).toBeInTheDocument();
+    unmount();
+    await renderPage();
+    expect(screen.queryByText(/free shows the last/i)).not.toBeInTheDocument();
+  });
+
+  it("leaves the date pickers open for a paid vendor", async () => {
+    readVendorPlanMock.mockResolvedValue("pro");
+    queryTransactionsMock.mockResolvedValue(ok([TX]));
+    await renderPage({ from: "2020-01-01" });
+    expect(screen.getByLabelText("From")).not.toHaveAttribute("min");
+    expect(screen.queryByText(/free shows the last/i)).not.toBeInTheDocument();
   });
 
   it("redirects a page past the end to the last page, keeping filters", async () => {
