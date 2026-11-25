@@ -1,3 +1,37 @@
-# bookings/inquiries/[id]
+# inquiry detail
 
-The inquiry detail page. It passes its own path to `getVendorSession` as `returnTo`, so login and the legal gate bring the vendor back to this inquiry.
+## Purpose
+
+One inquiry, read under the vendor's RLS session; 404 for a missing row or
+another vendor's.
+
+## Contents
+
+- `page.tsx`: the client's phone as a `tel:` link and a WhatsApp link
+  (`CustomerPhone` in `../../customer-phone.tsx`, built on `whatsappLink` in
+  `src/lib/phone-links.ts`), the event date, the message,
+  the terms acknowledgment (`TermsSnapshot`) and the actions. An open
+  inquiry offers "Convert to booking": the shared `NewBookingDialog`,
+  prefilled with the client's name, phone and event date and carrying the
+  inquiry id. A converted one links to its booking instead.
+- `inquiry-detail-actions.tsx`: "Mark contacted" (new only), "Decline" and
+  "Delete" behind the shared `ConfirmDialog` (destructive, with the consequence spelled out). Delete is how a vendor honours a
+  client's request to remove their data.
+
+## Tab title
+
+`page.tsx` exports `metadata.title = "Inquiry"`. `src/app/page-titles.test.ts` checks it.
+
+## Parent
+
+[inquiries](../README.md)
+
+The page header uses `PageHeader` (no eyebrow; status badge in its
+actions). The delete dialog uses the shared title, description and
+`DialogFooter` layout with a destructive confirm.
+
+Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.
+
+Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+The page passes its own path to `getVendorSession` as `returnTo`, so login and the legal gate bring the vendor back to this inquiry.
