@@ -65,3 +65,40 @@ export function sumFreeRevenue(
   }
   return totals;
 }
+
+/** Start of a Singapore calendar day (YYYY-MM-DD) as a UTC ISO timestamp. */
+export function sgtDayStartIso(date: string): string {
+  return new Date(
+    Date.parse(`${date}T00:00:00.000Z`) - SGT_OFFSET_MS,
+  ).toISOString();
+}
+
+/** Start of the Singapore day after `date`, the exclusive end of a "to" filter. */
+export function sgtNextDayStartIso(date: string): string {
+  return new Date(Date.parse(sgtDayStartIso(date)) + DAY_MS).toISOString();
+}
+
+export type ListRange = {
+  /** Inclusive lower bound on `created_at`. */
+  gteIso?: string;
+  /** Exclusive upper bound on `created_at`. */
+  ltIso?: string;
+};
+
+/**
+ * The `created_at` window a ledger query may use. Free is floored at the
+ * 30-day cutoff whatever `from` says, so a crafted URL can never reach older
+ * rows; paid vendors get exactly the requested window.
+ */
+export function resolveListRange(
+  isPaid: boolean,
+  filters: { from?: string; to?: string },
+  now: Date = new Date(),
+): ListRange {
+  const requested = filters.from ? sgtDayStartIso(filters.from) : undefined;
+  const ltIso = filters.to ? sgtNextDayStartIso(filters.to) : undefined;
+  if (isPaid) return { gteIso: requested, ltIso };
+  const cutoff = freeListCutoff(now);
+  const gteIso = requested && requested > cutoff ? requested : cutoff;
+  return { gteIso, ltIso };
+}

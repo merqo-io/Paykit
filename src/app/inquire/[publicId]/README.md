@@ -24,6 +24,7 @@ answer 404. The route carries `noindex` and `no-referrer` (metadata and the
   validation; `inquiryAllowed` (5 per address per 10 minutes, then 30 per
   form per hour); the form is read again, so turning it off takes effect at
   once; `submitInquiry` stores it and alerts the vendor.
+- `not-found.tsx`: the 404 body for an unknown or disabled form, with the next step (check the link or contact the business). Action errors also say to contact the business directly where retrying will not help.
 
 ## Verification
 

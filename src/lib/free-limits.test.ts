@@ -3,9 +3,59 @@ import {
   freeListCutoff,
   freeRevenueWindow,
   isPaidPlan,
+  resolveListRange,
   sgtDate,
+  sgtDayStartIso,
+  sgtNextDayStartIso,
   sumFreeRevenue,
 } from "./free-limits";
+
+describe("sgtDayStartIso / sgtNextDayStartIso", () => {
+  it("maps a Singapore date to its UTC start and next-day start", () => {
+    expect(sgtDayStartIso("2026-11-25")).toBe("2026-11-24T16:00:00.000Z");
+    expect(sgtNextDayStartIso("2026-11-25")).toBe("2026-11-25T16:00:00.000Z");
+  });
+});
+
+describe("resolveListRange", () => {
+  const now = new Date("2026-11-25T04:00:00Z");
+  const cutoff = freeListCutoff(now);
+
+  it("leaves a paid vendor's window exactly as requested", () => {
+    expect(resolveListRange(true, {}, now)).toEqual({
+      gteIso: undefined,
+      ltIso: undefined,
+    });
+    expect(
+      resolveListRange(true, { from: "2020-01-01", to: "2020-01-31" }, now),
+    ).toEqual({
+      gteIso: "2019-12-31T16:00:00.000Z",
+      ltIso: "2020-01-31T16:00:00.000Z",
+    });
+  });
+
+  it("floors a Free vendor at the cutoff when no from is given", () => {
+    expect(resolveListRange(false, {}, now).gteIso).toBe(cutoff);
+  });
+
+  it("never lets a Free vendor reach past the cutoff via from", () => {
+    expect(resolveListRange(false, { from: "2020-01-01" }, now).gteIso).toBe(
+      cutoff,
+    );
+  });
+
+  it("keeps a Free from that is newer than the cutoff", () => {
+    expect(resolveListRange(false, { from: "2026-11-20" }, now).gteIso).toBe(
+      "2026-11-19T16:00:00.000Z",
+    );
+  });
+
+  it("keeps the floor even when to is before the cutoff", () => {
+    const range = resolveListRange(false, { to: "2020-01-31" }, now);
+    expect(range.gteIso).toBe(cutoff);
+    expect(range.ltIso! <= range.gteIso!).toBe(true);
+  });
+});
 
 const NOW = new Date("2026-11-16T02:00:00Z");
 

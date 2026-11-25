@@ -14,6 +14,7 @@ folder's job is entirely to collect the vendor's consent and forward it.
   serialisable props: the server action, the sanitised `next`, the wordmark).
   Deliberately runs no legal-gate check itself — it is what the gate
   redirects to, so gating it would loop. The heading reads "Our terms have changed" and shows no version numbers.
+  With `?reason=unavailable` (a failed terms check, set by `requireCurrentLegalAcceptance`) it instead says "We couldn't check the terms right now" with a "Try again" link to `next`; `reason` is Zod-validated and anything else falls back to the terms-changed copy. The vendor stays gated either way.
 - The shared form is just the agree checkbox (no typed name); the submit
   button is disabled until it's checked. It posts to `acceptLegalTerms`.
 - `actions.ts` — `acceptLegalTerms` server action. Re-checks for a signed-in

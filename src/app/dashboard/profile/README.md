@@ -9,7 +9,7 @@ owner-scoped `patch_vendor_profile` RPC. Each write changes only the submitted
 field, preserving concurrent edits to the other column. Missing rows are
 provisioned atomically; empty social links explicitly clear links.
 
-The client form saves display name, avatar metadata and password through
+The page header has no eyebrow. The client form saves display name, avatar metadata and password through
 `supabase.auth.updateUser`. These belong to the shared Supabase account.
 The form has two groups, Business (name, links) and Account (picture, display
 name, email, password); each field saves on its own. It composes shared sections, social-link fields and image uploader from

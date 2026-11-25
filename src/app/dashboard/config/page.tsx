@@ -28,7 +28,6 @@ export default async function ConfigPage({
     <div className="mx-auto max-w-lg">
       <PageHeader
         responsive
-        eyebrow="Account"
         title="Payment setup"
         description="Set this up once. It's reused by every kit that uses paykit for you."
       />

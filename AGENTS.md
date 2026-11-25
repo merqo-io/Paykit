@@ -63,7 +63,7 @@ Full tree with one-line descriptions: [`docs/FILE-LAYOUT.md`](docs/FILE-LAYOUT.m
 Tables, constraints and RLS detail: [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md). The invariants that matter:
 
 - Authorization is RLS in Postgres; a vendor reads/writes only their own rows. `kit_api_keys` and `admin_audit` writes, and the cross-kit API (`/checkout`, `/claim`, `/confirm`), are service-role + bearer-secret, server-only.
-- `plan` (`free`|`pro`) gates refund tracking only; `bookings` transaction-id link columns are service-role only.
+- Plan gates: Free = 30-day transaction list, today and yesterday reports, no CSV and no refunds; paid tiers (Starter, Pro) unlock full history with search, all reports, CSV and refunds. Gates are enforced server-side. `bookings` transaction-id link columns are service-role only.
 - Schema edits update both `supabase/migrations/` and the matching file in `src/lib/db-types/`.
 - Keep `admin_audit` rows for 5 years (IRAS norm); the service role cannot `update`/`delete` them.
 
