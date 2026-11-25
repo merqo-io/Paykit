@@ -6,6 +6,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Payments list: search (reference or title, Starter and Pro), status and date-range filters, and real pagination (25 per page) replacing the 200-row cap. Filters live in the URL; `?status=claimed` deep-links to payments waiting for confirmation. Free vendors see search locked with an upgrade note and an "N older payments hidden on Free" notice; a crafted `from` can never reach rows past the 30-day cutoff (`resolveListRange`).
+
+### Changed
+
+- Reports: the locked-tab copy now says what Starter and Pro give you (best days and hours, CSV for your accountant), the Free summary uses the shared `StatCard`, and the "Ledger" and "Insights" eyebrows are gone.
+- AGENTS.md plan-gate line now matches the pricing spec.
+
 ## [0.6.1] - 2026-11-23
 
 ### Changed

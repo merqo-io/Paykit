@@ -19,7 +19,7 @@ earnings and export. Free never loads the hidden ranges.
   `EarningsPanel`. Free: Overview renders `FreeRevenueSummary` from
   `listConfirmedBetween`; Earnings renders a `ProLock`.
 - `free-revenue-summary.tsx` — `FreeRevenueSummary({ today, yesterday })`:
-  two `StatTile`s (amount and payment count) and a `ProLock` to the plan page
+  two `StatCard`s (today and yesterday, each captioned with its payment count) and a `ProLock` to the plan page
   for the weekly and monthly ranges.
 - `search-params.ts` — `parseReportsParams()` (Zod, `.catch` defaults) and
   `reportsHref()`, the single place that builds report URLs. The default
