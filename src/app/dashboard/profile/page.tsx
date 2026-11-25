@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export const revalidate = 0;
 
 export default async function ProfilePage() {
-  const { supabase, user } = await getVendorSession();
+  const { supabase, user } = await getVendorSession("/dashboard/profile");
 
   // paykit has no local vendors table (vendor_id is just the auth user id),
   // so there's no local business-name fallback to pass as a default here —

@@ -20,7 +20,9 @@ export default async function InquiryDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { user } = await getVendorSession();
+  const { user } = await getVendorSession(
+    `/dashboard/bookings/inquiries/${encodeURIComponent(id)}`,
+  );
   const inquiry = await getInquiry(user.id, id);
   if (!inquiry) notFound();
 

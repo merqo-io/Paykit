@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@merqo/ui";
 import { getVendorSession } from "@/lib/vendor-session";
+import { pathWithSearch } from "@/lib/return-to";
 import { searchBookings } from "@/lib/bookings";
 import { getInquiryForm, listOpenInquiries } from "@/lib/inquiry-inbox";
 import { ListError } from "@/components/list/list-error";
@@ -27,8 +28,11 @@ export default async function BookingsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = parseBookingListParams(await searchParams);
-  const { user } = await getVendorSession();
+  const rawParams = await searchParams;
+  const params = parseBookingListParams(rawParams);
+  const { user } = await getVendorSession(
+    pathWithSearch("/dashboard/bookings", rawParams),
+  );
   const [result, inquiries, inquiryForm] = await Promise.all([
     searchBookings(user.id, { ...params, pageSize: BOOKING_PAGE_SIZE }),
     listOpenInquiries(user.id),

@@ -209,7 +209,8 @@ legal-status response and caches it briefly; lookup failures fail closed, but a
 cache write failure is logged and ignored. `legalStatus` tells a stale acceptance
 from a failed check (recent `is_current=false` row, 30 s clock skew allowed), and
 `requireCurrentLegalAcceptance(email, returnTo?)` sends an outage to
-`/legal/accept?reason=unavailable`. `getVendorSession(returnTo?)` forwards the
+`/legal/accept?reason=unavailable` and a stale acceptance to
+`/legal/accept?next=<returnTo>`. `getVendorSession(returnTo?)` forwards the
 optional retry path.
 Sheet feedback/support actions use an inline session check to return an error
 instead of redirecting an open dialog.
@@ -235,7 +236,8 @@ query value may be shown as a way back to another Merqo app: an https address
 on `merqo.io` or a subdomain of it, with no credentials and no port (plus
 http on localhost outside production). Anything else reads as no address.
 `pathWithReturnTo` rebuilds a page's own path with only a checked
-`return_to`, and `loginRedirectPath` builds `/login?next=` for a signed-out
+`return_to`, `pathWithSearch` rebuilds a page's path with its current query so
+dashboard pages can pass it to `getVendorSession` as the return destination, and `loginRedirectPath` builds `/login?next=` for a signed-out
 visitor, keeping `next` only when `safeNextPath` accepts it (same origin once
 parsed; no whitespace, control characters, backslashes or encoded `//`; shared
 with the login page and `/auth/callback`);
