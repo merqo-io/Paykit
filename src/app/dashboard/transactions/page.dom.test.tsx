@@ -1,12 +1,8 @@
 // @vitest-environment jsdom
 //
-// TransactionsPage is an async Server Component, same pattern as
-// layout.dom.test.tsx: await it directly and render the returned element
-// tree with RTL. `TransactionTable` already has its own full DOM coverage
-// (transaction-table.dom.test.tsx) and renders safely under jsdom with no
-// external deps, so it's rendered for real here — this test proves
-// TransactionsPage wires the session + `listTransactions` fetch and the
-// Pro-plan flag into it correctly.
+// TransactionsPage is an async Server Component: await it with search params
+// and render the returned tree. The table and filters render for real; the
+// router is stubbed because the ui pager navigates through a client callback.
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import TransactionsPage from "./page";
@@ -15,12 +11,12 @@ import type { Transaction } from "@/lib/types";
 const {
   getVendorSessionMock,
   readVendorPlanMock,
-  listTransactionsMock,
+  queryTransactionsMock,
   countBeforeMock,
 } = vi.hoisted(() => ({
   getVendorSessionMock: vi.fn(),
   readVendorPlanMock: vi.fn(),
-  listTransactionsMock: vi.fn(),
+  queryTransactionsMock: vi.fn(),
   countBeforeMock: vi.fn(),
 }));
 
@@ -31,9 +27,10 @@ vi.mock("@/lib/vendor-entitlement", () => ({
   readVendorPlan: readVendorPlanMock,
 }));
 vi.mock("@/lib/transactions", () => ({
-  listTransactions: listTransactionsMock,
+  queryTransactions: queryTransactionsMock,
   countTransactionsBefore: countBeforeMock,
 }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 const TX: Transaction = {
   id: "tx1",
@@ -48,95 +45,154 @@ const TX: Transaction = {
   created_at: "2026-07-15T00:00:00Z",
 };
 
+const ok = (rows: Transaction[], total = rows.length) => ({
+  rows,
+  total,
+  failed: false,
+});
+const renderPage = async (sp: Record<string, string> = {}) =>
+  render(await TransactionsPage({ searchParams: Promise.resolve(sp) }));
+
 beforeEach(() => {
   getVendorSessionMock.mockReset().mockResolvedValue({
     supabase: {},
     user: { id: "v1" },
   });
   readVendorPlanMock.mockReset();
-  listTransactionsMock.mockReset();
+  queryTransactionsMock.mockReset();
   countBeforeMock.mockReset().mockResolvedValue(0);
 });
 
 describe("TransactionsPage", () => {
   it("shows the empty state with no transactions", async () => {
     readVendorPlanMock.mockResolvedValue("free");
-    listTransactionsMock.mockResolvedValue([]);
-
-    const jsx = await TransactionsPage();
-    render(jsx);
-
+    queryTransactionsMock.mockResolvedValue(ok([]));
+    await renderPage();
     expect(
       screen.getByRole("heading", { name: "Payments" }),
     ).toBeInTheDocument();
     expect(screen.getByText(/no payments yet/i)).toBeInTheDocument();
+    expect(screen.queryByText("Ledger")).not.toBeInTheDocument();
   });
 
-  it("hides the Refund column for a Free vendor", async () => {
-    readVendorPlanMock.mockResolvedValue("free");
-    listTransactionsMock.mockResolvedValue([TX]);
-
-    const jsx = await TransactionsPage();
-    render(jsx);
-
-    expect(screen.getByText("A-001")).toBeInTheDocument();
-    expect(
-      screen.queryByRole("columnheader", { name: /refund/i }),
-    ).not.toBeInTheDocument();
+  it("hides the Refund column for a Free vendor and treats a null plan as Free", async () => {
+    queryTransactionsMock.mockResolvedValue(ok([TX]));
+    for (const plan of ["free", null]) {
+      readVendorPlanMock.mockResolvedValue(plan);
+      const { unmount } = await renderPage();
+      expect(screen.getByText("A-001")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("columnheader", { name: /refund/i }),
+      ).not.toBeInTheDocument();
+      unmount();
+    }
   });
 
-  it("shows the Refund column for a Pro vendor's confirmed transaction", async () => {
+  it("shows the Refund column and enabled search for a paid vendor", async () => {
     readVendorPlanMock.mockResolvedValue("pro");
-    listTransactionsMock.mockResolvedValue([TX]);
-
-    const jsx = await TransactionsPage();
-    render(jsx);
-
+    queryTransactionsMock.mockResolvedValue(ok([TX]));
+    await renderPage();
     expect(
       screen.getByRole("columnheader", { name: /refund/i }),
     ).toBeInTheDocument();
-    expect(listTransactionsMock).toHaveBeenCalledWith("v1", undefined);
+    expect(screen.getByLabelText("Search")).toBeEnabled();
     expect(countBeforeMock).not.toHaveBeenCalled();
-    expect(screen.queryByText(/older transactions/i)).not.toBeInTheDocument();
   });
 
-  it("limits a Free vendor's list to the last 30 days and notes hidden rows", async () => {
+  it("passes the status deep link, search and dates to a paid query", async () => {
+    readVendorPlanMock.mockResolvedValue("pro");
+    queryTransactionsMock.mockResolvedValue(ok([TX]));
+    await renderPage({
+      status: "claimed",
+      q: "A-001",
+      from: "2026-11-01",
+      to: "2026-11-25",
+      page: "2",
+    });
+    expect(queryTransactionsMock).toHaveBeenCalledWith("v1", {
+      gteIso: "2026-10-31T16:00:00.000Z",
+      ltIso: "2026-11-25T16:00:00.000Z",
+      status: "claimed",
+      search: "A-001",
+      page: 2,
+      pageSize: 25,
+    });
+    expect(screen.getByLabelText("Status")).toHaveValue("claimed");
+  });
+
+  it("never lets a Free vendor reach past the cutoff or search via params", async () => {
     readVendorPlanMock.mockResolvedValue("free");
-    listTransactionsMock.mockResolvedValue([TX]);
-    countBeforeMock.mockResolvedValue(3);
-
-    render(await TransactionsPage());
-
-    const since = listTransactionsMock.mock.calls[0][1] as string;
-    const ageDays = (Date.now() - Date.parse(since)) / 86_400_000;
+    queryTransactionsMock.mockResolvedValue(ok([TX]));
+    await renderPage({ from: "2020-01-01", q: "A-001" });
+    const arg = queryTransactionsMock.mock.calls[0][1] as {
+      gteIso: string;
+      search?: string;
+    };
+    const ageDays = (Date.now() - Date.parse(arg.gteIso)) / 86_400_000;
     expect(ageDays).toBeCloseTo(30, 1);
-    expect(countBeforeMock).toHaveBeenCalledWith("v1", since);
-    expect(
-      screen.getByText(
-        "Older transactions are kept and show on Starter and Pro.",
-      ),
-    ).toBeInTheDocument();
+    expect(arg.search).toBeUndefined();
   });
 
-  it("shows no older-transactions line when a Free vendor has none hidden", async () => {
+  it("locks search for Free with an upgrade note", async () => {
     readVendorPlanMock.mockResolvedValue("free");
-    listTransactionsMock.mockResolvedValue([TX]);
-    countBeforeMock.mockResolvedValue(0);
-
-    render(await TransactionsPage());
-
-    expect(screen.queryByText(/older transactions/i)).not.toBeInTheDocument();
+    queryTransactionsMock.mockResolvedValue(ok([TX]));
+    await renderPage();
+    expect(screen.getByLabelText("Search")).toBeDisabled();
+    expect(
+      screen.getByText(/search comes with starter or pro/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: "See plans" })[0],
+    ).toHaveAttribute("href", "/dashboard/plan");
   });
 
-  it("treats a vendor with no config yet as Free (no Refund column)", async () => {
-    readVendorPlanMock.mockResolvedValue(null);
-    listTransactionsMock.mockResolvedValue([TX]);
+  it("notes hidden older payments for Free using the RLS-scoped count", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    queryTransactionsMock.mockResolvedValue(ok([TX]));
+    countBeforeMock.mockResolvedValue(3);
+    await renderPage();
+    const since = countBeforeMock.mock.calls[0][1] as string;
+    expect((Date.now() - Date.parse(since)) / 86_400_000).toBeCloseTo(30, 1);
+    expect(screen.getByText(/3 older payments hidden on/i)).toBeInTheDocument();
+  });
 
-    const jsx = await TransactionsPage();
-    render(jsx);
+  it("uses the singular for one hidden payment and omits the note at zero", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    queryTransactionsMock.mockResolvedValue(ok([TX]));
+    countBeforeMock.mockResolvedValue(1);
+    const { unmount } = await renderPage();
+    expect(screen.getByText(/1 older payment hidden on/i)).toBeInTheDocument();
+    unmount();
+    countBeforeMock.mockResolvedValue(0);
+    await renderPage();
+    expect(screen.queryByText(/older payment/i)).not.toBeInTheDocument();
+  });
 
-    expect(
-      screen.queryByRole("columnheader", { name: /refund/i }),
-    ).not.toBeInTheDocument();
+  it("shows No payments match with a clear link when a filter finds nothing", async () => {
+    readVendorPlanMock.mockResolvedValue("pro");
+    queryTransactionsMock.mockResolvedValue(ok([]));
+    await renderPage({ status: "claimed" });
+    expect(screen.getByText("No payments match")).toBeInTheDocument();
+    const links = screen.getAllByRole("link", { name: "Clear filters" });
+    expect(links[0]).toHaveAttribute("href", "/dashboard/transactions");
+  });
+
+  it("shows an error state when the read fails", async () => {
+    readVendorPlanMock.mockResolvedValue("pro");
+    queryTransactionsMock.mockResolvedValue({
+      rows: [],
+      total: 0,
+      failed: true,
+    });
+    await renderPage();
+    expect(screen.getByText("Couldn't load payments")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Try again" })).toBeInTheDocument();
+  });
+
+  it("renders a pager when there is more than one page", async () => {
+    readVendorPlanMock.mockResolvedValue("pro");
+    queryTransactionsMock.mockResolvedValue(ok([TX], 60));
+    await renderPage();
+    expect(screen.getByRole("navigation")).toBeInTheDocument();
   });
 });

@@ -1,26 +1,61 @@
 import { readAllRows } from "@/lib/read-all-rows";
 import { createServerClient } from "@/lib/supabase/server";
-import type { Transaction } from "@/lib/types";
+import type { Transaction, TxStatus } from "@/lib/types";
 import { TRANSACTION_COLUMNS } from "@/lib/columns";
 
-/** `since` hides older rows from the list without touching them. */
-export async function listTransactions(
+export type TransactionQuery = {
+  /** Inclusive lower bound on created_at; Free callers pass the cutoff here. */
+  gteIso?: string;
+  /** Exclusive upper bound on created_at. */
+  ltIso?: string;
+  status?: TxStatus;
+  search?: string;
+  page: number;
+  pageSize: number;
+};
+
+export type TransactionPage = {
+  rows: Transaction[];
+  /** Rows matching every filter, across all pages. */
+  total: number;
+  failed: boolean;
+};
+
+/** Drops characters that carry meaning in a PostgREST `or` filter or an ILIKE pattern. */
+export function searchTerm(raw: string): string {
+  return raw
+    .replace(/[,()%_*\\"']/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** One page of the vendor's ledger, newest first. RLS still scopes rows to the vendor. */
+export async function queryTransactions(
   vendorId: string,
-  since?: string,
-): Promise<Transaction[]> {
+  query: TransactionQuery,
+): Promise<TransactionPage> {
   const supabase = await createServerClient();
-  const base = supabase
+  let q = supabase
     .from("transactions")
-    .select(TRANSACTION_COLUMNS)
+    .select(TRANSACTION_COLUMNS, { count: "exact" })
     .eq("vendor_id", vendorId);
-  const { data, error } = await (since ? base.gte("created_at", since) : base)
-    .order("created_at", { ascending: false })
-    .limit(200);
-  if (error) {
-    console.error("listTransactions failed", error.message);
-    return [];
+  if (query.gteIso) q = q.gte("created_at", query.gteIso);
+  if (query.ltIso) q = q.lt("created_at", query.ltIso);
+  if (query.status) q = q.eq("status", query.status);
+  const term = query.search ? searchTerm(query.search) : "";
+  if (term) {
+    q = q.or(`order_ref.ilike.%${term}%,pay_title.ilike.%${term}%`);
   }
-  return data ?? [];
+  const from = (query.page - 1) * query.pageSize;
+  const { data, count, error } = await q
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .range(from, from + query.pageSize - 1);
+  if (error) {
+    console.error("queryTransactions failed", error.message);
+    return { rows: [], total: 0, failed: true };
+  }
+  return { rows: data ?? [], total: count ?? 0, failed: false };
 }
 
 export async function getTransaction(

@@ -175,7 +175,7 @@ describe("ReportsPage", () => {
       expect(screen.getByText("$25.00")).toBeInTheDocument();
       expect(
         screen.getByRole("link", {
-          name: "Weekly and monthly revenue are included with Starter and Pro",
+          name: "See weekly and monthly revenue and your best days, included with Starter and Pro",
         }),
       ).toHaveAttribute("href", "/dashboard/plan");
       expect(screen.queryByTestId("revenue-chart")).not.toBeInTheDocument();
@@ -193,7 +193,7 @@ describe("ReportsPage", () => {
       await renderPage({ tab: "earnings", year: "2026" });
       expect(
         screen.getByRole("link", {
-          name: "Earnings reports and CSV export are included with Starter and Pro",
+          name: "See which days and hours bring in the most, and export to CSV for your accountant. Included with Starter and Pro",
         }),
       ).toBeInTheDocument();
       expect(

@@ -8,7 +8,9 @@ across every kit — plus, for Pro vendors, a per-payment refund action.
 ## Contents
 
 - `page.tsx` — `TransactionsPage()` (server): calls `getVendorSession()`/
-  `readVendorPlan()` (`@/lib/vendor-entitlement`) and `listTransactions()`, renders `TransactionTable`.
+  `readVendorPlan()` (`@/lib/vendor-entitlement`) and `queryTransactions()`, renders `TransactionFilters`, `TransactionTable` and `TransactionsPager`.
+  URL params (Zod, `search-params.ts`, invalid values dropped): `q` (reference or title, paid only; ignored for Free), `status` (`pending`|`claimed`|`confirmed`; `?status=claimed` is the dashboard's "to confirm" deep link), `from`/`to` (YYYY-MM-DD, Singapore days) and `page` (25 per page). Free's window is floored at the 30-day cutoff whatever `from` says (`resolveListRange`).
+  Free also sees search disabled with an upgrade note and an "N older payments hidden on Free" line. Empty filter results show "No payments match" with a clear-filters link.
   A Free vendor's list is limited to the last 30 days (`freeListCutoff`) and a
   count-only `countTransactionsBefore()` drives a one-line note that older
   transactions are kept; nothing is deleted.
