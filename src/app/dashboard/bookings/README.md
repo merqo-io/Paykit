@@ -104,3 +104,5 @@ Page chrome here (EmptyState) comes from `@merqo/ui`; paykit keeps no local copy
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 Internal-only helpers in `field.tsx` (`FIELD_INPUT_CLASS`) are not exported; knip flags unused exports.
+
+Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

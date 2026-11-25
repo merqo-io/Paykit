@@ -40,3 +40,5 @@ Page chrome here (PageHeader and EmptyState) comes from `@merqo/ui`; paykit keep
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 `search-params.ts` keeps `REPORT_TABS` module-private; only the parser and the `ReportTab` type are exported.
+
+Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

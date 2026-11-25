@@ -403,3 +403,5 @@ section tabs that mark the current page via `aria-current`
 The pay and inquiry pages give every dead end a plain next step. A failed Merqo terms check still blocks the vendor, but `/legal/accept?reason=unavailable` says the check failed instead of claiming the terms changed.
 
 The ledger, bookings and admin lists share one failed-read card, one link-based pager and one filter select class from `src/components/list/`.
+
+A deep link into the vendor dashboard survives the login and legal gates: every dashboard page passes its own path and query to `getVendorSession` as `returnTo`, and a stale terms acceptance goes to `/legal/accept?next=...`.
