@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { familyReturnUrl } from "./return-to";
+import {
+  familyReturnUrl,
+  loginRedirectPath,
+  pathWithReturnTo,
+} from "./return-to";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -59,6 +63,26 @@ describe("familyReturnUrl", () => {
     expect(familyReturnUrl(raw)).toBeNull();
   });
 
+  it("accepts a kit's booth QR page on staging", () => {
+    const url = "https://qkit-staging.merqo.io/dashboard/booths/abc/qr";
+    expect(familyReturnUrl(url)).toBe(url);
+  });
+
+  it("rejects the hostile forms in production", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    for (const raw of [
+      "https://evil.com",
+      "https://merqo.io.evil.com",
+      "//evil.com",
+      "javascript:alert(1)",
+      "https://user:pass@qkit.merqo.io",
+      "https://qkit.merqo.io:8443",
+      "http://qkit.merqo.io",
+    ]) {
+      expect(familyReturnUrl(raw)).toBeNull();
+    }
+  });
+
   it("accepts a local kit outside production", () => {
     vi.stubEnv("NODE_ENV", "development");
     expect(familyReturnUrl("http://localhost:3000/dashboard/booths/b1")).toBe(
@@ -73,5 +97,46 @@ describe("familyReturnUrl", () => {
     vi.stubEnv("NODE_ENV", "production");
     expect(familyReturnUrl("http://localhost:3000/x")).toBeNull();
     expect(familyReturnUrl("https://localhost/x")).toBeNull();
+  });
+});
+
+describe("pathWithReturnTo", () => {
+  it("keeps a valid return_to, encoded", () => {
+    const url = "https://qkit.merqo.io/dashboard/booths/b1/qr";
+    expect(pathWithReturnTo("/dashboard/config", url)).toBe(
+      `/dashboard/config?return_to=${encodeURIComponent(url)}`,
+    );
+  });
+
+  it.each([
+    "https://evil.com",
+    "//evil.com",
+    "javascript:alert(1)",
+    undefined,
+    ["https://qkit.merqo.io/x", "https://evil.com"],
+  ])("drops an invalid return_to (%s)", (raw) => {
+    expect(pathWithReturnTo("/dashboard/config", raw)).toBe(
+      "/dashboard/config",
+    );
+  });
+});
+
+describe("loginRedirectPath", () => {
+  it("keeps a same-origin relative next", () => {
+    expect(loginRedirectPath("/dashboard/config?return_to=x")).toBe(
+      "/login?next=%2Fdashboard%2Fconfig%3Freturn_to%3Dx",
+    );
+  });
+
+  it.each([
+    undefined,
+    "",
+    "//evil.com",
+    "/\\evil.com",
+    "https://evil.com",
+    "javascript:alert(1)",
+    `/${"a".repeat(600)}`,
+  ])("drops an unsafe next (%s)", (next) => {
+    expect(loginRedirectPath(next)).toBe("/login");
   });
 });

@@ -15,6 +15,7 @@ import { Button } from "@merqo/ui/primitives";
 
 import { createClient } from "@/lib/supabase/client";
 import { Wordmark } from "@/components/landing/wordmark";
+import { redirectPathSchema } from "@/lib/schemas";
 import { friendlyAuthError } from "./auth-errors";
 import { PASSWORD_REQUIREMENTS_HINT } from "./weak-password";
 
@@ -58,6 +59,12 @@ function LoginScreen() {
   // The form remounts after "Back to sign in"; without this the carried-back
   // OAuth error would replay on the fresh form.
   const [showInitialError, setShowInitialError] = useState(true);
+  const nextParsed = redirectPathSchema.safeParse(searchParams.get("next"));
+  const nextPath = nextParsed.success ? nextParsed.data : "/dashboard";
+  const callbackUrl = () =>
+    `${window.location.origin}/auth/callback${
+      nextParsed.success ? `?next=${encodeURIComponent(nextParsed.data)}` : ""
+    }`;
   const isSignin = mode === "signin";
   const errorParam = searchParams.get("error");
   let urlError: string | undefined;
@@ -72,7 +79,7 @@ function LoginScreen() {
         password,
       });
       if (error) return friendlyAuthError(error, "signin");
-      router.push("/dashboard");
+      router.push(nextPath);
       router.refresh();
     });
 
@@ -83,7 +90,7 @@ function LoginScreen() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: callbackUrl(),
         },
       });
       if (error) return friendlyAuthError(error, "signup");
@@ -92,7 +99,7 @@ function LoginScreen() {
         setCheckEmail(email);
         return;
       }
-      router.push("/dashboard");
+      router.push(nextPath);
       router.refresh();
     });
 
@@ -102,7 +109,7 @@ function LoginScreen() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl(),
           queryParams: { hl: "en" },
         },
       });

@@ -1,3 +1,5 @@
+import { redirectPathSchema } from "@/lib/schemas";
+
 const FAMILY_APEX = "merqo.io";
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
 const MAX_LENGTH = 2000;
@@ -38,4 +40,25 @@ export function familyReturnUrl(raw: unknown): string | null {
   }
   if (url.username !== "" || url.password !== "") return null;
   return isFamilyHost(url) || isLocalDevHost(url) ? url.href : null;
+}
+
+/**
+ * The page's own address with `return_to` kept only when it passes
+ * `familyReturnUrl`, so it can ride through sign-in as a same-origin relative
+ * path. An invalid value is dropped, never forwarded.
+ */
+export function pathWithReturnTo(path: string, raw: unknown): string {
+  const checked = familyReturnUrl(raw);
+  if (!checked) return path;
+  return `${path}?${new URLSearchParams({ return_to: checked }).toString()}`;
+}
+
+/**
+ * Where to send a signed-out visitor: `/login`, carrying `next` only when it
+ * is a same-origin relative path (the same guard `/auth/callback` applies).
+ */
+export function loginRedirectPath(next?: string): string {
+  const parsed = redirectPathSchema.safeParse(next);
+  if (!parsed.success) return "/login";
+  return `/login?${new URLSearchParams({ next: parsed.data }).toString()}`;
 }
