@@ -5,7 +5,7 @@ import { Button } from "@merqo/ui/primitives";
 export function ListError({ retryHref }: { retryHref: string }) {
   return (
     <div role="alert" className="space-y-3 border-l-2 border-destructive pl-4">
-      <p className="text-sm">Could not load this list. Try again.</p>
+      <p className="text-sm">Could not load this list.</p>
       <Button asChild variant="outline" size="sm">
         <Link href={retryHref}>Try again</Link>
       </Button>

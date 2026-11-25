@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { EmptyState, PageHeader } from "@merqo/ui";
+import { EmptyState, FORM_LABEL_CLASS, PageHeader } from "@merqo/ui";
 import { Button, Input, Label } from "@merqo/ui/primitives";
 import { requireAdmin } from "@/lib/admin";
 import { auditLog, type AuditLogRow } from "@/lib/admin-data";
@@ -24,6 +24,10 @@ export const metadata: Metadata = {
 export const revalidate = 0;
 
 const PATH = "/admin/activity";
+
+// Same select styling as the ledger filters, at 44px for touch.
+const SELECT_CLASS =
+  "h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring sm:w-56";
 
 // The audit read is a single newest-first query, so filtering and paging
 // happen over this window rather than the whole table.
@@ -130,12 +134,14 @@ export default async function AdminActivityPage({
         className="flex flex-wrap items-end gap-3"
       >
         <div className="space-y-1.5">
-          <Label htmlFor="activity-action">Action</Label>
+          <Label htmlFor="activity-action" className={FORM_LABEL_CLASS}>
+            Action
+          </Label>
           <select
             id="activity-action"
             name="action"
             defaultValue={action}
-            className="h-11 w-full rounded-md border bg-background px-3 text-sm sm:w-56"
+            className={SELECT_CLASS}
           >
             <option value="">All actions</option>
             {actions.map((a) => (
@@ -146,7 +152,9 @@ export default async function AdminActivityPage({
           </select>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="activity-from">From</Label>
+          <Label htmlFor="activity-from" className={FORM_LABEL_CLASS}>
+            From
+          </Label>
           <Input
             id="activity-from"
             name="from"
@@ -156,7 +164,9 @@ export default async function AdminActivityPage({
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="activity-to">To</Label>
+          <Label htmlFor="activity-to" className={FORM_LABEL_CLASS}>
+            To
+          </Label>
           <Input
             id="activity-to"
             name="to"

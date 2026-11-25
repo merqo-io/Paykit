@@ -24,7 +24,7 @@ figure-tile helper used by the overview and vendors screens.
   (bad values fall back to defaults), `paginate` (25 per page, flags a page
   past the end), `listHref` and `dayBounds` (Singapore calendar days).
 - `list-pager.tsx` / `list-error.tsx` — shared server-rendered pager (real
-  Previous/Next links that keep active filters) and the retry state shown when a read fails.
+  Previous/Next links that keep active filters) and the retry state shown when a read fails (it states what failed; the link is the action).
 - `action-labels.ts` — audit action to readable label, shared by the activity
   table and its action filter.
 - `page.tsx` — `AdminOverviewPage`: platform-wide stat tiles (vendors by

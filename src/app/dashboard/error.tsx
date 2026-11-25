@@ -23,7 +23,8 @@ export default function DashboardError({
       error={error}
       reset={reset}
       wordmark={<Wordmark className="text-xl" />}
-      description="Could not load this page. Try again, or go back to your dashboard."
+      title="This page didn't load"
+      description="Something went wrong on our side. You can retry, or go back to your dashboard."
       onError={(caught) =>
         console.error("Dashboard error boundary caught", caught)
       }

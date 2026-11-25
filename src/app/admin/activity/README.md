@@ -15,6 +15,7 @@ that, until this folder existed, no page ever read back.
   resolves to email, falling back to the raw `admin_id`; `detail`'s jsonb
   renders as a flat `key: value` list (`None` for null). A failed read shows a
   retry state, not the empty state; a page past the end redirects to the last.
+- The action filter `<select>` uses the ledger filters' select style at 44px.
 - `activity-section.tsx` — `ActivitySection`: client component (`columns` are
   render callbacks) over the shared `DataTable`. Each target links to
   `/admin/vendors?q=<target>` because `AuditLogTable` renders targets as text.
