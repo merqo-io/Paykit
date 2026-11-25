@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getVendorSession } from "@/lib/vendor-session";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
 import {
@@ -33,8 +34,11 @@ export default async function TransactionsPage({
   const isPaid = isPaidPlan(await readVendorPlan(supabase, user.id));
   // The window comes from the plan, never from the URL alone, so a crafted
   // `from` can't reach rows past the Free cutoff; search is paid-only.
-  const range = resolveListRange(isPaid, params);
-  const cutoff = isPaid ? undefined : freeListCutoff();
+  const now = new Date();
+  const range = resolveListRange(isPaid, params, now);
+  const cutoff = isPaid ? undefined : freeListCutoff(now);
+  // A stale `q` from a pre-downgrade bookmark must not be carried into links.
+  const linkParams = isPaid ? params : { ...params, q: undefined };
   const [result, hiddenCount] = await Promise.all([
     queryTransactions(user.id, {
       ...range,
@@ -50,6 +54,9 @@ export default async function TransactionsPage({
     1,
     Math.ceil(result.total / TRANSACTIONS_PAGE_SIZE),
   );
+  if (!result.failed && params.page > pageCount) {
+    redirect(transactionsHref({ ...linkParams, page: pageCount }));
+  }
   const filtered = Boolean(
     params.status || params.from || params.to || (isPaid && params.q),
   );
@@ -71,7 +78,10 @@ export default async function TransactionsPage({
           title="Couldn't load payments"
           description="Something went wrong reading your payments."
           actions={
-            <Link href={transactionsHref(params)} className="text-sm underline">
+            <Link
+              href={transactionsHref(linkParams)}
+              className="text-sm underline"
+            >
               Try again
             </Link>
           }
@@ -83,7 +93,7 @@ export default async function TransactionsPage({
             isPro={isPaid}
             filtered={filtered}
           />
-          <TransactionsPager params={params} pageCount={pageCount} />
+          <TransactionsPager params={linkParams} pageCount={pageCount} />
         </>
       )}
       {hiddenCount > 0 && (

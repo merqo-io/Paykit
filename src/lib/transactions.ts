@@ -21,13 +21,20 @@ export type TransactionPage = {
   failed: boolean;
 };
 
-/** Drops characters that carry meaning in a PostgREST `or` filter or an ILIKE pattern. */
+/**
+ * Strips characters that carry meaning in a PostgREST `or` filter, then
+ * escapes the ILIKE wildcards so `%` and `_` in an order ref match literally.
+ */
 export function searchTerm(raw: string): string {
   return raw
-    .replace(/[,()%_*\\"']/g, " ")
+    .replace(/[,()*\\"']/g, " ")
     .replace(/\s+/g, " ")
-    .trim();
+    .trim()
+    .replace(/[%_]/g, (c) => `\\${c}`);
 }
+
+/** PostgREST answers an out-of-range `.range()` with this code (HTTP 416). */
+const RANGE_NOT_SATISFIABLE = "PGRST103";
 
 /** One page of the vendor's ledger, newest first. RLS still scopes rows to the vendor. */
 export async function queryTransactions(
@@ -35,22 +42,33 @@ export async function queryTransactions(
   query: TransactionQuery,
 ): Promise<TransactionPage> {
   const supabase = await createServerClient();
-  let q = supabase
-    .from("transactions")
-    .select(TRANSACTION_COLUMNS, { count: "exact" })
-    .eq("vendor_id", vendorId);
-  if (query.gteIso) q = q.gte("created_at", query.gteIso);
-  if (query.ltIso) q = q.lt("created_at", query.ltIso);
-  if (query.status) q = q.eq("status", query.status);
   const term = query.search ? searchTerm(query.search) : "";
-  if (term) {
-    q = q.or(`order_ref.ilike.%${term}%,pay_title.ilike.%${term}%`);
-  }
+  const page = (rangeFrom: number, rangeTo: number) => {
+    // Exact counts are fine at current per-vendor volume; revisit if one
+    // vendor's ledger grows large enough to make count(*) slow.
+    let q = supabase
+      .from("transactions")
+      .select(TRANSACTION_COLUMNS, { count: "exact" })
+      .eq("vendor_id", vendorId);
+    if (query.gteIso) q = q.gte("created_at", query.gteIso);
+    if (query.ltIso) q = q.lt("created_at", query.ltIso);
+    if (query.status) q = q.eq("status", query.status);
+    if (term) {
+      q = q.or(`order_ref.ilike.%${term}%,pay_title.ilike.%${term}%`);
+    }
+    return q
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .range(rangeFrom, rangeTo);
+  };
   const from = (query.page - 1) * query.pageSize;
-  const { data, count, error } = await q
-    .order("created_at", { ascending: false })
-    .order("id", { ascending: false })
-    .range(from, from + query.pageSize - 1);
+  let { data, count, error } = await page(from, from + query.pageSize - 1);
+  if (error?.code === RANGE_NOT_SATISFIABLE) {
+    // A page past the end is an empty page, not a failure; a one-row probe
+    // recovers the total so the caller can send the vendor to the last page.
+    ({ count, error } = await page(0, 0));
+    data = [];
+  }
   if (error) {
     console.error("queryTransactions failed", error.message);
     return { rows: [], total: 0, failed: true };

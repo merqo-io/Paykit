@@ -37,14 +37,20 @@ beforeEach(() => {
 });
 
 describe("searchTerm", () => {
-  it("strips filter and pattern metacharacters and collapses spaces", async () => {
+  it("strips filter metacharacters and collapses spaces", async () => {
     const { searchTerm } = await import("./transactions");
-    expect(searchTerm(`a,b(c)%_*"'  d`)).toBe("a b c d");
+    expect(searchTerm(`a,b(c)*"'\\  d`)).toBe("a b c d");
+  });
+
+  it("escapes ILIKE wildcards so % and _ match literally", async () => {
+    const { searchTerm } = await import("./transactions");
+    expect(searchTerm("ORD_12%")).toBe("ORD\\_12\\%");
   });
 });
 
 describe("queryTransactions", () => {
-  function recorder(result: unknown) {
+  function recorder(...results: unknown[]) {
+    let call = 0;
     const calls: [string, unknown[]][] = [];
     const chain: Record<string, unknown> = {};
     for (const m of ["select", "eq", "gte", "lt", "or", "order"]) {
@@ -55,7 +61,7 @@ describe("queryTransactions", () => {
     }
     chain.range = (...args: unknown[]) => {
       calls.push(["range", args]);
-      return Promise.resolve(result);
+      return Promise.resolve(results[Math.min(call++, results.length - 1)]);
     };
     createServerClientMock.mockResolvedValue({ from: () => chain });
     return calls;
@@ -100,6 +106,34 @@ describe("queryTransactions", () => {
     expect(names).not.toContain("lt");
     expect(names).not.toContain("or");
     expect(calls).toContainEqual(["range", [0, 24]]);
+  });
+
+  it("treats a page past the end as empty and still returns the total", async () => {
+    const calls = recorder(
+      { data: null, count: null, error: { code: "PGRST103", message: "416" } },
+      { data: [{ id: "tx1" }], count: 30, error: null },
+    );
+    const { queryTransactions } = await import("./transactions");
+    expect(await queryTransactions("v1", { page: 9, pageSize: 25 })).toEqual({
+      rows: [],
+      total: 30,
+      failed: false,
+    });
+    expect(calls).toContainEqual(["range", [200, 224]]);
+    expect(calls).toContainEqual(["range", [0, 0]]);
+  });
+
+  it("fails when the out-of-range probe also errors", async () => {
+    recorder(
+      { data: null, count: null, error: { code: "PGRST103", message: "416" } },
+      { data: null, count: null, error: { message: "boom" } },
+    );
+    const { queryTransactions } = await import("./transactions");
+    expect(await queryTransactions("v1", { page: 9, pageSize: 25 })).toEqual({
+      rows: [],
+      total: 0,
+      failed: true,
+    });
   });
 
   it("reports a failed read", async () => {

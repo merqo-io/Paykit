@@ -30,7 +30,11 @@ vi.mock("@/lib/transactions", () => ({
   queryTransactions: queryTransactionsMock,
   countTransactionsBefore: countBeforeMock,
 }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+const { redirectMock } = vi.hoisted(() => ({ redirectMock: vi.fn() }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+  redirect: redirectMock,
+}));
 
 const TX: Transaction = {
   id: "tx1",
@@ -61,6 +65,7 @@ beforeEach(() => {
   readVendorPlanMock.mockReset();
   queryTransactionsMock.mockReset();
   countBeforeMock.mockReset().mockResolvedValue(0);
+  redirectMock.mockReset();
 });
 
 describe("TransactionsPage", () => {
@@ -187,6 +192,58 @@ describe("TransactionsPage", () => {
     await renderPage();
     expect(screen.getByText("Couldn't load payments")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Try again" })).toBeInTheDocument();
+  });
+
+  it("redirects a page past the end to the last page, keeping filters", async () => {
+    readVendorPlanMock.mockResolvedValue("pro");
+    queryTransactionsMock.mockResolvedValue(ok([], 60));
+    await renderPage({ page: "9", status: "claimed" });
+    expect(redirectMock).toHaveBeenCalledWith(
+      "/dashboard/transactions?status=claimed&page=3",
+    );
+  });
+
+  it("redirects to the bare ledger when nothing matches and the page is past the end", async () => {
+    readVendorPlanMock.mockResolvedValue("pro");
+    queryTransactionsMock.mockResolvedValue(ok([], 0));
+    await renderPage({ page: "4" });
+    expect(redirectMock).toHaveBeenCalledWith("/dashboard/transactions");
+  });
+
+  it("does not redirect on a failed read or an in-range page", async () => {
+    readVendorPlanMock.mockResolvedValue("pro");
+    queryTransactionsMock.mockResolvedValue({
+      rows: [],
+      total: 0,
+      failed: true,
+    });
+    const { unmount } = await renderPage({ page: "4" });
+    unmount();
+    queryTransactionsMock.mockResolvedValue(ok([TX], 60));
+    await renderPage({ page: "2" });
+    expect(redirectMock).not.toHaveBeenCalled();
+  });
+
+  it("drops a stale q from links for a Free vendor", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    queryTransactionsMock.mockResolvedValue({
+      rows: [],
+      total: 0,
+      failed: true,
+    });
+    await renderPage({ q: "old", status: "claimed" });
+    expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute(
+      "href",
+      "/dashboard/transactions?status=claimed",
+    );
+  });
+
+  it("uses one clock for the window and the hidden count", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    queryTransactionsMock.mockResolvedValue(ok([TX]));
+    await renderPage();
+    const arg = queryTransactionsMock.mock.calls[0][1] as { gteIso: string };
+    expect(countBeforeMock.mock.calls[0][1]).toBe(arg.gteIso);
   });
 
   it("renders a pager when there is more than one page", async () => {
