@@ -24,10 +24,10 @@ file. Presentational only â€” no data fetching, no client state beyond the
 - `nav.dom.test.tsx` â€” asserts the About link, the Sign in/Join the
   waitlist/Dashboard state switch, and that the account menu opens by touch
   and offers Sign out.
-- `hero.tsx` — headline, lede, waitlist CTA, one quiet "In pilot with Merqo
+- `hero.tsx` ï¿½ headline, lede, waitlist CTA, one quiet "In pilot with Merqo
   stalls" line (the only readiness statement on the page) and the sample pay
   card. No badge and no stat row.
-- `waitlist.ts` — `WAITLIST_URL` (every signup CTA) and `PILOT_PRICING_LINE`
+- `waitlist.ts` ï¿½ `WAITLIST_URL` (every signup CTA) and `PILOT_PRICING_LINE`
   (the only pricing statement on public pages).
 - `checkout-card.tsx` - static copy of the QR step of the real pay page
   (`/pay/[id]`): same header, mono amount, 220px `react-qr-code` QR and button
@@ -39,9 +39,9 @@ file. Presentational only â€” no data fetching, no client state beyond the
   `PILOT_PRICING_LINE` and the waitlist CTA on the left, `FaqRows` on the right
   fed from `FAQ_GROUPS` in `src/app/faq/faq-content.ts` minus the cost
   question. Separated by a top border, no eyebrows, no icon cards.
-- `rhythm.ts` — `CONTAINER` and `SECTION_PAD_Y`, the one width and spacing
+- `rhythm.ts` ï¿½ `CONTAINER` and `SECTION_PAD_Y`, the one width and spacing
   scale for every block.
-- `sections.dom.test.tsx` — steps, no icons or eyebrows, funds statement,
+- `sections.dom.test.tsx` ï¿½ steps, no icons or eyebrows, funds statement,
   pilot pricing line beside the single FAQ-section CTA.
 - `BackToTop` â€” shared scroll-to-top control imported from `@merqo/ui`.
 - `wordmark.dom.test.tsx` â€” text, mint accent and caller size override.
