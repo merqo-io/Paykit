@@ -312,9 +312,8 @@ export type AuditLogPage = {
 
 /**
  * One newest-first page of `admin_audit`, filtered and counted in SQL so
- * every entry is searchable. Identity resolves to email the same way
- * `recentActivity` resolves a vendor — `admin_id` is any `auth.users` id (see
- * `recordAudit`'s own comment), not necessarily an `admins` member.
+ * every entry is searchable. `admin_id` is any `auth.users` id, so it
+ * resolves to email like `recentActivity` does.
  */
 export async function auditLog(query: AuditLogQuery): Promise<AuditLogPage> {
   const supabase = await createServiceClient();
