@@ -3,7 +3,7 @@ import type { FaqGroup } from "@merqo/ui";
 import { PILOT_PRICING_LINE } from "@/components/landing/waitlist";
 
 export const FAQ_INTRO =
-  "paykit shows your customer a PayNow QR and keeps track of who has paid. It is in build, built but not yet tried with vendors.";
+  "paykit shows your customer a PayNow QR and keeps track of who has paid. It is in pilot with Merqo stalls.";
 
 export const FAQ_GROUPS: FaqGroup[] = [
   {

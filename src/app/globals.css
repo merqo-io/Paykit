@@ -125,15 +125,6 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
-  /* a faint mint-to-flow wash, top-right — quieter than loopkit's dual glow,
-     leaning into paykit's "clean infrastructure" register rather than
-     qkit's textured paper or loopkit's celebratory bloom. */
-  background-image: radial-gradient(
-    ellipse 60% 45% at 92% -6%,
-    oklch(0.6 0.15 155 / 0.08),
-    transparent 60%
-  );
-  background-attachment: fixed;
 }
 
 /* Display headings tuned for Fraunces optical sizing (shared family face). */

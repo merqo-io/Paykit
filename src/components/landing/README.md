@@ -24,32 +24,26 @@ file. Presentational only — no data fetching, no client state beyond the
 - `nav.dom.test.tsx` — asserts the About link, the Sign in/Join the
   waitlist/Dashboard state switch, and that the account menu opens by touch
   and offers Sign out.
-- `hero.tsx` — "In build" badge with the readiness line, headline, stat row,
-  waitlist CTA, and the decorative `CheckoutCard`.
-- `waitlist.ts` — `WAITLIST_URL` (every signup CTA) and `PILOT_PRICING_LINE`
+- `hero.tsx` � headline, lede, waitlist CTA, one quiet "In pilot with Merqo
+  stalls" line (the only readiness statement on the page) and the sample pay
+  card. No badge and no stat row.
+- `waitlist.ts` � `WAITLIST_URL` (every signup CTA) and `PILOT_PRICING_LINE`
   (the only pricing statement on public pages).
-- `checkout-card.tsx` — stylized non-functional checkout artifact for the
-  hero (not a real scannable QR, a stand-in with a status pill using the
-  waiting/paid/confirmed steps; the API's internal states are pending,
-  claimed and confirmed).
-- `benefits.tsx` — the "why paykit" feature grid: one large tile beside two
-  stacked small ones. It carries no pricing tile (pricing lives in the FAQ via
-  `PILOT_PRICING_LINE`); the engine tile states that the QR comes from the
-  engine qkit already runs.
-- `how-it-works.tsx` — 3-step explainer (connect method → share checkout →
-  confirm).
-- `faq.tsx` — Q&A list, including "does paykit hold my money?" and "what
-  will it cost?" (answered with `PILOT_PRICING_LINE`). Heading uses the
-  same eyebrow (`text-xs font-semibold uppercase tracking-[0.16em]`, the same as `PageHeader`) + `font-display`
-  heading pair as `how-it-works.tsx`/`benefits.tsx`, not a bespoke centered
-  heading.
-- `closing-cta.tsx` — full-bleed `bg-ink text-ink-foreground` closing
-  section between `Faq` and `Footer` (the family's shared "dark
-  authoritative band" convention documented on the `--ink`/`--ink-foreground`
-  tokens in `globals.css`, previously defined but unused anywhere in
-  `src/app`/`src/components`) with a headline and a "Join the waitlist" CTA
-  (same href as `hero.tsx`'s). A standalone section, not a band inside the family footer
-  (`src/components/site-footer.tsx`), which stays CTA-free.
+- `checkout-card.tsx` - static copy of the QR step of the real pay page
+  (`/pay/[id]`): same header, mono amount, 220px `react-qr-code` QR and button
+  labels (including the filled "Upload payment screenshot" step), with inert
+  buttons. The QR encodes `https://paykit.merqo.io/faq`,
+  never a PayNow payload, and the card has no vendor confirm footer.
+- `sections.tsx` - `HowItWorks` (three numbered steps, numerals in
+  `text-success` for 4.5:1), `YourMoney` (one full-width statement that paykit
+  never holds funds) and `LandingFaq`, one two-column section: heading,
+  `PILOT_PRICING_LINE` and the waitlist CTA on the left, `FaqRows` on the right
+  fed from `FAQ_GROUPS` in `src/app/faq/faq-content.ts` minus the cost
+  question. Separated by a top border, no eyebrows, no icon cards.
+- `rhythm.ts` � `CONTAINER` and `SECTION_PAD_Y`, the one width and spacing
+  scale for every block.
+- `sections.dom.test.tsx` � steps, no icons or eyebrows, funds statement,
+  pilot pricing line beside the single FAQ-section CTA.
 - `BackToTop` — shared scroll-to-top control imported from `@merqo/ui`.
 - `wordmark.dom.test.tsx` — text, mint accent and caller size override.
 - `wordmark.tsx` — `Wordmark`: thin wrapper over the shared `Wordmark` shell
@@ -60,9 +54,9 @@ file. Presentational only — no data fetching, no client state beyond the
 
 ## Surfaces
 
-The checkout card, benefit tiles and FAQ items use `rounded-lg`, the single
-small radius for page surfaces, and the hero carries no glow or shadow and no
-load-time animation, per the shared public page rules.
+The checkout card and FAQ rows use `rounded-lg`, the single small radius for
+page surfaces. The landing has no glow, shadow or load-time animation, and the
+body carries no background wash, per the shared public page rules.
 
 ## Connectivity
 
