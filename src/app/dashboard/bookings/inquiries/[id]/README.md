@@ -8,7 +8,8 @@ another vendor's.
 ## Contents
 
 - `page.tsx`: the client's phone as a `tel:` link and a WhatsApp link
-  (`whatsappLink` in `src/lib/phone-links.ts`), the event date, the message,
+  (`CustomerPhone` in `../../customer-phone.tsx`, built on `whatsappLink` in
+  `src/lib/phone-links.ts`), the event date, the message,
   the terms acknowledgment (`TermsSnapshot`) and the actions. An open
   inquiry offers "Convert to booking": the shared `NewBookingDialog`,
   prefilled with the client's name, phone and event date and carrying the
@@ -25,7 +26,7 @@ another vendor's.
 
 [inquiries](../README.md)
 
-The page header uses `PageHeader` (eyebrow "Inquiry", status badge in its
+The page header uses `PageHeader` (no eyebrow; status badge in its
 actions). The delete dialog uses the shared title, description and
 `DialogFooter` layout with a destructive confirm.
 

@@ -38,7 +38,29 @@ const columns: DataTableColumn<Booking>[] = [
   },
 ];
 
-export function BookingTable({ bookings }: { bookings: Booking[] }) {
+export function BookingTable({
+  bookings,
+  filtered = false,
+}: {
+  bookings: Booking[];
+  filtered?: boolean;
+}) {
+  if (bookings.length === 0 && filtered) {
+    return (
+      <EmptyState
+        title="No bookings match"
+        description="Try a different name, phone number or status."
+        actions={
+          <Link
+            href="/dashboard/bookings"
+            className="text-sm underline underline-offset-4"
+          >
+            Clear filters
+          </Link>
+        }
+      />
+    );
+  }
   if (bookings.length === 0) {
     return (
       <EmptyState

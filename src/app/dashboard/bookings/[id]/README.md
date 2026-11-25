@@ -56,3 +56,7 @@ Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 Class composition (`cn`) comes from `@merqo/ui/primitives`.
+
+## Layout
+
+`page.tsx` has no eyebrow. It groups the booking into Customer (phone with call and WhatsApp links via `../customer-phone.tsx`, terms), Amounts and Booking ID sections, then the payment cards and actions. The Free-plan refund hint in `cancel-booking-dialog.tsx` links to `/dashboard/plan`; the refund gate itself is unchanged.

@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Bookings list uses the shared `PageHeader`, shows counts on the Inquiries and Your bookings sections, and adds search by customer name or phone, a status filter, clear-filters and 20-per-page paging (URL `q`, `status`, `page`, Zod-validated and applied in the query).
+- Booking detail splits into Customer, Amounts and Booking ID sections instead of one boxed card, and the customer phone links to call and WhatsApp (shared with the inquiry page). The "Booking" and "Inquiry" eyebrows are gone.
+- The Free-plan refund hint on cancelling a booking now says refund tracking comes with Starter or Pro and links to the plan page.
+
 ### Added
 
 - `/admin/vendors` searches by stall name, email or vendor id and pages 25 at a time; `/admin/activity` filters by action and date range and pages the audit log. Query values are Zod-parsed, a page past the end redirects to the last page, and a failed read shows a retry state instead of the empty state.

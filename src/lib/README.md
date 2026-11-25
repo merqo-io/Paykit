@@ -166,6 +166,8 @@ provide authorization.
 
 ## Reads and reports
 
+`bookings.ts` `searchBookings(vendorId, {q, status, page, pageSize})` returns `{ok:true, rows, total}` or `{ok:false}`; a page past the end (PGRST103) is an empty page with the exact total, and `listBookings` was removed (`listAllBookings` stays).
+
 `transactions.ts` and `bookings.ts` read vendor-owned records with the session
 client; `queryTransactions(vendorId, query)` returns one filtered page (window, status, search) with an exact count; Free callers get their window from `resolveListRange` in `free-limits.ts`,
 `countTransactionsBefore` counts hidden older rows and `listConfirmedBetween`

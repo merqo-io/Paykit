@@ -1,0 +1,122 @@
+import Link from "next/link";
+import { FORM_LABEL_CLASS } from "@merqo/ui";
+import { Button, Input, Label } from "@merqo/ui/primitives";
+import {
+  BOOKING_STATUS_FILTERS,
+  bookingListHref,
+  hasActiveFilters,
+  type BookingListParams,
+} from "./list-params";
+
+const STATUS_LABELS: Record<(typeof BOOKING_STATUS_FILTERS)[number], string> = {
+  pending_deposit: "Awaiting deposit",
+  deposit_paid: "Deposit paid",
+  fully_paid: "Fully paid",
+  cancelled: "Cancelled",
+};
+
+// Same field styling as the ledger filter; copied locally until the classes
+// are shared.
+const SELECT_CLASS =
+  "h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
+
+// A plain GET form: the URL is the single source of truth, so filters survive
+// reload and sharing, and the list needs no client state.
+export function BookingFilters({ params }: { params: BookingListParams }) {
+  return (
+    <form
+      method="get"
+      action="/dashboard/bookings"
+      className="flex flex-col gap-3 sm:flex-row sm:items-end"
+      role="search"
+    >
+      <div className="grid gap-1.5 sm:flex-1">
+        <Label htmlFor="booking-search" className={FORM_LABEL_CLASS}>
+          Search
+        </Label>
+        <Input
+          id="booking-search"
+          name="q"
+          type="search"
+          defaultValue={params.q}
+          placeholder="Customer name or phone"
+          maxLength={80}
+        />
+      </div>
+      <div className="grid gap-1.5 sm:w-48">
+        <Label htmlFor="booking-status" className={FORM_LABEL_CLASS}>
+          Status
+        </Label>
+        <select
+          id="booking-status"
+          name="status"
+          defaultValue={params.status ?? ""}
+          className={SELECT_CLASS}
+        >
+          <option value="">All statuses</option>
+          {BOOKING_STATUS_FILTERS.map((status) => (
+            <option key={status} value={status}>
+              {STATUS_LABELS[status]}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="flex items-center gap-3">
+        <Button type="submit">Apply</Button>
+        {hasActiveFilters(params) && (
+          <Link
+            href={bookingListHref({})}
+            className="text-sm underline underline-offset-4"
+          >
+            Clear filters
+          </Link>
+        )}
+      </div>
+    </form>
+  );
+}
+
+export function BookingPager({
+  params,
+  total,
+  pageSize,
+}: {
+  params: BookingListParams;
+  total: number;
+  pageSize: number;
+}) {
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  if (pages <= 1) return null;
+  const linkClass = "underline underline-offset-4";
+  const mutedClass = "text-muted-foreground";
+  return (
+    <nav
+      aria-label="Bookings pages"
+      className="mt-4 flex items-center justify-between text-sm"
+    >
+      {params.page > 1 ? (
+        <Link
+          href={bookingListHref({ ...params, page: params.page - 1 })}
+          className={linkClass}
+        >
+          Previous
+        </Link>
+      ) : (
+        <span className={mutedClass}>Previous</span>
+      )}
+      <span className="tabular-nums text-muted-foreground">
+        Page {params.page} of {pages}
+      </span>
+      {params.page < pages ? (
+        <Link
+          href={bookingListHref({ ...params, page: params.page + 1 })}
+          className={linkClass}
+        >
+          Next
+        </Link>
+      ) : (
+        <span className={mutedClass}>Next</span>
+      )}
+    </nav>
+  );
+}
