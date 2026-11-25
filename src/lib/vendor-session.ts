@@ -15,7 +15,7 @@ type SessionUser = NonNullable<
  * calls it), so the legal check lives here once rather than duplicated per
  * call site.
  */
-export async function getVendorSession(): Promise<{
+export async function getVendorSession(returnTo?: string): Promise<{
   supabase: VendorSupabaseClient;
   user: SessionUser;
 }> {
@@ -24,6 +24,6 @@ export async function getVendorSession(): Promise<{
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  await requireCurrentLegalAcceptance(user.email);
+  await requireCurrentLegalAcceptance(user.email, returnTo);
   return { supabase, user };
 }

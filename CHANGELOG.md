@@ -14,6 +14,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Reports: the locked-tab copy now says what Starter and Pro give you (best days and hours, CSV for your accountant), the Free summary uses the shared `StatCard`, and the "Ledger" and "Insights" eyebrows are gone.
 - AGENTS.md plan-gate line now matches the pricing spec.
+- The pay page names what happened and the buyer's next step in every state: an invalid link (new `not-found.tsx`), too many tries, a failed load and a recorded payment, using the stall name where the page already has it. Notices are left-aligned.
+- The inquiry form has its own not-found page and its error messages say to contact the business where retrying will not help.
+- A failed Merqo terms check (outage) still blocks the vendor but now redirects to `/legal/accept?reason=unavailable` with "We couldn't check the terms right now" and a retry link, instead of claiming the terms changed. `reason` is Zod-validated and the retry path is same-origin only.
 
 ## [0.6.1] - 2026-11-23
 

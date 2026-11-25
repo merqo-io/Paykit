@@ -35,4 +35,61 @@ describe("LegalAcceptPage", () => {
     await userEvent.click(screen.getByRole("checkbox"));
     expect(submit).toBeEnabled();
   });
+
+  it("says the check failed, not that terms changed, on reason=unavailable", async () => {
+    render(
+      await LegalAcceptPage({
+        searchParams: Promise.resolve({
+          reason: "unavailable",
+          next: "/dashboard/transactions",
+        }),
+      }),
+    );
+    expect(
+      screen.getByText("We couldn't check the terms right now"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Our terms have changed")).toBeNull();
+    expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute(
+      "href",
+      "/dashboard/transactions",
+    );
+  });
+
+  it("offers the plain accept page as a secondary path so a real terms change is never stuck", async () => {
+    render(
+      await LegalAcceptPage({
+        searchParams: Promise.resolve({
+          reason: "unavailable",
+          next: "/dashboard/x",
+        }),
+      }),
+    );
+    expect(
+      screen.getByRole("link", { name: "review them here" }),
+    ).toHaveAttribute("href", "/legal/accept?next=%2Fdashboard%2Fx");
+  });
+
+  it("points the retry link at a safe path when next is an open redirect", async () => {
+    render(
+      await LegalAcceptPage({
+        searchParams: Promise.resolve({
+          reason: "unavailable",
+          next: "//evil.example",
+        }),
+      }),
+    );
+    expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute(
+      "href",
+      "/dashboard",
+    );
+  });
+
+  it("falls back to the terms-changed copy for an unknown reason", async () => {
+    render(
+      await LegalAcceptPage({
+        searchParams: Promise.resolve({ reason: "bogus" }),
+      }),
+    );
+    expect(screen.getByText("Our terms have changed")).toBeInTheDocument();
+  });
 });
