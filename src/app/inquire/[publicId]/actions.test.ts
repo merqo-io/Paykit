@@ -115,7 +115,8 @@ describe("submitInquiryAction", () => {
     allowedMock.mockResolvedValue(false);
     expect(await submitInquiryAction(PUBLIC_ID, IDLE, fd())).toEqual({
       status: "error",
-      message: "Too many inquiries. Try again later.",
+      message:
+        "Too many inquiries from this connection. Wait a few minutes, then try again.",
     });
     expect(loadMock).not.toHaveBeenCalled();
   });
@@ -124,7 +125,8 @@ describe("submitInquiryAction", () => {
     loadMock.mockResolvedValue(null);
     expect(await submitInquiryAction(PUBLIC_ID, IDLE, fd())).toEqual({
       status: "error",
-      message: "This inquiry form is no longer available.",
+      message:
+        "This inquiry form is no longer available. Contact the business directly.",
     });
     expect(submitMock).not.toHaveBeenCalled();
   });
@@ -141,7 +143,8 @@ describe("submitInquiryAction", () => {
     submitMock.mockResolvedValue({ ok: false, reason: "write_failed" });
     expect(await submitInquiryAction(PUBLIC_ID, IDLE, fd())).toEqual({
       status: "error",
-      message: "Could not send your inquiry. Try again.",
+      message:
+        "Could not send your inquiry. Try again, or contact the business directly.",
     });
   });
 });
