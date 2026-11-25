@@ -53,12 +53,45 @@ export function pathWithReturnTo(path: string, raw: unknown): string {
   return `${path}?${new URLSearchParams({ return_to: checked }).toString()}`;
 }
 
+const PLACEHOLDER_ORIGIN = "https://paykit.invalid";
+const UNSAFE_PATH_CHARS = /[\u0000- \u007f\\]/;
+
 /**
- * Where to send a signed-out visitor: `/login`, carrying `next` only when it
- * is a same-origin relative path (the same guard `/auth/callback` applies).
+ * A post-sign-in destination that is certain to stay on this site, or null.
+ * The URL parser drops tabs and newlines and reads a backslash as a slash, so
+ * a plain "starts with one slash" test lets `/<tab>/evil.example` through as a
+ * scheme-relative URL. Rejecting those characters, resolving against a fixed
+ * origin and requiring the same origin back closes that, and a percent-encoded
+ * `//` or backslash is refused too because some browsers and proxies decode it.
+ * Returns pathname, query and hash only, never the raw text.
+ */
+export function safeNextPath(raw: unknown): string | null {
+  const parsed = redirectPathSchema.safeParse(raw);
+  if (!parsed.success || UNSAFE_PATH_CHARS.test(parsed.data)) return null;
+  let url: URL;
+  try {
+    url = new URL(parsed.data, PLACEHOLDER_ORIGIN);
+  } catch {
+    return null;
+  }
+  if (url.origin !== PLACEHOLDER_ORIGIN) return null;
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(url.pathname);
+  } catch {
+    return null;
+  }
+  if (decoded.startsWith("//") || decoded.includes("\\")) return null;
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
+/**
+ * Where to send a signed-out visitor: `/login`, carrying `next` only when
+ * `safeNextPath` accepts it (the same guard `/auth/callback` and the login
+ * page apply).
  */
 export function loginRedirectPath(next?: string): string {
-  const parsed = redirectPathSchema.safeParse(next);
-  if (!parsed.success) return "/login";
-  return `/login?${new URLSearchParams({ next: parsed.data }).toString()}`;
+  const safe = safeNextPath(next);
+  if (!safe) return "/login";
+  return `/login?${new URLSearchParams({ next: safe }).toString()}`;
 }

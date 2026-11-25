@@ -3,6 +3,7 @@ import {
   familyReturnUrl,
   loginRedirectPath,
   pathWithReturnTo,
+  safeNextPath,
 } from "./return-to";
 
 afterEach(() => {
@@ -133,10 +134,42 @@ describe("loginRedirectPath", () => {
     "",
     "//evil.com",
     "/\\evil.com",
+    "/\t/evil.com",
+    "/%2F%2Fevil.com",
     "https://evil.com",
     "javascript:alert(1)",
     `/${"a".repeat(600)}`,
-  ])("drops an unsafe next (%s)", (next) => {
+  ])("drops an unsafe next (%j)", (next) => {
     expect(loginRedirectPath(next)).toBe("/login");
+  });
+});
+
+describe("safeNextPath", () => {
+  it("keeps a path with query and hash", () => {
+    const next =
+      "/dashboard/config?return_to=https%3A%2F%2Fqkit.merqo.io%2Fx#a";
+    expect(safeNextPath(next)).toBe(next);
+  });
+
+  it.each([
+    "/\t/evil.com",
+    "/\n/evil.com",
+    "/\r/evil.com",
+    "/ /evil.com",
+    "/%2F%2Fevil.com",
+    "/%2f%2fevil.com",
+    "/\\evil.com",
+    "/%5Cevil.com",
+    "//evil.com",
+    "https://evil.com",
+    "javascript:alert(1)",
+    "relative",
+    "/%E0%A4%A",
+    "",
+    null,
+    undefined,
+    42,
+  ])("rejects %j", (raw) => {
+    expect(safeNextPath(raw)).toBeNull();
   });
 });

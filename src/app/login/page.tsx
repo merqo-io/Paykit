@@ -15,7 +15,7 @@ import { Button } from "@merqo/ui/primitives";
 
 import { createClient } from "@/lib/supabase/client";
 import { Wordmark } from "@/components/landing/wordmark";
-import { redirectPathSchema } from "@/lib/schemas";
+import { safeNextPath } from "@/lib/return-to";
 import { friendlyAuthError } from "./auth-errors";
 import { PASSWORD_REQUIREMENTS_HINT } from "./weak-password";
 
@@ -59,11 +59,11 @@ function LoginScreen() {
   // The form remounts after "Back to sign in"; without this the carried-back
   // OAuth error would replay on the fresh form.
   const [showInitialError, setShowInitialError] = useState(true);
-  const nextParsed = redirectPathSchema.safeParse(searchParams.get("next"));
-  const nextPath = nextParsed.success ? nextParsed.data : "/dashboard";
+  const safeNext = safeNextPath(searchParams.get("next"));
+  const nextPath = safeNext ?? "/dashboard";
   const callbackUrl = () =>
     `${window.location.origin}/auth/callback${
-      nextParsed.success ? `?next=${encodeURIComponent(nextParsed.data)}` : ""
+      safeNext ? `?next=${encodeURIComponent(safeNext)}` : ""
     }`;
   const isSignin = mode === "signin";
   const errorParam = searchParams.get("error");

@@ -17,7 +17,13 @@ paykit uses the shared Merqo Supabase project and owns the `paykit` schema.
 4. Scope `NEXT_PUBLIC_AUTH_COOKIE_DOMAIN=.merqo.io` to Production, plus Preview
    for Git branch `staging` only (see Staging). Leave it unset for localhost
    and `*.vercel.app` previews, where that domain cookie would be rejected. Rebuild after changing public environment values.
-5. Register each real calling kit's API key using `scripts/create-kit-key.mjs`.
+5. In Supabase Auth, Redirect URLs, allow `https://paykit.merqo.io/auth/callback**`,
+   `https://paykit-staging.merqo.io/auth/callback**` and
+   `http://localhost:3000/auth/callback**`. The Google and email-link sign-in
+   send `/auth/callback?next=...` so a vendor sent here from qkit lands back on
+   `/dashboard/config?return_to=...`; without the wildcard Supabase falls back
+   to the Site URL and the return trip is lost (password sign-in still works).
+6. Register each real calling kit's API key using `scripts/create-kit-key.mjs`.
    Its default insert rejects an existing key; use `--rotate` only for an
    intentional coordinated replacement and update the caller's secret.
 
