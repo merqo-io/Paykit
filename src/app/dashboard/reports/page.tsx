@@ -43,7 +43,7 @@ export default async function ReportsPage({
     } else {
       content = (
         <ProLock
-          label="Earnings reports and CSV export are included with Starter and Pro"
+          label="Best days and hours, plus CSV export for your accountant. Included with Starter and Pro."
           href="/dashboard/plan"
         />
       );
@@ -76,7 +76,6 @@ export default async function ReportsPage({
     <div className="mx-auto max-w-3xl">
       <PageHeader
         responsive
-        eyebrow="Insights"
         title="Reports"
         description="Revenue from confirmed payments across every kit."
       />
