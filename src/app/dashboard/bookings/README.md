@@ -105,4 +105,6 @@ Buttons, inputs, dialogs, badges and the other shared primitives here are import
 
 Internal-only helpers in `field.tsx` (`FIELD_INPUT_CLASS`) are not exported; knip flags unused exports.
 
+Money and times here come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.
+
 Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

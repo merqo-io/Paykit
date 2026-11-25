@@ -283,7 +283,7 @@ describe("GET /api/merqo/vendor-activity (paykit)", () => {
     expect(body.status).toBe("healthy");
     expect(body.metrics).toEqual([
       { label: "Transactions (30d)", value: "1" },
-      { label: "Volume (30d)", value: "$10.00" },
+      { label: "Volume (30d)", value: "S$10.00" },
       { label: "Refund rate (30d)", value: "0%" },
     ]);
     expect(body.lastActivityAt).toBe(now);

@@ -8,10 +8,17 @@ import {
 } from "@/lib/admin-data";
 import { Badge } from "@merqo/ui/primitives";
 
-import { EmptyState, PageHeader, StatCard } from "@merqo/ui";
+import {
+  EmptyState,
+  Money,
+  PageHeader,
+  StatCard,
+  Timestamp,
+  formatMoney,
+} from "@merqo/ui";
 import type { TxStatus } from "@/lib/types";
 import { listHref } from "@/app/admin/list-params";
-import { formatCents, formatSgtDateTime, pctChange } from "@/lib/utils";
+import { pctChange } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Admin overview",
@@ -70,7 +77,7 @@ export default async function AdminOverviewPage() {
         <StatCard
           deltaSize="xs"
           label="Confirmed volume · 30d"
-          value={formatCents(totals.confirmed_volume_cents_30d)}
+          value={formatMoney(totals.confirmed_volume_cents_30d)}
           delta={pctChange(
             totals.confirmed_volume_cents_30d,
             totals.confirmed_volume_cents_prev_30d,
@@ -81,7 +88,7 @@ export default async function AdminOverviewPage() {
           deltaSize="xs"
           label="Refunds · 30d"
           value={String(totals.refund_count_30d)}
-          caption={formatCents(totals.refund_volume_cents_30d)}
+          caption={formatMoney(totals.refund_volume_cents_30d)}
         />
       </div>
 
@@ -129,12 +136,12 @@ export default async function AdminOverviewPage() {
                     </Badge>
                   </span>
                   <span className="flex shrink-0 items-center gap-3">
-                    <span className="tabular-nums">
-                      {formatCents(tx.amount_cents)}
-                    </span>
-                    <span className="text-muted-foreground tabular-nums">
-                      {formatSgtDateTime(tx.created_at)}
-                    </span>
+                    <Money cents={tx.amount_cents} />
+                    <Timestamp
+                      value={tx.created_at}
+                      variant="datetime"
+                      className="text-muted-foreground"
+                    />
                   </span>
                 </Link>
               </li>

@@ -247,7 +247,7 @@ path on this app.
 
 Redirect validation and image resizing come from `@merqo/ui`; there are no
 local `safe-redirect.ts` or `image-resize.ts` copies. `utils.ts` holds local
-formatters (including `formatSgtDate` and `formatSgtDateTime`, pinned to Asia/Singapore so SSR and client output match) and the `callHandler` adapter (form label and error classes come from `@merqo/ui`); `brand-mark.ts` holds the icon-route mark options.
+the `pctChange` helper and the `callHandler` adapter (form label and error classes come from `@merqo/ui`); `brand-mark.ts` holds the icon-route mark options.
 `env.ts` exposes required public configuration. The `supabase/` README explains
 session/service client separation; `payments/` explains checkout builders.
 

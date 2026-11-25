@@ -133,7 +133,7 @@ describe("DashboardPage", () => {
 
     render(await DashboardPage());
 
-    expect(screen.getByText("$1,234.50")).toBeInTheDocument();
+    expect(screen.getByText("S$1,234.50")).toBeInTheDocument();
     expect(screen.getByText("1 confirmed payment")).toBeInTheDocument();
   });
 
@@ -164,7 +164,7 @@ describe("DashboardPage", () => {
 
     render(await DashboardPage());
 
-    expect(screen.getByText("$16.50")).toBeInTheDocument();
+    expect(screen.getByText("S$16.50")).toBeInTheDocument();
     expect(
       screen.getByText("2 payments marked paid by customers"),
     ).toBeInTheDocument();

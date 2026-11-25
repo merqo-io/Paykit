@@ -41,3 +41,5 @@ See the repo root [README.md](../../../../../README.md) for the full layout.
 The email lookup validates input and rejects incomplete administrator listings. Transactions and refunds are paged through their own deterministic IDs; refund reads remain limited to the resolved vendor transaction IDs. A partial or failed read is an error, not a valid activity summary.
 
 The route reads its data through `readConfigAndTransactions` and `readRefunds`, and answers any failed read, incidents included, with `upstreamUnavailable`.
+
+The "Volume (30d)" metric in the payload is formatted by `computeVendorActivity` in `src/lib/merqo-vendor-activity.ts` with `@merqo/ui` `formatMoney`, so it reads "S$10.00", not "$10.00".

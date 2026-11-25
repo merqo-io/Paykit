@@ -6,6 +6,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Repinned `@merqo/ui` to merqo-ui commit c0f1f23d (v0.61.1, from d9ba206c / v0.60.0). It includes the 0.61.0 data shapes (`Money`, `Timestamp`, `align: "end"`) plus the TS2742 fix to the package's prepare build.
+- Money and time use `@merqo/ui`'s `Money`, `Timestamp`, `formatMoney`, `formatDate` and `formatDateTime` instead of local helpers (`formatCents`, `formatDate`, `formatSgtDate`, `formatSgtDateTime` removed). Amounts now read "S$4.50" with thousands separators, dates "7 Nov 2026" and date-times "7 Nov 2026, 1:30 am" (seconds dropped), all in Singapore time. Money columns in the bookings, transactions and earnings tables are right-aligned.
+
 ### Fixed
 
 - Deep links into the vendor dashboard (bookings, transactions, reports and the rest) now survive the sign-in and legal-acceptance gates: every dashboard page passes its own path and query as the return destination, and a vendor with stale terms is sent to `/legal/accept?next=...` instead of losing the link.

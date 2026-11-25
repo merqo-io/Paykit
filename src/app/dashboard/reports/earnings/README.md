@@ -78,3 +78,5 @@ the package no longer applies a blanket client banner.
 Page chrome here (EmptyState) comes from `@merqo/ui`; paykit keeps no local copy.
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+Money and times here come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.

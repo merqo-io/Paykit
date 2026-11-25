@@ -1,8 +1,6 @@
 "use client";
-import { formatSgtDateTime } from "@/lib/utils";
-
 import Link from "next/link";
-import { DataTable, type DataTableColumn } from "@merqo/ui";
+import { DataTable, Timestamp, type DataTableColumn } from "@merqo/ui";
 import { formatAction } from "../action-labels";
 import { listHref } from "../list-params";
 
@@ -21,7 +19,7 @@ export type ActivityEntry = {
 const columns: DataTableColumn<ActivityEntry>[] = [
   {
     header: "When",
-    cell: (e) => formatSgtDateTime(e.createdAt),
+    cell: (e) => <Timestamp value={e.createdAt} variant="datetime" />,
     className: "whitespace-nowrap tabular-nums",
   },
   { header: "Actor", cell: (e) => e.actor },

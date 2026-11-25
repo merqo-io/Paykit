@@ -62,3 +62,5 @@ Global Tailwind base rules stay in the base layer so component utility classes c
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 The root layout takes its theme props from `@merqo/ui/next`, and the icon routes build their mark with `brandIcon` from `@merqo/ui` and the options in `lib/brand-mark.ts`.
+
+Money and times in this tree come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.

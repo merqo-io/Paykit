@@ -61,4 +61,4 @@ Buttons, inputs, dialogs, badges and the other shared primitives here are import
 
 `loading.tsx` is the `/admin/*` loading fallback (shared `Skeleton`): it keeps the page's `<main>` landmark and marks an inner element `role="status"` with an sr-only "Loading" label.
 
-Timestamps display through `formatSgtDate`/`formatSgtDateTime` from `@/lib/utils`, pinned to Asia/Singapore so server and client render identically (no hydration mismatch).
+Timestamps display through `Timestamp` (or `formatDate`/`formatDateTime`) from `@merqo/ui`, always in Asia/Singapore so server and client render identically (no hydration mismatch).

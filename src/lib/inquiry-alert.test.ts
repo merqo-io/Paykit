@@ -17,7 +17,7 @@ describe("inquiryAlertText", () => {
   it("names the client and the event date, with no link", () => {
     const text = inquiryAlertText("Jane Tan", "2026-12-12");
     expect(text).toBe(
-      "New paykit inquiry from Jane Tan, event 12/12/2026. Open Bookings in paykit to reply.",
+      "New paykit inquiry from Jane Tan, event 12 Dec 2026. Open Bookings in paykit to reply.",
     );
     expect(text).not.toMatch(/https?:/);
   });

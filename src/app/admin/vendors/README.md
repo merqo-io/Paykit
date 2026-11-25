@@ -39,4 +39,4 @@ Buttons, inputs, dialogs, badges and the other shared primitives here are import
 
 Paging and the failed-read card are the shared `UrlPager` and `ListError` from `@/components/list/`.
 
-Timestamps display through `formatSgtDate`/`formatSgtDateTime` from `@/lib/utils`, pinned to Asia/Singapore so server and client render identically (no hydration mismatch).
+Timestamps display through `Timestamp` (or `formatDate`/`formatDateTime`) from `@merqo/ui`, always in Asia/Singapore so server and client render identically (no hydration mismatch).

@@ -1,6 +1,5 @@
-import { ProLock, StatCard } from "@merqo/ui";
+import { ProLock, StatCard, formatMoney } from "@merqo/ui";
 import type { DayTotal } from "@/lib/free-limits";
-import { formatCents } from "@/lib/utils";
 
 export const FREE_REVENUE_LOCK_LABEL =
   "See weekly and monthly revenue and your best days. Included with Starter and Pro.";
@@ -19,13 +18,13 @@ export function FreeRevenueSummary({
       <div className="grid grid-cols-2 gap-3">
         <StatCard
           label="Today"
-          value={formatCents(today.cents)}
+          value={formatMoney(today.cents)}
           caption={paymentCount(today.count)}
           className="tabular-nums"
         />
         <StatCard
           label="Yesterday"
-          value={formatCents(yesterday.cents)}
+          value={formatMoney(yesterday.cents)}
           caption={paymentCount(yesterday.count)}
           className="tabular-nums"
         />

@@ -33,4 +33,4 @@ Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy
 
 The action select uses `FILTER_SELECT_CLASS` (with a `sm:w-56` override); paging and the failed-read card are the shared `UrlPager` and `ListError` from `@/components/list/`.
 
-Timestamps display through `formatSgtDate`/`formatSgtDateTime` from `@/lib/utils`, pinned to Asia/Singapore so server and client render identically (no hydration mismatch).
+Timestamps display through `Timestamp` (or `formatDate`/`formatDateTime`) from `@merqo/ui`, always in Asia/Singapore so server and client render identically (no hydration mismatch).

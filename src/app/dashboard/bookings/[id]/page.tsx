@@ -3,14 +3,13 @@ import { BookingIdCopy } from "./booking-id-copy";
 import { checkoutKind } from "@/lib/checkout-kind";
 import { RecoverDepositButton } from "./recover-deposit-button";
 import { notFound } from "next/navigation";
-import { qrSvg } from "@merqo/ui";
+import { Money, Timestamp, formatDate, qrSvg } from "@merqo/ui";
 import { getVendorSession } from "@/lib/vendor-session";
 import { getBooking } from "@/lib/bookings";
 import { getTransaction } from "@/lib/transactions";
 import { getInquiryForBooking } from "@/lib/inquiry-inbox";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
 import { PageHeader } from "@merqo/ui";
-import { formatCents, formatDate } from "@/lib/utils";
 import { BookingStatusBadge, BalanceDueIndicator } from "../booking-badges";
 import { TermsSnapshot } from "../inquiry-badges";
 import { CustomerPhone } from "../customer-phone";
@@ -103,13 +102,21 @@ export default async function BookingDetailPage({
         </h2>
         <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm tabular-nums">
           <dt className="text-muted-foreground">Total</dt>
-          <dd>{formatCents(booking.total_amount_cents)}</dd>
+          <dd>
+            <Money cents={booking.total_amount_cents} />
+          </dd>
           <dt className="text-muted-foreground">Deposit</dt>
-          <dd>{formatCents(booking.deposit_amount_cents)}</dd>
+          <dd>
+            <Money cents={booking.deposit_amount_cents} />
+          </dd>
           <dt className="text-muted-foreground">Balance</dt>
-          <dd>{formatCents(booking.balance_amount_cents)}</dd>
+          <dd>
+            <Money cents={booking.balance_amount_cents} />
+          </dd>
           <dt className="text-muted-foreground">Balance due</dt>
-          <dd>{formatDate(booking.balance_due_date)}</dd>
+          <dd>
+            <Timestamp value={booking.balance_due_date} variant="date" />
+          </dd>
         </dl>
       </section>
 
