@@ -41,3 +41,5 @@ See the repo root [README.md](../../../../../README.md) for the full layout.
 The email lookup validates input and rejects incomplete administrator listings. Transactions and refunds are paged through their own deterministic IDs; refund reads remain limited to the resolved vendor transaction IDs. A partial or failed read is an error, not a valid activity summary.
 
 The route reads its data through `readConfigAndTransactions` and `readRefunds`, and answers any failed read, incidents included, with `upstreamUnavailable`.
+
+Money and times here come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.

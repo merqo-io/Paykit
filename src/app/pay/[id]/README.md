@@ -51,3 +51,5 @@ amount check as the claim endpoint.
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 The pay panel uses `useAsyncAction` from `@merqo/ui` and `cn` from `@merqo/ui/primitives`; `callHandler` in `lib/utils.ts` adapts the server-action thunk.
+
+Money and times here come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.

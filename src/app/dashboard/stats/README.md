@@ -15,7 +15,7 @@ totals instead (see `dashboard/reports/`). Refund tracking is also paid (see
 - `revenue-chart.tsx` — `RevenueChart({ data })`: client component. A 3-tile
   stat row (`StatTile`: Total revenue, Payments, Avg / day) sits above a
   `recharts` `BarChart` (dollars by day, bars filled with `var(--color-mint)`)
-  in a `ResponsiveContainer`. `ChartTooltip` shows the SGD-formatted date,
+  in a `ResponsiveContainer`. `ChartTooltip` shows the date, S$-formatted amount (`formatMoney`),
   amount and payment count on hover, without a shadow. Recharts renders an
   inline SVG with no text alternative, so the wrapping `div` carries
   `role="img"` plus a summarizing `aria-label`, and an `sr-only` `<table>`
@@ -39,3 +39,5 @@ The Reports page uses the complete vendor transaction reader before
 aggregation, so database failures surface rather than rendering a plausible
 partial chart. The stat cards compose shared StatTile with local label
 typography, value spacing and the existing border/padding shell.
+
+Money and times here come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.
