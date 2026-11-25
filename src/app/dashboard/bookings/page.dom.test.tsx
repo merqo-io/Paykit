@@ -9,7 +9,11 @@ const {
   searchBookingsMock,
   listOpenInquiriesMock,
   getInquiryFormMock,
+  redirectMock,
 } = vi.hoisted(() => ({
+  redirectMock: vi.fn((url: string) => {
+    throw new Error(`REDIRECT:${url}`);
+  }),
   getVendorSessionMock: vi.fn(),
   searchBookingsMock: vi.fn(),
   listOpenInquiriesMock: vi.fn(),
@@ -24,6 +28,7 @@ vi.mock("@/lib/inquiry-inbox", () => ({
   listOpenInquiries: listOpenInquiriesMock,
   getInquiryForm: getInquiryFormMock,
 }));
+vi.mock("next/navigation", () => ({ redirect: redirectMock }));
 vi.mock("./inquiry-actions", () => ({ saveInquiryFormAction: vi.fn() }));
 
 const PAGE_PROPS = { searchParams: Promise.resolve({}) };
@@ -49,7 +54,9 @@ beforeEach(() => {
   getVendorSessionMock
     .mockReset()
     .mockResolvedValue({ supabase: {}, user: { id: "v1" } });
-  searchBookingsMock.mockReset().mockResolvedValue({ rows: [], total: 0 });
+  searchBookingsMock
+    .mockReset()
+    .mockResolvedValue({ ok: true, rows: [], total: 0 });
   listOpenInquiriesMock.mockReset().mockResolvedValue([]);
   getInquiryFormMock.mockReset().mockResolvedValue(null);
 });
@@ -72,7 +79,7 @@ const INQUIRY: Inquiry = {
 
 describe("BookingsPage", () => {
   it("lists open inquiries with an Inquiry badge and a set-up button", async () => {
-    searchBookingsMock.mockResolvedValue({ rows: [], total: 0 });
+    searchBookingsMock.mockResolvedValue({ ok: true, rows: [], total: 0 });
     listOpenInquiriesMock.mockResolvedValue([INQUIRY]);
     render(await BookingsPage(PAGE_PROPS));
     expect(screen.getByRole("link", { name: "Ah Hock" })).toHaveAttribute(
@@ -88,7 +95,7 @@ describe("BookingsPage", () => {
   });
 
   it("shows the copy-link button once the form is on", async () => {
-    searchBookingsMock.mockResolvedValue({ rows: [], total: 0 });
+    searchBookingsMock.mockResolvedValue({ ok: true, rows: [], total: 0 });
     getInquiryFormMock.mockResolvedValue({
       vendor_id: "v1",
       public_id: "0123456789abcdef",
@@ -110,7 +117,7 @@ describe("BookingsPage", () => {
   });
 
   it("shows the empty state with no bookings", async () => {
-    searchBookingsMock.mockResolvedValue({ rows: [], total: 0 });
+    searchBookingsMock.mockResolvedValue({ ok: true, rows: [], total: 0 });
     const jsx = await BookingsPage(PAGE_PROPS);
     render(jsx);
     expect(
@@ -120,7 +127,11 @@ describe("BookingsPage", () => {
   });
 
   it("renders the vendor's bookings and a New booking trigger", async () => {
-    searchBookingsMock.mockResolvedValue({ rows: [BOOKING], total: 1 });
+    searchBookingsMock.mockResolvedValue({
+      ok: true,
+      rows: [BOOKING],
+      total: 1,
+    });
     const jsx = await BookingsPage(PAGE_PROPS);
     render(jsx);
     expect(screen.getByText("Jane Tan")).toBeInTheDocument();
@@ -134,7 +145,11 @@ describe("BookingsPage", () => {
   });
 
   it("passes parsed search and status to the query and prefills the filters", async () => {
-    searchBookingsMock.mockResolvedValue({ rows: [BOOKING], total: 1 });
+    searchBookingsMock.mockResolvedValue({
+      ok: true,
+      rows: [BOOKING],
+      total: 25,
+    });
     render(
       await BookingsPage({
         searchParams: Promise.resolve({
@@ -167,7 +182,11 @@ describe("BookingsPage", () => {
   });
 
   it("shows counts for inquiries and bookings and pages the list", async () => {
-    searchBookingsMock.mockResolvedValue({ rows: [BOOKING], total: 45 });
+    searchBookingsMock.mockResolvedValue({
+      ok: true,
+      rows: [BOOKING],
+      total: 45,
+    });
     listOpenInquiriesMock.mockResolvedValue([INQUIRY]);
     render(
       await BookingsPage({
@@ -189,5 +208,36 @@ describe("BookingsPage", () => {
       "href",
       "/dashboard/bookings?status=cancelled&page=3",
     );
+  });
+
+  it("redirects a page past the end to the last valid page", async () => {
+    searchBookingsMock.mockResolvedValue({ ok: true, rows: [], total: 45 });
+    await expect(
+      BookingsPage({
+        searchParams: Promise.resolve({ status: "cancelled", page: "9" }),
+      }),
+    ).rejects.toThrow("REDIRECT:/dashboard/bookings?status=cancelled&page=3");
+  });
+
+  it("redirects to the unpaged list when nothing matches past page 1", async () => {
+    await expect(
+      BookingsPage({ searchParams: Promise.resolve({ page: "4" }) }),
+    ).rejects.toThrow("REDIRECT:/dashboard/bookings");
+  });
+
+  it("shows an error with a retry link, not the empty state, when the query fails", async () => {
+    searchBookingsMock.mockResolvedValue({ ok: false });
+    render(
+      await BookingsPage({ searchParams: Promise.resolve({ q: "jane" }) }),
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Couldn’t load your bookings.",
+    );
+    expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute(
+      "href",
+      "/dashboard/bookings?q=jane",
+    );
+    expect(screen.queryByText(/no bookings yet/i)).toBeNull();
+    expect(screen.queryByRole("navigation", { name: /pages/i })).toBeNull();
   });
 });

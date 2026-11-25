@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { PageHeader } from "@merqo/ui";
 import { getVendorSession } from "@/lib/vendor-session";
 import { searchBookings } from "@/lib/bookings";
@@ -10,6 +12,7 @@ import { InquiryFormSettings } from "./inquiry-form-settings";
 import { InquiryTable } from "./inquiry-table";
 import {
   BOOKING_PAGE_SIZE,
+  bookingListHref,
   hasActiveFilters,
   parseBookingListParams,
 } from "./list-params";
@@ -25,13 +28,16 @@ export default async function BookingsPage({
 }) {
   const params = parseBookingListParams(await searchParams);
   const { user } = await getVendorSession();
-  const [{ rows: bookings, total }, inquiries, inquiryForm] = await Promise.all(
-    [
-      searchBookings(user.id, { ...params, pageSize: BOOKING_PAGE_SIZE }),
-      listOpenInquiries(user.id),
-      getInquiryForm(user.id),
-    ],
-  );
+  const [result, inquiries, inquiryForm] = await Promise.all([
+    searchBookings(user.id, { ...params, pageSize: BOOKING_PAGE_SIZE }),
+    listOpenInquiries(user.id),
+    getInquiryForm(user.id),
+  ]);
+  const total = result.ok ? result.total : 0;
+  const pageCount = Math.max(1, Math.ceil(total / BOOKING_PAGE_SIZE));
+  if (result.ok && params.page > pageCount) {
+    redirect(bookingListHref({ ...params, page: pageCount }));
+  }
   const filtered = hasActiveFilters(params);
 
   return (
@@ -62,20 +68,34 @@ export default async function BookingsPage({
         <h2 id="bookings-heading" className="text-lg font-semibold">
           Your bookings{" "}
           <span className="font-normal tabular-nums text-muted-foreground">
-            ({total})
+            {result.ok ? `(${total})` : ""}
           </span>
         </h2>
         <div className="mt-3">
           <BookingFilters params={params} />
         </div>
         <div className="mt-4">
-          <BookingTable bookings={bookings} filtered={filtered} />
+          {result.ok ? (
+            <BookingTable bookings={result.rows} filtered={filtered} />
+          ) : (
+            <div role="alert" className="text-sm">
+              <p className="font-medium">Couldn&rsquo;t load your bookings.</p>
+              <Link
+                href={bookingListHref(params)}
+                className="mt-1 inline-block underline underline-offset-4"
+              >
+                Try again
+              </Link>
+            </div>
+          )}
         </div>
-        <BookingPager
-          params={params}
-          total={total}
-          pageSize={BOOKING_PAGE_SIZE}
-        />
+        {result.ok && (
+          <BookingPager
+            params={params}
+            total={total}
+            pageSize={BOOKING_PAGE_SIZE}
+          />
+        )}
       </section>
     </div>
   );

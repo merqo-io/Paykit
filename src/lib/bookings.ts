@@ -3,21 +3,6 @@ import { createServerClient } from "@/lib/supabase/server";
 import type { Booking } from "@/lib/types";
 import { BOOKING_COLUMNS } from "@/lib/columns";
 
-export async function listBookings(vendorId: string): Promise<Booking[]> {
-  const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("bookings")
-    .select(BOOKING_COLUMNS)
-    .eq("vendor_id", vendorId)
-    .order("created_at", { ascending: false })
-    .limit(200);
-  if (error) {
-    console.error("listBookings failed", error.message);
-    return [];
-  }
-  return data ?? [];
-}
-
 export async function getBooking(
   vendorId: string,
   bookingId: string,
@@ -65,30 +50,42 @@ function sanitizeSearch(q: string): string {
     .trim();
 }
 
+export type BookingSearchResult =
+  { ok: true; rows: Booking[]; total: number } | { ok: false };
+
+// PostgREST answers a range past the end with 416 / PGRST103; that is an empty
+// page, not a failure, and the caller still needs the real total to redirect.
+const RANGE_NOT_SATISFIABLE = "PGRST103";
+
 /** Filtered, paginated bookings plus the matching row count. RLS still scopes rows. */
 export async function searchBookings(
   vendorId: string,
   { q, status, page, pageSize }: BookingSearch,
-): Promise<{ rows: Booking[]; total: number }> {
+): Promise<BookingSearchResult> {
   const supabase = await createServerClient();
-  let query = supabase
-    .from("bookings")
-    .select(BOOKING_COLUMNS, { count: "exact" })
-    .eq("vendor_id", vendorId);
-  if (status) query = query.eq("status", status);
   const term = sanitizeSearch(q);
-  if (term) {
-    query = query.or(
-      `customer_name.ilike.%${term}%,customer_phone.ilike.%${term}%`,
-    );
-  }
+  const run = (from: number, to: number) => {
+    let query = supabase
+      .from("bookings")
+      .select(BOOKING_COLUMNS, { count: "exact" })
+      .eq("vendor_id", vendorId);
+    if (status) query = query.eq("status", status);
+    if (term) {
+      query = query.or(
+        `customer_name.ilike.%${term}%,customer_phone.ilike.%${term}%`,
+      );
+    }
+    return query.order("created_at", { ascending: false }).range(from, to);
+  };
   const from = (page - 1) * pageSize;
-  const { data, count, error } = await query
-    .order("created_at", { ascending: false })
-    .range(from, from + pageSize - 1);
-  if (error) {
-    console.error("searchBookings failed", error.message);
-    return { rows: [], total: 0 };
+  const { data, count, error } = await run(from, from + pageSize - 1);
+  if (!error) return { ok: true, rows: data ?? [], total: count ?? 0 };
+  if (error.code === RANGE_NOT_SATISFIABLE) {
+    const first = await run(0, 0);
+    if (!first.error) return { ok: true, rows: [], total: first.count ?? 0 };
+    console.error("searchBookings failed", first.error.message);
+    return { ok: false };
   }
-  return { rows: data ?? [], total: count ?? 0 };
+  console.error("searchBookings failed", error.message);
+  return { ok: false };
 }

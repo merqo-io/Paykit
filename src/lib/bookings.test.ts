@@ -1,21 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { orderMock, maybeSingleMock, createServerClientMock } = vi.hoisted(
-  () => ({
-    orderMock: vi.fn(),
-    maybeSingleMock: vi.fn(),
-    createServerClientMock: vi.fn(),
-  }),
-);
+const { maybeSingleMock, createServerClientMock } = vi.hoisted(() => ({
+  maybeSingleMock: vi.fn(),
+  createServerClientMock: vi.fn(),
+}));
 
 vi.mock("@/lib/supabase/server", () => ({
   createServerClient: createServerClientMock,
 }));
 
 beforeEach(() => {
-  orderMock
-    .mockReset()
-    .mockResolvedValue({ data: [{ id: "b1" }], error: null });
   maybeSingleMock
     .mockReset()
     .mockResolvedValue({ data: { id: "b1" }, error: null });
@@ -23,7 +17,6 @@ beforeEach(() => {
     from: () => ({
       select: () => ({
         eq: () => ({
-          order: () => ({ limit: orderMock }),
           eq: () => ({ maybeSingle: maybeSingleMock }),
         }),
       }),
@@ -31,24 +24,8 @@ beforeEach(() => {
   });
 });
 
-describe("listBookings", () => {
-  it("returns the vendor's bookings", async () => {
-    const { listBookings } = await import("./bookings");
-    expect(await listBookings("v1")).toEqual([{ id: "b1" }]);
-  });
-
-  it("returns an empty array on a read error", async () => {
-    orderMock.mockResolvedValue({
-      data: null,
-      error: { message: "connection reset" },
-    });
-    const { listBookings } = await import("./bookings");
-    expect(await listBookings("v1")).toEqual([]);
-  });
-});
-
 describe("searchBookings", () => {
-  function chain(result: unknown) {
+  function chain(...results: unknown[]) {
     const calls: Record<string, unknown[]> = {};
     const q: Record<string, unknown> = {};
     for (const name of ["select", "eq", "or", "order"]) {
@@ -57,13 +34,15 @@ describe("searchBookings", () => {
         return q;
       };
     }
+    let i = 0;
     q.range = (...args: unknown[]) => {
-      calls.range = [args];
-      return Promise.resolve(result);
+      calls.range = [...(calls.range ?? []), args];
+      return Promise.resolve(results[Math.min(i++, results.length - 1)]);
     };
     createServerClientMock.mockResolvedValue({ from: () => q });
     return calls;
   }
+  const base = { q: "", status: null, page: 1, pageSize: 20 } as const;
 
   it("filters by status and sanitized search, then pages", async () => {
     const calls = chain({ data: [{ id: "b1" }], count: 31, error: null });
@@ -74,7 +53,7 @@ describe("searchBookings", () => {
       page: 2,
       pageSize: 20,
     });
-    expect(out).toEqual({ rows: [{ id: "b1" }], total: 31 });
+    expect(out).toEqual({ ok: true, rows: [{ id: "b1" }], total: 31 });
     expect(calls.eq).toContainEqual(["status", "cancelled"]);
     expect(calls.or).toEqual([
       ["customer_name.ilike.%Ja ne%,customer_phone.ilike.%Ja ne%"],
@@ -85,29 +64,43 @@ describe("searchBookings", () => {
   it("skips the filters when none are set", async () => {
     const calls = chain({ data: null, count: null, error: null });
     const { searchBookings } = await import("./bookings");
-    expect(
-      await searchBookings("v1", {
-        q: "",
-        status: null,
-        page: 1,
-        pageSize: 20,
-      }),
-    ).toEqual({ rows: [], total: 0 });
+    expect(await searchBookings("v1", base)).toEqual({
+      ok: true,
+      rows: [],
+      total: 0,
+    });
     expect(calls.or).toBeUndefined();
     expect(calls.range).toEqual([[0, 19]]);
   });
 
-  it("returns nothing on a read error", async () => {
+  it("treats a page past the end as empty and still returns the total", async () => {
+    chain(
+      { data: null, count: null, error: { code: "PGRST103", message: "416" } },
+      { data: [{ id: "b1" }], count: 25, error: null },
+    );
+    const { searchBookings } = await import("./bookings");
+    expect(await searchBookings("v1", { ...base, page: 9 })).toEqual({
+      ok: true,
+      rows: [],
+      total: 25,
+    });
+  });
+
+  it("fails when the total lookup after an out-of-range page fails", async () => {
+    chain(
+      { data: null, count: null, error: { code: "PGRST103", message: "416" } },
+      { data: null, count: null, error: { message: "boom" } },
+    );
+    const { searchBookings } = await import("./bookings");
+    expect(await searchBookings("v1", { ...base, page: 9 })).toEqual({
+      ok: false,
+    });
+  });
+
+  it("reports a database error instead of an empty list", async () => {
     chain({ data: null, count: null, error: { message: "boom" } });
     const { searchBookings } = await import("./bookings");
-    expect(
-      await searchBookings("v1", {
-        q: "",
-        status: null,
-        page: 1,
-        pageSize: 20,
-      }),
-    ).toEqual({ rows: [], total: 0 });
+    expect(await searchBookings("v1", base)).toEqual({ ok: false });
   });
 });
 

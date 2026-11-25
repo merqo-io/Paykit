@@ -6,7 +6,7 @@ export function CustomerPhone({ phone }: { phone: string | null }) {
   return (
     <span className="flex flex-wrap gap-x-4 gap-y-1">
       <a
-        href={`tel:${phone.replace(/\s/g, "")}`}
+        href={`tel:${phone.replace(/[^\d+]/g, "")}`}
         className="tabular-nums underline underline-offset-4"
       >
         {phone}
