@@ -3,11 +3,10 @@ import Link from "next/link";
 import { getVendorSession } from "@/lib/vendor-session";
 import { claimedTxSummary, confirmedSince } from "@/lib/transactions";
 import { sgtDate } from "@/lib/free-limits";
-import { formatCents } from "@/lib/utils";
 import { stampTourSeen } from "@/lib/tour-prefs";
 import { getConfig } from "./config/actions";
 import type { VendorPaymentConfig } from "@/lib/types";
-import { PageHeader, StatCard } from "@merqo/ui";
+import { PageHeader, StatCard, formatMoney } from "@merqo/ui";
 import { buttonVariants } from "@merqo/ui/primitives";
 
 export const metadata: Metadata = {
@@ -102,7 +101,7 @@ export default async function DashboardPage() {
       <div className="grid gap-6 sm:grid-cols-2">
         <StatCard
           label="Waiting for you to confirm"
-          value={formatCents(toConfirm.cents)}
+          value={formatMoney(toConfirm.cents)}
           caption={
             toConfirm.count === 0
               ? "Nothing to confirm right now."
@@ -113,7 +112,7 @@ export default async function DashboardPage() {
         <div data-tour="tx-count">
           <StatCard
             label="Confirmed this month"
-            value={formatCents(month.cents)}
+            value={formatMoney(month.cents)}
             caption={`${month.count} confirmed payment${month.count === 1 ? "" : "s"}`}
           />
         </div>

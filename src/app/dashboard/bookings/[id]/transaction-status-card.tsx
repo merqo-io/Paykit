@@ -2,7 +2,7 @@ import { checkoutKind } from "@/lib/checkout-kind";
 import Image from "next/image";
 import { Badge, cn } from "@merqo/ui/primitives";
 
-import { formatCents } from "@/lib/utils";
+import { Money } from "@merqo/ui";
 import type { Transaction, TxStatus } from "@/lib/types";
 
 // Same treatment as `dashboard/transactions/transaction-table.tsx` — `claimed`
@@ -41,9 +41,10 @@ export function TransactionStatusCard({
             >
               {transaction.status}
             </Badge>
-            <span className="text-sm font-medium">
-              {formatCents(transaction.amount_cents)}
-            </span>
+            <Money
+              cents={transaction.amount_cents}
+              className="text-sm font-medium"
+            />
           </div>
           <PaymentDisplay
             transaction={transaction}

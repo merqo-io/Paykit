@@ -6,6 +6,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Repinned `@merqo/ui` to merqo-ui commit 64896f14 (v0.61.0, from d9ba206c / v0.60.0).
+- Money and time use `@merqo/ui`'s `Money`, `Timestamp`, `formatMoney`, `formatDate` and `formatDateTime` instead of local helpers (`formatCents`, `formatDate`, `formatSgtDate`, `formatSgtDateTime` removed). Amounts now read "S$4.50" with thousands separators, dates "7 Nov 2026" and date-times "7 Nov 2026, 1:30 am" (seconds dropped), all in Singapore time. Money columns in the bookings, transactions and earnings tables are right-aligned.
+
 ### Fixed
 
 - Transaction, admin activity, admin vendor and admin overview timestamps are pinned to Asia/Singapore, fixing a hydration mismatch (React #418) where the server (UTC) and browser rendered different dates.

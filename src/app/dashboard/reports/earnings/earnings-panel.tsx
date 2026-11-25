@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { EmptyState } from "@merqo/ui";
+import { EmptyState, Money } from "@merqo/ui";
 import type { EarningsReport } from "@/lib/earnings-report";
-import { formatCents } from "@/lib/utils";
 import { reportsHref } from "../search-params";
 import { DownloadCsvButton } from "./download-csv-button";
 import { EarningsMonthsTable, EarningsLinesTable } from "./earnings-tables";
@@ -61,7 +60,7 @@ export function EarningsPanel({
               Total revenue
             </p>
             <p className="mt-1 text-2xl font-semibold">
-              {formatCents(report.total_revenue_cents)}
+              <Money cents={report.total_revenue_cents} />
             </p>
           </div>
 

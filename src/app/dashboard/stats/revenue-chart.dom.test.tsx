@@ -22,7 +22,7 @@ describe("RevenueChart", () => {
     const data: DailyRevenue[] = [{ date: "2026-07-15", cents: 500, count: 1 }];
     render(<RevenueChart data={data} />);
     expect(screen.getByRole("img")).toHaveAccessibleName(
-      "Revenue chart: $5.00 total across 1 day, 2026-07-15.",
+      "Revenue chart: S$5.00 total across 1 day, 2026-07-15.",
     );
   });
 
@@ -33,7 +33,7 @@ describe("RevenueChart", () => {
     ];
     render(<RevenueChart data={data} />);
     expect(screen.getByRole("img")).toHaveAccessibleName(
-      "Revenue chart: $8.00 total across 2 days, 2026-07-15 to 2026-07-16.",
+      "Revenue chart: S$8.00 total across 2 days, 2026-07-15 to 2026-07-16.",
     );
   });
 
@@ -54,9 +54,9 @@ describe("RevenueChart", () => {
     // header row + one row per day
     expect(rows).toHaveLength(3);
     expect(rows[1]).toHaveTextContent("2026-07-15");
-    expect(rows[1]).toHaveTextContent("$5.00");
+    expect(rows[1]).toHaveTextContent("S$5.00");
     expect(rows[2]).toHaveTextContent("2026-07-16");
-    expect(rows[2]).toHaveTextContent("$3.00");
+    expect(rows[2]).toHaveTextContent("S$3.00");
   });
 
   it("renders total revenue, transaction count, and average/day stat tiles", () => {
@@ -67,11 +67,11 @@ describe("RevenueChart", () => {
     render(<RevenueChart data={data} />);
 
     expect(screen.getByText("Total revenue")).toBeInTheDocument();
-    expect(screen.getByText("$8.00")).toBeInTheDocument();
+    expect(screen.getByText("S$8.00")).toBeInTheDocument();
     expect(screen.getByText("Payments")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
     expect(screen.getByText("Avg / day")).toBeInTheDocument();
-    expect(screen.getByText("$4.00")).toBeInTheDocument();
+    expect(screen.getByText("S$4.00")).toBeInTheDocument();
   });
 
   it("shows zero-value stat tiles with no confirmed revenue yet", () => {
@@ -80,7 +80,7 @@ describe("RevenueChart", () => {
     expect(screen.getByText("Total revenue")).toBeInTheDocument();
     expect(screen.getByText("Payments")).toBeInTheDocument();
     expect(screen.getByText("0")).toBeInTheDocument();
-    expect(screen.getAllByText("$0.00")).toHaveLength(2);
+    expect(screen.getAllByText("S$0.00")).toHaveLength(2);
   });
 });
 
@@ -102,13 +102,13 @@ describe("ChartTooltip", () => {
   it("renders the date, amount, and singular transaction count when active", () => {
     render(<ChartTooltip active payload={[{ payload: day }]} />);
     expect(screen.getByText("2026-07-15")).toBeInTheDocument();
-    expect(screen.getByText("$5.00 · 1 payment")).toBeInTheDocument();
+    expect(screen.getByText("S$5.00 · 1 payment")).toBeInTheDocument();
   });
 
   it("pluralizes transaction count for more than one", () => {
     render(
       <ChartTooltip active payload={[{ payload: { ...day, count: 2 } }]} />,
     );
-    expect(screen.getByText("$5.00 · 2 payments")).toBeInTheDocument();
+    expect(screen.getByText("S$5.00 · 2 payments")).toBeInTheDocument();
   });
 });

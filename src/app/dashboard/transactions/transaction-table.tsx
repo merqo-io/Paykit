@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { EmptyState } from "@merqo/ui";
-import { DataTable, type DataTableColumn } from "@merqo/ui";
-import { formatCents, formatSgtDate } from "@/lib/utils";
+import {
+  DataTable,
+  EmptyState,
+  Money,
+  Timestamp,
+  type DataTableColumn,
+} from "@merqo/ui";
 import { RefundDialog } from "./refund-dialog";
 import { TransactionStatusBadge } from "./transaction-status-badge";
 import type { Transaction } from "@/lib/types";
@@ -17,9 +21,8 @@ const BASE_COLUMNS: DataTableColumn<Transaction>[] = [
   { header: "Reference", cell: (tx) => tx.order_ref },
   {
     header: "Amount",
-    cell: (tx) => (
-      <span className="tabular-nums">{formatCents(tx.amount_cents)}</span>
-    ),
+    align: "end",
+    cell: (tx) => <Money cents={tx.amount_cents} />,
   },
   {
     header: "Status",
@@ -27,7 +30,7 @@ const BASE_COLUMNS: DataTableColumn<Transaction>[] = [
   },
   {
     header: "Created",
-    cell: (tx) => formatSgtDate(tx.created_at),
+    cell: (tx) => <Timestamp value={tx.created_at} variant="date" />,
   },
 ];
 

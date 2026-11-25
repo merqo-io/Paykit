@@ -3,8 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getVendorSession } from "@/lib/vendor-session";
 import { getInquiry } from "@/lib/inquiry-inbox";
-import { formatDate } from "@/lib/utils";
-import { PageHeader } from "@merqo/ui";
+import { PageHeader, formatDate, formatDateTime } from "@merqo/ui";
 import { CustomerPhone } from "../../customer-phone";
 import { InquiryStatusBadge, TermsSnapshot } from "../../inquiry-badges";
 import { NewBookingDialog } from "../../new-booking-dialog";
@@ -24,11 +23,7 @@ export default async function InquiryDetailPage({
   const inquiry = await getInquiry(user.id, id);
   if (!inquiry) notFound();
 
-  const received = new Date(inquiry.created_at).toLocaleString("en-SG", {
-    timeZone: "Asia/Singapore",
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  const received = formatDateTime(inquiry.created_at);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">

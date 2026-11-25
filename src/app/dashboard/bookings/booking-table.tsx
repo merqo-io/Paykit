@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { EmptyState } from "@merqo/ui";
-import { DataTable, type DataTableColumn } from "@merqo/ui";
-import { formatCents, formatDate } from "@/lib/utils";
+import {
+  DataTable,
+  EmptyState,
+  Money,
+  Timestamp,
+  type DataTableColumn,
+} from "@merqo/ui";
 import { BookingStatusBadge, BalanceDueIndicator } from "./booking-badges";
 import type { Booking } from "@/lib/types";
 
@@ -23,10 +27,14 @@ const columns: DataTableColumn<Booking>[] = [
       </Link>
     ),
   },
-  { header: "Event date", cell: (booking) => formatDate(booking.event_date) },
+  {
+    header: "Event date",
+    cell: (booking) => <Timestamp value={booking.event_date} variant="date" />,
+  },
   {
     header: "Total",
-    cell: (booking) => formatCents(booking.total_amount_cents),
+    align: "end",
+    cell: (booking) => <Money cents={booking.total_amount_cents} />,
   },
   {
     header: "Status",

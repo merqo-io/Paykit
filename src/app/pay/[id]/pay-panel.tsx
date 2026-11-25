@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import QRCode from "react-qr-code";
 import { Download, ImageUp } from "lucide-react";
-import { FormError, resizeToWebp, useAsyncAction } from "@merqo/ui";
+import { FormError, Money, resizeToWebp, useAsyncAction } from "@merqo/ui";
 import { Button, buttonVariants, cn } from "@merqo/ui/primitives";
 
-import { callHandler, formatCents } from "@/lib/utils";
+import { callHandler } from "@/lib/utils";
 import type { HostedPayment } from "@/lib/hosted-pay";
 import { claimHostedPayment, getHostedPaymentStatus } from "./actions";
 import { leaveTo } from "./leave";
@@ -340,7 +340,7 @@ export function PayPanel({
           </p>
         )}
         <p className="font-mono text-3xl font-bold">
-          {formatCents(amountCents)}
+          <Money cents={amountCents} />
         </p>
       </div>
 

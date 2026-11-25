@@ -20,7 +20,7 @@ describe("RootError", () => {
     render(<RootError error={error} reset={vi.fn()} />);
 
     expect(
-      screen.getByRole("heading", { name: /something went wrong/i }),
+      screen.getByRole("heading", { name: /could not load this page/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByText("Could not load this page. Try again, or go back home."),

@@ -1,7 +1,6 @@
 "use client";
 
-import { DataTable, type DataTableColumn } from "@merqo/ui";
-import { formatCents } from "@/lib/utils";
+import { DataTable, Money, type DataTableColumn } from "@merqo/ui";
 import type { EarningsMonth, EarningsLine } from "@/lib/earnings-report";
 
 // `columns` holds `cell` render callbacks and `getRowKey` is a function, so
@@ -13,8 +12,8 @@ const monthColumns: DataTableColumn<EarningsMonth>[] = [
   { header: "Month", cell: (m) => m.month },
   {
     header: "Revenue",
-    cell: (m) => formatCents(m.revenue_cents),
-    className: "text-right",
+    align: "end",
+    cell: (m) => <Money cents={m.revenue_cents} />,
   },
 ];
 
@@ -33,8 +32,8 @@ const lineColumns: DataTableColumn<EarningsLine>[] = [
   { header: "Customer", cell: (line) => line.label },
   {
     header: "Revenue",
-    cell: (line) => formatCents(line.revenue_cents),
-    className: "text-right",
+    align: "end",
+    cell: (line) => <Money cents={line.revenue_cents} />,
   },
 ];
 

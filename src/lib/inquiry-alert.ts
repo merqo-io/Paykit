@@ -1,4 +1,4 @@
-import { formatDate } from "@/lib/utils";
+import { formatDate } from "@merqo/ui";
 import { merqoBaseUrl } from "@merqo/ui/kit-api";
 
 /** Plain text: merqo sends it with no parse mode. No link, so a forged inquiry cannot carry one. */

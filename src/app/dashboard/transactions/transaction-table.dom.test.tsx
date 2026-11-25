@@ -22,7 +22,7 @@ describe("TransactionTable", () => {
     render(<TransactionTable transactions={[TX]} isPro={false} />);
     expect(screen.getByText("qkit")).toBeInTheDocument();
     expect(screen.getByText("A-001")).toBeInTheDocument();
-    expect(screen.getByText("$4.50")).toBeInTheDocument();
+    expect(screen.getByText("S$4.50")).toBeInTheDocument();
     expect(screen.getByText("Received")).toBeInTheDocument();
   });
 

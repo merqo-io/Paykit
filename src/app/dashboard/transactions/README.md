@@ -19,7 +19,7 @@ across every kit — plus, for Pro vendors, a per-payment refund action.
   landmark and the `max-w-7xl` outer width), same as the overview page.
 - `transaction-table.tsx` — `TransactionTable({ transactions, isPro })`:
   renders `Kit`/`Reference`/`Amount`/`Status`/`Created` columns through `@merqo/ui` DataTable, plus a `Refund` column with `RefundDialog` when `isPro`. Amounts
-  are formatted via `Intl.NumberFormat` (SGD). Empty state is the
+  are shown with `Money` from `@merqo/ui` ("S$4.50"), in a right-aligned column. Empty state is the
   shared dashed `EmptyState` ("No payments yet"); the table sits in an
   `overflow-x-auto` wrapper so it scrolls instead of widening the page on a phone.
 - `transaction-notices.tsx` — `HiddenNote` (older payments Free hides) and `FreeRangeNote` ("Free shows the
@@ -53,7 +53,7 @@ across every kit — plus, for Pro vendors, a per-payment refund action.
   money movement, see `AGENTS.md`'s data model). The amount field is
   dollar-denominated (`refunded_amount`, `type="number" step="0.01"`),
   matching every other money value in the dashboard (`transaction-table.tsx`'s
-  `formatCents`) instead of asking the vendor to enter raw cents; `actions.ts`
+  `Money`) instead of asking the vendor to enter raw cents; `actions.ts`
   converts it to cents before validation. The `useActionState`
   action passed in is a local wrapper around `issueRefundAction` (not the
   server action directly): on `status: "ok"` it toasts, resets the form
@@ -107,4 +107,4 @@ Page chrome here (PageHeader and EmptyState) comes from `@merqo/ui`; paykit keep
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
-Timestamps display through `formatSgtDate`/`formatSgtDateTime` from `@/lib/utils`, pinned to Asia/Singapore so server and client render identically (no hydration mismatch).
+Timestamps display through `Timestamp` (or `formatDate`/`formatDateTime`) from `@merqo/ui`, always in Asia/Singapore so server and client render identically (no hydration mismatch).

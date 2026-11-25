@@ -46,7 +46,7 @@ describe("computeVendorActivity", () => {
     expect(result.status).toBe("healthy");
     expect(result.metrics).toEqual([
       { label: "Transactions (30d)", value: "2" },
-      { label: "Volume (30d)", value: "$20.00" },
+      { label: "Volume (30d)", value: "S$20.00" },
       { label: "Refund rate (30d)", value: "0%" },
     ]);
     expect(result.lastActivityAt).toBe(daysAgo(1));
@@ -61,7 +61,7 @@ describe("computeVendorActivity", () => {
     );
     expect(result.metrics).toEqual([
       { label: "Transactions (30d)", value: "0" },
-      { label: "Volume (30d)", value: "$0.00" },
+      { label: "Volume (30d)", value: "S$0.00" },
       { label: "Refund rate (30d)", value: "0%" },
     ]);
   });

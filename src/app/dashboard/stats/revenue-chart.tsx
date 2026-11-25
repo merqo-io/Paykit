@@ -9,15 +9,14 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { StatTile as SharedStatTile } from "@merqo/ui";
+import { Money, StatTile as SharedStatTile, formatMoney } from "@merqo/ui";
 import type { DailyRevenue } from "@/lib/revenue-report";
-import { formatCents } from "@/lib/utils";
 
 /** Screen-reader summary for the chart container — recharts renders to an
  * inline SVG with no text alternative of its own. */
 function summarize(data: DailyRevenue[]): string {
   if (data.length === 0) return "Revenue chart: no confirmed revenue yet.";
-  const total = formatCents(data.reduce((sum, d) => sum + d.cents, 0));
+  const total = formatMoney(data.reduce((sum, d) => sum + d.cents, 0));
   const range =
     data.length === 1
       ? data[0].date
@@ -42,7 +41,7 @@ export function ChartTooltip({
     <div className="rounded-lg border bg-popover px-3 py-2 text-sm">
       <p className="font-medium">{date}</p>
       <p className="text-muted-foreground">
-        {formatCents(cents)} · {count} payment{count === 1 ? "" : "s"}
+        {formatMoney(cents)} · {count} payment{count === 1 ? "" : "s"}
       </p>
     </div>
   );
@@ -73,9 +72,9 @@ export function RevenueChart({ data }: { data: DailyRevenue[] }) {
   return (
     <div>
       <div className="mb-6 grid grid-cols-3 gap-3">
-        <StatTile label="Total revenue" value={formatCents(totalCents)} />
+        <StatTile label="Total revenue" value={formatMoney(totalCents)} />
         <StatTile label="Payments" value={String(txCount)} />
-        <StatTile label="Avg / day" value={formatCents(avgCentsPerDay)} />
+        <StatTile label="Avg / day" value={formatMoney(avgCentsPerDay)} />
       </div>
       <div role="img" aria-label={summarize(data)}>
         <ResponsiveContainer width="100%" height={280}>
@@ -104,7 +103,9 @@ export function RevenueChart({ data }: { data: DailyRevenue[] }) {
             {data.map((d) => (
               <tr key={d.date}>
                 <td>{d.date}</td>
-                <td>{formatCents(d.cents)}</td>
+                <td>
+                  <Money cents={d.cents} />
+                </td>
               </tr>
             ))}
           </tbody>
