@@ -11,7 +11,7 @@ import { Badge } from "@merqo/ui/primitives";
 import { EmptyState, PageHeader, StatCard } from "@merqo/ui";
 import type { TxStatus } from "@/lib/types";
 import { listHref } from "@/app/admin/list-params";
-import { formatCents, pctChange } from "@/lib/utils";
+import { formatCents, formatSgtDateTime, pctChange } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Admin overview",
@@ -133,7 +133,7 @@ export default async function AdminOverviewPage() {
                       {formatCents(tx.amount_cents)}
                     </span>
                     <span className="text-muted-foreground tabular-nums">
-                      {new Date(tx.created_at).toLocaleString("en-SG")}
+                      {formatSgtDateTime(tx.created_at)}
                     </span>
                   </span>
                 </Link>

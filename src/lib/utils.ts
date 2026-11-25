@@ -32,3 +32,21 @@ export function pctChange(current: number, prior: number): number | null {
   if (prior === 0) return null;
   return ((current - prior) / prior) * 100;
 }
+
+/**
+ * Formats a timestamp as a date in Singapore time. SSR runs in UTC while the
+ * browser runs in the user zone, so an unpinned format renders a different
+ * day on each side for rows created 00:00-08:00 SGT and breaks hydration.
+ */
+export function formatSgtDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-SG", {
+    timeZone: "Asia/Singapore",
+  });
+}
+
+/** Date and time in Singapore time; pinned for the same hydration reason as formatSgtDate. */
+export function formatSgtDateTime(iso: string): string {
+  return new Date(iso).toLocaleString("en-SG", {
+    timeZone: "Asia/Singapore",
+  });
+}

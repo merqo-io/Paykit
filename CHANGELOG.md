@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Transaction, admin activity, admin vendor and admin overview timestamps are pinned to Asia/Singapore, fixing a hydration mismatch (React #418) where the server (UTC) and browser rendered different dates.
+
 ### Changed
 
 - Ledger, bookings and admin lists share one failed-read card, one link-based pager (the ledger pager is now plain anchors with Previous/Next at 44px) and one filter select style with the Input focus ring; filter selects are 44px tall.

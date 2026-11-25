@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { formatCents, formatDate } from "./utils";
+import {
+  formatCents,
+  formatDate,
+  formatSgtDate,
+  formatSgtDateTime,
+} from "./utils";
 
 describe("formatCents", () => {
   it("formats whole dollars", () => {
@@ -25,5 +30,22 @@ describe("formatDate", () => {
     // `new Date("2026-01-01")` interpreted in a negative-offset local zone)
     // would render this as 2025-12-31 instead.
     expect(formatDate("2026-01-01")).toBe("01/01/2026");
+  });
+});
+
+describe("formatSgtDate", () => {
+  it("rolls to the next day when UTC is still the previous day in SGT", () => {
+    expect(formatSgtDate("2026-03-01T17:30:00Z")).toBe("02/03/2026");
+  });
+  it("keeps the same day when SGT and UTC agree", () => {
+    expect(formatSgtDate("2026-03-01T03:00:00Z")).toBe("01/03/2026");
+  });
+});
+
+describe("formatSgtDateTime", () => {
+  it("renders the SGT wall-clock time", () => {
+    expect(formatSgtDateTime("2026-03-01T17:30:00Z")).toBe(
+      "02/03/2026, 1:30:00 am",
+    );
   });
 });
