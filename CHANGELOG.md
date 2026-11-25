@@ -10,10 +10,19 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - `/admin/vendors` searches by stall name, email or vendor id and pages 25 at a time; `/admin/activity` filters by action and date range and pages the audit log. Query values are Zod-parsed, a page past the end redirects to the last page, and a failed read shows a retry state instead of the empty state.
 - Recent-activity rows on the admin overview, and each target on `/admin/activity`, link to the vendor they concern. Pager links are real anchors, and a notice says when the activity window (latest 1000 entries) is full.
+- Payments list: search (reference or title, Starter and Pro), status and date-range filters, and real pagination (25 per page) replacing the 200-row cap. Filters live in the URL; `?status=claimed` deep-links to payments waiting for confirmation. Free vendors see search locked with an upgrade note and an "N older payments hidden on Free" notice; a crafted `from` can never reach rows past the 30-day cutoff (`resolveListRange`).
 
 ### Changed
 
 - The admin header and tabs, `/mfa` and the dashboard error boundary use the shared `AdminShell`, `AuthShell` and `ErrorPage` from `@merqo/ui`; the local `admin-nav.tsx` is removed. The repeated "Admin" eyebrows are gone.
+- Reports: the locked-tab copy now says what Starter and Pro give you (best days and hours, CSV for your accountant), the Free summary uses the shared `StatCard`, and the "Ledger" and "Insights" eyebrows are gone.
+- AGENTS.md plan-gate line now matches the pricing spec.
+- Dashboard home shows the SGD amount waiting to be confirmed next to the count (linking to payments), and this month's confirmed amount next to the payment count. A vendor with no payment setup sees one setup prompt instead of empty cards.
+- Plan page links to the Merqo account, offers a retry when prices are unavailable, and tells Free vendors what paid plans add and how many older payments Free hides.
+- Removed the repeated eyebrow labels from the home, plan, payment setup and profile headers.
+- The pay page names what happened and the buyer's next step in every state: an invalid link (new `not-found.tsx`), too many tries, a failed load and a recorded payment, using the stall name where the page already has it. Notices are left-aligned.
+- The inquiry form has its own not-found page and its error messages say to contact the business where retrying will not help.
+- A failed Merqo terms check (outage) still blocks the vendor but now redirects to `/legal/accept?reason=unavailable` with "We couldn't check the terms right now" and a retry link, instead of claiming the terms changed. `reason` is Zod-validated and the retry path is same-origin only.
 
 ## [0.6.1] - 2026-11-23
 

@@ -13,14 +13,14 @@ import type { VendorPaymentConfig } from "@/lib/types";
 
 const {
   getConfigMock,
-  txCountThisMonthMock,
-  claimedTxCountMock,
+  claimedTxSummaryMock,
+  confirmedSinceMock,
   maybeSingleMock,
   stampTourSeenMock,
 } = vi.hoisted(() => ({
   getConfigMock: vi.fn(),
-  txCountThisMonthMock: vi.fn(),
-  claimedTxCountMock: vi.fn(),
+  claimedTxSummaryMock: vi.fn(),
+  confirmedSinceMock: vi.fn(),
   maybeSingleMock: vi.fn(),
   stampTourSeenMock: vi.fn(async () => {}),
 }));
@@ -43,8 +43,8 @@ vi.mock("./config/actions", () => ({
   getConfig: getConfigMock,
 }));
 vi.mock("@/lib/transactions", () => ({
-  txCountThisMonth: txCountThisMonthMock,
-  claimedTxCount: claimedTxCountMock,
+  claimedTxSummary: claimedTxSummaryMock,
+  confirmedSince: confirmedSinceMock,
 }));
 vi.mock("@/lib/tour-prefs", () => ({
   stampTourSeen: stampTourSeenMock,
@@ -79,36 +79,62 @@ beforeEach(() => {
     data: { tour_seen_at: "2026-01-01T00:00:00Z" },
   });
   getConfigMock.mockResolvedValue(PAYNOW_CONFIG);
-  txCountThisMonthMock.mockResolvedValue(0);
-  claimedTxCountMock.mockResolvedValue(0);
+  claimedTxSummaryMock.mockResolvedValue({ count: 0, cents: 0 });
+  confirmedSinceMock.mockResolvedValue({ count: 0, cents: 0 });
 });
 
 describe("DashboardPage", () => {
-  it("shows the setup prompt when the vendor has no payment config yet", async () => {
+  it("shows only the setup prompt, with one action, when the vendor has no payment config yet", async () => {
     getConfigMock.mockResolvedValue(null);
-    txCountThisMonthMock.mockResolvedValue(5);
 
-    const jsx = await DashboardPage();
-    render(jsx);
+    render(await DashboardPage());
 
     expect(
       screen.getByRole("link", { name: "Set up payments" }),
     ).toHaveAttribute("href", "/dashboard/config");
-    expect(screen.getByText("Not set")).toBeInTheDocument();
-    expect(screen.getByText("5 payments this month")).toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(1);
+    expect(screen.queryByText("Confirmed this month")).not.toBeInTheDocument();
   });
 
   it("hides the setup prompt once a config exists", async () => {
-    getConfigMock.mockResolvedValue(PAYNOW_CONFIG);
-    txCountThisMonthMock.mockResolvedValue(10);
+    confirmedSinceMock.mockResolvedValue({ count: 10, cents: 0 });
 
-    const jsx = await DashboardPage();
-    render(jsx);
+    render(await DashboardPage());
 
     expect(
       screen.queryByRole("link", { name: "Set up payments" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText("10 payments this month")).toBeInTheDocument();
+    expect(screen.getByText("10 confirmed payments")).toBeInTheDocument();
+  });
+
+  it("starts the month at midnight Singapore time, by confirmation time", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-02T03:00:00Z"));
+    try {
+      render(await DashboardPage());
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(confirmedSinceMock).toHaveBeenCalledWith(
+      "v1",
+      "2026-10-31T16:00:00.000Z",
+    );
+  });
+
+  it("has no eyebrow above the title", async () => {
+    render(await DashboardPage());
+
+    expect(screen.queryByText("Overview")).not.toBeInTheDocument();
+  });
+
+  it("shows this month's confirmed amount next to the count", async () => {
+    confirmedSinceMock.mockResolvedValue({ count: 1, cents: 123450 });
+
+    render(await DashboardPage());
+
+    expect(screen.getByText("$1,234.50")).toBeInTheDocument();
+    expect(screen.getByText("1 confirmed payment")).toBeInTheDocument();
   });
 
   it("shows a masked PayNow summary with an edit link into config", async () => {
@@ -133,25 +159,40 @@ describe("DashboardPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("links to payments to confirm when customers have claimed payment", async () => {
-    claimedTxCountMock.mockResolvedValue(2);
+  it("shows the amount waiting to be confirmed with a link to those payments", async () => {
+    claimedTxSummaryMock.mockResolvedValue({ count: 2, cents: 1650 });
 
-    const jsx = await DashboardPage();
-    render(jsx);
+    render(await DashboardPage());
 
-    expect(screen.getByText("2")).toBeInTheDocument();
-    expect(screen.getByText("payments waiting for you")).toBeInTheDocument();
+    expect(screen.getByText("$16.50")).toBeInTheDocument();
+    expect(
+      screen.getByText("2 payments marked paid by customers"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Review these payments" }),
+    ).toHaveAttribute("href", "/dashboard/transactions?status=claimed");
+  });
+
+  it("uses the singular for one waiting payment", async () => {
+    claimedTxSummaryMock.mockResolvedValue({ count: 1, cents: 450 });
+
+    render(await DashboardPage());
+
+    expect(
+      screen.getByText("1 payment marked paid by customers"),
+    ).toBeInTheDocument();
+  });
+
+  it("says nothing is waiting when there is nothing to confirm", async () => {
+    render(await DashboardPage());
+
+    expect(
+      screen.getByText("Nothing to confirm right now."),
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View payments" })).toHaveAttribute(
       "href",
       "/dashboard/transactions",
     );
-  });
-
-  it("shows zero when nothing is waiting to be confirmed", async () => {
-    const jsx = await DashboardPage();
-    render(jsx);
-
-    expect(screen.getByText("0")).toBeInTheDocument();
   });
 
   it("stamps tour_seen_at durably when the vendor hasn't seen the tour yet", async () => {

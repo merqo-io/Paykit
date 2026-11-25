@@ -17,9 +17,12 @@ export type InquiryActionState = {
   message?: string;
 };
 
-const NOT_FOUND = "This inquiry form is no longer available.";
-const TOO_MANY = "Too many inquiries. Try again later.";
-const TRY_AGAIN = "Could not send your inquiry. Try again.";
+const NOT_FOUND =
+  "This inquiry form is no longer available. Contact the business directly.";
+const TOO_MANY =
+  "Too many inquiries from this connection. Wait a few minutes, then try again.";
+const TRY_AGAIN =
+  "Could not send your inquiry. Try again, or contact the business directly.";
 const TERMS = "Tick the box to accept the booking terms.";
 
 function looksLikeBot(formData: FormData, now: number): boolean {

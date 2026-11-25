@@ -193,4 +193,44 @@ describe("PayPage", () => {
     ).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
   });
+
+  it("names the stall and the next step once the payment is recorded", async () => {
+    loadMock.mockResolvedValue({
+      ok: true,
+      row: ROW,
+      payment: { ...PAYMENT, status: "claimed", returnUrl: null },
+    });
+    render(await page());
+    expect(
+      screen.getByText("Kopitiam Cart has been told. You can close this page."),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Ask Kopitiam Cart/)).toBeInTheDocument();
+  });
+
+  it("falls back to 'the seller' when the stall name is unknown", async () => {
+    loadMock.mockResolvedValue({
+      ok: true,
+      row: ROW,
+      payment: {
+        ...PAYMENT,
+        status: "claimed",
+        returnUrl: null,
+        sellerName: null,
+      },
+    });
+    render(await page());
+    expect(screen.getByText(/Ask the seller/)).toBeInTheDocument();
+  });
+
+  it("tells a rate-limited buyer what to do", async () => {
+    allowedMock.mockResolvedValue("limited");
+    render(await page());
+    expect(screen.getByText("Wait a minute, then refresh it.")).toBeVisible();
+  });
+
+  it("points a buyer whose payment will not load at a new QR", async () => {
+    loadMock.mockResolvedValue({ ok: false, reason: "unavailable" });
+    render(await page());
+    expect(screen.getByText(/show a new QR/)).toBeVisible();
+  });
 });

@@ -191,9 +191,11 @@ signed in, a vendor's plan comes from merqo, which owns pricing and pushes
 each vendor's entitlement to `POST /api/merqo/entitlement`; paykit caches it
 in `paykit.vendor_entitlements` and gates Pro features on the cache (paid and
 unexpired, or an event pass running). The dashboard's Plan page shows the
-current plan and points to the Merqo account. A Merqo-team-only admin console
+current plan, links to the Merqo account (`/account`) and, for Free, lists what paid plans add. The dashboard home shows the SGD amount waiting to be confirmed and this month's confirmed amount. A Merqo-team-only admin console
 (`/admin`, gated by an `admins` allow-list) shows platform-wide stats and a
-read-only per-vendor plan column. Free sees the last 30 days of payments and
+read-only per-vendor plan column. Free sees the last 30 days of payments (search, status and date filters and
+pagination on the payments list are Starter and Pro; Free sees a note counting
+the older payments it hides) and
 today and yesterday totals; weekly and monthly revenue, earnings, CSV export, automatic confirmation and refund tracking need a paid plan. `/api/merqo/vendor-status` (merqo hub's own vendor-active/plan
 lookup) paginates the Supabase admin-users API properly, via the same
 `listAllUsers` helper the admin console uses — it no longer silently
@@ -389,3 +391,7 @@ section tabs that mark the current page via `aria-current`
 ## Dead-code check
 
 `knip.json` configures `pnpm dlx knip@6.44.2 --no-progress` (knip is not a dependency). It ignores `.claude/**` and keeps the exported HTTP-contract types in `api-schemas.ts`, `metrics.ts` and `merqo-entitlement-contract.ts`. Results and leftovers: `docs/meta/2026-10-24-fresh-eyes-sweep.md`.
+
+## Public pages and the legal gate
+
+The pay and inquiry pages give every dead end a plain next step. A failed Merqo terms check still blocks the vendor, but `/legal/accept?reason=unavailable` says the check failed instead of claiming the terms changed.
