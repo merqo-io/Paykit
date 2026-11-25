@@ -380,6 +380,10 @@ Every foreign key column is indexed (migration `0027`, applied by hand), which t
 
 Badge, button, checkbox, dialog, input, label, textarea, tooltip and `cn` come from `@merqo/ui/primitives`. `Skeleton` also comes from `@merqo/ui/primitives`. Only `radio-group` lives in `src/components/ui/`, because the shared package has no equivalent.
 
+## Timestamps
+
+Timestamps are shown through `formatSgtDate` and `formatSgtDateTime` in `src/lib/utils.ts`, pinned to Asia/Singapore so server-rendered and client output match and hydration does not mismatch.
+
 ## Lint
 
 `eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-mark.ts` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`; those hand-maintained `*.ts` files are updated by hand after each migration. The mutation gate skips type-only `src/lib/db-types/`. The `/supabase-migrate` skill applies migrations but never touches types.
