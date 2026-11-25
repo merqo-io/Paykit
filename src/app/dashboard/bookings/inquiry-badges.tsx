@@ -1,3 +1,4 @@
+import { formatDateTime } from "@merqo/ui";
 import { Badge, cn } from "@merqo/ui/primitives";
 
 import type { Inquiry, InquiryStatus } from "@/lib/types";
@@ -32,11 +33,7 @@ export function TermsSnapshot({
   if (!inquiry.terms_url || !inquiry.terms_accepted_at) {
     return <span className="text-muted-foreground">Not asked</span>;
   }
-  const at = new Date(inquiry.terms_accepted_at).toLocaleString("en-SG", {
-    timeZone: "Asia/Singapore",
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  const at = formatDateTime(inquiry.terms_accepted_at);
   return (
     <span>
       Accepted{" "}

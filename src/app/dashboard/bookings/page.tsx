@@ -1,41 +1,66 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { PageHeader } from "@merqo/ui";
 import { getVendorSession } from "@/lib/vendor-session";
-import { listBookings } from "@/lib/bookings";
+import { pathWithSearch } from "@/lib/return-to";
+import { searchBookings } from "@/lib/bookings";
 import { getInquiryForm, listOpenInquiries } from "@/lib/inquiry-inbox";
+import { ListError } from "@/components/list/list-error";
+import { UrlPager } from "@/components/list/url-pager";
+import { BookingFilters } from "./booking-filters";
 import { BookingTable } from "./booking-table";
 import { NewBookingDialog } from "./new-booking-dialog";
 import { InquiryFormSettings } from "./inquiry-form-settings";
 import { InquiryTable } from "./inquiry-table";
+import {
+  BOOKING_PAGE_SIZE,
+  bookingListHref,
+  hasActiveFilters,
+  parseBookingListParams,
+} from "./list-params";
 
 export const metadata: Metadata = {
   title: "Bookings",
 };
 
-export default async function BookingsPage() {
-  const { user } = await getVendorSession();
-  const [bookings, inquiries, inquiryForm] = await Promise.all([
-    listBookings(user.id),
+export default async function BookingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const rawParams = await searchParams;
+  const params = parseBookingListParams(rawParams);
+  const { user } = await getVendorSession(
+    pathWithSearch("/dashboard/bookings", rawParams),
+  );
+  const [result, inquiries, inquiryForm] = await Promise.all([
+    searchBookings(user.id, { ...params, pageSize: BOOKING_PAGE_SIZE }),
     listOpenInquiries(user.id),
     getInquiryForm(user.id),
   ]);
+  const total = result.ok ? result.total : 0;
+  const pageCount = Math.max(1, Math.ceil(total / BOOKING_PAGE_SIZE));
+  if (result.ok && params.page > pageCount) {
+    redirect(bookingListHref({ ...params, page: pageCount }));
+  }
+  const filtered = hasActiveFilters(params);
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Bookings</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Deposit now, balance later. For weddings, private events, and
-            anything else booked ahead of the actual pickup or delivery.
-          </p>
-        </div>
-        <NewBookingDialog />
-      </div>
+      <PageHeader
+        responsive
+        title="Bookings"
+        description="Deposit now, balance later, for events booked ahead."
+        action={<NewBookingDialog />}
+      />
 
-      <section className="mt-8" aria-labelledby="inquiries-heading">
+      <section aria-labelledby="inquiries-heading">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="inquiries-heading" className="text-lg font-semibold">
-            Inquiries
+            Inquiries{" "}
+            <span className="font-normal tabular-nums text-muted-foreground">
+              ({inquiries.length})
+            </span>
           </h2>
           <InquiryFormSettings form={inquiryForm} />
         </div>
@@ -44,13 +69,34 @@ export default async function BookingsPage() {
         </div>
       </section>
 
-      <section className="mt-8" aria-labelledby="bookings-heading">
+      <section className="mt-10" aria-labelledby="bookings-heading">
         <h2 id="bookings-heading" className="text-lg font-semibold">
-          Your bookings
+          Your bookings{" "}
+          <span className="font-normal tabular-nums text-muted-foreground">
+            {result.ok ? `(${total})` : ""}
+          </span>
         </h2>
         <div className="mt-3">
-          <BookingTable bookings={bookings} />
+          <BookingFilters params={params} />
         </div>
+        <div className="mt-4">
+          {result.ok ? (
+            <BookingTable bookings={result.rows} filtered={filtered} />
+          ) : (
+            <ListError
+              retryHref={bookingListHref(params)}
+              message="Couldn’t load bookings"
+            />
+          )}
+        </div>
+        {result.ok && (
+          <UrlPager
+            label="Bookings pages"
+            page={params.page}
+            pageCount={Math.max(1, Math.ceil(total / BOOKING_PAGE_SIZE))}
+            href={(next) => bookingListHref({ ...params, page: next })}
+          />
+        )}
       </section>
     </div>
   );

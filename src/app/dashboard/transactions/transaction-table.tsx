@@ -1,8 +1,13 @@
 "use client";
 
-import { EmptyState } from "@merqo/ui";
-import { DataTable, type DataTableColumn } from "@merqo/ui";
-import { formatCents } from "@/lib/utils";
+import Link from "next/link";
+import {
+  DataTable,
+  EmptyState,
+  Money,
+  Timestamp,
+  type DataTableColumn,
+} from "@merqo/ui";
 import { RefundDialog } from "./refund-dialog";
 import { TransactionStatusBadge } from "./transaction-status-badge";
 import type { Transaction } from "@/lib/types";
@@ -14,14 +19,18 @@ import type { Transaction } from "@/lib/types";
 const BASE_COLUMNS: DataTableColumn<Transaction>[] = [
   { header: "Kit", cell: (tx) => tx.kit_slug },
   { header: "Reference", cell: (tx) => tx.order_ref },
-  { header: "Amount", cell: (tx) => formatCents(tx.amount_cents) },
+  {
+    header: "Amount",
+    align: "end",
+    cell: (tx) => <Money cents={tx.amount_cents} />,
+  },
   {
     header: "Status",
     cell: (tx) => <TransactionStatusBadge status={tx.status} />,
   },
   {
     header: "Created",
-    cell: (tx) => new Date(tx.created_at).toLocaleDateString("en-SG"),
+    cell: (tx) => <Timestamp value={tx.created_at} variant="date" />,
   },
 ];
 
@@ -36,10 +45,26 @@ const REFUND_COLUMN: DataTableColumn<Transaction> = {
 export function TransactionTable({
   transactions,
   isPro,
+  filtered = false,
 }: {
   transactions: Transaction[];
   isPro: boolean;
+  /** True when search or filters narrow the list, so empty means "no match". */
+  filtered?: boolean;
 }) {
+  if (transactions.length === 0 && filtered) {
+    return (
+      <EmptyState
+        title="No payments match"
+        description="Try a different search or date range."
+        actions={
+          <Link href="/dashboard/transactions" className="text-sm underline">
+            Clear filters
+          </Link>
+        }
+      />
+    );
+  }
   if (transactions.length === 0) {
     return (
       <EmptyState

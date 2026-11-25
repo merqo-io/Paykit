@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { EmptyState } from "@merqo/ui";
-import { DataTable, type DataTableColumn } from "@merqo/ui";
-import { formatCents, formatDate } from "@/lib/utils";
+import {
+  DataTable,
+  EmptyState,
+  Money,
+  Timestamp,
+  type DataTableColumn,
+} from "@merqo/ui";
 import { BookingStatusBadge, BalanceDueIndicator } from "./booking-badges";
 import type { Booking } from "@/lib/types";
 
@@ -23,10 +27,14 @@ const columns: DataTableColumn<Booking>[] = [
       </Link>
     ),
   },
-  { header: "Event date", cell: (booking) => formatDate(booking.event_date) },
+  {
+    header: "Event date",
+    cell: (booking) => <Timestamp value={booking.event_date} variant="date" />,
+  },
   {
     header: "Total",
-    cell: (booking) => formatCents(booking.total_amount_cents),
+    align: "end",
+    cell: (booking) => <Money cents={booking.total_amount_cents} />,
   },
   {
     header: "Status",
@@ -38,7 +46,29 @@ const columns: DataTableColumn<Booking>[] = [
   },
 ];
 
-export function BookingTable({ bookings }: { bookings: Booking[] }) {
+export function BookingTable({
+  bookings,
+  filtered = false,
+}: {
+  bookings: Booking[];
+  filtered?: boolean;
+}) {
+  if (bookings.length === 0 && filtered) {
+    return (
+      <EmptyState
+        title="No bookings match"
+        description="Try a different name, phone number or status."
+        actions={
+          <Link
+            href="/dashboard/bookings"
+            className="text-sm underline underline-offset-4"
+          >
+            Clear filters
+          </Link>
+        }
+      />
+    );
+  }
   if (bookings.length === 0) {
     return (
       <EmptyState

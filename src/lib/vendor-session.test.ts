@@ -45,6 +45,16 @@ describe("getVendorSession", () => {
     expect(requireCurrentLegalAcceptanceMock).not.toHaveBeenCalled();
   });
 
+  it("carries a relative returnTo to /login as next", async () => {
+    getUserMock.mockResolvedValue({ data: { user: null } });
+    await expect(getVendorSession("/dashboard/config")).rejects.toThrow(
+      "NEXT_REDIRECT",
+    );
+    expect(redirectMock).toHaveBeenCalledWith(
+      "/login?next=%2Fdashboard%2Fconfig",
+    );
+  });
+
   it("returns the session-scoped client and user on a valid session", async () => {
     const user = { id: "u1", email: "vendor@business.sg" };
     getUserMock.mockResolvedValue({ data: { user } });
@@ -64,6 +74,19 @@ describe("getVendorSession", () => {
 
     expect(requireCurrentLegalAcceptanceMock).toHaveBeenCalledWith(
       "vendor@business.sg",
+      undefined,
+    );
+  });
+
+  it("forwards an optional returnTo to the gate", async () => {
+    const user = { id: "u1", email: "vendor@business.sg" };
+    getUserMock.mockResolvedValue({ data: { user } });
+
+    await getVendorSession("/dashboard/settings");
+
+    expect(requireCurrentLegalAcceptanceMock).toHaveBeenCalledWith(
+      "vendor@business.sg",
+      "/dashboard/settings",
     );
   });
 

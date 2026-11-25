@@ -8,7 +8,7 @@ own BYO payment link/QR image, and saves it as their `vendor_payment_config`.
 ## Contents
 
 - `page.tsx` — server component: loads the vendor's current config, renders
-  a `PageHeader` (eyebrow + serif title) and `PaymentConfigForm`. Content sits in a plain `mx-auto max-w-lg` div (not
+  a `PageHeader` (title and description, no eyebrow) and `PaymentConfigForm`. Content sits in a plain `mx-auto max-w-lg` div (not
   `<main>` — the parent `dashboard/layout.tsx` owns that landmark and the
   page-family's canonical `max-w-7xl` outer width); a form this size reads
   better narrower than the full dashboard width.
@@ -64,11 +64,16 @@ uploaded to a calling kit's bucket from here.
 Another Merqo app can link here as `/dashboard/config?return_to=<address>`
 (qkit's booth form does). `page.tsx` passes the value through
 `familyReturnUrl` (`src/lib/return-to.ts`) and hands the form either the
-checked address or null. After a successful save the form shows a "Back to
-your booth" link to it, beside "Saved.". Nothing is shown before a save,
-after a failed one, or for an address outside the Merqo family, and the page
-never redirects by itself. A vendor who is not signed in is sent to the login
-page first and arrives without `return_to`.
+checked address or null. After a successful save the form shows "Back to
+your booth" as a primary button to it, beside the saved message. Nothing is
+shown before a save, after a failed one, or for an address outside the Merqo
+family, and the page never redirects by itself. A vendor who is not signed in
+is sent to `/login?next=<this page with its checked return_to>`
+(`pathWithReturnTo` and `loginRedirectPath` in `src/lib/return-to.ts`, called
+through `getVendorSession`); an invalid `return_to` is dropped before that
+redirect. The login page accepts `next` only as a same-origin relative path
+and uses it for password sign-in and for the Google and email-link callbacks
+(`/auth/callback?next=`), so the vendor lands back here with `return_to`.
 
 ## Replaced QR-image cleanup
 

@@ -19,7 +19,7 @@ earnings and export. Free never loads the hidden ranges.
   `EarningsPanel`. Free: Overview renders `FreeRevenueSummary` from
   `listConfirmedBetween`; Earnings renders a `ProLock`.
 - `free-revenue-summary.tsx` — `FreeRevenueSummary({ today, yesterday })`:
-  two `StatTile`s (amount and payment count) and a `ProLock` to the plan page
+  two `StatCard`s (today and yesterday, each captioned with its payment count) and a `ProLock` to the plan page
   for the weekly and monthly ranges.
 - `search-params.ts` — `parseReportsParams()` (Zod, `.catch` defaults) and
   `reportsHref()`, the single place that builds report URLs. The default
@@ -40,3 +40,7 @@ Page chrome here (PageHeader and EmptyState) comes from `@merqo/ui`; paykit keep
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 `search-params.ts` keeps `REPORT_TABS` module-private; only the parser and the `ReportTab` type are exported.
+
+The free-plan Today and Yesterday tiles show amounts through `@merqo/ui` `formatMoney` ("S$4.50").
+
+Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

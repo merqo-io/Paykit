@@ -8,9 +8,10 @@ status, plan (read-only, from the entitlement cache), and transaction count.
 ## Contents
 
 - `page.tsx` — `AdminVendorsPage`: `requireAdmin()` + fetches
-  `listVendors()` (pre-sorted most-urgent status first) and renders
-  `VendorsTable` in a flat bordered card, or `EmptyState` when there are no
-  vendors, under the shared `PageHeader`.
+  `listVendors()` (pre-sorted most-urgent status first), filters by the `q`
+  search param (email, stall name, label or vendor id), pages 25 at a time and
+  renders `VendorsTable`, or `EmptyState` when there are no vendors or no
+  match. A failed read shows a retry state; a page past the end redirects.
 - `vendors-table.tsx` — `VendorsTable`: `"use client"` wrapper owning the
   `columns` array (`cell` render callbacks) and the `getRowKey` function it
   passes to `@merqo/ui`'s shared `DataTable` — vendor email with
@@ -35,3 +36,7 @@ status, plan (read-only, from the entitlement cache), and transaction count.
 Page chrome here (PageHeader and EmptyState) comes from `@merqo/ui`; paykit keeps no local copy.
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+Paging and the failed-read card are the shared `UrlPager` and `ListError` from `@/components/list/`.
+
+Timestamps display through `Timestamp` (or `formatDate`/`formatDateTime`) from `@merqo/ui`, always in Asia/Singapore so server and client render identically (no hydration mismatch).

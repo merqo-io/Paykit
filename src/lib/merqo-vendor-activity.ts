@@ -1,6 +1,7 @@
 import { vendorStatus, type VendorStatus } from "@/lib/vendor-health";
 import type { TxStatus, VendorPlan } from "@/lib/types";
-import { MS_PER_DAY, formatCents } from "@/lib/utils";
+import { formatMoney } from "@merqo/ui";
+import { MS_PER_DAY } from "@/lib/utils";
 
 type VendorActivityMetric = { label: string; value: string };
 
@@ -99,7 +100,7 @@ export function computeVendorActivity(
     status,
     metrics: [
       { label: "Transactions (30d)", value: String(confirmedCount30d) },
-      { label: "Volume (30d)", value: formatCents(volume30dCents) },
+      { label: "Volume (30d)", value: formatMoney(volume30dCents) },
       { label: "Refund rate (30d)", value: `${refundRatePct.toFixed(0)}%` },
     ],
     lastActivityAt,

@@ -26,7 +26,7 @@ describe("BookingTable", () => {
     render(<BookingTable bookings={[BOOKING]} />);
     const link = screen.getByRole("link", { name: "Jane Tan" });
     expect(link).toHaveAttribute("href", "/dashboard/bookings/b1");
-    expect(screen.getByText("$1,000.00")).toBeInTheDocument();
+    expect(screen.getByText("S$1,000.00")).toBeInTheDocument();
     expect(screen.getByText("Awaiting deposit")).toBeInTheDocument();
   });
 

@@ -31,7 +31,7 @@ for this project.
 - `reset-password/` — page where a vendor who followed a reset email chooses a new password.
 - `inquire/`: a vendor's public booking inquiry form, `/inquire/{public_id}`: no session, service role only. See its README.
 - `pay/` — the hosted pay page, `/pay/{id}?k=<token>`: one of paykit's two public, unauthenticated pages (with `inquire/`). See its README.
-- `page.tsx` — `Home` async server component, the marketing landing page. Composes `Nav`, `Hero`, `HowItWorks`, `Benefits`, `Faq`, `ClosingCta` from `@/components/landing/`, `SiteFooter showSignIn` from `@/components/site-footer`, and shared `BackToTop`. `ClosingCta` is the family's documented ink-band closing section, rendered between `Faq` and the footer. Only reads the session, for the nav sign-in link or Dashboard link plus account menu (`landingNavUser`); the landing publishes no price. `src/app/page.dom.test.tsx` renders the real sections as a copy guard (no `$`, em dash or banned words, the pilot pricing line, the "In build" badge, waitlist CTAs, the hero h1 "One payment setup for every kit." and the footer).
+- `page.tsx` — `Home` async server component, the marketing landing page. Composes `Nav`, `Hero` and the `HowItWorks`, `YourMoney`, `LandingFaq` sections from `@/components/landing/`, `SiteFooter showSignIn` from `@/components/site-footer`, and shared `BackToTop`. `LandingFaq` also carries the closing call to action. Only reads the session, for the nav sign-in link or Dashboard link plus account menu (`landingNavUser`); the landing publishes no price. `src/app/page.dom.test.tsx` renders the real sections as a copy guard (no `$`, em dash or banned words, the pilot pricing line, the single "In pilot with Merqo stalls" line, waitlist CTAs, the hero h1 "Get paid by PayNow. Know who has paid." and the footer).
 
 ## Connectivity
 
@@ -62,3 +62,5 @@ Global Tailwind base rules stay in the base layer so component utility classes c
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 The root layout takes its theme props from `@merqo/ui/next`, and the icon routes build their mark with `brandIcon` from `@merqo/ui` and the options in `lib/brand-mark.ts`.
+
+Money and times in this tree come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.

@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { DataTable, type DataTableColumn } from "@merqo/ui";
-import { formatDate } from "@/lib/utils";
+import { DataTable, Timestamp, type DataTableColumn } from "@merqo/ui";
 import { InquiryStatusBadge } from "./inquiry-badges";
 import type { Inquiry } from "@/lib/types";
 
@@ -21,14 +20,15 @@ const columns: DataTableColumn<Inquiry>[] = [
   {
     header: "Event date",
     cell: (inquiry) =>
-      inquiry.event_date ? formatDate(inquiry.event_date) : "Not given",
+      inquiry.event_date ? (
+        <Timestamp value={inquiry.event_date} variant="date" />
+      ) : (
+        "Not given"
+      ),
   },
   {
     header: "Received",
-    cell: (inquiry) =>
-      new Date(inquiry.created_at).toLocaleDateString("en-SG", {
-        timeZone: "Asia/Singapore",
-      }),
+    cell: (inquiry) => <Timestamp value={inquiry.created_at} variant="date" />,
   },
   {
     header: "Status",

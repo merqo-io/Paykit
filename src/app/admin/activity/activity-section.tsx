@@ -1,28 +1,53 @@
 "use client";
+import Link from "next/link";
+import { DataTable, Timestamp, type DataTableColumn } from "@merqo/ui";
+import { formatAction } from "../action-labels";
+import { listHref } from "../list-params";
 
-import { AuditLogTable, type AuditLogEntry } from "@merqo/ui";
-
-// Actions `recordAudit()` is called with today (dashboard/transactions/actions.ts,
-// dashboard/bookings/actions.ts) plus the retired plan and pricing actions, kept
-// so historical audit rows still render a readable label.
-const ACTION_LABELS: Record<string, string> = {
-  set_vendor_plan: "Set vendor plan",
-  set_pricing: "Set pricing",
-  record_refund: "Recorded refund",
-  create_booking: "Created booking",
-  create_balance_checkout: "Created balance payment",
-  cancel_booking: "Cancelled booking",
-  reschedule_booking: "Rescheduled booking",
+export type ActivityEntry = {
+  id: string;
+  actor: string;
+  action: string;
+  target: string | null;
+  detail: string | null;
+  createdAt: string;
 };
 
-function formatAction(action: string): string {
-  return ACTION_LABELS[action] ?? action;
-}
+// The shared AuditLogTable renders `target` as plain text, so the vendor
+// link needs its own columns. `columns` holds render callbacks, which is why
+// this is a Client Component like `vendors-table.tsx`.
+const columns: DataTableColumn<ActivityEntry>[] = [
+  {
+    header: "When",
+    cell: (e) => <Timestamp value={e.createdAt} variant="datetime" />,
+    className: "whitespace-nowrap tabular-nums",
+  },
+  { header: "Actor", cell: (e) => e.actor },
+  {
+    header: "Action",
+    cell: (e) => (
+      <>
+        <p>{formatAction(e.action)}</p>
+        {e.detail && (
+          <p className="text-xs text-muted-foreground">{e.detail}</p>
+        )}
+      </>
+    ),
+  },
+  {
+    header: "Target",
+    cell: (e) =>
+      e.target ? (
+        <Link
+          href={listHref("/admin/vendors", { q: e.target })}
+          className="underline-offset-4 hover:underline"
+        >
+          {e.target}
+        </Link>
+      ) : null,
+  },
+];
 
-// `formatAction` is a function prop, so `AuditLogTable` (a `@merqo/ui`
-// Client Component) can only be rendered from another Client Component, not
-// passed the function directly from `page.tsx`'s Server Component — same
-// reasoning as `vendors-table.tsx`'s own `"use client"`.
-export function ActivitySection({ entries }: { entries: AuditLogEntry[] }) {
-  return <AuditLogTable entries={entries} formatAction={formatAction} />;
+export function ActivitySection({ entries }: { entries: ActivityEntry[] }) {
+  return <DataTable rows={entries} columns={columns} getRowKey={(e) => e.id} />;
 }

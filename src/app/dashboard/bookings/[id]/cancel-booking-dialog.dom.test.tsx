@@ -169,7 +169,7 @@ describe("CancelBookingDialog refund field", () => {
     await user.click(screen.getByRole("button", { name: "Cancel booking" }));
     expect(screen.queryByLabelText(/refund amount/i)).toBeNull();
     expect(
-      screen.getByText(/Refund tracking is on the Pro plan/),
+      screen.getByText(/Refund tracking comes with Starter or Pro/),
     ).toBeVisible();
     await user.click(
       screen.getByRole("button", { name: /confirm cancellation/i }),

@@ -3,9 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getVendorSession } from "@/lib/vendor-session";
 import { getInquiry } from "@/lib/inquiry-inbox";
-import { formatDate } from "@/lib/utils";
-import { PageHeader } from "@merqo/ui";
-import { whatsappLink } from "@/lib/phone-links";
+import { PageHeader, formatDate, formatDateTime } from "@merqo/ui";
+import { CustomerPhone } from "../../customer-phone";
 import { InquiryStatusBadge, TermsSnapshot } from "../../inquiry-badges";
 import { NewBookingDialog } from "../../new-booking-dialog";
 import { InquiryDetailActions } from "./inquiry-detail-actions";
@@ -20,21 +19,18 @@ export default async function InquiryDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { user } = await getVendorSession();
+  const { user } = await getVendorSession(
+    `/dashboard/bookings/inquiries/${encodeURIComponent(id)}`,
+  );
   const inquiry = await getInquiry(user.id, id);
   if (!inquiry) notFound();
 
-  const received = new Date(inquiry.created_at).toLocaleString("en-SG", {
-    timeZone: "Asia/Singapore",
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  const received = formatDateTime(inquiry.created_at);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
         responsive
-        eyebrow="Inquiry"
         title={inquiry.customer_name}
         description={`Received ${received}`}
         className="mb-0"
@@ -44,21 +40,8 @@ export default async function InquiryDetailPage({
       <div className="rounded-xl border p-4 text-sm">
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
           <dt className="text-muted-foreground">Phone</dt>
-          <dd className="flex flex-wrap gap-3">
-            <a
-              href={`tel:${inquiry.customer_phone.replace(/\s/g, "")}`}
-              className="underline underline-offset-4"
-            >
-              {inquiry.customer_phone}
-            </a>
-            <a
-              href={whatsappLink(inquiry.customer_phone)}
-              target="_blank"
-              rel="noreferrer"
-              className="underline underline-offset-4"
-            >
-              WhatsApp
-            </a>
+          <dd>
+            <CustomerPhone phone={inquiry.customer_phone} />
           </dd>
           <dt className="text-muted-foreground">Event date</dt>
           <dd>

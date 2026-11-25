@@ -45,7 +45,14 @@ from.
 ## Views
 
 `page.tsx` renders the Inquiries section (settings, inquiry table) above
-`booking-table.tsx`, and `new-booking-dialog.tsx`, which also takes an
+the bookings section, each heading with a count. The bookings list is driven
+by URL params parsed in `list-params.ts` (`q`, `status`, `page`; invalid values
+fall back to defaults) and queried through `searchBookings` in
+`src/lib/bookings.ts` (RLS unchanged; search text is sanitized before it enters
+the `or()` filter). `booking-filters.tsx` is a plain GET form (labels use `FORM_LABEL_CLASS`; the status select uses the shared `FILTER_SELECT_CLASS`); paging is the shared `UrlPager`. A failed query renders the shared `ListError` ("Couldn't load bookings") with a Try again link;
+`customer-phone.tsx` renders the call and WhatsApp links used by both detail
+pages. `booking-table.tsx` shows "No bookings match" with a Clear filters action (EmptyState `actions`) when
+filters find nothing, and `new-booking-dialog.tsx`, which also takes an
 optional `prefill` and `triggerLabel` for converting an inquiry.
 The table is a client adapter for shared `DataTable` callbacks. The creation
 form derives balance until the vendor edits it; the server always validates
@@ -97,3 +104,7 @@ Page chrome here (EmptyState) comes from `@merqo/ui`; paykit keeps no local copy
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 Internal-only helpers in `field.tsx` (`FIELD_INPUT_CLASS`) are not exported; knip flags unused exports.
+
+Money and times here come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.
+
+Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

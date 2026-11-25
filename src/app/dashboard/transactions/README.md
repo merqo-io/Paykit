@@ -8,7 +8,9 @@ across every kit — plus, for Pro vendors, a per-payment refund action.
 ## Contents
 
 - `page.tsx` — `TransactionsPage()` (server): calls `getVendorSession()`/
-  `readVendorPlan()` (`@/lib/vendor-entitlement`) and `listTransactions()`, renders `TransactionTable`.
+  `readVendorPlan()` (`@/lib/vendor-entitlement`) and `queryTransactions()`, renders `TransactionFilters`, `TransactionTable` and the shared `UrlPager` (plain links, no client router).
+  URL params (Zod, `search-params.ts`, invalid values dropped): `q` (reference or title, paid only; ignored for Free), `status` (`pending`|`claimed`|`confirmed`; `?status=claimed` is the dashboard's "to confirm" deep link), `from`/`to` (YYYY-MM-DD, Singapore days) and `page` (25 per page; a page past the end redirects to the last page). Free's window is floored at the 30-day cutoff whatever `from` says (`resolveListRange`).
+  Free also sees search disabled with an upgrade note and an "N older payments hidden on Free" line. Empty filter results show "No payments match" with a clear-filters link. On Free the date pickers stop at the cutoff day and a range cut short shows "Free shows the last 30 days." A failed read shows a local `role="alert"` card with "Try again", distinct from the empty state.
   A Free vendor's list is limited to the last 30 days (`freeListCutoff`) and a
   count-only `countTransactionsBefore()` drives a one-line note that older
   transactions are kept; nothing is deleted.
@@ -17,9 +19,11 @@ across every kit — plus, for Pro vendors, a per-payment refund action.
   landmark and the `max-w-7xl` outer width), same as the overview page.
 - `transaction-table.tsx` — `TransactionTable({ transactions, isPro })`:
   renders `Kit`/`Reference`/`Amount`/`Status`/`Created` columns through `@merqo/ui` DataTable, plus a `Refund` column with `RefundDialog` when `isPro`. Amounts
-  are formatted via `Intl.NumberFormat` (SGD). Empty state is the
+  are shown with `Money` from `@merqo/ui` ("S$4.50"), in a right-aligned column. Empty state is the
   shared dashed `EmptyState` ("No payments yet"); the table sits in an
   `overflow-x-auto` wrapper so it scrolls instead of widening the page on a phone.
+- `transaction-notices.tsx` — `HiddenNote` (older payments Free hides) and `FreeRangeNote` ("Free shows the
+  last 30 days."). A failed read renders the shared `ListError` ("Couldn't load payments"); the filter select uses `FILTER_SELECT_CLASS`.
 - `transaction-status-badge.tsx` — `TransactionStatusBadge({ status })`
   (labels: pending → "Awaiting payment", claimed → "Marked paid", confirmed
   → "Received"; stored values are unchanged): a
@@ -49,7 +53,7 @@ across every kit — plus, for Pro vendors, a per-payment refund action.
   money movement, see `AGENTS.md`'s data model). The amount field is
   dollar-denominated (`refunded_amount`, `type="number" step="0.01"`),
   matching every other money value in the dashboard (`transaction-table.tsx`'s
-  `formatCents`) instead of asking the vendor to enter raw cents; `actions.ts`
+  `Money`) instead of asking the vendor to enter raw cents; `actions.ts`
   converts it to cents before validation. The `useActionState`
   action passed in is a local wrapper around `issueRefundAction` (not the
   server action directly): on `status: "ok"` it toasts, resets the form
@@ -102,3 +106,7 @@ vendors — that dialog calls `issueRefundAction` in `actions.ts`.
 Page chrome here (PageHeader and EmptyState) comes from `@merqo/ui`; paykit keeps no local copy.
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+Timestamps display through `Timestamp` (or `formatDate`/`formatDateTime`) from `@merqo/ui`, always in Asia/Singapore so server and client render identically (no hydration mismatch).
+
+Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

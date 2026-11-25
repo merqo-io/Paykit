@@ -42,7 +42,7 @@ test.describe("CSP", () => {
       /script-src 'self' 'unsafe-inline'/,
     );
     await expect(
-      page.getByRole("heading", { level: 1, name: /One payment setup/ }),
+      page.getByRole("heading", { level: 1, name: /Get paid by PayNow/ }),
     ).toBeVisible();
     expect(problems).toEqual([]);
   });

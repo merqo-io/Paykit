@@ -68,7 +68,7 @@ describe("AdminOverviewPage", () => {
     expect(screen.getByText("Confirmed volume · 30d")).toBeInTheDocument();
     expect(screen.getByText("Refunds · 30d")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
-    expect(screen.getByText("$99.00")).toBeInTheDocument();
+    expect(screen.getByText("S$99.00")).toBeInTheDocument();
   });
 
   it("renders the Security stat block", async () => {
@@ -109,5 +109,12 @@ describe("AdminOverviewPage", () => {
     expect(
       screen.getByRole("heading", { name: "No activity yet" }),
     ).toBeInTheDocument();
+  });
+
+  it("links each activity row to the vendor it concerns", async () => {
+    render(await AdminOverviewPage());
+    expect(
+      screen.getByText("kopitiam@example.com").closest("a"),
+    ).toHaveAttribute("href", "/admin/vendors?q=v1");
   });
 });

@@ -27,29 +27,36 @@ async function renderLanding() {
 }
 
 describe("HomePage copy guardrails", () => {
-  it("shows the readiness badge and explainer", async () => {
-    await renderLanding();
-    expect(screen.getByText("In build")).toBeInTheDocument();
-    expect(
-      screen.getByText("Built, not yet tried with vendors."),
-    ).toBeInTheDocument();
+  it("shows the pilot line once and none of the old readiness copy", async () => {
+    const text = await renderLanding();
+    expect(screen.getAllByText("In pilot with Merqo stalls")).toHaveLength(1);
+    expect(text).not.toContain("In build");
+    expect(text).not.toContain("not yet tried");
   });
 
-  it("leads with the one-setup headline and ends with the family footer", async () => {
+  it("leads with one vendor-worded h1, the sample pay card and the family footer", async () => {
     await renderLanding();
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "One payment setup for every kit.",
+        name: "Get paid by PayNow. Know who has paid.",
       }),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText("Sample paykit pay page")).toBeInTheDocument();
     expect(screen.getByRole("contentinfo")).toBeInTheDocument();
+  });
+
+  it("drops the decorative stats and cliche copy", async () => {
+    const text = await renderLanding();
+    expect(text).not.toMatch(/funds held|ways to get paid|payment steps/i);
+    expect(text).not.toMatch(/seamless|effortless|powerful|all-in-one/i);
   });
 
   it("states pricing with the exact pilot line and no prices", async () => {
     const text = await renderLanding();
     expect(text).toContain(PRICING_LINE);
-    expect(text).not.toMatch(/\$|\/mo\b|per month/i);
+    expect(text).not.toMatch(/\/mo\b|per month|S\$\d+(\.\d+)?\s*(\/|per)/i);
     expect(text).not.toMatch(/\b(pro|tiers?)\b/i);
   });
 

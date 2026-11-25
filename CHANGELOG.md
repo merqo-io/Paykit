@@ -6,6 +6,44 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Repinned `@merqo/ui` to merqo-ui commit c0f1f23d (v0.61.1, from d9ba206c / v0.60.0). It includes the 0.61.0 data shapes (`Money`, `Timestamp`, `align: "end"`) plus the TS2742 fix to the package's prepare build.
+- Money and time use `@merqo/ui`'s `Money`, `Timestamp`, `formatMoney`, `formatDate` and `formatDateTime` instead of local helpers (`formatCents`, `formatDate`, `formatSgtDate`, `formatSgtDateTime` removed). Amounts now read "S$4.50" with thousands separators, dates "7 Nov 2026" and date-times "7 Nov 2026, 1:30 am" (seconds dropped), all in Singapore time. Money columns in the bookings, transactions and earnings tables are right-aligned.
+
+### Fixed
+
+- Deep links into the vendor dashboard (bookings, transactions, reports and the rest) now survive the sign-in and legal-acceptance gates: every dashboard page passes its own path and query as the return destination, and a vendor with stale terms is sent to `/legal/accept?next=...` instead of losing the link.
+- Transaction, admin activity, admin vendor and admin overview timestamps are pinned to Asia/Singapore, fixing a hydration mismatch (React #418) where the server (UTC) and browser rendered different dates.
+
+### Changed
+
+- A signed-out vendor who opens `/dashboard/config?return_to=...` now keeps `return_to` through sign-in (password, Google and email link) via a same-origin `next` path, and the saved state offers "Back to your booth" as the primary button.
+- Ledger, bookings and admin lists share one failed-read card, one link-based pager (the ledger pager is now plain anchors with Previous/Next at 44px) and one filter select style with the Input focus ring; filter selects are 44px tall.
+- Bookings list uses the shared `PageHeader`, shows counts on the Inquiries and Your bookings sections, and adds search by customer name or phone, a status filter, clear-filters and 20-per-page paging (URL `q`, `status`, `page`, Zod-validated and applied in the query).
+- Booking detail splits into Customer, Amounts and Booking ID sections instead of one boxed card, and the customer phone links to call and WhatsApp (shared with the inquiry page). The "Booking" and "Inquiry" eyebrows are gone.
+- The Free-plan refund hint on cancelling a booking now says refund tracking comes with Starter or Pro and links to the plan page.
+
+### Added
+
+- `/admin/vendors` searches by stall name, email or vendor id and pages 25 at a time; `/admin/activity` filters by action and date range and pages the audit log. Query values are Zod-parsed, a page past the end redirects to the last page, and a failed read shows a retry state instead of the empty state.
+- Recent-activity rows on the admin overview, and each target on `/admin/activity`, link to the vendor they concern. Pager links are real anchors, and a notice says when the activity window (latest 1000 entries) is full.
+- Payments list: search (reference or title, Starter and Pro), status and date-range filters, and real pagination (25 per page) replacing the 200-row cap. Filters live in the URL; `?status=claimed` deep-links to payments waiting for confirmation. Free vendors see search locked with an upgrade note and an "N older payments hidden on Free" notice; a crafted `from` can never reach rows past the 30-day cutoff (`resolveListRange`).
+
+### Changed
+
+- The admin header and tabs, `/mfa` and the dashboard error boundary use the shared `AdminShell`, `AuthShell` and `ErrorPage` from `@merqo/ui`; the local `admin-nav.tsx` is removed. The repeated "Admin" eyebrows are gone.
+- Reports: the locked-tab copy now says what Starter and Pro give you (best days and hours, CSV for your accountant), the Free summary uses the shared `StatCard`, and the "Ledger" and "Insights" eyebrows are gone.
+- AGENTS.md plan-gate line now matches the pricing spec.
+- Redesigned the public landing to follow qkit's: a vendor-worded headline, a sample pay-card hero copied from the real pay page (non-payable QR), a how-it-works section, a full-width funds statement, and one FAQ and closing-call section (`@merqo/ui` `FaqRows`, reusing the `/faq` answers), all on one spacing scale. The removed body gradient also changes the dashboard background.
+- Replaced the "In build" badge and "Built, not yet tried with vendors." with one "In pilot with Merqo stalls" line; removed the decorative stat row, the icon card grid, the eyebrows and the body gradient wash.
+- Dashboard home shows the SGD amount waiting to be confirmed next to the count (linking to payments), and this month's confirmed amount next to the payment count. A vendor with no payment setup sees one setup prompt instead of empty cards.
+- Plan page links to the Merqo account, offers a retry when prices are unavailable, and tells Free vendors what paid plans add and how many older payments Free hides.
+- Removed the repeated eyebrow labels from the home, plan, payment setup and profile headers.
+- The pay page names what happened and the buyer's next step in every state: an invalid link (new `not-found.tsx`), too many tries, a failed load and a recorded payment, using the stall name where the page already has it. Notices are left-aligned.
+- The inquiry form has its own not-found page and its error messages say to contact the business where retrying will not help.
+- A failed Merqo terms check (outage) still blocks the vendor but now redirects to `/legal/accept?reason=unavailable` with "We couldn't check the terms right now" and a retry link, instead of claiming the terms changed. `reason` is Zod-validated and the retry path is same-origin only.
+
 ## [0.6.1] - 2026-11-23
 
 ### Changed

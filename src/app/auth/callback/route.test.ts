@@ -72,6 +72,35 @@ describe("GET /auth/callback", () => {
     expect(res.headers.get("location")).toBe("http://localhost/dashboard");
   });
 
+  it.each([
+    "/\t/evil.com",
+    "/\n/evil.com",
+    "/%2F%2Fevil.com",
+    "/\\evil.com",
+    "/%5Cevil.com",
+  ])("falls back to /dashboard for hostile ?next= %j", async (hostile) => {
+    exchangeCodeForSessionMock.mockResolvedValue({ error: null });
+    const { GET } = await import("./route");
+    const res = await GET(
+      req(
+        `http://localhost/auth/callback?code=abc&next=${encodeURIComponent(hostile)}`,
+      ),
+    );
+    expect(res.headers.get("location")).toBe("http://localhost/dashboard");
+  });
+
+  it("keeps a double-encoded return_to inside ?next= as a same-origin path", async () => {
+    exchangeCodeForSessionMock.mockResolvedValue({ error: null });
+    const { GET } = await import("./route");
+    const next = `/dashboard/config?return_to=${encodeURIComponent("https://qkit.merqo.io/dashboard/booths/b1/qr")}`;
+    const res = await GET(
+      req(
+        `http://localhost/auth/callback?code=abc&next=${encodeURIComponent(next)}`,
+      ),
+    );
+    expect(res.headers.get("location")).toBe(`http://localhost${next}`);
+  });
+
   it("redirects to /login?error=oauth when the code exchange fails", async () => {
     exchangeCodeForSessionMock.mockResolvedValue({
       error: { message: "invalid code" },

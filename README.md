@@ -9,7 +9,7 @@ their own bank/payment app, and a human confirms receipt. A calling kit
 without its own vendor-session UI can also write the config directly via
 `POST /api/v1/vendors/{vendor_id}/config` (bearer-secret authenticated,
 same schema the dashboard's own config form uses) — see
-`src/app/api/v1/vendors/[vendor_id]/config/README.md`. Design values for the public pages are in `DESIGN.md`, which lists no open items. A vendor setting up
+`src/app/api/v1/vendors/[vendor_id]/config/README.md`. A kit can send a vendor to `/dashboard/config?return_to=<address>`; a signed-out vendor keeps that address through sign-in (as a same-origin `next` path, validated by `safeNextPath` and `familyReturnUrl` in `src/lib/return-to.ts`) and gets a "Back to your booth" button after saving. Design values for the public pages are in `DESIGN.md`, which lists no open items. A vendor setting up
 their own BYO payment link/QR picks from a four-card preset directory
 (Stripe Payment Link, HitPay Payment Link, PayLah! QR, or Other/Custom —
 `src/app/dashboard/config/pointer-presets.ts`) that shows tailored
@@ -24,7 +24,7 @@ in the workspace root for why. Brand theme is "Banknote Engrave"
 of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-mark.ts`'s
 ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
-The public landing is in pre-launch mode, headlined "One payment setup for every kit.": an "In build" badge, a "Join the waitlist" CTA, and no published price (pilot notice only, carried by the FAQ rather than a benefit tile). Sign-in and the dashboard stay reachable by direct URL. When signed in, the landing, About and FAQ nav shows a Dashboard link and the shared `LandingAccountNav` (Dashboard link and account menu with Sign out), named from the vendor profile's stall name. Landing surfaces (checkout card, benefit tiles, FAQ items) use one small `rounded-lg` radius and the hero has no glow, per the shared public page rules. `@merqo/ui` is pinned to merqo-ui commit d9ba206c (v0.60.0), whose `AppLinkProvider` is mounted once in the root layout so its client exports navigate client-side without a `LinkComponent` prop. The pin also supplies the `PricingLadder`, which the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices); the ladder hides the qkit-only Event Pass block. The dashboard also uses its `ConfirmDialog` (inquiry delete), `CopyButton` (booking ID), `downloadBlob` (earnings CSV) and `AsyncSubmitButton` (refund) rather than local copies.
+The public landing is in pre-launch mode, headlined "Get paid by PayNow. Know who has paid.": one quiet "In pilot with Merqo stalls" line, a sample pay-card hero copied from the real pay page, a "Join the waitlist" CTA, and no published price (pilot notice only, carried by the FAQ rather than a benefit tile). Sign-in and the dashboard stay reachable by direct URL. When signed in, the landing, About and FAQ nav shows a Dashboard link and the shared `LandingAccountNav` (Dashboard link and account menu with Sign out), named from the vendor profile's stall name. Landing surfaces (checkout card, FAQ rows) use one small `rounded-lg` radius and the landing has no glow or background wash, per the shared public page rules. `@merqo/ui` is pinned to merqo-ui commit c0f1f23d (v0.61.1), whose `AppLinkProvider` is mounted once in the root layout so its client exports navigate client-side without a `LinkComponent` prop. The pin also supplies the `PricingLadder`, which the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices); the ladder hides the qkit-only Event Pass block. Money and time render through its `Money`, `Timestamp`, `formatMoney` and `formatDateTime` (S$ amounts, dates like "7 Nov 2026", all in Singapore time). The dashboard also uses its `ConfirmDialog` (inquiry delete), `CopyButton` (booking ID), `downloadBlob` (earnings CSV) and `AsyncSubmitButton` (refund) rather than local copies.
 
 The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amount (the vendor's payee name, falling back to their inquiry-form business name), reports claim and upload failures inline instead of in toasts, and shows a plain retry notice when the payment cannot be loaded.
 
@@ -32,8 +32,8 @@ The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amoun
 own refund (`issueRefundAction`) is recorded too, merqo's own
 `POST /api/merqo/vendor-provision` push-provisioning call is logged under a
 `merqo_system` actor sentinel (see `src/app/api/merqo/vendor-provision/README.md`),
-it's now readable via the `/admin/activity` tab (`@merqo/ui`'s shared
-`AuditLogTable` — see `src/app/admin/activity/README.md`), and the table is
+it's now readable via the `/admin/activity` tab (a `DataTable` with a vendor link per target;
+see `src/app/admin/activity/README.md`), and the table is
 append-only at the grant level (`service_role` can no longer `UPDATE`/
 `DELETE` it, only `SELECT`/`INSERT`) — see `src/app/admin/README.md` and
 `AGENTS.md`'s data model section for the retention policy. The
@@ -191,9 +191,11 @@ signed in, a vendor's plan comes from merqo, which owns pricing and pushes
 each vendor's entitlement to `POST /api/merqo/entitlement`; paykit caches it
 in `paykit.vendor_entitlements` and gates Pro features on the cache (paid and
 unexpired, or an event pass running). The dashboard's Plan page shows the
-current plan and points to the Merqo account. A Merqo-team-only admin console
+current plan, links to the Merqo account (`/account`) and, for Free, lists what paid plans add. The dashboard home shows the SGD amount waiting to be confirmed and this month's confirmed amount. A Merqo-team-only admin console
 (`/admin`, gated by an `admins` allow-list) shows platform-wide stats and a
-read-only per-vendor plan column. Free sees the last 30 days of payments and
+read-only per-vendor plan column. Free sees the last 30 days of payments (search, status and date filters and
+pagination on the payments list are Starter and Pro; Free sees a note counting
+the older payments it hides) and
 today and yesterday totals; weekly and monthly revenue, earnings, CSV export, automatic confirmation and refund tracking need a paid plan. `/api/merqo/vendor-status` (merqo hub's own vendor-active/plan
 lookup) paginates the Supabase admin-users API properly, via the same
 `listAllUsers` helper the admin console uses — it no longer silently
@@ -215,7 +217,9 @@ and bill the balance closer to the event instead of one-shot checkout —
 `/dashboard/bookings` (`src/app/dashboard/bookings/README.md`). The
 booking detail page shows the booking's own ID with a one-click copy
 button — the one value a vendor needs to paste into qkit's booth
-settings to link the two, previously only readable from the URL bar. A booking
+settings to link the two, previously only readable from the URL bar. The list
+has search and a status filter (Zod-validated URL params) with 20-per-page
+paging, and booking detail shows tel and WhatsApp links for the customer. A booking
 links up to two `transactions` rows (deposit, then later balance) by id;
 a Postgres trigger (`sync_booking_status()`,
 `supabase/migrations/0010_paykit_bookings.sql`) keeps `bookings.status`
@@ -376,6 +380,10 @@ Every foreign key column is indexed (migration `0027`, applied by hand), which t
 
 Badge, button, checkbox, dialog, input, label, textarea, tooltip and `cn` come from `@merqo/ui/primitives`. `Skeleton` also comes from `@merqo/ui/primitives`. Only `radio-group` lives in `src/components/ui/`, because the shared package has no equivalent.
 
+## Timestamps
+
+Timestamps are shown through `formatSgtDate` and `formatSgtDateTime` in `src/lib/utils.ts`, pinned to Asia/Singapore so server-rendered and client output match and hydration does not mismatch.
+
 ## Lint
 
 `eslint.config.mjs` consumes the shared `@merqo/ui/eslint` preset (comment and directive hygiene, size and complexity limits, no colour literals or em dashes in `src`). `eslint.config.test.ts` asserts the key rules stay at `error`. Colour literals are allowed only in `src/lib/brand-mark.ts` and `src/app/global-error.tsx`. `src/lib/types.ts` re-exports the domain types in `src/lib/db-types/`; those hand-maintained `*.ts` files are updated by hand after each migration. The mutation gate skips type-only `src/lib/db-types/`. The `/supabase-migrate` skill applies migrations but never touches types.
@@ -389,3 +397,11 @@ section tabs that mark the current page via `aria-current`
 ## Dead-code check
 
 `knip.json` configures `pnpm dlx knip@6.44.2 --no-progress` (knip is not a dependency). It ignores `.claude/**` and keeps the exported HTTP-contract types in `api-schemas.ts`, `metrics.ts` and `merqo-entitlement-contract.ts`. Results and leftovers: `docs/meta/2026-10-24-fresh-eyes-sweep.md`.
+
+## Public pages and the legal gate
+
+The pay and inquiry pages give every dead end a plain next step. A failed Merqo terms check still blocks the vendor, but `/legal/accept?reason=unavailable` says the check failed instead of claiming the terms changed.
+
+The ledger, bookings and admin lists share one failed-read card, one link-based pager and one filter select class from `src/components/list/`.
+
+A deep link into the vendor dashboard survives the login and legal gates: every dashboard page passes its own path and query to `getVendorSession` as `returnTo`, and a stale terms acceptance goes to `/legal/accept?next=...`.

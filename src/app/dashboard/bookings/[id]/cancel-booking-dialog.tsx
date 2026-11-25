@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { AsyncSubmitButton } from "@merqo/ui";
@@ -143,8 +144,14 @@ export function CancelBookingDialog({
               id="cancel_refund_hint"
               className="rounded-xl border border-dashed p-3 text-sm text-muted-foreground"
             >
-              Refund tracking is on the Pro plan. You can still cancel this
-              booking.
+              Refund tracking comes with Starter or Pro.{" "}
+              <Link
+                href="/dashboard/plan"
+                className="underline underline-offset-4"
+              >
+                See plans
+              </Link>
+              . You can still cancel this booking.
             </p>
           )}
           {error && (

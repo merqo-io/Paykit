@@ -24,6 +24,7 @@ on their inquiry form, else none.
 - `pay-panel.tsx`: the client panel (image QR, proof summary and screenshot upload are sub-components in the same file): the title and amount, the code (a PayNow QR with "Save QR image", the vendor's own QR image, or a payment link button), the screenshot picker (resized in the browser, then checked against the same type and size limits as the server), and "I've paid". Polls the status every 5 seconds, so a payment confirmed from elsewhere moves the customer on.
 - `actions.ts`: `claimHostedPayment` and `getHostedPaymentStatus`, the page's whole write and read surface. Each checks its arguments (including the id and token shape, before the limiter), rate limits by address then token (a limiter outage is treated like a failed read), and reads the payment by token. The claim requires exactly one screenshot (`@/lib/proof-file`'s `readProofFile`) and runs `@/lib/claim`'s `claimTransaction`, so it stores the screenshot before the claim commits and a failure leaves the transaction pending.
 - `notice.tsx`: the single `Notice` (heading plus one line) used by the page and the panel for recorded, too many tries and could not load.
+- `not-found.tsx`: the 404 body (the shared `NotFound`), "This payment link is not valid", with the buyer's next step (ask the stall to show a new QR). It names no stall because every bad-token case must look the same. `Notice` takes an optional `next` line so every notice says what to do.
 - Inline errors render through `@merqo/ui`'s `FormError` (centred, `role="alert"`).: it would stream a 200 shell before `notFound()` runs, and a bad link must stay a real 404.
 - Errors (claim, resize, save QR, upload) render inline with `role="alert"` next to the control that caused them. Toasts are for success only.
 - `leave.ts`: `leaveTo(url)`, the full-page navigation to the return address, in its own module so a test can replace it.
@@ -50,3 +51,5 @@ amount check as the claim endpoint.
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 The pay panel uses `useAsyncAction` from `@merqo/ui` and `cn` from `@merqo/ui/primitives`; `callHandler` in `lib/utils.ts` adapts the server-action thunk.
+
+The amount shown above the QR renders through `@merqo/ui` `Money` ("S$4.50").

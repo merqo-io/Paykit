@@ -20,7 +20,8 @@ password alone.
   is disabled while pending, clears the error on edit, and controls are
   `rounded-xl`. After a successful verify the form stays pending until the
   route changes, so a used code cannot be resubmitted.
-- The card is a flat surface with a 2px bottom border (no blurred shadow); the code input and button are 44px tall with 16px text.
+- `page.tsx` wraps the form in the shared `AuthShell` (wordmark and `Two-step sign-in` title); the code input and button are 44px tall with 16px text.
+- `mfa-page.dom.test.tsx` — the membership gate, the `aal2` redirect to `/admin`, and the page heading.
 - `mfa-form.dom.test.tsx` — verify, wrong code, short code, enrol-then-verify, enrol failure, input attributes.
 
 ## Connectivity

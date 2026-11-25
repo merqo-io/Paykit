@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getVendorSession } from "@/lib/vendor-session";
-import { familyReturnUrl } from "@/lib/return-to";
+import { familyReturnUrl, pathWithReturnTo } from "@/lib/return-to";
 import { getConfig } from "./actions";
 import { PageHeader } from "@merqo/ui";
 import { PaymentConfigForm } from "./payment-config-form";
@@ -19,16 +19,15 @@ export default async function ConfigPage({
 }: {
   searchParams: Promise<{ return_to?: string | string[] }>;
 }) {
-  const { user } = await getVendorSession();
-  const [config, { return_to }] = await Promise.all([
-    getConfig(),
-    searchParams,
-  ]);
+  const { return_to } = await searchParams;
+  const { user } = await getVendorSession(
+    pathWithReturnTo("/dashboard/config", return_to),
+  );
+  const config = await getConfig();
   return (
     <div className="mx-auto max-w-lg">
       <PageHeader
         responsive
-        eyebrow="Account"
         title="Payment setup"
         description="Set this up once. It's reused by every kit that uses paykit for you."
       />

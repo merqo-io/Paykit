@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export const revalidate = 0;
 
 export default async function ProfilePage() {
-  const { supabase, user } = await getVendorSession();
+  const { supabase, user } = await getVendorSession("/dashboard/profile");
 
   // paykit has no local vendors table (vendor_id is just the auth user id),
   // so there's no local business-name fallback to pass as a default here —
@@ -29,7 +29,6 @@ export default async function ProfilePage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
         responsive
-        eyebrow="Your account"
         title="Profile"
         description="Your business name and links are shared with every Merqo app you use. Everything else stays in paykit."
         className="mb-0"

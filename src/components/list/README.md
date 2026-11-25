@@ -1,0 +1,11 @@
+# list
+
+Shared list-page pieces used by the ledger, bookings and admin pages.
+
+- `list-error.tsx` — `ListError({ retryHref, message? })`, the `role="alert"` failed-read card with a Try again link.
+- `url-pager.tsx` — `UrlPager({ page, pageCount, href, label? })`, a server-rendered pager of real anchors (`rel=prev/next`, 44px targets); renders nothing for one page.
+- `filter-classes.ts` — `FILTER_SELECT_CLASS`, the native select style matching the `Input` focus ring.
+
+## Parent
+
+[components](../README.md)

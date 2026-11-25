@@ -9,7 +9,7 @@ owner-scoped `patch_vendor_profile` RPC. Each write changes only the submitted
 field, preserving concurrent edits to the other column. Missing rows are
 provisioned atomically; empty social links explicitly clear links.
 
-The client form saves display name, avatar metadata and password through
+The page header has no eyebrow. The client form saves display name, avatar metadata and password through
 `supabase.auth.updateUser`. These belong to the shared Supabase account.
 The form has two groups, Business (name, links) and Account (picture, display
 name, email, password); each field saves on its own. It composes shared sections, social-link fields and image uploader from
@@ -39,3 +39,5 @@ The Links group is described by its inline error (`aria-describedby`); `SocialLi
 Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

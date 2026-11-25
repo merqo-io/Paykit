@@ -89,7 +89,7 @@ describe("PayPanel", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Order from Kopi")).toBeInTheDocument();
     expect(screen.getByText("Paying Kopitiam Cart")).toBeInTheDocument();
-    expect(screen.getByText("$4.50")).toBeInTheDocument();
+    expect(screen.getByText("S$4.50")).toBeInTheDocument();
     expect(container.querySelector("svg")).not.toBeNull();
     expect(
       screen.getByRole("button", { name: "Save QR image" }),

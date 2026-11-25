@@ -19,7 +19,7 @@ ignores their `#!/usr/bin/env bash` shebang and doesn't support
   staged files (if gitleaks is installed), then `readme-coupling.sh` and
   `comment-hygiene.sh`. Git-quoted or newline-containing paths need separate handling.
 - `pre-push.sh` — runs `../../.claude/verify-harness.sh` (integrity check)
-  plus `pnpm run check && pnpm test`.
+  plus `pnpm run check && pnpm exec vitest run --reporter=dot`.
 - `readme-coupling.sh` — pre-commit nudge (non-blocking): warns to stderr
   when staged files touch a folder whose `README.md` wasn't also staged;
   the commit still proceeds.

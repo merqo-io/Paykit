@@ -284,12 +284,9 @@ function SaveStatus({
             Payment setup saved
           </p>
           {returnTo && (
-            <a
-              href={returnTo}
-              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-            >
-              Go back
-            </a>
+            <Button asChild>
+              <a href={returnTo}>Back to your booth</a>
+            </Button>
           )}
         </div>
       )}

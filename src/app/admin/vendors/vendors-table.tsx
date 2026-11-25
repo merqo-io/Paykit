@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, type DataTableColumn } from "@merqo/ui";
+import { DataTable, Timestamp, type DataTableColumn } from "@merqo/ui";
 import { type VendorRow } from "@/lib/admin-data";
 import { Badge } from "@merqo/ui/primitives";
 
@@ -44,7 +44,7 @@ const columns: DataTableColumn<VendorRow>[] = [
   },
   {
     header: "Joined",
-    cell: (v) => new Date(v.created_at).toLocaleDateString("en-SG"),
+    cell: (v) => <Timestamp value={v.created_at} variant="date" />,
   },
 ];
 

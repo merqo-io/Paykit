@@ -124,7 +124,7 @@ describe("ReportsPage", () => {
     expect(screen.getByText("2026")).toBeInTheDocument();
     expect(screen.getByText("Jane Tan")).toBeInTheDocument();
     expect(screen.getByText("2026-12-25")).toBeInTheDocument();
-    expect(screen.getAllByText("$1,000.00").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("S$1,000.00").length).toBeGreaterThan(0);
   });
 
   it("labels the year arrows and links them to the neighbouring years", async () => {
@@ -172,10 +172,12 @@ describe("ReportsPage", () => {
       await renderPage();
       expect(screen.getByText("Today")).toBeInTheDocument();
       expect(screen.getByText("Yesterday")).toBeInTheDocument();
-      expect(screen.getByText("$25.00")).toBeInTheDocument();
+      expect(screen.getByText("S$25.00")).toBeInTheDocument();
+      expect(screen.getByText("1 payment")).toBeInTheDocument();
+      expect(screen.getByText("0 payments")).toBeInTheDocument();
       expect(
         screen.getByRole("link", {
-          name: "Weekly and monthly revenue are included with Starter and Pro",
+          name: "See weekly and monthly revenue and your best days. Included with Starter and Pro.",
         }),
       ).toHaveAttribute("href", "/dashboard/plan");
       expect(screen.queryByTestId("revenue-chart")).not.toBeInTheDocument();
@@ -193,7 +195,7 @@ describe("ReportsPage", () => {
       await renderPage({ tab: "earnings", year: "2026" });
       expect(
         screen.getByRole("link", {
-          name: "Earnings reports and CSV export are included with Starter and Pro",
+          name: "Best days and hours, plus CSV export for your accountant. Included with Starter and Pro.",
         }),
       ).toBeInTheDocument();
       expect(

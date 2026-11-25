@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   referrer: "no-referrer",
 };
 
-function PageNotice(props: { title: string; detail: string }) {
+function PageNotice(props: { title: string; detail: string; next?: string }) {
   return (
     <main>
       <Notice {...props} />
@@ -40,6 +40,7 @@ function RetryNotice() {
     <PageNotice
       title="Could not load payment"
       detail="Refresh this page in a moment. If you have already paid, do not pay again."
+      next="Still not loading? Ask the stall to show a new QR."
     />
   );
 }
@@ -62,7 +63,8 @@ export default async function PayPage({ params, searchParams }: Props) {
     return (
       <PageNotice
         title="Too many tries"
-        detail="Wait a minute, then refresh this page."
+        detail="This page was opened too many times."
+        next="Wait a minute, then refresh it."
       />
     );
   if (access === "unavailable") return <RetryNotice />;
@@ -79,7 +81,8 @@ export default async function PayPage({ params, searchParams }: Props) {
     return (
       <PageNotice
         title="Payment recorded"
-        detail="The seller has been told. You can close this page."
+        detail={`${payment.sellerName ?? "The seller"} has been told. You can close this page.`}
+        next={`Need a receipt or something looks wrong? Ask ${payment.sellerName ?? "the seller"}.`}
       />
     );
   }

@@ -11,7 +11,7 @@ it("offers a retry when the root layout fails", async () => {
   render(<GlobalErrorPage reset={reset} />);
 
   expect(
-    screen.getByRole("heading", { name: /something went wrong/i }),
+    screen.getByRole("heading", { name: /could not load the app/i }),
   ).toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: /try again/i }));
   expect(reset).toHaveBeenCalledTimes(1);

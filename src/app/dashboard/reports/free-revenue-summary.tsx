@@ -1,21 +1,10 @@
-import { ProLock, StatTile } from "@merqo/ui";
+import { ProLock, StatCard, formatMoney } from "@merqo/ui";
 import type { DayTotal } from "@/lib/free-limits";
-import { formatCents } from "@/lib/utils";
 
-function DayTile({ label, total }: { label: string; total: DayTotal }) {
-  return (
-    <div className="rounded-xl border p-4">
-      <StatTile
-        label={label}
-        value={formatCents(total.cents)}
-        caption={`${total.count} payment${total.count === 1 ? "" : "s"}`}
-        className="gap-0"
-        labelClassName="text-xs"
-        valueClassName="mt-1 font-display text-xl font-semibold tracking-tight leading-normal"
-      />
-    </div>
-  );
-}
+export const FREE_REVENUE_LOCK_LABEL =
+  "See weekly and monthly revenue and your best days. Included with Starter and Pro.";
+
+const paymentCount = (n: number) => `${n} payment${n === 1 ? "" : "s"}`;
 
 export function FreeRevenueSummary({
   today,
@@ -27,13 +16,20 @@ export function FreeRevenueSummary({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <DayTile label="Today" total={today} />
-        <DayTile label="Yesterday" total={yesterday} />
+        <StatCard
+          label="Today"
+          value={formatMoney(today.cents)}
+          caption={paymentCount(today.count)}
+          className="tabular-nums"
+        />
+        <StatCard
+          label="Yesterday"
+          value={formatMoney(yesterday.cents)}
+          caption={paymentCount(yesterday.count)}
+          className="tabular-nums"
+        />
       </div>
-      <ProLock
-        label="Weekly and monthly revenue are included with Starter and Pro"
-        href="/dashboard/plan"
-      />
+      <ProLock label={FREE_REVENUE_LOCK_LABEL} href="/dashboard/plan" />
     </div>
   );
 }

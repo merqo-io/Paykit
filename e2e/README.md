@@ -7,8 +7,8 @@ Playwright end-to-end smoke tests. They need only `pnpm dev` and
 
 ## Contents
 
-- `smoke.spec.ts` — public smoke: the landing page renders its "One payment
-  setup" hero heading, and `/login` renders its "Continue with Google"
+- `smoke.spec.ts` — public smoke: the landing page renders its "Get paid by PayNow"
+  hero heading, and `/login` renders its "Continue with Google"
   button.
 - `auth-guard.spec.ts` — signed-out route protection: `/dashboard` and
   `/dashboard/transactions` redirect to `/login`. `src/proxy.ts` resolves

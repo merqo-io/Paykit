@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import QRCode from "react-qr-code";
 import { Download, ImageUp } from "lucide-react";
-import { FormError, resizeToWebp, useAsyncAction } from "@merqo/ui";
+import { FormError, Money, resizeToWebp, useAsyncAction } from "@merqo/ui";
 import { Button, buttonVariants, cn } from "@merqo/ui/primitives";
 
-import { callHandler, formatCents } from "@/lib/utils";
+import { callHandler } from "@/lib/utils";
 import type { HostedPayment } from "@/lib/hosted-pay";
 import { claimHostedPayment, getHostedPaymentStatus } from "./actions";
 import { leaveTo } from "./leave";
@@ -163,6 +163,31 @@ function ProofUpload({
   );
 }
 
+function EndNotice({
+  recorded,
+  sellerName,
+}: {
+  recorded: boolean;
+  sellerName: string | null;
+}) {
+  const who = sellerName ?? "the seller";
+  if (recorded) {
+    return (
+      <Notice
+        title="Payment recorded"
+        detail={`${sellerName ?? "The seller"} has been told. You can close this page.`}
+      />
+    );
+  }
+  return (
+    <Notice
+      title="Could not load payment"
+      detail="This payment could not be shown."
+      next={`Ask ${who} to show a new QR.`}
+    />
+  );
+}
+
 export function PayPanel({
   id,
   token,
@@ -288,22 +313,8 @@ export function PayPanel({
     });
   }
 
-  if (recorded) {
-    return (
-      <Notice
-        title="Payment recorded"
-        detail="The seller has been told. You can close this page."
-      />
-    );
-  }
-
-  if (!view) {
-    return (
-      <Notice
-        title="Could not load payment"
-        detail="Ask the seller how to pay for this order."
-      />
-    );
+  if (recorded || !view) {
+    return <EndNotice recorded={recorded} sellerName={sellerName} />;
   }
 
   // One filled button at a time, on the step the customer is up to: pay,
@@ -329,7 +340,7 @@ export function PayPanel({
           </p>
         )}
         <p className="font-mono text-3xl font-bold">
-          {formatCents(amountCents)}
+          <Money cents={amountCents} />
         </p>
       </div>
 

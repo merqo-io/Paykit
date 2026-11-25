@@ -24,13 +24,14 @@ of a short page instead of mid-screen. The footer is wrapped in
 `contents print:hidden`, like the navigation, so a printed booking or report
 leaves it out.
 
-`loading.tsx` (using the shared `Skeleton`) covers page loading inside this shell. `error.tsx` offers retry
+`loading.tsx` (using the shared `Skeleton`) covers page loading inside this shell. `error.tsx` (shared `ErrorPage` from `@merqo/ui`, titled "This page didn't load") offers retry
 for page render/data failures; it offers "Try again" and a "Back to dashboard" link; it cannot catch its own segment's layout errors.
 
 ## Routes
 
-- `page.tsx` is a status hub: payment method (or "Not set"), payments waiting
-  to be confirmed and this month's payment count. Usage does not impose a volume
+- `page.tsx` is a status hub: payment method (or "Not set"), the SGD amount
+  and count of payments waiting to be confirmed (as `StatCard` captions; the link goes to `/dashboard/transactions?status=claimed` when something is waiting) and this
+  month's confirmed amount and payment count; a vendor with no setup sees only the setup prompt. Usage does not impose a volume
   cap.
 - `config/` saves PayNow or a payment link/QR image. Deferred uploads commit on
   Save.
@@ -66,3 +67,7 @@ Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 The merqo base URL and the `ActionResult` shape come from `@merqo/ui/kit-api`; `useAsyncAction` comes from `@merqo/ui`.
+
+The hub tiles show amounts through `@merqo/ui` `formatMoney` ("S$4.50").
+
+Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

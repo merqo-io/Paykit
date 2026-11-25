@@ -103,7 +103,7 @@ describe("InquiryDetailPage", () => {
 describe("InquiryDetailPage header", () => {
   it("renders a PageHeader with the customer name", async () => {
     await renderPage(INQUIRY);
-    expect(screen.getByText("Inquiry", { selector: "p" })).toBeInTheDocument();
+    expect(screen.queryByText("Inquiry", { selector: "p" })).toBeNull();
     expect(
       screen.getByRole("heading", { level: 1, name: INQUIRY.customer_name }),
     ).toBeInTheDocument();

@@ -166,11 +166,13 @@ provide authorization.
 
 ## Reads and reports
 
+`bookings.ts` `searchBookings(vendorId, {q, status, page, pageSize})` returns `{ok:true, rows, total}` or `{ok:false}`; a page past the end (PGRST103) is an empty page with the exact total, and `listBookings` was removed (`listAllBookings` stays).
+
 `transactions.ts` and `bookings.ts` read vendor-owned records with the session
-client; `listTransactions(vendorId, since?)` takes the Free list cutoff,
+client; `queryTransactions(vendorId, query)` returns one filtered page (window, status, search) with an exact count; Free callers get their window from `resolveListRange` in `free-limits.ts`,
 `countTransactionsBefore` counts hidden older rows and `listConfirmedBetween`
-reads a bounded window for the Free totals; `claimedTxCount` is an RLS-scoped head/count of claimed (awaiting
-confirmation) transactions for the dashboard home. `read-all-rows.ts` follows ordered numeric ranges to an empty page and rejects
+reads a bounded window for the Free totals; `claimedTxSummary` is an RLS-scoped count and SGD-cent total of claimed (awaiting
+confirmation) transactions and `confirmedSince` sums confirmed takings since a cutoff, both for the dashboard home. `read-all-rows.ts` follows ordered numeric ranges to an empty page and rejects
 partial collections on later errors; it does not provide a transaction snapshot.
 `list-all-users.ts` paginates auth users and reports its safety ceiling as failure.
 `admin-data.ts` performs team-console service-role reads; callers must apply the
@@ -204,7 +206,12 @@ mocked tests do not verify its database locking.
 `vendor-session.ts` establishes the vendor session and current legal acceptance.
 `admin.ts` establishes team authorization. `legal-gate.ts` validates Merqo's
 legal-status response and caches it briefly; lookup failures fail closed, but a
-cache write failure is logged and ignored.
+cache write failure is logged and ignored. `legalStatus` tells a stale acceptance
+from a failed check (recent `is_current=false` row, 30 s clock skew allowed), and
+`requireCurrentLegalAcceptance(email, returnTo?)` sends an outage to
+`/legal/accept?reason=unavailable` and a stale acceptance to
+`/legal/accept?next=<returnTo>`. `getVendorSession(returnTo?)` forwards the
+optional retry path.
 Sheet feedback/support actions use an inline session check to return an error
 instead of redirecting an open dialog.
 
@@ -228,12 +235,19 @@ the cleanup's list for images uploaded earlier through qkit's booth form.
 query value may be shown as a way back to another Merqo app: an https address
 on `merqo.io` or a subdomain of it, with no credentials and no port (plus
 http on localhost outside production). Anything else reads as no address.
+`pathWithReturnTo` rebuilds a page's own path with only a checked
+`return_to`, `pathWithSearch` rebuilds a page's path with its current query so
+dashboard pages can pass it to `getVendorSession` as the return destination, and `loginRedirectPath` builds `/login?next=` for a signed-out
+visitor, keeping `next` only when `safeNextPath` accepts it (same origin once
+parsed; no whitespace, control characters, backslashes or encoded `//`; shared
+with the login page and `/auth/callback`);
+`getVendorSession` uses it so a deep link survives sign-in.
 It is separate from `@merqo/ui`'s `safeRedirectPath`, which accepts only a
 path on this app.
 
 Redirect validation and image resizing come from `@merqo/ui`; there are no
 local `safe-redirect.ts` or `image-resize.ts` copies. `utils.ts` holds local
-formatters and the `callHandler` adapter (form label and error classes come from `@merqo/ui`); `brand-mark.ts` holds the icon-route mark options.
+the `pctChange` helper and the `callHandler` adapter (form label and error classes come from `@merqo/ui`); `brand-mark.ts` holds the icon-route mark options.
 `env.ts` exposes required public configuration. The `supabase/` README explains
 session/service client separation; `payments/` explains checkout builders.
 
