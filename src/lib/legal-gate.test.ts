@@ -8,6 +8,7 @@ const { createServiceClient } = await import("@/lib/supabase/server");
 const { redirect } = await import("next/navigation");
 import {
   checkLegalAcceptance,
+  legalStatus,
   requireCurrentLegalAcceptance,
 } from "./legal-gate";
 
@@ -214,6 +215,64 @@ describe("requireCurrentLegalAcceptance", () => {
     await requireCurrentLegalAcceptance("vendor@example.com");
 
     expect(redirect).toHaveBeenCalledWith("/legal/accept");
+  });
+
+  it("sends an outage to the unavailable notice, still blocked", async () => {
+    const { client } = clientWith({ cached: null });
+    vi.mocked(createServiceClient).mockResolvedValue(client as never);
+    global.fetch = vi.fn().mockRejectedValue(new Error("network")) as never;
+    vi.mocked(redirect).mockClear();
+
+    await requireCurrentLegalAcceptance("vendor@example.com", "/dashboard/x");
+
+    expect(redirect).toHaveBeenCalledWith(
+      "/legal/accept?reason=unavailable&next=%2Fdashboard%2Fx",
+    );
+  });
+
+  it("treats an old stale row plus an outage as unavailable, not changed terms", async () => {
+    const old = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { client } = clientWith({
+      cached: { checked_at: old, is_current: false },
+    });
+    vi.mocked(createServiceClient).mockResolvedValue(client as never);
+    global.fetch = vi.fn().mockResolvedValue({ ok: false }) as never;
+
+    expect(await legalStatus("vendor@example.com")).toBe("unavailable");
+  });
+
+  it("reports unavailable when the follow-up read itself throws", async () => {
+    const { client, maybeSingle } = clientWith({ cached: null });
+    vi.mocked(createServiceClient).mockResolvedValue(client as never);
+    maybeSingle.mockRejectedValue(new Error("down"));
+    global.fetch = vi.fn().mockRejectedValue(new Error("network")) as never;
+
+    expect(await legalStatus("vendor@example.com")).toBe("unavailable");
+  });
+
+  it.each(["https://evil.example", "//evil.example", "javascript:alert(1)"])(
+    "reduces the open-redirect attempt %s to a safe path",
+    async (bad) => {
+      const { client } = clientWith({ cached: null });
+      vi.mocked(createServiceClient).mockResolvedValue(client as never);
+      global.fetch = vi.fn().mockRejectedValue(new Error("network")) as never;
+      vi.mocked(redirect).mockClear();
+
+      await requireCurrentLegalAcceptance("vendor@example.com", bad);
+
+      expect(redirect).toHaveBeenCalledWith(
+        "/legal/accept?reason=unavailable&next=%2Fdashboard",
+      );
+    },
+  );
+
+  it("reports current without reading the state table again", async () => {
+    const { client } = clientWith({
+      cached: { checked_at: new Date().toISOString(), is_current: true },
+    });
+    vi.mocked(createServiceClient).mockResolvedValue(client as never);
+
+    expect(await legalStatus("vendor@example.com")).toBe("current");
   });
 
   it("does not redirect when the vendor's acceptance is current", async () => {
