@@ -6,7 +6,6 @@ allowBuilds:
   "@merqo/ui@https://codeload.github.com/merqo-io/merqo-ui/tar.gz/3595f90838cf75d02adfefe93757d365a56f6c04": true
   "@sentry/cli": false
   tesseract.js: false
-  '@merqo/ui@https://codeload.github.com/merqo-io/merqo-ui/tar.gz/64896f14ee78fb6013217a0d2cb938df1afea0d0': set this to true or false
 
 minimumReleaseAgeExclude:
   - "@sentry/browser-utils@10.71.0"
