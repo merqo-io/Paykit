@@ -78,6 +78,17 @@ const INQUIRY: Inquiry = {
 };
 
 describe("BookingsPage", () => {
+  it("passes its own path and query to the vendor gate as returnTo", async () => {
+    render(
+      await BookingsPage({
+        searchParams: Promise.resolve({ q: "ah hock", page: "1" }),
+      }),
+    );
+    expect(getVendorSessionMock).toHaveBeenCalledWith(
+      "/dashboard/bookings?q=ah+hock&page=1",
+    );
+  });
+
   it("lists open inquiries with an Inquiry badge and a set-up button", async () => {
     searchBookingsMock.mockResolvedValue({ ok: true, rows: [], total: 0 });
     listOpenInquiriesMock.mockResolvedValue([INQUIRY]);

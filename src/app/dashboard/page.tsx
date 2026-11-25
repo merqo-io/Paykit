@@ -42,7 +42,7 @@ function paymentMethodSummary(config: VendorPaymentConfig): {
 }
 
 export default async function DashboardPage() {
-  const { supabase, user } = await getVendorSession();
+  const { supabase, user } = await getVendorSession("/dashboard");
 
   // Singapore has no DST, so the first of the month is a fixed +08:00 offset.
   const monthStartIso = new Date(

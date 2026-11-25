@@ -217,6 +217,26 @@ describe("requireCurrentLegalAcceptance", () => {
     expect(redirect).toHaveBeenCalledWith("/legal/accept");
   });
 
+  it("carries a safe next path on the stale redirect", async () => {
+    const { client } = clientWith({
+      cached: { checked_at: new Date().toISOString(), is_current: false },
+    });
+    vi.mocked(createServiceClient).mockResolvedValue(client as never);
+    vi.mocked(redirect).mockClear();
+
+    await requireCurrentLegalAcceptance(
+      "vendor@example.com",
+      "/dashboard/transactions?status=claimed",
+    );
+    expect(redirect).toHaveBeenCalledWith(
+      "/legal/accept?next=%2Fdashboard%2Ftransactions%3Fstatus%3Dclaimed",
+    );
+
+    vi.mocked(redirect).mockClear();
+    await requireCurrentLegalAcceptance("vendor@example.com", "//evil.example");
+    expect(redirect).toHaveBeenCalledWith("/legal/accept?next=%2Fdashboard");
+  });
+
   it("sends an outage to the unavailable notice, still blocked", async () => {
     const { client } = clientWith({ cached: null });
     vi.mocked(createServiceClient).mockResolvedValue(client as never);

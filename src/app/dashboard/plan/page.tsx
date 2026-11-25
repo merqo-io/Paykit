@@ -47,7 +47,7 @@ function catalogInit(): RequestInit | undefined {
 }
 
 export default async function PlanPage() {
-  const { supabase, user } = await getVendorSession();
+  const { supabase, user } = await getVendorSession("/dashboard/plan");
   const [plan, count, catalog] = await Promise.all([
     readVendorPlan(supabase, user.id),
     txCountThisMonth(user.id),

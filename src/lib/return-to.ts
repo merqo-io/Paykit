@@ -95,3 +95,20 @@ export function loginRedirectPath(next?: string): string {
   if (!safe) return "/login";
   return `/login?${new URLSearchParams({ next: safe }).toString()}`;
 }
+
+/**
+ * A page's own path plus its current query string, for use as the `returnTo`
+ * of a gate redirect. Repeated keys are kept; undefined values are dropped.
+ */
+export function pathWithSearch(
+  path: string,
+  search: Record<string, string | string[] | undefined>,
+): string {
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(search)) {
+    if (value === undefined) continue;
+    for (const v of Array.isArray(value) ? value : [value]) qs.append(key, v);
+  }
+  const text = qs.toString();
+  return text ? `${path}?${text}` : path;
+}

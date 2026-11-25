@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getVendorSession } from "@/lib/vendor-session";
+import { pathWithSearch } from "@/lib/return-to";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
 import {
   freeListCutoff,
@@ -36,8 +37,11 @@ export default async function TransactionsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { supabase, user } = await getVendorSession();
-  const params = parseTransactionsParams(await searchParams);
+  const rawParams = await searchParams;
+  const { supabase, user } = await getVendorSession(
+    pathWithSearch("/dashboard/transactions", rawParams),
+  );
+  const params = parseTransactionsParams(rawParams);
 
   const isPaid = isPaidPlan(await readVendorPlan(supabase, user.id));
   // The window comes from the plan, never from the URL alone, so a crafted

@@ -42,3 +42,5 @@ reads plan state via `@/lib/vendor-entitlement` and usage via
 Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy.
 
 The merqo base URL used by the page comes from `@merqo/ui/kit-api`.
+
+Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

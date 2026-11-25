@@ -3,6 +3,7 @@ import {
   familyReturnUrl,
   loginRedirectPath,
   pathWithReturnTo,
+  pathWithSearch,
   safeNextPath,
 } from "./return-to";
 
@@ -182,5 +183,20 @@ describe("safeNextPath", () => {
     42,
   ])("rejects %j", (raw) => {
     expect(safeNextPath(raw)).toBeNull();
+  });
+});
+
+describe("pathWithSearch", () => {
+  it("returns the bare path when there is no query", () => {
+    expect(pathWithSearch("/dashboard/x", {})).toBe("/dashboard/x");
+    expect(pathWithSearch("/dashboard/x", { a: undefined })).toBe(
+      "/dashboard/x",
+    );
+  });
+
+  it("encodes values and keeps repeated keys", () => {
+    expect(
+      pathWithSearch("/dashboard/x", { q: "a b&c", tag: ["1", "2"] }),
+    ).toBe("/dashboard/x?q=a+b%26c&tag=1&tag=2");
   });
 });
