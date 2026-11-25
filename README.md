@@ -370,7 +370,7 @@ An event vendor can take inquiries before there is a booking. On Bookings they s
 
 `src/proxy.ts` sets the CSP (nonce on per-request routes) and `X-Robots-Tag` off production. `src/proxy.test.ts` pins the nonce on the `/auth/*` routes. The admin area requires TOTP MFA; see `src/app/mfa/README.md` and `docs/security/`. The MFA form and the wordmark are thin adapters over the shared `MfaForm` and `Wordmark` from `@merqo/ui`.
 
-Retention: migration 0031 nulls `auth_failures.ip` after 30 days through a daily `pg_cron` job (`purge_auth_failure_ips()`); the failure rows themselves are kept. Migration 0032 queues a payment screenshot's storage path when its `payment_evidence` row is deleted, and the daily Vercel Cron route `/api/cron/proof-storage-drain` (`CRON_SECRET`) removes the object, skipping any path a live evidence row still uses.
+Retention: migration 0031 nulls `auth_failures.ip` after 30 days through a daily `pg_cron` job (`purge_auth_failure_ips()`); the failure rows themselves are kept. Migration 0032 queues a payment screenshot's storage path when its `payment_evidence` row is deleted, and the daily Vercel Cron route `/api/cron/proof-storage-drain` (`CRON_SECRET`) removes the object, skipping any path a live evidence row still uses. Migration 0033 grants the service role `select` on `rate_limits` (0001's blanket grant predates the table) so the /admin overview can read rate-limit pressure; writes stay behind `check_rate_limit`.
 
 ## Database indexes
 
