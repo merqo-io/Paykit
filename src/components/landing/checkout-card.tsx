@@ -1,10 +1,10 @@
-import { Download } from "lucide-react";
+import { Download, ImageUp } from "lucide-react";
 import QRCode from "react-qr-code";
 import { Button } from "@merqo/ui/primitives";
 
 // A deliberately non-payable payload: the card is a picture of the pay page,
 // so scanning it must never lead anywhere near a real PayNow account.
-const SAMPLE_QR_VALUE = "https://paykit.merqo.io/sample";
+const SAMPLE_QR_VALUE = "https://paykit.merqo.io/faq";
 
 /**
  * A static copy of the QR step of the real pay page (`/pay/[id]`): same
@@ -49,6 +49,14 @@ export function CheckoutCard() {
           On this phone? Save the QR, then open your banking app and scan it
           from your photos.
         </p>
+
+        <Button
+          disabled
+          className="h-12 w-full rounded-lg disabled:opacity-100"
+        >
+          <ImageUp className="size-4" aria-hidden />
+          Upload payment screenshot
+        </Button>
 
         <div className="space-y-2">
           <Button

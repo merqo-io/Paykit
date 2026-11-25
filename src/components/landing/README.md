@@ -31,7 +31,8 @@ file. Presentational only — no data fetching, no client state beyond the
   (the only pricing statement on public pages).
 - `checkout-card.tsx` - static copy of the QR step of the real pay page
   (`/pay/[id]`): same header, mono amount, 220px `react-qr-code` QR and button
-  labels, with inert buttons. The QR encodes `https://paykit.merqo.io/sample`,
+  labels (including the filled "Upload payment screenshot" step), with inert
+  buttons. The QR encodes `https://paykit.merqo.io/faq`,
   never a PayNow payload, and the card has no vendor confirm footer.
 - `sections.tsx` - `HowItWorks` (three numbered steps, numerals in
   `text-success` for 4.5:1), `YourMoney` (one full-width statement that paykit

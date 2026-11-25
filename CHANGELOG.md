@@ -6,8 +6,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Payments list: search (reference or title, Starter and Pro), status and date-range filters, and real pagination (25 per page) replacing the 200-row cap. Filters live in the URL; `?status=claimed` deep-links to payments waiting for confirmation. Free vendors see search locked with an upgrade note and an "N older payments hidden on Free" notice; a crafted `from` can never reach rows past the 30-day cutoff (`resolveListRange`).
+
 ### Changed
 
+- Reports: the locked-tab copy now says what Starter and Pro give you (best days and hours, CSV for your accountant), the Free summary uses the shared `StatCard`, and the "Ledger" and "Insights" eyebrows are gone.
+- AGENTS.md plan-gate line now matches the pricing spec.
 - Redesigned the public landing to follow qkit's: a vendor-worded headline, a sample pay-card hero copied from the real pay page (non-payable QR), a how-it-works section, a full-width funds statement, and one FAQ and closing-call section (`@merqo/ui` `FaqRows`, reusing the `/faq` answers), all on one spacing scale. The removed body gradient also changes the dashboard background.
 - Replaced the "In build" badge and "Built, not yet tried with vendors." with one "In pilot with Merqo stalls" line; removed the decorative stat row, the icon card grid, the eyebrows and the body gradient wash.
 

@@ -22,7 +22,7 @@ const STEPS = [
   },
   {
     title: "You confirm it",
-    body: "They tap that they have paid. You check your bank account, confirm, and paykit marks the order paid.",
+    body: "They attach a screenshot of the payment and tap that they have paid. You check your bank account, confirm, and paykit marks the order paid.",
   },
 ];
 
@@ -35,7 +35,7 @@ export function HowItWorks() {
           <ol className="divide-y divide-border">
             {STEPS.map((s, i) => (
               <li key={s.title} className="flex gap-5 py-6 first:pt-0">
-                <span className="font-display text-3xl font-semibold tabular-nums text-success">
+                <span className="w-7 shrink-0 font-display text-3xl font-semibold tabular-nums text-success">
                   {i + 1}
                 </span>
                 <div>
