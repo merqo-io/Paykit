@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { Button, Input, Label } from "@merqo/ui/primitives";
 import { FORM_LABEL_CLASS } from "@merqo/ui";
+import { FILTER_SELECT_CLASS } from "@/components/list/filter-classes";
 import type { TransactionsParams } from "./search-params";
 import { transactionsHref } from "./search-params";
-
-const SELECT_CLASS =
-  "h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 /**
  * A plain GET form: filters live in the URL, so it works before hydration and
@@ -60,7 +58,7 @@ export function TransactionFilters({
           id="tx-status"
           name="status"
           defaultValue={params.status ?? ""}
-          className={SELECT_CLASS}
+          className={FILTER_SELECT_CLASS}
         >
           <option value="">All</option>
           <option value="claimed">Marked paid</option>

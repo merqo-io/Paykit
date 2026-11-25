@@ -49,7 +49,7 @@ the bookings section, each heading with a count. The bookings list is driven
 by URL params parsed in `list-params.ts` (`q`, `status`, `page`; invalid values
 fall back to defaults) and queried through `searchBookings` in
 `src/lib/bookings.ts` (RLS unchanged; search text is sanitized before it enters
-the `or()` filter). `booking-filters.tsx` is a plain GET form (labels use `FORM_LABEL_CLASS`; the status select carries local ring classes copied from the ledger filter) plus the pager. A failed query renders a bordered `role="alert"` "Couldn't load bookings" card with a Try again link;
+the `or()` filter). `booking-filters.tsx` is a plain GET form (labels use `FORM_LABEL_CLASS`; the status select uses the shared `FILTER_SELECT_CLASS`); paging is the shared `UrlPager`. A failed query renders the shared `ListError` ("Couldn't load bookings") with a Try again link;
 `customer-phone.tsx` renders the call and WhatsApp links used by both detail
 pages. `booking-table.tsx` shows "No bookings match" with a Clear filters action (EmptyState `actions`) when
 filters find nothing, and `new-booking-dialog.tsx`, which also takes an

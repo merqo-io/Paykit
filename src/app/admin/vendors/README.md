@@ -36,3 +36,5 @@ status, plan (read-only, from the entitlement cache), and transaction count.
 Page chrome here (PageHeader and EmptyState) comes from `@merqo/ui`; paykit keeps no local copy.
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+Paging and the failed-read card are the shared `UrlPager` and `ListError` from `@/components/list/`.

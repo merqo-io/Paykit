@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FORM_LABEL_CLASS } from "@merqo/ui";
 import { Button, Input, Label } from "@merqo/ui/primitives";
+import { FILTER_SELECT_CLASS } from "@/components/list/filter-classes";
 import {
   BOOKING_STATUS_FILTERS,
   bookingListHref,
@@ -14,11 +15,6 @@ const STATUS_LABELS: Record<(typeof BOOKING_STATUS_FILTERS)[number], string> = {
   fully_paid: "Fully paid",
   cancelled: "Cancelled",
 };
-
-// Same field styling as the ledger filter; copied locally until the classes
-// are shared.
-const SELECT_CLASS =
-  "h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
 
 // A plain GET form: the URL is the single source of truth, so filters survive
 // reload and sharing, and the list needs no client state.
@@ -51,7 +47,7 @@ export function BookingFilters({ params }: { params: BookingListParams }) {
           id="booking-status"
           name="status"
           defaultValue={params.status ?? ""}
-          className={SELECT_CLASS}
+          className={FILTER_SELECT_CLASS}
         >
           <option value="">All statuses</option>
           {BOOKING_STATUS_FILTERS.map((status) => (
@@ -73,50 +69,5 @@ export function BookingFilters({ params }: { params: BookingListParams }) {
         )}
       </div>
     </form>
-  );
-}
-
-export function BookingPager({
-  params,
-  total,
-  pageSize,
-}: {
-  params: BookingListParams;
-  total: number;
-  pageSize: number;
-}) {
-  const pages = Math.max(1, Math.ceil(total / pageSize));
-  if (pages <= 1) return null;
-  const linkClass = "underline underline-offset-4";
-  const mutedClass = "text-muted-foreground";
-  return (
-    <nav
-      aria-label="Bookings pages"
-      className="mt-4 flex items-center justify-between text-sm"
-    >
-      {params.page > 1 ? (
-        <Link
-          href={bookingListHref({ ...params, page: params.page - 1 })}
-          className={linkClass}
-        >
-          Previous
-        </Link>
-      ) : (
-        <span className={mutedClass}>Previous</span>
-      )}
-      <span className="tabular-nums text-muted-foreground">
-        Page {params.page} of {pages}
-      </span>
-      {params.page < pages ? (
-        <Link
-          href={bookingListHref({ ...params, page: params.page + 1 })}
-          className={linkClass}
-        >
-          Next
-        </Link>
-      ) : (
-        <span className={mutedClass}>Next</span>
-      )}
-    </nav>
   );
 }

@@ -7,8 +7,8 @@ import { listVendors, type VendorRow } from "@/lib/admin-data";
 import { EmptyState, PageHeader } from "@merqo/ui";
 import { Button, Input, Label } from "@merqo/ui/primitives";
 import { VendorsTable } from "@/app/admin/vendors/vendors-table";
-import { ListError } from "@/app/admin/list-error";
-import { ListPager } from "@/app/admin/list-pager";
+import { ListError } from "@/components/list/list-error";
+import { UrlPager } from "@/components/list/url-pager";
 import { listHref, paginate, parseVendorParams } from "@/app/admin/list-params";
 
 export const metadata: Metadata = {
@@ -78,11 +78,10 @@ export default async function AdminVendorsPage({
         <div className="overflow-x-auto">
           <VendorsTable rows={paged.rows} />
         </div>
-        <ListPager
-          path={PATH}
-          params={{ q }}
+        <UrlPager
           page={paged.page}
           pageCount={paged.pageCount}
+          href={(next) => listHref(PATH, { q, page: next })}
         />
       </div>
     );

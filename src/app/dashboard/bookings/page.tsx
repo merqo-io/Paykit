@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@merqo/ui";
 import { getVendorSession } from "@/lib/vendor-session";
 import { searchBookings } from "@/lib/bookings";
 import { getInquiryForm, listOpenInquiries } from "@/lib/inquiry-inbox";
-import { BookingFilters, BookingPager } from "./booking-filters";
+import { ListError } from "@/components/list/list-error";
+import { UrlPager } from "@/components/list/url-pager";
+import { BookingFilters } from "./booking-filters";
 import { BookingTable } from "./booking-table";
 import { NewBookingDialog } from "./new-booking-dialog";
 import { InquiryFormSettings } from "./inquiry-form-settings";
@@ -78,25 +79,18 @@ export default async function BookingsPage({
           {result.ok ? (
             <BookingTable bookings={result.rows} filtered={filtered} />
           ) : (
-            <div
-              role="alert"
-              className="rounded-lg border border-destructive/40 bg-card p-6 text-center"
-            >
-              <p className="font-medium">Couldn&rsquo;t load bookings</p>
-              <Link
-                href={bookingListHref(params)}
-                className="mt-2 inline-block text-sm underline underline-offset-4"
-              >
-                Try again
-              </Link>
-            </div>
+            <ListError
+              retryHref={bookingListHref(params)}
+              message="Couldn’t load bookings"
+            />
           )}
         </div>
         {result.ok && (
-          <BookingPager
-            params={params}
-            total={total}
-            pageSize={BOOKING_PAGE_SIZE}
+          <UrlPager
+            label="Bookings pages"
+            page={params.page}
+            pageCount={Math.max(1, Math.ceil(total / BOOKING_PAGE_SIZE))}
+            href={(next) => bookingListHref({ ...params, page: next })}
           />
         )}
       </section>

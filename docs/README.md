@@ -15,3 +15,5 @@
 ## Boundary and coverage
 
 paykit-audit-2026-10-08.md records the security and maintainability review. Dependency fixes and application checks are distinct from database runtime validation; read the migration and concurrency test results before applying the reviewed SQL changes.
+
+The shared list-page pieces (`ListError`, `UrlPager`, `FILTER_SELECT_CLASS`) are listed in `FILE-LAYOUT.md` under `src/components/list/`.
