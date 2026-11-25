@@ -111,6 +111,21 @@ describe("DashboardPage", () => {
     expect(screen.getByText("10 payments this month")).toBeInTheDocument();
   });
 
+  it("starts the month at midnight Singapore time, by confirmation time", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-02T03:00:00Z"));
+    try {
+      render(await DashboardPage());
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(confirmedCentsSinceMock).toHaveBeenCalledWith(
+      "v1",
+      "2026-10-31T16:00:00.000Z",
+    );
+  });
+
   it("has no eyebrow above the title", async () => {
     render(await DashboardPage());
 

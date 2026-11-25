@@ -3,7 +3,7 @@
 ## Purpose
 
 The vendor's plan page: current plan, this month's transaction count, the line
-a link to the Merqo account (`merqoBaseUrl()/dashboard`), a Free-only "what paid plans add" list with a count of payments older than the 30-day cutoff, and merqo's plan catalog rendered by
+a link to the Merqo account (`merqoBaseUrl()/account`), a Free-only "what paid plans add" list with a count of payments older than the 30-day cutoff, and merqo's plan catalog rendered by
 `@merqo/ui`'s `PricingLadder`. Merqo owns pricing and subscriptions, so paykit
 stores no price: the catalog is fetched from merqo's `/api/plans` (sent with the kit bearer from `MERQO_CUSTOMER_SECRET` when set), and
 when it is unreachable the page shows a calm "Prices are unavailable" line. The

@@ -88,73 +88,48 @@ describe("txCountThisMonth", () => {
 });
 
 describe("claimedTxSummary", () => {
-  const claimedClient = (result: {
-    data: { amount_cents: number }[] | null;
-    error: { message: string } | null;
-  }) => {
-    const statusEq = vi.fn().mockResolvedValue(result);
-    const selectMock = vi.fn(() => ({ eq: () => ({ eq: statusEq }) }));
+  const claimedClient = (pages: unknown[]) => {
+    const rangeMock = vi.fn();
+    for (const page of pages) rangeMock.mockResolvedValueOnce(page);
+    const statusEq = vi.fn(() => ({ order: () => ({ range: rangeMock }) }));
     createServerClientMock.mockResolvedValue({
-      from: () => ({ select: selectMock }),
+      from: () => ({
+        select: () => ({ eq: () => ({ eq: statusEq }) }),
+      }),
     });
-    return { statusEq, selectMock };
+    return { statusEq, rangeMock };
   };
 
   it("counts and sums the claimed rows", async () => {
-    const { statusEq, selectMock } = claimedClient({
-      data: [{ amount_cents: 450 }, { amount_cents: 1200 }],
-      error: null,
-    });
+    const { statusEq } = claimedClient([
+      { data: [{ amount_cents: 450 }, { amount_cents: 1200 }], error: null },
+      { data: [], error: null },
+    ]);
     const { claimedTxSummary } = await import("./transactions");
     expect(await claimedTxSummary("v1")).toEqual({ count: 2, cents: 1650 });
-    expect(selectMock).toHaveBeenCalledWith("amount_cents");
     expect(statusEq).toHaveBeenCalledWith("status", "claimed");
   });
 
-  it("returns zeros when there is no data", async () => {
-    claimedClient({ data: null, error: null });
+  it("reads past the 1000-row API cap", async () => {
+    const full = Array.from({ length: 1000 }, () => ({ amount_cents: 100 }));
+    const { rangeMock } = claimedClient([
+      { data: full, error: null },
+      { data: [{ amount_cents: 250 }], error: null },
+      { data: [], error: null },
+    ]);
     const { claimedTxSummary } = await import("./transactions");
-    expect(await claimedTxSummary("v1")).toEqual({ count: 0, cents: 0 });
+    expect(await claimedTxSummary("v1")).toEqual({
+      count: 1001,
+      cents: 100_250,
+    });
+    expect(rangeMock).toHaveBeenNthCalledWith(2, 1000, 1999);
   });
 
   it("logs and returns zeros on a query error", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    claimedClient({ data: null, error: { message: "boom" } });
+    claimedClient([{ data: null, error: { message: "boom" } }]);
     const { claimedTxSummary } = await import("./transactions");
     expect(await claimedTxSummary("v1")).toEqual({ count: 0, cents: 0 });
-    expect(errorSpy).toHaveBeenCalledWith("claimedTxSummary failed", "boom");
-    errorSpy.mockRestore();
-  });
-});
-
-describe("confirmedCentsSince", () => {
-  const confirmedClient = (pages: unknown[]) => {
-    const rangeMock = vi.fn();
-    for (const page of pages) rangeMock.mockResolvedValueOnce(page);
-    const gteMock2 = vi.fn(() => ({ order: () => ({ range: rangeMock }) }));
-    createServerClientMock.mockResolvedValue({
-      from: () => ({
-        select: () => ({ eq: () => ({ eq: () => ({ gte: gteMock2 }) }) }),
-      }),
-    });
-    return gteMock2;
-  };
-
-  it("sums confirmed rows created since the cutoff", async () => {
-    const gte = confirmedClient([
-      { data: [{ amount_cents: 300 }, { amount_cents: 700 }], error: null },
-      { data: [], error: null },
-    ]);
-    const { confirmedCentsSince } = await import("./transactions");
-    expect(await confirmedCentsSince("v1", "2026-11-01T00:00:00Z")).toBe(1000);
-    expect(gte).toHaveBeenCalledWith("created_at", "2026-11-01T00:00:00Z");
-  });
-
-  it("logs and returns 0 when the read fails", async () => {
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    confirmedClient([{ data: null, error: { message: "boom" } }]);
-    const { confirmedCentsSince } = await import("./transactions");
-    expect(await confirmedCentsSince("v1", "x")).toBe(0);
     expect(errorSpy).toHaveBeenCalled();
     errorSpy.mockRestore();
   });

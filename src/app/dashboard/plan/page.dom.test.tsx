@@ -95,7 +95,7 @@ describe("PlanPage", () => {
       screen.getByRole("link", { name: "Change plan in your Merqo account" }),
     ).toHaveAttribute(
       "href",
-      expect.stringMatching(/^https?:\/\/.+\/dashboard$/),
+      expect.stringMatching(/^https?:\/\/.+\/account$/),
     );
     expect(fetchPlanCatalogMock).toHaveBeenCalledWith(
       expect.stringMatching(/^https?:\/\//),
@@ -236,5 +236,28 @@ describe("PlanPage", () => {
     render(await PlanPage());
 
     expect(screen.queryByText("Billing")).not.toBeInTheDocument();
+  });
+
+  it("marks a paid vendor's plan as current in the ladder", async () => {
+    readVendorPlanMock.mockResolvedValue("pro");
+    txCountThisMonthMock.mockResolvedValue(0);
+    fetchPlanCatalogMock.mockResolvedValue(proCatalog);
+
+    render(await PlanPage());
+
+    expect(screen.getByText("Your current plan")).toBeInTheDocument();
+    expect(
+      screen.queryByText("You are on the Pro plan."),
+    ).not.toBeInTheDocument();
+  });
+
+  it("says which plan the vendor is on when it is not in the catalog", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    txCountThisMonthMock.mockResolvedValue(0);
+    fetchPlanCatalogMock.mockResolvedValue(catalog);
+
+    render(await PlanPage());
+
+    expect(screen.getByText("You are on the Free plan.")).toBeInTheDocument();
   });
 });

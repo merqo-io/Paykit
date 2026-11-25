@@ -58,23 +58,27 @@ export async function claimedTxSummary(
   vendorId: string,
 ): Promise<{ count: number; cents: number }> {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("transactions")
-    .select("amount_cents")
-    .eq("vendor_id", vendorId)
-    .eq("status", "claimed");
-  if (error) {
-    console.error("claimedTxSummary failed", error.message);
+  try {
+    const rows = await readAllRows<{ amount_cents: number }>((from, to) =>
+      supabase
+        .from("transactions")
+        .select("amount_cents")
+        .eq("vendor_id", vendorId)
+        .eq("status", "claimed")
+        .order("id")
+        .range(from, to),
+    );
+    return {
+      count: rows.length,
+      cents: rows.reduce((sum, row) => sum + row.amount_cents, 0),
+    };
+  } catch (error) {
+    console.error("claimedTxSummary failed", error);
     return { count: 0, cents: 0 };
   }
-  const rows = data ?? [];
-  return {
-    count: rows.length,
-    cents: rows.reduce((sum, row) => sum + row.amount_cents, 0),
-  };
 }
 
-/** Confirmed takings since `sinceIso`, in SGD cents. */
+/** Takings confirmed at or after `sinceIso` (by confirmation time, not creation), in SGD cents. */
 export async function confirmedCentsSince(
   vendorId: string,
   sinceIso: string,
@@ -87,7 +91,7 @@ export async function confirmedCentsSince(
         .select("amount_cents")
         .eq("vendor_id", vendorId)
         .eq("status", "confirmed")
-        .gte("created_at", sinceIso)
+        .gte("confirmed_at", sinceIso)
         .order("id")
         .range(from, to),
     );

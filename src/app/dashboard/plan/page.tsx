@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import type { ReactNode } from "react";
 import { getVendorSession } from "@/lib/vendor-session";
 import { countTransactionsBefore, txCountThisMonth } from "@/lib/transactions";
 import { freeListCutoff, FREE_LIST_DAYS, isPaidPlan } from "@/lib/free-limits";
@@ -14,6 +14,19 @@ export const metadata: Metadata = {
 };
 
 export const revalidate = 0;
+
+// The ladder only accepts "qkit" or "all_access" as a highlight and the
+// catalog has no paykit-only plan; the qkit plan includes full paykit, so a
+// paid vendor sits on that entry. Free has no ladder entry of its own.
+const PAID_SLUG = "qkit";
+
+function describePlans(plan: string): Record<string, ReactNode> {
+  return {
+    [plan === "pro" ? PAID_SLUG : plan]: (
+      <span className="font-semibold text-primary">Your current plan</span>
+    ),
+  };
+}
 
 function catalogInit(): RequestInit | undefined {
   const secret = process.env.MERQO_CUSTOMER_SECRET;
@@ -34,7 +47,9 @@ export default async function PlanPage() {
   const hidden = paid
     ? 0
     : await countTransactionsBefore(user.id, freeListCutoff());
-  const accountHref = `${merqoBaseUrl()}/dashboard`;
+  const currentSlug = view.plan === "pro" ? PAID_SLUG : view.plan;
+  const currentListed = catalog?.plans.some((p) => p.slug === currentSlug);
+  const accountHref = `${merqoBaseUrl()}/account`;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -78,18 +93,25 @@ export default async function PlanPage() {
         </section>
       )}
 
+      {catalog && !currentListed ? (
+        <p className="text-sm text-muted-foreground">
+          You are on the {view.planLabel} plan.
+        </p>
+      ) : null}
+
       {catalog ? (
         <PricingLadder
           catalog={catalog}
-          highlight="qkit"
+          highlight={PAID_SLUG}
+          descriptions={describePlans(view.plan)}
           showEventPass={false}
         />
       ) : (
         <p className="text-sm text-muted-foreground">
           Prices are unavailable right now. Your plan is unaffected.{" "}
-          <Link href="/dashboard/plan" className="underline underline-offset-4">
+          <a href="/dashboard/plan" className="underline underline-offset-4">
             Try again
-          </Link>
+          </a>
         </p>
       )}
     </div>
