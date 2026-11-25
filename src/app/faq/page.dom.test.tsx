@@ -36,9 +36,7 @@ describe("FAQ page", () => {
         name: "Frequently asked questions",
       }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/built but not yet tried with vendors/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/in pilot with Merqo stalls/)).toBeInTheDocument();
     for (const name of [
       "How paying works",
       "Setting up",

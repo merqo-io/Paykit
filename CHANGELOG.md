@@ -6,6 +6,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Redesigned the public landing to follow qkit's: a vendor-worded headline, a sample pay-card hero (stall, amount, PayNow QR, "To confirm" row), plain split sections for how it works, where the money goes, FAQ (`@merqo/ui` `FaqRows`) and the closing call, all on one spacing scale.
+- Replaced the "In build" badge and "Built, not yet tried with vendors." with one "In pilot with Merqo stalls" line; removed the decorative stat row, the icon card grid, the eyebrows and the body gradient wash.
+
 ## [0.6.1] - 2026-11-23
 
 ### Changed

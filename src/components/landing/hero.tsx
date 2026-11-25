@@ -1,67 +1,51 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Badge, Button } from "@merqo/ui/primitives";
+import { Button } from "@merqo/ui/primitives";
 
 import { CheckoutCard } from "./checkout-card";
+import { CONTAINER } from "./rhythm";
 import { WAITLIST_URL } from "./waitlist";
-
-const STATS = [
-  { value: "0", label: "funds held by paykit" },
-  { value: "2", label: "ways to get paid: PayNow or your own link" },
-  { value: "3", label: "payment steps: waiting, paid, confirmed" },
-];
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden">
-      <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-20 sm:py-28 lg:grid-cols-2 lg:items-center">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge variant="outline" className="text-xs">
-              In build
-            </Badge>
-            <p className="text-sm text-muted-foreground">
-              Built, not yet tried with vendors.
+    <section className="pt-[clamp(40px,7vw,96px)] pb-[clamp(56px,8vw,112px)]">
+      <div className={CONTAINER}>
+        <div className="grid items-center gap-10 min-[960px]:grid-cols-[1.05fr_1fr] min-[960px]:gap-16">
+          <div className="min-w-0">
+            <p className="text-[15px] text-muted-foreground">
+              Built in Singapore for stalls and event carts
+            </p>
+            <h1 className="mt-5 text-balance font-display text-[clamp(40px,6vw,76px)] font-semibold leading-[1.02] tracking-[-0.02em]">
+              Get paid by PayNow. Know who has paid.
+            </h1>
+            <p className="mt-6 max-w-[34em] text-[clamp(17px,1.6vw,20px)] leading-[1.55] text-muted-foreground">
+              Set up your PayNow once. Every order gets a QR your customer scans
+              in their own bank app. You see the payment in your account,
+              confirm it, and paykit keeps the record.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Button
+                asChild
+                size="lg"
+                className="h-12 rounded-lg px-[26px] text-base font-semibold"
+              >
+                <a href={WAITLIST_URL}>Join the waitlist</a>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="h-12 rounded-lg px-[26px] text-base font-semibold"
+              >
+                <Link href="#how">See how</Link>
+              </Button>
+            </div>
+            <p className="mt-6 text-sm text-muted-foreground">
+              In pilot with Merqo stalls
             </p>
           </div>
-          <h1 className="mt-4 text-balance font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
-            One payment setup for every kit.
-          </h1>
-          <p className="mt-5 max-w-md text-lg text-muted-foreground">
-            paykit shows your customers a PayNow QR, or your own payment link or
-            QR, and tracks who&apos;s paid. It never touches the money. qkit is
-            the first kit built to use it.
-          </p>
-
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Button asChild size="lg">
-              <a href={WAITLIST_URL}>
-                Join the waitlist
-                <ArrowRight className="size-4" />
-              </a>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="#how">See how it works</Link>
-            </Button>
+          <div className="flex min-w-0 justify-center min-[960px]:justify-end">
+            <CheckoutCard />
           </div>
-
-          <dl className="mt-12 grid max-w-md grid-cols-3 gap-6 border-t pt-8">
-            {STATS.map((s) => (
-              <div key={s.label}>
-                <dt className="sr-only">{s.label}</dt>
-                <dd className="font-display text-2xl font-semibold tracking-tight text-mint sm:text-3xl">
-                  {s.value}
-                </dd>
-                <dd className="mt-1 text-xs leading-tight text-muted-foreground">
-                  {s.label}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-
-        <div className="flex justify-center lg:justify-end">
-          <CheckoutCard />
         </div>
       </div>
     </section>

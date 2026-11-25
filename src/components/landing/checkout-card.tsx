@@ -1,20 +1,27 @@
-import { Badge } from "@merqo/ui/primitives";
-
-/** Decorative checkout stand-in for the hero, not a scannable QR. */
+/**
+ * A static sample of the pay page a customer sees: stall, amount, PayNow QR.
+ * The QR is a silhouette, not a scannable payload.
+ */
 export function CheckoutCard() {
   return (
-    <div className="w-full max-w-sm rounded-lg border bg-card p-5">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          Scan to pay with PayNow
-        </span>
-        <Badge variant="outline" className="text-[10px]">
-          preview
-        </Badge>
+    <figure
+      className="w-full max-w-sm rounded-lg border bg-card p-5"
+      aria-label="Sample paykit pay page"
+    >
+      <div className="flex items-baseline justify-between gap-3">
+        <div>
+          <p className="font-display text-lg font-semibold leading-tight">
+            Ah Seng Kopi
+          </p>
+          <p className="text-sm text-muted-foreground">Order #A82F</p>
+        </div>
+        <p className="font-display text-2xl font-semibold tabular-nums">
+          S$7.80
+        </p>
       </div>
 
       <div
-        className="mt-4 grid grid-cols-6 gap-1 rounded-lg bg-muted p-4"
+        className="mt-5 grid grid-cols-6 gap-1 rounded-lg bg-muted p-4"
         aria-hidden
       >
         {QR_PATTERN.map((row, i) =>
@@ -30,24 +37,19 @@ export function CheckoutCard() {
           )),
         )}
       </div>
+      <p className="mt-3 text-center text-sm text-muted-foreground">
+        Scan with your bank app to pay by PayNow
+      </p>
 
-      <div className="mt-4 flex items-baseline justify-between">
-        <span className="font-display text-2xl font-semibold tracking-tight">
-          PayNow
-        </span>
-        <span className="text-xs text-muted-foreground">Sample</span>
-      </div>
-
-      <div className="mt-3 flex items-center gap-2 border-t pt-3">
+      <figcaption className="mt-4 flex items-center gap-2 border-t pt-3 text-sm">
         <span className="size-1.5 rounded-full bg-mint" aria-hidden />
-        <span className="text-sm font-medium">Confirmed</span>
-        <span className="ml-auto text-xs text-muted-foreground">#A82F</span>
-      </div>
-    </div>
+        <span className="font-medium">Customer says paid</span>
+        <span className="ml-auto text-muted-foreground">To confirm</span>
+      </figcaption>
+    </figure>
   );
 }
 
-// Purely decorative — a plausible-looking QR silhouette, not a real payload.
 const QR_PATTERN = [
   [1, 1, 1, 0, 1, 1],
   [1, 0, 1, 1, 0, 1],
