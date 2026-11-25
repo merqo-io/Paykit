@@ -11,7 +11,7 @@ for this project.
 - `about/` â€” `AboutPage`, the public "Why Merqo" page: `@merqo/ui`'s
   shared `AboutMerqo` (the qkit origin story), wrapped in this app's own
   `Nav` and `SiteFooter` with a link back to `/#how`. Linked from both.
-- `faq/` ï¿½ `FaqRoute`, the public `/faq` page: `@merqo/ui`'s shared
+- `faq/` — `FaqRoute`, the public `/faq` page: `@merqo/ui`'s shared
   `FaqPage` in this app's own `Nav` and `SiteFooter`, with nine rows in three
   groups and FAQPage JSON-LD. Linked from `Nav`.
 - `admin/`, Merqo-team internal admin console (`/admin`), gated by `requireAdmin()`, platform overview stats and a cross-vendor table with each vendor's plan (read-only).
@@ -63,4 +63,4 @@ Buttons, inputs, dialogs, badges and the other shared primitives here are import
 
 The root layout takes its theme props from `@merqo/ui/next`, and the icon routes build their mark with `brandIcon` from `@merqo/ui` and the options in `lib/brand-mark.ts`.
 
-Money and times here come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.
+Money and times in this tree come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.

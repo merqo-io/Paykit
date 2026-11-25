@@ -52,4 +52,4 @@ Buttons, inputs, dialogs, badges and the other shared primitives here are import
 
 The pay panel uses `useAsyncAction` from `@merqo/ui` and `cn` from `@merqo/ui/primitives`; `callHandler` in `lib/utils.ts` adapts the server-action thunk.
 
-Money and times here come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.
+The amount shown above the QR renders through `@merqo/ui` `Money` ("S$4.50").

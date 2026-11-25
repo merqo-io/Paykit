@@ -15,8 +15,8 @@ totals instead (see `dashboard/reports/`). Refund tracking is also paid (see
 - `revenue-chart.tsx` — `RevenueChart({ data })`: client component. A 3-tile
   stat row (`StatTile`: Total revenue, Payments, Avg / day) sits above a
   `recharts` `BarChart` (dollars by day, bars filled with `var(--color-mint)`)
-  in a `ResponsiveContainer`. `ChartTooltip` shows the date, S$-formatted amount (`formatMoney`),
-  amount and payment count on hover, without a shadow. Recharts renders an
+  in a `ResponsiveContainer`. `ChartTooltip` shows the date, the S$ amount (`formatMoney`) and payment count
+  on hover, without a shadow. Recharts renders an
   inline SVG with no text alternative, so the wrapping `div` carries
   `role="img"` plus a summarizing `aria-label`, and an `sr-only` `<table>`
   holds the per-day numbers.

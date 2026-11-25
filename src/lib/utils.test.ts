@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatDate } from "@merqo/ui";
+import { formatDate, formatDateTime } from "@merqo/ui";
 import { pctChange } from "./utils";
 
 describe("pctChange", () => {
@@ -25,5 +25,12 @@ describe("shared formatDate on bare Postgres dates", () => {
     expect(formatDate("2026-01-01")).toBe("1 Jan 2026");
     expect(formatDate("2026-12-31")).toBe("31 Dec 2026");
     expect(formatDate("2026-03-01")).toBe("1 Mar 2026");
+  });
+});
+
+describe("shared formatters roll timestamps into SGT", () => {
+  it("shows the next SGT day when UTC is still the previous day", () => {
+    expect(formatDate("2026-03-01T17:30:00Z")).toBe("2 Mar 2026");
+    expect(formatDateTime("2026-03-01T17:30:00Z")).toBe("2 Mar 2026, 1:30 am");
   });
 });

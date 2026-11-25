@@ -41,4 +41,4 @@ Buttons, inputs, dialogs, badges and the other shared primitives here are import
 
 `search-params.ts` keeps `REPORT_TABS` module-private; only the parser and the `ReportTab` type are exported.
 
-Money and times here come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.
+The free-plan Today and Yesterday tiles show amounts through `@merqo/ui` `formatMoney` ("S$4.50").

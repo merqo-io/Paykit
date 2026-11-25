@@ -68,4 +68,4 @@ Buttons, inputs, dialogs, badges and the other shared primitives here are import
 
 The merqo base URL and the `ActionResult` shape come from `@merqo/ui/kit-api`; `useAsyncAction` comes from `@merqo/ui`.
 
-Money and times here come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.
+The hub tiles show amounts through `@merqo/ui` `formatMoney` ("S$4.50").
