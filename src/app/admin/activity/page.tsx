@@ -28,6 +28,13 @@ const PATH = "/admin/activity";
 
 const SELECT_CLASS = cn(FILTER_SELECT_CLASS, "sm:w-56");
 
+// Exclusive upper bound: midnight after the chosen Singapore day, so rows with
+// sub-millisecond timestamps late in the day are still included.
+function nextDayStart(day: string): string {
+  const start = Date.parse(`${day}T00:00:00+08:00`);
+  return new Date(start + 24 * 60 * 60 * 1000).toISOString();
+}
+
 function formatDetail(detail: AuditLogRow["detail"]): string | null {
   if (detail === null || detail === undefined) return null;
   if (typeof detail !== "object" || Array.isArray(detail))
@@ -61,7 +68,7 @@ export default async function AdminActivityPage({
   const { action, from, to, page } = filters;
   const active = { action, from, to };
 
-  const { fromMs, toMs } = dayBounds(from, to);
+  const { fromMs } = dayBounds(from, to);
   let result: Awaited<ReturnType<typeof auditLog>>;
   try {
     result = await auditLog({
@@ -69,7 +76,7 @@ export default async function AdminActivityPage({
       since: Number.isFinite(fromMs)
         ? new Date(fromMs).toISOString()
         : undefined,
-      until: Number.isFinite(toMs) ? new Date(toMs).toISOString() : undefined,
+      before: to ? nextDayStart(to) : undefined,
       page,
       pageSize: PAGE_SIZE,
     });

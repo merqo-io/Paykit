@@ -27,7 +27,7 @@ figure-tile helper used by the overview and vendors screens.
   `UrlPager` and `ListError` in `@/components/list/`; the activity action
   select uses `FILTER_SELECT_CLASS`.
 - `action-labels.ts` — audit action to readable label, shared by the activity
-  table and its action filter (`KNOWN_ACTIONS` is the filter's option list).
+  table and its action filter (`KNOWN_ACTIONS` is the filter's option list). `action-labels.test.ts` fails when a `recordAudit` action has no label.
 - `page.tsx` — `AdminOverviewPage`: platform-wide stat tiles (vendors by
   plan, transactions by status, confirmed volume with 7d/30d deltas, and a
   trailing-30d refund count/volume tile), a Security stat block (failed

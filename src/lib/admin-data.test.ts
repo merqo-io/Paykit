@@ -406,7 +406,7 @@ describe("admin-data", () => {
       error: unknown = null,
     ) {
       const b: Record<string, unknown> = {};
-      for (const name of ["select", "eq", "gte", "lte", "order"]) {
+      for (const name of ["select", "eq", "gte", "lt", "order"]) {
         b[name] = (...args: unknown[]) => {
           calls.push([name, ...args]);
           return b;
@@ -489,7 +489,7 @@ describe("admin-data", () => {
       await auditLog({
         action: "record_refund",
         since: "2026-01-01T00:00:00.000Z",
-        until: "2026-02-01T00:00:00.000Z",
+        before: "2026-02-01T00:00:00.000Z",
         page: 1,
         pageSize: 25,
       });
@@ -500,7 +500,7 @@ describe("admin-data", () => {
         "2026-01-01T00:00:00.000Z",
       ]);
       expect(calls).toContainEqual([
-        "lte",
+        "lt",
         "created_at",
         "2026-02-01T00:00:00.000Z",
       ]);
@@ -510,7 +510,7 @@ describe("admin-data", () => {
       await auditLog({ page: 1, pageSize: 25 });
       expect(bare.map((c) => c[0])).not.toContain("eq");
       expect(bare.map((c) => c[0])).not.toContain("gte");
-      expect(bare.map((c) => c[0])).not.toContain("lte");
+      expect(bare.map((c) => c[0])).not.toContain("lt");
     });
 
     it("computes the range from page and page size", async () => {
@@ -524,19 +524,38 @@ describe("admin-data", () => {
       expect(res.total).toBe(60);
     });
 
-    it("re-reads the last page when the requested page is past the end", async () => {
+    it("returns no rows and the clamped page when the page is past the end", async () => {
+      const calls: Call[] = [];
+      fromMock.mockReturnValueOnce(auditBuilder([], 60, calls));
+      const res = await auditLog({ page: 9, pageSize: 25 });
+      expect(calls.filter((c) => c[0] === "range")).toEqual([
+        ["range", 200, 224],
+      ]);
+      expect(res.rows).toEqual([]);
+      expect(res.page).toBe(3);
+      expect(res.pageCount).toBe(3);
+      expect(res.total).toBe(60);
+    });
+
+    it("recovers the total when PostgREST rejects an offset past the end", async () => {
       const calls: Call[] = [];
       fromMock
-        .mockReturnValueOnce(auditBuilder(mkRows(60), 60, calls))
+        .mockReturnValueOnce(
+          auditBuilder([], 0, calls, {
+            code: "PGRST103",
+            message: "Requested range not satisfiable",
+          }),
+        )
         .mockReturnValueOnce(auditBuilder(mkRows(60), 60, calls));
       const res = await auditLog({ page: 9, pageSize: 25 });
-      const ranges = calls.filter((c) => c[0] === "range");
-      expect(ranges).toEqual([
+      expect(calls.filter((c) => c[0] === "range")).toEqual([
         ["range", 200, 224],
-        ["range", 50, 74],
+        ["range", 0, 24],
       ]);
+      expect(res.rows).toEqual([]);
       expect(res.page).toBe(3);
-      expect(res.rows).toHaveLength(10);
+      expect(res.pageCount).toBe(3);
+      expect(res.total).toBe(60);
     });
 
     it("clamps page below 1 and an exact multiple of page size", async () => {

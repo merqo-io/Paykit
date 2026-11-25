@@ -96,7 +96,7 @@ describe("AdminActivityPage", () => {
     expect(mock).toHaveBeenCalledWith({
       action: "record_refund",
       since: undefined,
-      until: undefined,
+      before: undefined,
       page: 1,
       pageSize: 25,
     });
@@ -117,7 +117,7 @@ describe("AdminActivityPage", () => {
     expect(mock).toHaveBeenCalledWith(
       expect.objectContaining({
         since: "2026-08-20T16:00:00.000Z",
-        until: "2026-08-21T15:59:59.999Z",
+        before: "2026-08-21T16:00:00.000Z",
       }),
     );
   });

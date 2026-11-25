@@ -295,9 +295,9 @@ export async function listVendors(): Promise<VendorRow[]> {
 
 export type AuditLogQuery = {
   action?: string;
-  /** Inclusive ISO bounds on `created_at`. */
+  /** Inclusive lower and exclusive upper ISO bound on `created_at`. */
   since?: string;
-  until?: string;
+  before?: string;
   page: number;
   pageSize: number;
 };
@@ -305,7 +305,10 @@ export type AuditLogQuery = {
 export type AuditLogPage = {
   rows: AuditLogRow[];
   total: number;
-  /** The page actually served, clamped to `[1, pageCount]`. */
+  /**
+   * The requested page clamped to `[1, pageCount]`. A request past the end
+   * returns no rows; the caller redirects to this page.
+   */
   page: number;
   pageCount: number;
 };
@@ -320,7 +323,7 @@ export async function auditLog(query: AuditLogQuery): Promise<AuditLogPage> {
   const pageSize = Math.max(1, Math.floor(query.pageSize));
   const requested = Math.max(1, Math.floor(query.page) || 1);
 
-  const read = async (page: number) => {
+  const read = (from: number) => {
     let q = supabase
       .from("admin_audit")
       .select("id, admin_id, action, target_id, detail, created_at", {
@@ -328,24 +331,25 @@ export async function auditLog(query: AuditLogQuery): Promise<AuditLogPage> {
       });
     if (query.action) q = q.eq("action", query.action);
     if (query.since) q = q.gte("created_at", query.since);
-    if (query.until) q = q.lte("created_at", query.until);
-    const from = (page - 1) * pageSize;
-    const res = await q
+    if (query.before) q = q.lt("created_at", query.before);
+    return q
       .order("created_at", { ascending: false })
       .range(from, from + pageSize - 1);
-    if (res.error) throw new Error(`auditLog: ${res.error.message}`);
-    return { data: res.data ?? [], total: res.count ?? 0 };
   };
 
-  let page = requested;
-  let { data, total } = await read(page);
-  const pageCount = Math.max(1, Math.ceil(total / pageSize));
-  if (page > pageCount) {
-    // The count is only known after the read, so a page past the end is
-    // re-read at the last page rather than served empty.
-    page = pageCount;
-    ({ data, total } = await read(page));
+  let pastEnd = false;
+  let res = await read((requested - 1) * pageSize);
+  // PostgREST rejects an offset past the last row (PGRST103) without a count;
+  // the first page is read only to learn the total so the caller can redirect.
+  if (res.error?.code === "PGRST103") {
+    res = await read(0);
+    pastEnd = true;
   }
+  if (res.error) throw new Error(`auditLog: ${res.error.message}`);
+  const data = pastEnd ? [] : (res.data ?? []);
+  const total = res.count ?? 0;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const page = Math.min(requested, pageCount);
 
   const emails = await emailByUserId(supabase);
   return {
