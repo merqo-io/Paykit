@@ -267,9 +267,11 @@ export const authCallbackQuerySchema = z.object({
 });
 
 // Same-origin relative path only: a leading "//" or backslash would leave the site.
+// The cap covers /dashboard/config?return_to= plus a 2000-character return_to
+// (the familyReturnUrl limit) with every character percent-encoded (x3).
 export const redirectPathSchema = z
   .string()
-  .max(512)
+  .max(6100)
   .regex(/^\/(?![/\\])/);
 
 export const hostedPayRefSchema = z.object({

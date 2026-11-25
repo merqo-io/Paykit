@@ -59,7 +59,9 @@ started" links. On success it calls `router.push(next)` +
 same-origin relative path (`safeNextPath` in `src/lib/return-to.ts`, shared
 with `/auth/callback`: it rejects whitespace, control characters, backslashes
 and encoded `//`, and returns only path, query and hash) and `/dashboard`
-otherwise; the Google and email-link callbacks carry the same `next` to
+otherwise (login checks `next` only as a same-origin path; a nested
+`return_to` inside it is re-validated by `familyReturnUrl` on
+`/dashboard/config`); the Google and email-link callbacks carry the same `next` to
 `/auth/callback`; `/dashboard`'s `layout.tsx` (`getVendorSession()`) is
 the actual auth gate this page's happy path leads into.
 

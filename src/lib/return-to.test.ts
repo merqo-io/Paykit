@@ -138,9 +138,20 @@ describe("loginRedirectPath", () => {
     "/%2F%2Fevil.com",
     "https://evil.com",
     "javascript:alert(1)",
-    `/${"a".repeat(600)}`,
+    `/${"a".repeat(6100)}`,
   ])("drops an unsafe next (%j)", (next) => {
     expect(loginRedirectPath(next)).toBe("/login");
+  });
+
+  it("keeps a config path carrying a fully encoded 2000-character return_to", () => {
+    const returnTo = `https://qkit.merqo.io/${"/".repeat(1978)}`;
+    expect(returnTo).toHaveLength(2000);
+    const next = pathWithReturnTo("/dashboard/config", returnTo);
+    expect(next.length).toBeGreaterThan(512);
+    expect(next.length).toBeLessThanOrEqual(6100);
+    expect(loginRedirectPath(next)).toBe(
+      `/login?next=${encodeURIComponent(next)}`,
+    );
   });
 });
 
