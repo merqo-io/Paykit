@@ -16,6 +16,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - AGENTS.md plan-gate line now matches the pricing spec.
 - Redesigned the public landing to follow qkit's: a vendor-worded headline, a sample pay-card hero copied from the real pay page (non-payable QR), a how-it-works section, a full-width funds statement, and one FAQ and closing-call section (`@merqo/ui` `FaqRows`, reusing the `/faq` answers), all on one spacing scale. The removed body gradient also changes the dashboard background.
 - Replaced the "In build" badge and "Built, not yet tried with vendors." with one "In pilot with Merqo stalls" line; removed the decorative stat row, the icon card grid, the eyebrows and the body gradient wash.
+- Dashboard home shows the SGD amount waiting to be confirmed next to the count (linking to payments), and this month's confirmed amount next to the payment count. A vendor with no payment setup sees one setup prompt instead of empty cards.
+- Plan page links to the Merqo account, offers a retry when prices are unavailable, and tells Free vendors what paid plans add and how many older payments Free hides.
+- Removed the repeated eyebrow labels from the home, plan, payment setup and profile headers.
+- The pay page names what happened and the buyer's next step in every state: an invalid link (new `not-found.tsx`), too many tries, a failed load and a recorded payment, using the stall name where the page already has it. Notices are left-aligned.
+- The inquiry form has its own not-found page and its error messages say to contact the business where retrying will not help.
+- A failed Merqo terms check (outage) still blocks the vendor but now redirects to `/legal/accept?reason=unavailable` with "We couldn't check the terms right now" and a retry link, instead of claiming the terms changed. `reason` is Zod-validated and the retry path is same-origin only.
 
 ## [0.6.1] - 2026-11-23
 

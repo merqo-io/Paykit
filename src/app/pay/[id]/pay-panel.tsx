@@ -163,6 +163,31 @@ function ProofUpload({
   );
 }
 
+function EndNotice({
+  recorded,
+  sellerName,
+}: {
+  recorded: boolean;
+  sellerName: string | null;
+}) {
+  const who = sellerName ?? "the seller";
+  if (recorded) {
+    return (
+      <Notice
+        title="Payment recorded"
+        detail={`${sellerName ?? "The seller"} has been told. You can close this page.`}
+      />
+    );
+  }
+  return (
+    <Notice
+      title="Could not load payment"
+      detail="This payment could not be shown."
+      next={`Ask ${who} to show a new QR.`}
+    />
+  );
+}
+
 export function PayPanel({
   id,
   token,
@@ -288,22 +313,8 @@ export function PayPanel({
     });
   }
 
-  if (recorded) {
-    return (
-      <Notice
-        title="Payment recorded"
-        detail="The seller has been told. You can close this page."
-      />
-    );
-  }
-
-  if (!view) {
-    return (
-      <Notice
-        title="Could not load payment"
-        detail="Ask the seller how to pay for this order."
-      />
-    );
+  if (recorded || !view) {
+    return <EndNotice recorded={recorded} sellerName={sellerName} />;
   }
 
   // One filled button at a time, on the step the customer is up to: pay,

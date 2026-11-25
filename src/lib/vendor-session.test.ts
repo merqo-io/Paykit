@@ -64,6 +64,19 @@ describe("getVendorSession", () => {
 
     expect(requireCurrentLegalAcceptanceMock).toHaveBeenCalledWith(
       "vendor@business.sg",
+      undefined,
+    );
+  });
+
+  it("forwards an optional returnTo to the gate", async () => {
+    const user = { id: "u1", email: "vendor@business.sg" };
+    getUserMock.mockResolvedValue({ data: { user } });
+
+    await getVendorSession("/dashboard/settings");
+
+    expect(requireCurrentLegalAcceptanceMock).toHaveBeenCalledWith(
+      "vendor@business.sg",
+      "/dashboard/settings",
     );
   });
 

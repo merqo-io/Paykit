@@ -179,45 +179,102 @@ describe("txCountThisMonth", () => {
   });
 });
 
-describe("claimedTxCount", () => {
-  const headCountClient = (result: {
-    count: number | null;
-    error: { message: string } | null;
-  }) => {
-    const statusEq = vi.fn().mockResolvedValue(result);
-    const selectMock = vi.fn(() => ({ eq: () => ({ eq: statusEq }) }));
+describe("claimedTxSummary", () => {
+  const claimedClient = (pages: unknown[]) => {
+    const rangeMock = vi.fn();
+    for (const page of pages) rangeMock.mockResolvedValueOnce(page);
+    const statusEq = vi.fn(() => ({ order: () => ({ range: rangeMock }) }));
     createServerClientMock.mockResolvedValue({
-      from: () => ({ select: selectMock }),
+      from: () => ({
+        select: () => ({ eq: () => ({ eq: statusEq }) }),
+      }),
     });
-    return { statusEq, selectMock };
+    return { statusEq, rangeMock };
   };
 
-  it("returns the head count of claimed rows", async () => {
-    const { statusEq, selectMock } = headCountClient({
-      count: 3,
-      error: null,
-    });
-    const { claimedTxCount } = await import("./transactions");
-    expect(await claimedTxCount("v1")).toBe(3);
-    expect(selectMock).toHaveBeenCalledWith("id", {
-      count: "exact",
-      head: true,
-    });
+  it("counts and sums the claimed rows", async () => {
+    const { statusEq } = claimedClient([
+      { data: [{ amount_cents: 450 }, { amount_cents: 1200 }], error: null },
+      { data: [], error: null },
+    ]);
+    const { claimedTxSummary } = await import("./transactions");
+    expect(await claimedTxSummary("v1")).toEqual({ count: 2, cents: 1650 });
     expect(statusEq).toHaveBeenCalledWith("status", "claimed");
   });
 
-  it("returns 0 when the count is null", async () => {
-    headCountClient({ count: null, error: null });
-    const { claimedTxCount } = await import("./transactions");
-    expect(await claimedTxCount("v1")).toBe(0);
+  it("reads past the 1000-row API cap", async () => {
+    const full = Array.from({ length: 1000 }, () => ({ amount_cents: 100 }));
+    const { rangeMock } = claimedClient([
+      { data: full, error: null },
+      { data: [{ amount_cents: 250 }], error: null },
+      { data: [], error: null },
+    ]);
+    const { claimedTxSummary } = await import("./transactions");
+    expect(await claimedTxSummary("v1")).toEqual({
+      count: 1001,
+      cents: 100_250,
+    });
+    expect(rangeMock).toHaveBeenNthCalledWith(2, 1000, 1999);
   });
 
-  it("logs and returns 0 on a query error", async () => {
+  it("logs and returns zeros on a query error", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    headCountClient({ count: null, error: { message: "boom" } });
-    const { claimedTxCount } = await import("./transactions");
-    expect(await claimedTxCount("v1")).toBe(0);
-    expect(errorSpy).toHaveBeenCalledWith("claimedTxCount failed", "boom");
+    claimedClient([{ data: null, error: { message: "boom" } }]);
+    const { claimedTxSummary } = await import("./transactions");
+    expect(await claimedTxSummary("v1")).toEqual({ count: 0, cents: 0 });
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+});
+
+describe("confirmedSince", () => {
+  const confirmedClient = (pages: unknown[]) => {
+    const rangeMock = vi.fn();
+    for (const page of pages) rangeMock.mockResolvedValueOnce(page);
+    const gte = vi.fn(() => ({ order: () => ({ range: rangeMock }) }));
+    createServerClientMock.mockResolvedValue({
+      from: () => ({
+        select: () => ({ eq: () => ({ eq: () => ({ gte }) }) }),
+      }),
+    });
+    return gte;
+  };
+
+  it("returns count and cents from the same confirmed_at-filtered rows", async () => {
+    const gte = confirmedClient([
+      { data: [{ amount_cents: 300 }, { amount_cents: 700 }], error: null },
+      { data: [], error: null },
+    ]);
+    const { confirmedSince } = await import("./transactions");
+    expect(await confirmedSince("v1", "2026-10-31T16:00:00.000Z")).toEqual({
+      count: 2,
+      cents: 1000,
+    });
+    expect(gte).toHaveBeenCalledWith(
+      "confirmed_at",
+      "2026-10-31T16:00:00.000Z",
+    );
+  });
+
+  it("keeps count and amount in step for a payment created before the month edge and confirmed after it", async () => {
+    // Created 31 Oct, confirmed 2 Nov: the query keys on confirmed_at only, so
+    // this row is in both figures and nothing created in October is counted
+    // without its amount.
+    confirmedClient([
+      { data: [{ amount_cents: 450 }], error: null },
+      { data: [], error: null },
+    ]);
+    const { confirmedSince } = await import("./transactions");
+    const result = await confirmedSince("v1", "2026-10-31T16:00:00.000Z");
+    expect(result).toEqual({ count: 1, cents: 450 });
+  });
+
+  it("logs and returns zeros when the read fails", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    confirmedClient([{ data: null, error: { message: "boom" } }]);
+    const { confirmedSince } = await import("./transactions");
+    expect(await confirmedSince("v1", "x")).toEqual({ count: 0, cents: 0 });
+    expect(errorSpy).toHaveBeenCalled();
     errorSpy.mockRestore();
   });
 });

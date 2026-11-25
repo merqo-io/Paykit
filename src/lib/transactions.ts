@@ -106,19 +106,56 @@ export async function txCountThisMonth(vendorId: string): Promise<number> {
   return data ?? 0;
 }
 
-/** Count of the vendor's transactions a customer has marked paid and the vendor has not yet confirmed. */
-export async function claimedTxCount(vendorId: string): Promise<number> {
+/** Payments a customer has marked paid that the vendor has not yet confirmed: how many and the SGD cents they add up to. */
+export async function claimedTxSummary(
+  vendorId: string,
+): Promise<{ count: number; cents: number }> {
   const supabase = await createServerClient();
-  const { count, error } = await supabase
-    .from("transactions")
-    .select("id", { count: "exact", head: true })
-    .eq("vendor_id", vendorId)
-    .eq("status", "claimed");
-  if (error) {
-    console.error("claimedTxCount failed", error.message);
-    return 0;
+  try {
+    const rows = await readAllRows<{ amount_cents: number }>((from, to) =>
+      supabase
+        .from("transactions")
+        .select("amount_cents")
+        .eq("vendor_id", vendorId)
+        .eq("status", "claimed")
+        .order("id")
+        .range(from, to),
+    );
+    return {
+      count: rows.length,
+      cents: rows.reduce((sum, row) => sum + row.amount_cents, 0),
+    };
+  } catch (error) {
+    console.error("claimedTxSummary failed", error);
+    return { count: 0, cents: 0 };
   }
-  return count ?? 0;
+}
+
+/** Payments confirmed at or after `sinceIso` (by confirmation time, not creation), as a count and SGD cents from the same rows. */
+export async function confirmedSince(
+  vendorId: string,
+  sinceIso: string,
+): Promise<{ count: number; cents: number }> {
+  const supabase = await createServerClient();
+  try {
+    const rows = await readAllRows<{ amount_cents: number }>((from, to) =>
+      supabase
+        .from("transactions")
+        .select("amount_cents")
+        .eq("vendor_id", vendorId)
+        .eq("status", "confirmed")
+        .gte("confirmed_at", sinceIso)
+        .order("id")
+        .range(from, to),
+    );
+    return {
+      count: rows.length,
+      cents: rows.reduce((sum, row) => sum + row.amount_cents, 0),
+    };
+  } catch (error) {
+    console.error("confirmedSince failed", error);
+    return { count: 0, cents: 0 };
+  }
 }
 
 /** Complete vendor-scoped records for reports, separate from the recent-items UI. */
