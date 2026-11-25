@@ -20,14 +20,16 @@ function clientWith(opts: {
 }) {
   const maybeSingle = vi.fn().mockResolvedValue({ data: opts.cached ?? null });
   const upsert = opts.upsert ?? vi.fn().mockResolvedValue({ error: null });
+  const abortSignal = vi.fn(() => ({ maybeSingle }));
   return {
     client: {
       from: () => ({
-        select: () => ({ eq: () => ({ maybeSingle }) }),
+        select: () => ({ eq: () => ({ maybeSingle, abortSignal }) }),
         upsert,
       }),
     },
     maybeSingle,
+    abortSignal,
     upsert,
   };
 }
@@ -259,6 +261,17 @@ describe("requireCurrentLegalAcceptance", () => {
     global.fetch = vi.fn().mockResolvedValue({ ok: false }) as never;
 
     expect(await legalStatus("vendor@example.com")).toBe("unavailable");
+  });
+
+  it("opts the state re-read out of Next fetch memoization with an abort signal", async () => {
+    const { client, abortSignal } = clientWith({
+      cached: { checked_at: new Date().toISOString(), is_current: false },
+    });
+    vi.mocked(createServiceClient).mockResolvedValue(client as never);
+    global.fetch = vi.fn().mockRejectedValue(new Error("network")) as never;
+
+    expect(await legalStatus("vendor@example.com")).toBe("stale");
+    expect(abortSignal).toHaveBeenCalledWith(expect.any(AbortSignal));
   });
 
   it("logs a failed state read and still reports unavailable", async () => {
