@@ -100,34 +100,35 @@ export default async function DashboardPage() {
       <PageHeader responsive title="Payments" />
 
       <div className="grid gap-6 sm:grid-cols-2">
-        <div className="space-y-2">
-          <StatCard
-            label="Waiting for you to confirm"
-            value={formatCents(toConfirm.cents)}
-          />
-          <p className="text-sm tabular-nums text-muted-foreground">
-            {toConfirm.count === 0
+        <StatCard
+          label="Waiting for you to confirm"
+          value={formatCents(toConfirm.cents)}
+          caption={
+            toConfirm.count === 0
               ? "Nothing to confirm right now."
-              : `${waitingNoun} marked paid by customers`}
-          </p>
-          <Link
-            href="/dashboard/transactions"
-            className="inline-block text-sm underline underline-offset-4"
-          >
-            {toConfirm.count === 0 ? "View payments" : "Review these payments"}
-          </Link>
-        </div>
+              : `${waitingNoun} marked paid by customers`
+          }
+        />
 
-        <div className="space-y-2" data-tour="tx-count">
+        <div data-tour="tx-count">
           <StatCard
             label="Confirmed this month"
             value={formatCents(month.cents)}
+            caption={`${month.count} confirmed payment${month.count === 1 ? "" : "s"}`}
           />
-          <p className="text-sm tabular-nums text-muted-foreground">
-            {month.count} confirmed payment{month.count === 1 ? "" : "s"}
-          </p>
         </div>
       </div>
+
+      <Link
+        href={
+          toConfirm.count === 0
+            ? "/dashboard/transactions"
+            : "/dashboard/transactions?status=claimed"
+        }
+        className="mt-4 inline-block text-sm underline underline-offset-4"
+      >
+        {toConfirm.count === 0 ? "View payments" : "Review these payments"}
+      </Link>
 
       <section className="mt-8 space-y-1">
         <h2 className="text-sm font-medium text-muted-foreground">

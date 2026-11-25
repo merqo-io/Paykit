@@ -170,7 +170,7 @@ describe("DashboardPage", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Review these payments" }),
-    ).toHaveAttribute("href", "/dashboard/transactions");
+    ).toHaveAttribute("href", "/dashboard/transactions?status=claimed");
   });
 
   it("uses the singular for one waiting payment", async () => {

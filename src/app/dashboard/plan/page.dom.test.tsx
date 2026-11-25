@@ -251,13 +251,59 @@ describe("PlanPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("says which plan the vendor is on when it is not in the catalog", async () => {
+  it("notes a paid plan missing from the ladder, without repeating the heading for Free", async () => {
+    readVendorPlanMock.mockResolvedValue("pro");
+    txCountThisMonthMock.mockResolvedValue(0);
+    fetchPlanCatalogMock.mockResolvedValue(catalog);
+
+    const { unmount } = render(await PlanPage());
+    expect(
+      screen.getByText("Your Pro plan is not shown in the list below."),
+    ).toBeInTheDocument();
+    unmount();
+
+    readVendorPlanMock.mockResolvedValue("free");
+    render(await PlanPage());
+    expect(screen.queryByText(/not shown in the list/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/You are on the Free plan/),
+    ).not.toBeInTheDocument();
+  });
+
+  it("builds the paid-plans line from the catalog plan names", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    txCountThisMonthMock.mockResolvedValue(0);
+    fetchPlanCatalogMock.mockResolvedValue(proCatalog);
+
+    render(await PlanPage());
+
+    expect(
+      screen.getByText(
+        "Pro Plan and All-Access both include everything in paykit.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("names a single catalog plan on its own", async () => {
     readVendorPlanMock.mockResolvedValue("free");
     txCountThisMonthMock.mockResolvedValue(0);
     fetchPlanCatalogMock.mockResolvedValue(catalog);
 
     render(await PlanPage());
 
-    expect(screen.getByText("You are on the Free plan.")).toBeInTheDocument();
+    expect(
+      screen.getByText("All-Access includes everything in paykit."),
+    ).toBeInTheDocument();
+  });
+
+  it("falls back to the literal Starter and Pro line when the catalog is unavailable", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    txCountThisMonthMock.mockResolvedValue(0);
+
+    render(await PlanPage());
+
+    expect(
+      screen.getByText("Starter and Pro both include everything in paykit."),
+    ).toBeInTheDocument();
   });
 });

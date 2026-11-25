@@ -28,6 +28,17 @@ function describePlans(plan: string): Record<string, ReactNode> {
   };
 }
 
+// Names come from the catalog so the line follows merqo's pricing; the
+// literal fallback only shows when the catalog could not be loaded.
+function paidPlansLine(catalog: { plans: { name: string }[] } | null): string {
+  const names = catalog?.plans.map((p) => p.name) ?? [];
+  if (names.length === 0) {
+    return "Starter and Pro both include everything in paykit.";
+  }
+  if (names.length === 1) return `${names[0]} includes everything in paykit.`;
+  return `${names.slice(0, -1).join(", ")} and ${names.at(-1)} both include everything in paykit.`;
+}
+
 function catalogInit(): RequestInit | undefined {
   const secret = process.env.MERQO_CUSTOMER_SECRET;
   return secret
@@ -82,7 +93,7 @@ export default async function PlanPage() {
             <li>Refund tracking.</li>
           </ul>
           <p className="text-sm text-muted-foreground">
-            Starter and Pro both include everything in paykit.
+            {paidPlansLine(catalog)}
           </p>
           {hidden > 0 ? (
             <p className="text-sm tabular-nums">
@@ -93,9 +104,9 @@ export default async function PlanPage() {
         </section>
       )}
 
-      {catalog && !currentListed ? (
+      {catalog && paid && !currentListed ? (
         <p className="text-sm text-muted-foreground">
-          You are on the {view.planLabel} plan.
+          Your {view.planLabel} plan is not shown in the list below.
         </p>
       ) : null}
 
