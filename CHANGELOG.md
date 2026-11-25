@@ -13,6 +13,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- `/admin/activity` filters and pages in the database (action and date range, `Page X of Y`), so every audit entry is searchable; the latest-1000 window and its notice are gone.
 - A signed-out vendor who opens `/dashboard/config?return_to=...` now keeps `return_to` through sign-in (password, Google and email link) via a same-origin `next` path, and the saved state offers "Back to your booth" as the primary button.
 - Ledger, bookings and admin lists share one failed-read card, one link-based pager (the ledger pager is now plain anchors with Previous/Next at 44px) and one filter select style with the Input focus ring; filter selects are 44px tall.
 - Bookings list uses the shared `PageHeader`, shows counts on the Inquiries and Your bookings sections, and adds search by customer name or phone, a status filter, clear-filters and 20-per-page paging (URL `q`, `status`, `page`, Zod-validated and applied in the query).

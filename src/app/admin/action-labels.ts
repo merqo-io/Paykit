@@ -11,6 +11,9 @@ const ACTION_LABELS: Record<string, string> = {
   reschedule_booking: "Rescheduled booking",
 };
 
+/** Every action the filter offers; includes retired ones so old rows stay findable. */
+export const KNOWN_ACTIONS = Object.keys(ACTION_LABELS);
+
 export function formatAction(action: string): string {
   return ACTION_LABELS[action] ?? action;
 }

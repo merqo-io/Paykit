@@ -6,14 +6,14 @@ import { EmptyState, FORM_LABEL_CLASS, PageHeader } from "@merqo/ui";
 import { Button, cn, Input, Label } from "@merqo/ui/primitives";
 import { requireAdmin } from "@/lib/admin";
 import { auditLog, type AuditLogRow } from "@/lib/admin-data";
-import { formatAction } from "@/app/admin/action-labels";
+import { formatAction, KNOWN_ACTIONS } from "@/app/admin/action-labels";
 import { ListError } from "@/components/list/list-error";
 import { UrlPager } from "@/components/list/url-pager";
 import { FILTER_SELECT_CLASS } from "@/components/list/filter-classes";
 import {
   dayBounds,
   listHref,
-  paginate,
+  PAGE_SIZE,
   parseActivityParams,
 } from "@/app/admin/list-params";
 import { ActivitySection, type ActivityEntry } from "./activity-section";
@@ -27,10 +27,6 @@ export const revalidate = 0;
 const PATH = "/admin/activity";
 
 const SELECT_CLASS = cn(FILTER_SELECT_CLASS, "sm:w-56");
-
-// The audit read is a single newest-first query, so filtering and paging
-// happen over this window rather than the whole table.
-const FETCH_CAP = 1000;
 
 function formatDetail(detail: AuditLogRow["detail"]): string | null {
   if (detail === null || detail === undefined) return null;
@@ -65,9 +61,18 @@ export default async function AdminActivityPage({
   const { action, from, to, page } = filters;
   const active = { action, from, to };
 
-  let rows: AuditLogRow[];
+  const { fromMs, toMs } = dayBounds(from, to);
+  let result: Awaited<ReturnType<typeof auditLog>>;
   try {
-    rows = await auditLog(FETCH_CAP);
+    result = await auditLog({
+      action: action || undefined,
+      since: Number.isFinite(fromMs)
+        ? new Date(fromMs).toISOString()
+        : undefined,
+      until: Number.isFinite(toMs) ? new Date(toMs).toISOString() : undefined,
+      page,
+      pageSize: PAGE_SIZE,
+    });
   } catch (error) {
     console.error("Admin activity load failed", error);
     return (
@@ -78,27 +83,24 @@ export default async function AdminActivityPage({
     );
   }
 
-  const actions = [...new Set(rows.map((r) => r.action))].sort();
-  const { fromMs, toMs } = dayBounds(from, to);
-  const filtered = rows.filter((r) => {
-    const at = Date.parse(r.created_at);
-    return (!action || r.action === action) && at >= fromMs && at <= toMs;
-  });
-  const paged = paginate(filtered, page);
-  if (paged.overflow) {
-    redirect(listHref(PATH, { ...active, page: paged.pageCount }));
+  if (page > result.pageCount) {
+    redirect(listHref(PATH, { ...active, page: result.pageCount }));
   }
+  const actions =
+    action && !KNOWN_ACTIONS.includes(action)
+      ? [...KNOWN_ACTIONS, action]
+      : KNOWN_ACTIONS;
   const filtering = Boolean(action || from || to);
 
   let body: ReactNode;
-  if (rows.length === 0) {
+  if (result.total === 0 && !filtering) {
     body = (
       <EmptyState
         title="No activity yet"
         description="Admin and vendor actions are listed here as they happen."
       />
     );
-  } else if (paged.total === 0) {
+  } else if (result.total === 0) {
     body = (
       <EmptyState
         title="No activity matches"
@@ -109,12 +111,12 @@ export default async function AdminActivityPage({
     body = (
       <div className="space-y-3">
         <p className="text-sm text-muted-foreground tabular-nums">
-          {paged.total} {paged.total === 1 ? "action" : "actions"}
+          {result.total} {result.total === 1 ? "action" : "actions"}
         </p>
-        <ActivitySection entries={paged.rows.map(toEntry)} />
+        <ActivitySection entries={result.rows.map(toEntry)} />
         <UrlPager
-          page={paged.page}
-          pageCount={paged.pageCount}
+          page={result.page}
+          pageCount={result.pageCount}
           href={(next) => listHref(PATH, { ...active, page: next })}
         />
       </div>
@@ -182,13 +184,6 @@ export default async function AdminActivityPage({
           </Button>
         )}
       </form>
-
-      {rows.length >= FETCH_CAP && (
-        <p className="text-sm text-muted-foreground">
-          Showing the latest {FETCH_CAP} entries; older entries aren&apos;t
-          searched.
-        </p>
-      )}
 
       {body}
     </main>
