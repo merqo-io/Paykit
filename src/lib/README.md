@@ -204,7 +204,11 @@ mocked tests do not verify its database locking.
 `vendor-session.ts` establishes the vendor session and current legal acceptance.
 `admin.ts` establishes team authorization. `legal-gate.ts` validates Merqo's
 legal-status response and caches it briefly; lookup failures fail closed, but a
-cache write failure is logged and ignored.
+cache write failure is logged and ignored. `legalStatus` tells a stale acceptance
+from a failed check (recent `is_current=false` row, 30 s clock skew allowed), and
+`requireCurrentLegalAcceptance(email, returnTo?)` sends an outage to
+`/legal/accept?reason=unavailable`. `getVendorSession(returnTo?)` forwards the
+optional retry path.
 Sheet feedback/support actions use an inline session check to return an error
 instead of redirecting an open dialog.
 

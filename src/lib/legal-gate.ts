@@ -28,6 +28,10 @@ export function checkLegalAcceptance(email: string): Promise<boolean> {
 // above the shared cache TTL.
 const DEFINITIVE_ANSWER_WINDOW_MS = 5 * 60 * 1000;
 
+// Tolerates this server's clock being slightly behind the one that stamped
+// the row, which would otherwise read a fresh answer as unavailable.
+const CLOCK_SKEW_MS = 30 * 1000;
+
 export type LegalStatus = "current" | "stale" | "unavailable";
 
 /** Like checkLegalAcceptance, but says why a failed check failed. */
@@ -35,17 +39,18 @@ export async function legalStatus(email: string): Promise<LegalStatus> {
   if (await checkLegalAcceptance(email)) return "current";
   try {
     const supabase = await createServiceClient();
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("legal_check_state")
       .select("checked_at, is_current")
       .eq("email", email.toLowerCase())
       .maybeSingle();
+    if (error) console.error("legalStatus: state read failed", error.message);
     const age = data ? Date.now() - new Date(data.checked_at).getTime() : null;
     if (
       data &&
       data.is_current === false &&
       age !== null &&
-      age >= 0 &&
+      age >= -CLOCK_SKEW_MS &&
       age <= DEFINITIVE_ANSWER_WINDOW_MS
     ) {
       return "stale";

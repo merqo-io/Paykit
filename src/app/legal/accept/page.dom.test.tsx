@@ -55,6 +55,20 @@ describe("LegalAcceptPage", () => {
     );
   });
 
+  it("offers the plain accept page as a secondary path so a real terms change is never stuck", async () => {
+    render(
+      await LegalAcceptPage({
+        searchParams: Promise.resolve({
+          reason: "unavailable",
+          next: "/dashboard/x",
+        }),
+      }),
+    );
+    expect(
+      screen.getByRole("link", { name: "review them here" }),
+    ).toHaveAttribute("href", "/legal/accept?next=%2Fdashboard%2Fx");
+  });
+
   it("points the retry link at a safe path when next is an open redirect", async () => {
     render(
       await LegalAcceptPage({

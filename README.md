@@ -389,3 +389,7 @@ section tabs that mark the current page via `aria-current`
 ## Dead-code check
 
 `knip.json` configures `pnpm dlx knip@6.44.2 --no-progress` (knip is not a dependency). It ignores `.claude/**` and keeps the exported HTTP-contract types in `api-schemas.ts`, `metrics.ts` and `merqo-entitlement-contract.ts`. Results and leftovers: `docs/meta/2026-10-24-fresh-eyes-sweep.md`.
+
+## Public pages and the legal gate
+
+The pay and inquiry pages give every dead end a plain next step. A failed Merqo terms check still blocks the vendor, but `/legal/accept?reason=unavailable` says the check failed instead of claiming the terms changed.

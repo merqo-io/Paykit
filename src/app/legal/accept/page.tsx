@@ -45,6 +45,16 @@ export default async function LegalAcceptPage({
         >
           Try again
         </Link>
+        <p className="text-sm text-muted-foreground">
+          If you were asked to review updated terms,{" "}
+          <Link
+            href={`/legal/accept?next=${encodeURIComponent(safeRedirectPath(next, "/dashboard"))}`}
+            className="underline underline-offset-4"
+          >
+            review them here
+          </Link>
+          .
+        </p>
       </main>
     );
   }

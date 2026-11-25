@@ -241,6 +241,44 @@ describe("requireCurrentLegalAcceptance", () => {
     expect(await legalStatus("vendor@example.com")).toBe("unavailable");
   });
 
+  it("logs a failed state read and still reports unavailable", async () => {
+    const { client, maybeSingle } = clientWith({ cached: null });
+    vi.mocked(createServiceClient).mockResolvedValue(client as never);
+    maybeSingle
+      .mockResolvedValueOnce({ data: null })
+      .mockResolvedValueOnce({ data: null, error: { message: "boom" } });
+    global.fetch = vi.fn().mockRejectedValue(new Error("network")) as never;
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    expect(await legalStatus("vendor@example.com")).toBe("unavailable");
+    expect(errorSpy).toHaveBeenCalledWith(
+      "legalStatus: state read failed",
+      "boom",
+    );
+    errorSpy.mockRestore();
+  });
+
+  it("accepts a fresh stale row stamped slightly in the future (clock skew)", async () => {
+    const ahead = new Date(Date.now() + 10 * 1000).toISOString();
+    const { client } = clientWith({
+      cached: { checked_at: ahead, is_current: false },
+    });
+    vi.mocked(createServiceClient).mockResolvedValue(client as never);
+
+    expect(await legalStatus("vendor@example.com")).toBe("stale");
+  });
+
+  it("does not trust a row stamped far in the future", async () => {
+    const ahead = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+    const { client } = clientWith({
+      cached: { checked_at: ahead, is_current: false },
+    });
+    vi.mocked(createServiceClient).mockResolvedValue(client as never);
+    global.fetch = vi.fn().mockResolvedValue({ ok: false }) as never;
+
+    expect(await legalStatus("vendor@example.com")).toBe("unavailable");
+  });
+
   it("reports unavailable when the follow-up read itself throws", async () => {
     const { client, maybeSingle } = clientWith({ cached: null });
     vi.mocked(createServiceClient).mockResolvedValue(client as never);
