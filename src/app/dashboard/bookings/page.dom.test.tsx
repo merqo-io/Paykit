@@ -6,12 +6,12 @@ import type { Booking, Inquiry } from "@/lib/types";
 
 const {
   getVendorSessionMock,
-  listBookingsMock,
+  searchBookingsMock,
   listOpenInquiriesMock,
   getInquiryFormMock,
 } = vi.hoisted(() => ({
   getVendorSessionMock: vi.fn(),
-  listBookingsMock: vi.fn(),
+  searchBookingsMock: vi.fn(),
   listOpenInquiriesMock: vi.fn(),
   getInquiryFormMock: vi.fn(),
 }));
@@ -19,12 +19,14 @@ const {
 vi.mock("@/lib/vendor-session", () => ({
   getVendorSession: getVendorSessionMock,
 }));
-vi.mock("@/lib/bookings", () => ({ listBookings: listBookingsMock }));
+vi.mock("@/lib/bookings", () => ({ searchBookings: searchBookingsMock }));
 vi.mock("@/lib/inquiry-inbox", () => ({
   listOpenInquiries: listOpenInquiriesMock,
   getInquiryForm: getInquiryFormMock,
 }));
 vi.mock("./inquiry-actions", () => ({ saveInquiryFormAction: vi.fn() }));
+
+const PAGE_PROPS = { searchParams: Promise.resolve({}) };
 
 const BOOKING: Booking = {
   id: "b1",
@@ -47,7 +49,7 @@ beforeEach(() => {
   getVendorSessionMock
     .mockReset()
     .mockResolvedValue({ supabase: {}, user: { id: "v1" } });
-  listBookingsMock.mockReset();
+  searchBookingsMock.mockReset().mockResolvedValue({ rows: [], total: 0 });
   listOpenInquiriesMock.mockReset().mockResolvedValue([]);
   getInquiryFormMock.mockReset().mockResolvedValue(null);
 });
@@ -70,9 +72,9 @@ const INQUIRY: Inquiry = {
 
 describe("BookingsPage", () => {
   it("lists open inquiries with an Inquiry badge and a set-up button", async () => {
-    listBookingsMock.mockResolvedValue([]);
+    searchBookingsMock.mockResolvedValue({ rows: [], total: 0 });
     listOpenInquiriesMock.mockResolvedValue([INQUIRY]);
-    render(await BookingsPage());
+    render(await BookingsPage(PAGE_PROPS));
     expect(screen.getByRole("link", { name: "Ah Hock" })).toHaveAttribute(
       "href",
       "/dashboard/bookings/inquiries/i1",
@@ -86,7 +88,7 @@ describe("BookingsPage", () => {
   });
 
   it("shows the copy-link button once the form is on", async () => {
-    listBookingsMock.mockResolvedValue([]);
+    searchBookingsMock.mockResolvedValue({ rows: [], total: 0 });
     getInquiryFormMock.mockResolvedValue({
       vendor_id: "v1",
       public_id: "0123456789abcdef",
@@ -97,7 +99,7 @@ describe("BookingsPage", () => {
       created_at: "",
       updated_at: "",
     });
-    render(await BookingsPage());
+    render(await BookingsPage(PAGE_PROPS));
     expect(
       screen.getByRole("button", { name: /copy inquiry link/i }),
     ).toBeInTheDocument();
@@ -108,8 +110,8 @@ describe("BookingsPage", () => {
   });
 
   it("shows the empty state with no bookings", async () => {
-    listBookingsMock.mockResolvedValue([]);
-    const jsx = await BookingsPage();
+    searchBookingsMock.mockResolvedValue({ rows: [], total: 0 });
+    const jsx = await BookingsPage(PAGE_PROPS);
     render(jsx);
     expect(
       screen.getByRole("heading", { name: "Bookings" }),
@@ -118,13 +120,74 @@ describe("BookingsPage", () => {
   });
 
   it("renders the vendor's bookings and a New booking trigger", async () => {
-    listBookingsMock.mockResolvedValue([BOOKING]);
-    const jsx = await BookingsPage();
+    searchBookingsMock.mockResolvedValue({ rows: [BOOKING], total: 1 });
+    const jsx = await BookingsPage(PAGE_PROPS);
     render(jsx);
     expect(screen.getByText("Jane Tan")).toBeInTheDocument();
-    expect(listBookingsMock).toHaveBeenCalledWith("v1");
+    expect(searchBookingsMock).toHaveBeenCalledWith(
+      "v1",
+      expect.objectContaining({ page: 1 }),
+    );
     expect(
       screen.getByRole("button", { name: "New booking" }),
     ).toBeInTheDocument();
+  });
+
+  it("passes parsed search and status to the query and prefills the filters", async () => {
+    searchBookingsMock.mockResolvedValue({ rows: [BOOKING], total: 1 });
+    render(
+      await BookingsPage({
+        searchParams: Promise.resolve({
+          q: " Jane ",
+          status: "deposit_paid",
+          page: "2",
+        }),
+      }),
+    );
+    expect(searchBookingsMock).toHaveBeenCalledWith("v1", {
+      q: "Jane",
+      status: "deposit_paid",
+      page: 2,
+      pageSize: 20,
+    });
+    expect(screen.getByLabelText("Search")).toHaveValue("Jane");
+    expect(screen.getByLabelText("Status")).toHaveValue("deposit_paid");
+    expect(screen.getByRole("link", { name: "Clear filters" })).toHaveAttribute(
+      "href",
+      "/dashboard/bookings",
+    );
+  });
+
+  it("shows No bookings match with a clear link when filters find nothing", async () => {
+    render(await BookingsPage({ searchParams: Promise.resolve({ q: "zzz" }) }));
+    expect(screen.getByText("No bookings match")).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: "Clear filters" }).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("shows counts for inquiries and bookings and pages the list", async () => {
+    searchBookingsMock.mockResolvedValue({ rows: [BOOKING], total: 45 });
+    listOpenInquiriesMock.mockResolvedValue([INQUIRY]);
+    render(
+      await BookingsPage({
+        searchParams: Promise.resolve({ status: "cancelled", page: "2" }),
+      }),
+    );
+    expect(
+      screen.getByRole("heading", { name: /Inquiries.*\(1\)/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Your bookings.*\(45\)/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Page 2 of 3")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Previous" })).toHaveAttribute(
+      "href",
+      "/dashboard/bookings?status=cancelled",
+    );
+    expect(screen.getByRole("link", { name: "Next" })).toHaveAttribute(
+      "href",
+      "/dashboard/bookings?status=cancelled&page=3",
+    );
   });
 });

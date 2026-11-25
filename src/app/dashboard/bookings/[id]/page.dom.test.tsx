@@ -246,11 +246,28 @@ describe("BookingDetailPage header and placeholders", () => {
   it("renders a PageHeader with the customer name and Not set for a missing phone", async () => {
     getBookingMock.mockResolvedValue({ ...BOOKING, customer_phone: null });
     render(await BookingDetailPage({ params: Promise.resolve({ id: "b1" }) }));
-    expect(screen.getByText("Booking", { selector: "p" })).toBeInTheDocument();
+    expect(screen.queryByText("Booking", { selector: "p" })).toBeNull();
     expect(
       screen.getByRole("heading", { level: 1, name: "Jane Tan" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Not set")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "WhatsApp" })).toBeNull();
+  });
+
+  it("links the customer phone to tel and WhatsApp", async () => {
+    getBookingMock.mockResolvedValue({
+      ...BOOKING,
+      customer_phone: "9123 4567",
+    });
+    render(await BookingDetailPage({ params: Promise.resolve({ id: "b1" }) }));
+    expect(screen.getByRole("link", { name: "9123 4567" })).toHaveAttribute(
+      "href",
+      "tel:91234567",
+    );
+    expect(screen.getByRole("link", { name: "WhatsApp" })).toHaveAttribute(
+      "href",
+      "https://wa.me/6591234567",
+    );
   });
 
   it("shows free vendors the Pro refund hint instead of a refund field", async () => {
@@ -263,8 +280,12 @@ describe("BookingDetailPage header and placeholders", () => {
       .setup()
       .click(screen.getByRole("button", { name: "Cancel booking" }));
     expect(
-      screen.getByText(/Refund tracking is on the Pro plan/),
+      screen.getByText(/Refund tracking comes with Starter or Pro/),
     ).toBeVisible();
+    expect(screen.getByRole("link", { name: "See plans" })).toHaveAttribute(
+      "href",
+      "/dashboard/plan",
+    );
     expect(screen.queryByLabelText(/refund amount/i)).toBeNull();
   });
 

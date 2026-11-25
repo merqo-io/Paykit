@@ -13,6 +13,7 @@ import { PageHeader } from "@merqo/ui";
 import { formatCents, formatDate } from "@/lib/utils";
 import { BookingStatusBadge, BalanceDueIndicator } from "../booking-badges";
 import { TermsSnapshot } from "../inquiry-badges";
+import { CustomerPhone } from "../customer-phone";
 import { TransactionStatusCard } from "./transaction-status-card";
 import { CreateBalanceCheckoutButton } from "./create-balance-checkout-button";
 import { CancelBookingDialog } from "./cancel-booking-dialog";
@@ -62,7 +63,6 @@ export default async function BookingDetailPage({
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
         responsive
-        eyebrow="Booking"
         title={booking.customer_name}
         description={`Event on ${formatDate(booking.event_date)}`}
         className="mb-0"
@@ -75,28 +75,15 @@ export default async function BookingDetailPage({
         }
       />
 
-      <div className="rounded-xl border p-4 text-sm">
-        <dl className="grid grid-cols-2 gap-y-2">
-          <dt className="text-muted-foreground">Booking ID</dt>
-          <dd className="flex items-center gap-2">
-            <code
-              className="truncate font-mono text-xs text-muted-foreground"
-              title={booking.id}
-            >
-              {booking.id}
-            </code>
-            <BookingIdCopy bookingId={booking.id} />
+      <section aria-labelledby="customer-heading">
+        <h2 id="customer-heading" className="text-base font-semibold">
+          Customer
+        </h2>
+        <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+          <dt className="text-muted-foreground">Phone</dt>
+          <dd>
+            <CustomerPhone phone={booking.customer_phone} />
           </dd>
-          <dt className="text-muted-foreground">Customer phone</dt>
-          <dd>{booking.customer_phone ?? "Not set"}</dd>
-          <dt className="text-muted-foreground">Total</dt>
-          <dd>{formatCents(booking.total_amount_cents)}</dd>
-          <dt className="text-muted-foreground">Deposit</dt>
-          <dd>{formatCents(booking.deposit_amount_cents)}</dd>
-          <dt className="text-muted-foreground">Balance</dt>
-          <dd>{formatCents(booking.balance_amount_cents)}</dd>
-          <dt className="text-muted-foreground">Balance due</dt>
-          <dd>{formatDate(booking.balance_due_date)}</dd>
           {inquiry && (
             <>
               <dt className="text-muted-foreground">Booking terms</dt>
@@ -106,12 +93,42 @@ export default async function BookingDetailPage({
             </>
           )}
         </dl>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Paste the Booking ID above into your qkit event&rsquo;s payment
-          settings to show this booking&rsquo;s live deposit and balance status
-          there.
+      </section>
+
+      <section aria-labelledby="amounts-heading">
+        <h2 id="amounts-heading" className="text-base font-semibold">
+          Amounts
+        </h2>
+        <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm tabular-nums">
+          <dt className="text-muted-foreground">Total</dt>
+          <dd>{formatCents(booking.total_amount_cents)}</dd>
+          <dt className="text-muted-foreground">Deposit</dt>
+          <dd>{formatCents(booking.deposit_amount_cents)}</dd>
+          <dt className="text-muted-foreground">Balance</dt>
+          <dd>{formatCents(booking.balance_amount_cents)}</dd>
+          <dt className="text-muted-foreground">Balance due</dt>
+          <dd>{formatDate(booking.balance_due_date)}</dd>
+        </dl>
+      </section>
+
+      <section aria-labelledby="reference-heading">
+        <h2 id="reference-heading" className="text-base font-semibold">
+          Booking ID
+        </h2>
+        <div className="mt-2 flex items-center gap-2 text-sm">
+          <code
+            className="min-w-0 truncate font-mono text-xs text-muted-foreground"
+            title={booking.id}
+          >
+            {booking.id}
+          </code>
+          <BookingIdCopy bookingId={booking.id} />
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Paste this into your qkit event&rsquo;s payment settings to show this
+          booking&rsquo;s live deposit and balance status there.
         </p>
-      </div>
+      </section>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <TransactionStatusCard

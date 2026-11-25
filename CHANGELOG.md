@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Bookings list uses the shared `PageHeader`, shows counts on the Inquiries and Your bookings sections, and adds search by customer name or phone, a status filter, clear-filters and 20-per-page paging (URL `q`, `status`, `page`, Zod-validated and applied in the query).
+- Booking detail splits into Customer, Amounts and Booking ID sections instead of one boxed card, and the customer phone links to call and WhatsApp (shared with the inquiry page). The "Booking" and "Inquiry" eyebrows are gone.
+- The Free-plan refund hint on cancelling a booking now says refund tracking comes with Starter or Pro and links to the plan page.
+
 ## [0.6.1] - 2026-11-23
 
 ### Changed
