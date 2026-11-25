@@ -6,6 +6,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `/admin/vendors` searches by stall name, email or vendor id and pages 25 at a time; `/admin/activity` filters by action and date range and pages the audit log. Query values are Zod-parsed, a page past the end redirects to the last page, and a failed read shows a retry state instead of the empty state.
+- Recent-activity rows on the admin overview link to the vendor they concern.
+
+### Changed
+
+- The admin header and tabs, `/mfa` and the dashboard error boundary use the shared `AdminShell`, `AuthShell` and `ErrorPage` from `@merqo/ui`; the local `admin-nav.tsx` is removed. The repeated "Admin" eyebrows are gone.
+
 ## [0.6.1] - 2026-11-23
 
 ### Changed

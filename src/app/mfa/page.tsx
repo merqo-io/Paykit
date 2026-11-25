@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import { requireAdminMember } from "@/lib/admin";
 import { Wordmark } from "@/components/landing/wordmark";
+import { AuthShell } from "@merqo/ui";
 import { MfaForm } from "./mfa-form";
 
 export const metadata = { title: "Two-step sign-in" };
@@ -21,19 +22,14 @@ export default async function MfaPage() {
     .map((f) => f.id);
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-5">
-      <div className="w-full max-w-md rounded-2xl border border-b-2 bg-card px-7 py-10">
-        <Wordmark className="text-2xl" />
-        <h1 className="mt-6 font-display text-3xl font-bold tracking-tight">
-          Two-step sign-in
-        </h1>
-        <div className="mt-6">
-          <MfaForm
-            verifiedFactorId={verified?.id ?? null}
-            staleFactorIds={staleFactorIds}
-          />
-        </div>
-      </div>
-    </main>
+    <AuthShell
+      wordmark={<Wordmark className="text-xl" />}
+      title="Two-step sign-in"
+    >
+      <MfaForm
+        verifiedFactorId={verified?.id ?? null}
+        staleFactorIds={staleFactorIds}
+      />
+    </AuthShell>
   );
 }

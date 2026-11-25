@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { requireAdmin } from "@/lib/admin";
 import {
   platformTotals,
@@ -9,6 +10,7 @@ import { Badge } from "@merqo/ui/primitives";
 
 import { EmptyState, PageHeader, StatCard } from "@merqo/ui";
 import type { TxStatus } from "@/lib/types";
+import { listHref } from "@/app/admin/list-params";
 import { formatCents, pctChange } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -35,12 +37,7 @@ export default async function AdminOverviewPage() {
 
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-5 py-8">
-      <PageHeader
-        responsive
-        eyebrow="Admin"
-        title="Overview"
-        className="mb-0"
-      />
+      <PageHeader responsive title="Overview" className="mb-0" />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <StatCard
@@ -109,12 +106,12 @@ export default async function AdminOverviewPage() {
           Recent activity across all vendors
         </h2>
         {activity.length > 0 ? (
-          <div className="rounded-xl border bg-card p-6">
-            <ul className="space-y-2.5">
-              {activity.map((tx) => (
-                <li
-                  key={tx.id}
-                  className="flex items-center justify-between gap-3 text-sm"
+          <ul className="divide-y border-y">
+            {activity.map((tx) => (
+              <li key={tx.id}>
+                <Link
+                  href={listHref("/admin/vendors", { q: tx.vendor_id })}
+                  className="flex min-h-11 flex-wrap items-center justify-between gap-x-3 gap-y-1 py-2.5 text-sm hover:bg-muted/50"
                 >
                   <span className="flex min-w-0 items-center gap-2.5">
                     <span className="min-w-0 truncate font-medium">
@@ -135,14 +132,14 @@ export default async function AdminOverviewPage() {
                     <span className="tabular-nums">
                       {formatCents(tx.amount_cents)}
                     </span>
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground tabular-nums">
                       {new Date(tx.created_at).toLocaleString("en-SG")}
                     </span>
                   </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
         ) : (
           <EmptyState
             title="No activity yet"

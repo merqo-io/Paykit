@@ -110,4 +110,11 @@ describe("AdminOverviewPage", () => {
       screen.getByRole("heading", { name: "No activity yet" }),
     ).toBeInTheDocument();
   });
+
+  it("links each activity row to the vendor it concerns", async () => {
+    render(await AdminOverviewPage());
+    expect(
+      screen.getByText("kopitiam@example.com").closest("a"),
+    ).toHaveAttribute("href", "/admin/vendors?q=v1");
+  });
 });
