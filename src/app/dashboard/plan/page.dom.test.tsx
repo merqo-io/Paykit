@@ -16,11 +16,13 @@ const {
   readVendorPlanMock,
   txCountThisMonthMock,
   fetchPlanCatalogMock,
+  countBeforeMock,
 } = vi.hoisted(() => ({
   getVendorSessionMock: vi.fn(),
   readVendorPlanMock: vi.fn(),
   txCountThisMonthMock: vi.fn(),
   fetchPlanCatalogMock: vi.fn(),
+  countBeforeMock: vi.fn(),
 }));
 
 vi.mock("@merqo/ui", async (importOriginal) => ({
@@ -65,6 +67,7 @@ vi.mock("@/lib/vendor-entitlement", () => ({
 }));
 vi.mock("@/lib/transactions", () => ({
   txCountThisMonth: txCountThisMonthMock,
+  countTransactionsBefore: countBeforeMock,
 }));
 
 beforeEach(() => {
@@ -75,6 +78,7 @@ beforeEach(() => {
   readVendorPlanMock.mockReset();
   txCountThisMonthMock.mockReset();
   fetchPlanCatalogMock.mockReset().mockResolvedValue(null);
+  countBeforeMock.mockReset().mockResolvedValue(0);
 });
 
 describe("PlanPage", () => {
@@ -85,12 +89,14 @@ describe("PlanPage", () => {
 
     render(await PlanPage());
 
-    expect(screen.getByText("Current plan:")).toBeInTheDocument();
-    expect(screen.getByText("Free")).toBeInTheDocument();
+    expect(screen.getByText("You are on Free")).toBeInTheDocument();
     expect(screen.getByText("3 transactions this month")).toBeInTheDocument();
     expect(
-      screen.getByText("Change plan from your Merqo account."),
-    ).toBeInTheDocument();
+      screen.getByRole("link", { name: "Change plan in your Merqo account" }),
+    ).toHaveAttribute(
+      "href",
+      expect.stringMatching(/^https?:\/\/.+\/dashboard$/),
+    );
     expect(fetchPlanCatalogMock).toHaveBeenCalledWith(
       expect.stringMatching(/^https?:\/\//),
       undefined,
@@ -145,12 +151,14 @@ describe("PlanPage", () => {
 
     render(await PlanPage());
 
-    expect(screen.getByText("Free")).toBeInTheDocument();
+    expect(screen.getByText("You are on Free")).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "Prices are unavailable right now. Your plan is unaffected.",
-      ),
+      screen.getByText(/Prices are unavailable right now\./),
     ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute(
+      "href",
+      "/dashboard/plan",
+    );
     expect(screen.queryByText(/\$\s?\d/)).not.toBeInTheDocument();
   });
 
@@ -171,10 +179,9 @@ describe("PlanPage", () => {
 
     render(await PlanPage());
 
-    expect(screen.getByText("Pro")).toBeInTheDocument();
-    expect(
-      screen.getByText("Change plan from your Merqo account."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("You are on Pro")).toBeInTheDocument();
+    expect(screen.queryByText("What paid plans add")).not.toBeInTheDocument();
+    expect(countBeforeMock).not.toHaveBeenCalled();
   });
 
   it("falls back to Free when the entitlement read fails", async () => {
@@ -183,7 +190,51 @@ describe("PlanPage", () => {
 
     render(await PlanPage());
 
-    expect(screen.getByText("Free")).toBeInTheDocument();
+    expect(screen.getByText("You are on Free")).toBeInTheDocument();
     expect(screen.getByText("0 transactions this month")).toBeInTheDocument();
+  });
+
+  it("lists what paid plans add and how many older payments Free hides", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    txCountThisMonthMock.mockResolvedValue(0);
+    countBeforeMock.mockResolvedValue(12);
+
+    render(await PlanPage());
+
+    expect(screen.getByText("What paid plans add")).toBeInTheDocument();
+    expect(screen.getByText(/Refund tracking/)).toBeInTheDocument();
+    expect(
+      screen.getByText("12 older payments are hidden on Free."),
+    ).toBeInTheDocument();
+  });
+
+  it("omits the hidden-payments line when nothing is hidden", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    txCountThisMonthMock.mockResolvedValue(0);
+
+    render(await PlanPage());
+
+    expect(screen.queryByText(/hidden on Free/)).not.toBeInTheDocument();
+  });
+
+  it("uses the singular for one hidden payment", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    txCountThisMonthMock.mockResolvedValue(0);
+    countBeforeMock.mockResolvedValue(1);
+
+    render(await PlanPage());
+
+    expect(
+      screen.getByText("1 older payment is hidden on Free."),
+    ).toBeInTheDocument();
+  });
+
+  it("has no Billing eyebrow", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    txCountThisMonthMock.mockResolvedValue(0);
+
+    render(await PlanPage());
+
+    expect(screen.queryByText("Billing")).not.toBeInTheDocument();
   });
 });

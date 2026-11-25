@@ -29,7 +29,6 @@ export default async function ProfilePage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
         responsive
-        eyebrow="Your account"
         title="Profile"
         description="Your business name and links are shared with every Merqo app you use. Everything else stays in paykit."
         className="mb-0"

@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Dashboard home shows the SGD amount waiting to be confirmed next to the count (linking to payments), and this month's confirmed amount next to the payment count. A vendor with no payment setup sees one setup prompt instead of empty cards.
+- Plan page links to the Merqo account, offers a retry when prices are unavailable, and tells Free vendors what paid plans add and how many older payments Free hides.
+- Removed the repeated eyebrow labels from the home, plan, payment setup and profile headers.
+
 ## [0.6.1] - 2026-11-23
 
 ### Changed

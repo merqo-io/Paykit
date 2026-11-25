@@ -53,19 +53,49 @@ export async function txCountThisMonth(vendorId: string): Promise<number> {
   return data ?? 0;
 }
 
-/** Count of the vendor's transactions a customer has marked paid and the vendor has not yet confirmed. */
-export async function claimedTxCount(vendorId: string): Promise<number> {
+/** Payments a customer has marked paid that the vendor has not yet confirmed: how many and the SGD cents they add up to. */
+export async function claimedTxSummary(
+  vendorId: string,
+): Promise<{ count: number; cents: number }> {
   const supabase = await createServerClient();
-  const { count, error } = await supabase
+  const { data, error } = await supabase
     .from("transactions")
-    .select("id", { count: "exact", head: true })
+    .select("amount_cents")
     .eq("vendor_id", vendorId)
     .eq("status", "claimed");
   if (error) {
-    console.error("claimedTxCount failed", error.message);
+    console.error("claimedTxSummary failed", error.message);
+    return { count: 0, cents: 0 };
+  }
+  const rows = data ?? [];
+  return {
+    count: rows.length,
+    cents: rows.reduce((sum, row) => sum + row.amount_cents, 0),
+  };
+}
+
+/** Confirmed takings since `sinceIso`, in SGD cents. */
+export async function confirmedCentsSince(
+  vendorId: string,
+  sinceIso: string,
+): Promise<number> {
+  const supabase = await createServerClient();
+  try {
+    const rows = await readAllRows<{ amount_cents: number }>((from, to) =>
+      supabase
+        .from("transactions")
+        .select("amount_cents")
+        .eq("vendor_id", vendorId)
+        .eq("status", "confirmed")
+        .gte("created_at", sinceIso)
+        .order("id")
+        .range(from, to),
+    );
+    return rows.reduce((sum, row) => sum + row.amount_cents, 0);
+  } catch (error) {
+    console.error("confirmedCentsSince failed", error);
     return 0;
   }
-  return count ?? 0;
 }
 
 /** Complete vendor-scoped records for reports, separate from the recent-items UI. */
