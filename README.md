@@ -191,7 +191,7 @@ signed in, a vendor's plan comes from merqo, which owns pricing and pushes
 each vendor's entitlement to `POST /api/merqo/entitlement`; paykit caches it
 in `paykit.vendor_entitlements` and gates Pro features on the cache (paid and
 unexpired, or an event pass running). The dashboard's Plan page shows the
-current plan and points to the Merqo account. A Merqo-team-only admin console
+current plan, links to the Merqo account (`/account`) and, for Free, lists what paid plans add. The dashboard home shows the SGD amount waiting to be confirmed and this month's confirmed amount. A Merqo-team-only admin console
 (`/admin`, gated by an `admins` allow-list) shows platform-wide stats and a
 read-only per-vendor plan column. Free sees the last 30 days of payments and
 today and yesterday totals; weekly and monthly revenue, earnings, CSV export, automatic confirmation and refund tracking need a paid plan. `/api/merqo/vendor-status` (merqo hub's own vendor-active/plan
