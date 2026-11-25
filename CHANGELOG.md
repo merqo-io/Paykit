@@ -8,10 +8,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `/admin/vendors` searches by stall name, email or vendor id and pages 25 at a time; `/admin/activity` filters by action and date range and pages the audit log. Query values are Zod-parsed, a page past the end redirects to the last page, and a failed read shows a retry state instead of the empty state.
+- Recent-activity rows on the admin overview, and each target on `/admin/activity`, link to the vendor they concern. Pager links are real anchors, and a notice says when the activity window (latest 1000 entries) is full.
 - Payments list: search (reference or title, Starter and Pro), status and date-range filters, and real pagination (25 per page) replacing the 200-row cap. Filters live in the URL; `?status=claimed` deep-links to payments waiting for confirmation. Free vendors see search locked with an upgrade note and an "N older payments hidden on Free" notice; a crafted `from` can never reach rows past the 30-day cutoff (`resolveListRange`).
 
 ### Changed
 
+- The admin header and tabs, `/mfa` and the dashboard error boundary use the shared `AdminShell`, `AuthShell` and `ErrorPage` from `@merqo/ui`; the local `admin-nav.tsx` is removed. The repeated "Admin" eyebrows are gone.
 - Reports: the locked-tab copy now says what Starter and Pro give you (best days and hours, CSV for your accountant), the Free summary uses the shared `StatCard`, and the "Ledger" and "Insights" eyebrows are gone.
 - AGENTS.md plan-gate line now matches the pricing spec.
 - Redesigned the public landing to follow qkit's: a vendor-worded headline, a sample pay-card hero copied from the real pay page (non-payable QR), a how-it-works section, a full-width funds statement, and one FAQ and closing-call section (`@merqo/ui` `FaqRows`, reusing the `/faq` answers), all on one spacing scale. The removed body gradient also changes the dashboard background.

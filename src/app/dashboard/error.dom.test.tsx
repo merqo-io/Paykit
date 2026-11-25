@@ -20,9 +20,11 @@ describe("DashboardError", () => {
     render(<DashboardError error={error} reset={vi.fn()} />);
 
     expect(
-      screen.getByRole("heading", { name: /something went wrong/i }),
+      screen.getByRole("heading", { name: "This page didn't load" }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/could not load this page/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/something went wrong on our side/i),
+    ).toBeInTheDocument();
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       "Dashboard error boundary caught",
       error,

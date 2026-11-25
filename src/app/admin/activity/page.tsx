@@ -1,15 +1,37 @@
 import type { Metadata } from "next";
-import { type AuditLogEntry } from "@merqo/ui";
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { EmptyState, FORM_LABEL_CLASS, PageHeader } from "@merqo/ui";
+import { Button, Input, Label } from "@merqo/ui/primitives";
 import { requireAdmin } from "@/lib/admin";
 import { auditLog, type AuditLogRow } from "@/lib/admin-data";
-import { PageHeader } from "@merqo/ui";
-import { ActivitySection } from "./activity-section";
+import { formatAction } from "@/app/admin/action-labels";
+import { ListError } from "@/app/admin/list-error";
+import { ListPager } from "@/app/admin/list-pager";
+import {
+  dayBounds,
+  listHref,
+  paginate,
+  parseActivityParams,
+} from "@/app/admin/list-params";
+import { ActivitySection, type ActivityEntry } from "./activity-section";
 
 export const metadata: Metadata = {
   title: "Activity",
 };
 
 export const revalidate = 0;
+
+const PATH = "/admin/activity";
+
+// Same select styling as the ledger filters, at 44px for touch.
+const SELECT_CLASS =
+  "h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring sm:w-56";
+
+// The audit read is a single newest-first query, so filtering and paging
+// happen over this window rather than the whole table.
+const FETCH_CAP = 1000;
 
 function formatDetail(detail: AuditLogRow["detail"]): string | null {
   if (detail === null || detail === undefined) return null;
@@ -22,7 +44,7 @@ function formatDetail(detail: AuditLogRow["detail"]): string | null {
     .join(", ");
 }
 
-function toEntry(row: AuditLogRow): AuditLogEntry {
+function toEntry(row: AuditLogRow): ActivityEntry {
   return {
     id: row.id,
     actor: row.email ?? row.admin_id,
@@ -33,22 +55,144 @@ function toEntry(row: AuditLogRow): AuditLogEntry {
   };
 }
 
-export default async function AdminActivityPage() {
+export default async function AdminActivityPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requireAdmin();
 
-  const rows = await auditLog(100);
+  const filters = parseActivityParams(await searchParams);
+  const { action, from, to, page } = filters;
+  const active = { action, from, to };
+
+  let rows: AuditLogRow[];
+  try {
+    rows = await auditLog(FETCH_CAP);
+  } catch (error) {
+    console.error("Admin activity load failed", error);
+    return (
+      <main className="mx-auto max-w-5xl space-y-6 px-5 py-8">
+        <PageHeader responsive title="Activity" className="mb-0" />
+        <ListError retryHref={listHref(PATH, { ...active, page })} />
+      </main>
+    );
+  }
+
+  const actions = [...new Set(rows.map((r) => r.action))].sort();
+  const { fromMs, toMs } = dayBounds(from, to);
+  const filtered = rows.filter((r) => {
+    const at = Date.parse(r.created_at);
+    return (!action || r.action === action) && at >= fromMs && at <= toMs;
+  });
+  const paged = paginate(filtered, page);
+  if (paged.overflow) {
+    redirect(listHref(PATH, { ...active, page: paged.pageCount }));
+  }
+  const filtering = Boolean(action || from || to);
+
+  let body: ReactNode;
+  if (rows.length === 0) {
+    body = (
+      <EmptyState
+        title="No activity yet"
+        description="Admin and vendor actions are listed here as they happen."
+      />
+    );
+  } else if (paged.total === 0) {
+    body = (
+      <EmptyState
+        title="No activity matches"
+        description="Widen the dates or choose another action."
+      />
+    );
+  } else {
+    body = (
+      <div className="space-y-3">
+        <p className="text-sm text-muted-foreground tabular-nums">
+          {paged.total} {paged.total === 1 ? "action" : "actions"}
+        </p>
+        <ActivitySection entries={paged.rows.map(toEntry)} />
+        <ListPager
+          path={PATH}
+          params={active}
+          page={paged.page}
+          pageCount={paged.pageCount}
+        />
+      </div>
+    );
+  }
 
   return (
-    <main className="mx-auto max-w-5xl space-y-8 px-5 py-8">
-      <PageHeader
-        responsive
-        eyebrow="Admin"
-        title="Activity"
-        description="Recent actions by admins and vendors, across every vendor."
-        className="mb-0"
-      />
+    <main className="mx-auto max-w-5xl space-y-6 px-5 py-8">
+      <PageHeader responsive title="Activity" className="mb-0" />
 
-      <ActivitySection entries={rows.map(toEntry)} />
+      <form
+        method="get"
+        action={PATH}
+        role="search"
+        className="flex flex-wrap items-end gap-3"
+      >
+        <div className="space-y-1.5">
+          <Label htmlFor="activity-action" className={FORM_LABEL_CLASS}>
+            Action
+          </Label>
+          <select
+            id="activity-action"
+            name="action"
+            defaultValue={action}
+            className={SELECT_CLASS}
+          >
+            <option value="">All actions</option>
+            {actions.map((a) => (
+              <option key={a} value={a}>
+                {formatAction(a)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="activity-from" className={FORM_LABEL_CLASS}>
+            From
+          </Label>
+          <Input
+            id="activity-from"
+            name="from"
+            type="date"
+            defaultValue={from}
+            className="h-11 tabular-nums"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="activity-to" className={FORM_LABEL_CLASS}>
+            To
+          </Label>
+          <Input
+            id="activity-to"
+            name="to"
+            type="date"
+            defaultValue={to}
+            className="h-11 tabular-nums"
+          />
+        </div>
+        <Button type="submit" className="h-11">
+          Apply filters
+        </Button>
+        {filtering && (
+          <Button asChild variant="ghost" className="h-11">
+            <Link href={PATH}>Clear</Link>
+          </Button>
+        )}
+      </form>
+
+      {rows.length >= FETCH_CAP && (
+        <p className="text-sm text-muted-foreground">
+          Showing the latest {FETCH_CAP} entries; older entries aren&apos;t
+          searched.
+        </p>
+      )}
+
+      {body}
     </main>
   );
 }

@@ -8,9 +8,10 @@ status, plan (read-only, from the entitlement cache), and transaction count.
 ## Contents
 
 - `page.tsx` — `AdminVendorsPage`: `requireAdmin()` + fetches
-  `listVendors()` (pre-sorted most-urgent status first) and renders
-  `VendorsTable` in a flat bordered card, or `EmptyState` when there are no
-  vendors, under the shared `PageHeader`.
+  `listVendors()` (pre-sorted most-urgent status first), filters by the `q`
+  search param (email, stall name, label or vendor id), pages 25 at a time and
+  renders `VendorsTable`, or `EmptyState` when there are no vendors or no
+  match. A failed read shows a retry state; a page past the end redirects.
 - `vendors-table.tsx` — `VendorsTable`: `"use client"` wrapper owning the
   `columns` array (`cell` render callbacks) and the `getRowKey` function it
   passes to `@merqo/ui`'s shared `DataTable` — vendor email with
