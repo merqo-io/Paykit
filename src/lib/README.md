@@ -166,6 +166,8 @@ provide authorization.
 
 ## Reads and reports
 
+`bookings.ts` `searchBookings(vendorId, {q, status, page, pageSize})` returns `{ok:true, rows, total}` or `{ok:false}`; a page past the end (PGRST103) is an empty page with the exact total, and `listBookings` was removed (`listAllBookings` stays).
+
 `transactions.ts` and `bookings.ts` read vendor-owned records with the session
 client; `listTransactions(vendorId, since?)` takes the Free list cutoff,
 `countTransactionsBefore` counts hidden older rows and `listConfirmedBetween`
