@@ -176,7 +176,7 @@ confirmation) transactions and `confirmedSince` sums confirmed takings since a c
 partial collections on later errors; it does not provide a transaction snapshot.
 `list-all-users.ts` paginates auth users and reports its safety ceiling as failure.
 `admin-data.ts` performs team-console service-role reads; callers must apply the
-admin gate before invoking it.
+admin gate before invoking it. `auditLog({ action, since, before, page, pageSize })` filters, counts (`count: "exact"`) and pages `admin_audit` in SQL with `.range`, returning `{ rows, total, page, pageCount }`; `before` is an exclusive bound; a page past the end returns no rows with the clamped `page` and `pageCount` so the caller redirects.
 
 `metrics.ts` and `merqo-vendor-activity.ts` derive hub payloads.
 `ops-events.ts` holds `recordOpsEvent(supabase, e)`, which writes one
