@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import { requireCurrentLegalAcceptance } from "@/lib/legal-gate";
+import { loginRedirectPath } from "@/lib/return-to";
 
 type VendorSupabaseClient = Awaited<ReturnType<typeof createServerClient>>;
 type SessionUser = NonNullable<
@@ -23,7 +24,7 @@ export async function getVendorSession(returnTo?: string): Promise<{
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect(loginRedirectPath(returnTo));
   await requireCurrentLegalAcceptance(user.email, returnTo);
   return { supabase, user };
 }

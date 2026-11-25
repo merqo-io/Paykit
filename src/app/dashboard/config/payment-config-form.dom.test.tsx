@@ -306,14 +306,14 @@ describe("PaymentConfigForm way back", () => {
   }
 
   function backLink() {
-    return screen.queryByRole("link", { name: "Go back" });
+    return screen.queryByRole("link", { name: "Back to your booth" });
   }
 
   it("offers the way back once a save succeeds", async () => {
     await save(RETURN_TO, "ok");
 
     expect(
-      await screen.findByRole("link", { name: "Go back" }),
+      await screen.findByRole("link", { name: "Back to your booth" }),
     ).toHaveAttribute("href", RETURN_TO);
   });
 

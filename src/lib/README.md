@@ -234,6 +234,12 @@ the cleanup's list for images uploaded earlier through qkit's booth form.
 query value may be shown as a way back to another Merqo app: an https address
 on `merqo.io` or a subdomain of it, with no credentials and no port (plus
 http on localhost outside production). Anything else reads as no address.
+`pathWithReturnTo` rebuilds a page's own path with only a checked
+`return_to`, and `loginRedirectPath` builds `/login?next=` for a signed-out
+visitor, keeping `next` only when `safeNextPath` accepts it (same origin once
+parsed; no whitespace, control characters, backslashes or encoded `//`; shared
+with the login page and `/auth/callback`);
+`getVendorSession` uses it so a deep link survives sign-in.
 It is separate from `@merqo/ui`'s `safeRedirectPath`, which accepts only a
 path on this app.
 
