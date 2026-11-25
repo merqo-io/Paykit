@@ -7,6 +7,12 @@ Paykit-specific client adapters and presentation. Shared controls live in
 - `dashboard-tour.tsx` adapts routing, mark-seen action and `tour-steps.ts` to
   the shared tour (its Reports step anchors on `nav-reports`). Step descriptions render the real transaction-status badge
   into static markup when steps are requested, never at import (an import-time render breaks SSR); their HTML is authored configuration, not customer input.
+- `list/` — shared list-page pieces for the ledger, bookings and admin lists:
+  `ListError` (`role="alert"` failed-read card with a Try again link and an
+  optional `message`), `UrlPager` (server-rendered real-anchor pager with
+  `rel=prev/next`, 44px targets and a caller-supplied `href(page)` that keeps
+  filters) and `FILTER_SELECT_CLASS` (native select styled like the `Input`,
+  with its focus ring). Covered by `list-error.dom.test.tsx` and `url-pager.dom.test.tsx`.
 - Dashboard page chrome (`PageHeader`, `EmptyState`) and the navigation plan chip
   (`TierChip`) come from `@merqo/ui`; there are no local copies.
 - `site-footer.tsx` — `SiteFooter({ showSignIn })`, paykit's copy of the

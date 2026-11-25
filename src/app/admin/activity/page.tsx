@@ -3,12 +3,13 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { EmptyState, FORM_LABEL_CLASS, PageHeader } from "@merqo/ui";
-import { Button, Input, Label } from "@merqo/ui/primitives";
+import { Button, cn, Input, Label } from "@merqo/ui/primitives";
 import { requireAdmin } from "@/lib/admin";
 import { auditLog, type AuditLogRow } from "@/lib/admin-data";
 import { formatAction } from "@/app/admin/action-labels";
-import { ListError } from "@/app/admin/list-error";
-import { ListPager } from "@/app/admin/list-pager";
+import { ListError } from "@/components/list/list-error";
+import { UrlPager } from "@/components/list/url-pager";
+import { FILTER_SELECT_CLASS } from "@/components/list/filter-classes";
 import {
   dayBounds,
   listHref,
@@ -25,9 +26,7 @@ export const revalidate = 0;
 
 const PATH = "/admin/activity";
 
-// Same select styling as the ledger filters, at 44px for touch.
-const SELECT_CLASS =
-  "h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring sm:w-56";
+const SELECT_CLASS = cn(FILTER_SELECT_CLASS, "sm:w-56");
 
 // The audit read is a single newest-first query, so filtering and paging
 // happen over this window rather than the whole table.
@@ -113,11 +112,10 @@ export default async function AdminActivityPage({
           {paged.total} {paged.total === 1 ? "action" : "actions"}
         </p>
         <ActivitySection entries={paged.rows.map(toEntry)} />
-        <ListPager
-          path={PATH}
-          params={active}
+        <UrlPager
           page={paged.page}
           pageCount={paged.pageCount}
+          href={(next) => listHref(PATH, { ...active, page: next })}
         />
       </div>
     );

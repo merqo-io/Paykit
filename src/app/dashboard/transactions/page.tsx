@@ -13,8 +13,9 @@ import { countTransactionsBefore, queryTransactions } from "@/lib/transactions";
 import { PageHeader } from "@merqo/ui";
 import { TransactionTable } from "./transaction-table";
 import { TransactionFilters } from "./transaction-filters";
-import { TransactionsPager } from "./transactions-pager";
-import { FreeRangeNote, HiddenNote, LoadError } from "./transaction-notices";
+import { ListError } from "@/components/list/list-error";
+import { UrlPager } from "@/components/list/url-pager";
+import { FreeRangeNote, HiddenNote } from "./transaction-notices";
 import {
   parseTransactionsParams,
   TRANSACTIONS_PAGE_SIZE,
@@ -86,7 +87,10 @@ export default async function TransactionsPage({
       />
       {cutRangeShort(cutoff, params.from) && <FreeRangeNote />}
       {result.failed ? (
-        <LoadError retryHref={transactionsHref(linkParams)} />
+        <ListError
+          retryHref={transactionsHref(linkParams)}
+          message="Couldn't load payments"
+        />
       ) : (
         <>
           <TransactionTable
@@ -94,7 +98,11 @@ export default async function TransactionsPage({
             isPro={isPaid}
             filtered={filtered}
           />
-          <TransactionsPager params={linkParams} pageCount={pageCount} />
+          <UrlPager
+            page={linkParams.page}
+            pageCount={pageCount}
+            href={(next) => transactionsHref({ ...linkParams, page: next })}
+          />
         </>
       )}
       <HiddenNote count={hiddenCount} />

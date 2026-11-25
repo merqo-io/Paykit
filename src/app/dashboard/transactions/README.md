@@ -8,7 +8,7 @@ across every kit — plus, for Pro vendors, a per-payment refund action.
 ## Contents
 
 - `page.tsx` — `TransactionsPage()` (server): calls `getVendorSession()`/
-  `readVendorPlan()` (`@/lib/vendor-entitlement`) and `queryTransactions()`, renders `TransactionFilters`, `TransactionTable` and `TransactionsPager`.
+  `readVendorPlan()` (`@/lib/vendor-entitlement`) and `queryTransactions()`, renders `TransactionFilters`, `TransactionTable` and the shared `UrlPager` (plain links, no client router).
   URL params (Zod, `search-params.ts`, invalid values dropped): `q` (reference or title, paid only; ignored for Free), `status` (`pending`|`claimed`|`confirmed`; `?status=claimed` is the dashboard's "to confirm" deep link), `from`/`to` (YYYY-MM-DD, Singapore days) and `page` (25 per page; a page past the end redirects to the last page). Free's window is floored at the 30-day cutoff whatever `from` says (`resolveListRange`).
   Free also sees search disabled with an upgrade note and an "N older payments hidden on Free" line. Empty filter results show "No payments match" with a clear-filters link. On Free the date pickers stop at the cutoff day and a range cut short shows "Free shows the last 30 days." A failed read shows a local `role="alert"` card with "Try again", distinct from the empty state.
   A Free vendor's list is limited to the last 30 days (`freeListCutoff`) and a
@@ -22,9 +22,8 @@ across every kit — plus, for Pro vendors, a per-payment refund action.
   are formatted via `Intl.NumberFormat` (SGD). Empty state is the
   shared dashed `EmptyState` ("No payments yet"); the table sits in an
   `overflow-x-auto` wrapper so it scrolls instead of widening the page on a phone.
-- `transaction-notices.tsx` — `LoadError` (the `role="alert"` failed-read card),
-  `HiddenNote` (older payments Free hides) and `FreeRangeNote` ("Free shows the
-  last 30 days.").
+- `transaction-notices.tsx` — `HiddenNote` (older payments Free hides) and `FreeRangeNote` ("Free shows the
+  last 30 days."). A failed read renders the shared `ListError` ("Couldn't load payments"); the filter select uses `FILTER_SELECT_CLASS`.
 - `transaction-status-badge.tsx` — `TransactionStatusBadge({ status })`
   (labels: pending → "Awaiting payment", claimed → "Marked paid", confirmed
   → "Received"; stored values are unchanged): a
