@@ -78,11 +78,14 @@ export default async function BookingsPage({
           {result.ok ? (
             <BookingTable bookings={result.rows} filtered={filtered} />
           ) : (
-            <div role="alert" className="text-sm">
-              <p className="font-medium">Couldn&rsquo;t load your bookings.</p>
+            <div
+              role="alert"
+              className="rounded-lg border border-destructive/40 bg-card p-6 text-center"
+            >
+              <p className="font-medium">Couldn&rsquo;t load bookings</p>
               <Link
                 href={bookingListHref(params)}
-                className="mt-1 inline-block underline underline-offset-4"
+                className="mt-2 inline-block text-sm underline underline-offset-4"
               >
                 Try again
               </Link>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FORM_LABEL_CLASS } from "@merqo/ui";
 import { Button, Input, Label } from "@merqo/ui/primitives";
 import {
   BOOKING_STATUS_FILTERS,
@@ -14,6 +15,11 @@ const STATUS_LABELS: Record<(typeof BOOKING_STATUS_FILTERS)[number], string> = {
   cancelled: "Cancelled",
 };
 
+// Same field styling as the ledger filter; copied locally until the classes
+// are shared.
+const SELECT_CLASS =
+  "h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
+
 // A plain GET form: the URL is the single source of truth, so filters survive
 // reload and sharing, and the list needs no client state.
 export function BookingFilters({ params }: { params: BookingListParams }) {
@@ -25,7 +31,9 @@ export function BookingFilters({ params }: { params: BookingListParams }) {
       role="search"
     >
       <div className="grid gap-1.5 sm:flex-1">
-        <Label htmlFor="booking-search">Search</Label>
+        <Label htmlFor="booking-search" className={FORM_LABEL_CLASS}>
+          Search
+        </Label>
         <Input
           id="booking-search"
           name="q"
@@ -36,12 +44,14 @@ export function BookingFilters({ params }: { params: BookingListParams }) {
         />
       </div>
       <div className="grid gap-1.5 sm:w-48">
-        <Label htmlFor="booking-status">Status</Label>
+        <Label htmlFor="booking-status" className={FORM_LABEL_CLASS}>
+          Status
+        </Label>
         <select
           id="booking-status"
           name="status"
           defaultValue={params.status ?? ""}
-          className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+          className={SELECT_CLASS}
         >
           <option value="">All statuses</option>
           {BOOKING_STATUS_FILTERS.map((status) => (

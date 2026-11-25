@@ -231,7 +231,7 @@ describe("BookingsPage", () => {
       await BookingsPage({ searchParams: Promise.resolve({ q: "jane" }) }),
     );
     expect(screen.getByRole("alert")).toHaveTextContent(
-      "Couldn’t load your bookings.",
+      "Couldn’t load bookings",
     );
     expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute(
       "href",
