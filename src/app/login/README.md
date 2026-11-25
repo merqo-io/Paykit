@@ -54,9 +54,24 @@ password happens on `/reset-password`.
 ## Connectivity
 
 Signed-out visitors land here from `landing/nav.tsx`'s "Log in"/"Get
-started" links. On success it calls `router.push("/dashboard")` +
-`router.refresh()`; `/dashboard`'s `layout.tsx` (`getVendorSession()`) is
+started" links. On success it calls `router.push(next)` +
+`router.refresh()`, where `next` is the `?next=` query value if it is a
+same-origin relative path (`safeNextPath` in `src/lib/return-to.ts`, shared
+with `/auth/callback`: it rejects whitespace, control characters, backslashes
+and encoded `//`, and returns only path, query and hash) and `/dashboard`
+otherwise (login checks `next` only as a same-origin path; a nested
+`return_to` inside it is re-validated by `familyReturnUrl` on
+`/dashboard/config`); the Google and email-link callbacks carry the same `next` to
+`/auth/callback`; `/dashboard`'s `layout.tsx` (`getVendorSession()`) is
 the actual auth gate this page's happy path leads into.
+
+Supabase setup: Auth, Redirect URLs must allow
+`https://paykit.merqo.io/auth/callback**`,
+`https://paykit-staging.merqo.io/auth/callback**` and
+`http://localhost:3000/auth/callback**`. Because `emailRedirectTo` and the
+Google `redirectTo` now carry `?next=`, a missing wildcard makes Supabase fall
+back to the Site URL and the vendor loses the return trip to the booth (password
+sign-in still works). See `docs/DEPLOY.md`.
 
 Google branding uses `GoogleMark` from `@merqo/ui`; no local copy remains.
 

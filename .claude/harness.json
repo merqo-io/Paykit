@@ -92,7 +92,7 @@
       "path": ".husky/lib/pre-commit.sh"
     },
     ".husky/lib/pre-push.sh": {
-      "origin_hash": "41e14be97718ce02e5b39bd63cceaea29d149a7f13b88cc33aa2d75a788992b6",
+      "origin_hash": "8fd51f6c0736fa0e79dc8233fc6c044337eaa363c447b80ebbee96d13780812b",
       "path": ".husky/lib/pre-push.sh"
     },
     ".gitleaks.toml": {

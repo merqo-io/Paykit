@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { familyReturnUrl } from "./return-to";
+import {
+  familyReturnUrl,
+  loginRedirectPath,
+  pathWithReturnTo,
+  pathWithSearch,
+  safeNextPath,
+} from "./return-to";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -59,6 +65,26 @@ describe("familyReturnUrl", () => {
     expect(familyReturnUrl(raw)).toBeNull();
   });
 
+  it("accepts a kit's booth QR page on staging", () => {
+    const url = "https://qkit-staging.merqo.io/dashboard/booths/abc/qr";
+    expect(familyReturnUrl(url)).toBe(url);
+  });
+
+  it("rejects the hostile forms in production", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    for (const raw of [
+      "https://evil.com",
+      "https://merqo.io.evil.com",
+      "//evil.com",
+      "javascript:alert(1)",
+      "https://user:pass@qkit.merqo.io",
+      "https://qkit.merqo.io:8443",
+      "http://qkit.merqo.io",
+    ]) {
+      expect(familyReturnUrl(raw)).toBeNull();
+    }
+  });
+
   it("accepts a local kit outside production", () => {
     vi.stubEnv("NODE_ENV", "development");
     expect(familyReturnUrl("http://localhost:3000/dashboard/booths/b1")).toBe(
@@ -73,5 +99,104 @@ describe("familyReturnUrl", () => {
     vi.stubEnv("NODE_ENV", "production");
     expect(familyReturnUrl("http://localhost:3000/x")).toBeNull();
     expect(familyReturnUrl("https://localhost/x")).toBeNull();
+  });
+});
+
+describe("pathWithReturnTo", () => {
+  it("keeps a valid return_to, encoded", () => {
+    const url = "https://qkit.merqo.io/dashboard/booths/b1/qr";
+    expect(pathWithReturnTo("/dashboard/config", url)).toBe(
+      `/dashboard/config?return_to=${encodeURIComponent(url)}`,
+    );
+  });
+
+  it.each([
+    "https://evil.com",
+    "//evil.com",
+    "javascript:alert(1)",
+    undefined,
+    ["https://qkit.merqo.io/x", "https://evil.com"],
+  ])("drops an invalid return_to (%s)", (raw) => {
+    expect(pathWithReturnTo("/dashboard/config", raw)).toBe(
+      "/dashboard/config",
+    );
+  });
+});
+
+describe("loginRedirectPath", () => {
+  it("keeps a same-origin relative next", () => {
+    expect(loginRedirectPath("/dashboard/config?return_to=x")).toBe(
+      "/login?next=%2Fdashboard%2Fconfig%3Freturn_to%3Dx",
+    );
+  });
+
+  it.each([
+    undefined,
+    "",
+    "//evil.com",
+    "/\\evil.com",
+    "/\t/evil.com",
+    "/%2F%2Fevil.com",
+    "https://evil.com",
+    "javascript:alert(1)",
+    `/${"a".repeat(6100)}`,
+  ])("drops an unsafe next (%j)", (next) => {
+    expect(loginRedirectPath(next)).toBe("/login");
+  });
+
+  it("keeps a config path carrying a fully encoded 2000-character return_to", () => {
+    const returnTo = `https://qkit.merqo.io/${"/".repeat(1978)}`;
+    expect(returnTo).toHaveLength(2000);
+    const next = pathWithReturnTo("/dashboard/config", returnTo);
+    expect(next.length).toBeGreaterThan(512);
+    expect(next.length).toBeLessThanOrEqual(6100);
+    expect(loginRedirectPath(next)).toBe(
+      `/login?next=${encodeURIComponent(next)}`,
+    );
+  });
+});
+
+describe("safeNextPath", () => {
+  it("keeps a path with query and hash", () => {
+    const next =
+      "/dashboard/config?return_to=https%3A%2F%2Fqkit.merqo.io%2Fx#a";
+    expect(safeNextPath(next)).toBe(next);
+  });
+
+  it.each([
+    "/\t/evil.com",
+    "/\n/evil.com",
+    "/\r/evil.com",
+    "/ /evil.com",
+    "/%2F%2Fevil.com",
+    "/%2f%2fevil.com",
+    "/\\evil.com",
+    "/%5Cevil.com",
+    "//evil.com",
+    "https://evil.com",
+    "javascript:alert(1)",
+    "relative",
+    "/%E0%A4%A",
+    "",
+    null,
+    undefined,
+    42,
+  ])("rejects %j", (raw) => {
+    expect(safeNextPath(raw)).toBeNull();
+  });
+});
+
+describe("pathWithSearch", () => {
+  it("returns the bare path when there is no query", () => {
+    expect(pathWithSearch("/dashboard/x", {})).toBe("/dashboard/x");
+    expect(pathWithSearch("/dashboard/x", { a: undefined })).toBe(
+      "/dashboard/x",
+    );
+  });
+
+  it("encodes values and keeps repeated keys", () => {
+    expect(
+      pathWithSearch("/dashboard/x", { q: "a b&c", tag: ["1", "2"] }),
+    ).toBe("/dashboard/x?q=a+b%26c&tag=1&tag=2");
   });
 });

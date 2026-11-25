@@ -35,3 +35,5 @@ Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 "Received" and the terms-accepted time render through `@merqo/ui` `formatDateTime` ("7 Nov 2026, 1:30 am", Singapore time).
+
+The page passes its own path to `getVendorSession` as `returnTo`, so login and the legal gate bring the vendor back to this inquiry.

@@ -108,3 +108,5 @@ Page chrome here (PageHeader and EmptyState) comes from `@merqo/ui`; paykit keep
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 Timestamps display through `Timestamp` (or `formatDate`/`formatDateTime`) from `@merqo/ui`, always in Asia/Singapore so server and client render identically (no hydration mismatch).
+
+Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

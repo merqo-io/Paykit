@@ -9,7 +9,7 @@ their own bank/payment app, and a human confirms receipt. A calling kit
 without its own vendor-session UI can also write the config directly via
 `POST /api/v1/vendors/{vendor_id}/config` (bearer-secret authenticated,
 same schema the dashboard's own config form uses) — see
-`src/app/api/v1/vendors/[vendor_id]/config/README.md`. Design values for the public pages are in `DESIGN.md`, which lists no open items. A vendor setting up
+`src/app/api/v1/vendors/[vendor_id]/config/README.md`. A kit can send a vendor to `/dashboard/config?return_to=<address>`; a signed-out vendor keeps that address through sign-in (as a same-origin `next` path, validated by `safeNextPath` and `familyReturnUrl` in `src/lib/return-to.ts`) and gets a "Back to your booth" button after saving. Design values for the public pages are in `DESIGN.md`, which lists no open items. A vendor setting up
 their own BYO payment link/QR picks from a four-card preset directory
 (Stripe Payment Link, HitPay Payment Link, PayLah! QR, or Other/Custom —
 `src/app/dashboard/config/pointer-presets.ts`) that shows tailored
@@ -403,3 +403,5 @@ section tabs that mark the current page via `aria-current`
 The pay and inquiry pages give every dead end a plain next step. A failed Merqo terms check still blocks the vendor, but `/legal/accept?reason=unavailable` says the check failed instead of claiming the terms changed.
 
 The ledger, bookings and admin lists share one failed-read card, one link-based pager and one filter select class from `src/components/list/`.
+
+A deep link into the vendor dashboard survives the login and legal gates: every dashboard page passes its own path and query to `getVendorSession` as `returnTo`, and a stale terms acceptance goes to `/legal/accept?next=...`.

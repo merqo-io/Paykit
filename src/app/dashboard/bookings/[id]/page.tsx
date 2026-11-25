@@ -29,7 +29,9 @@ export default async function BookingDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { supabase, user } = await getVendorSession();
+  const { supabase, user } = await getVendorSession(
+    `/dashboard/bookings/${encodeURIComponent(id)}`,
+  );
   const booking = await getBooking(user.id, id);
   if (!booking) notFound();
 

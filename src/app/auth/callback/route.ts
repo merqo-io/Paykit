@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
-import { authCallbackQuerySchema, redirectPathSchema } from "@/lib/schemas";
+import { authCallbackQuerySchema } from "@/lib/schemas";
+import { safeNextPath } from "@/lib/return-to";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -12,8 +13,7 @@ export async function GET(request: Request) {
   // password-recovery link route through here; recovery passes ?next=/reset-password.
   // Only a same-origin relative path is accepted, so the param can't be an open
   // redirect; anything else goes to the dashboard.
-  const next = redirectPathSchema.safeParse(searchParams.get("next"));
-  const safeNext = next.success ? next.data : "/dashboard";
+  const safeNext = safeNextPath(searchParams.get("next")) ?? "/dashboard";
 
   if (!query.success)
     return NextResponse.redirect(`${origin}/login?error=oauth`);

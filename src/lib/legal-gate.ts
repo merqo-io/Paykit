@@ -79,7 +79,13 @@ export async function requireCurrentLegalAcceptance(
   if (!email) return;
   const status = await legalStatus(email);
   if (status === "current") return;
-  if (status === "stale") redirect("/legal/accept");
   const next = safeRedirectPath(returnTo, "/dashboard");
+  if (status === "stale") {
+    redirect(
+      returnTo
+        ? `/legal/accept?next=${encodeURIComponent(next)}`
+        : "/legal/accept",
+    );
+  }
   redirect(`/legal/accept?reason=unavailable&next=${encodeURIComponent(next)}`);
 }

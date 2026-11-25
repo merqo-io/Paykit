@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { EmptyState, PageHeader, ProLock } from "@merqo/ui";
 import { getVendorSession } from "@/lib/vendor-session";
+import { pathWithSearch } from "@/lib/return-to";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
 import {
   freeRevenueWindow,
@@ -27,8 +28,11 @@ export default async function ReportsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { supabase, user } = await getVendorSession();
-  const { tab, year } = parseReportsParams(await searchParams);
+  const rawParams = await searchParams;
+  const { supabase, user } = await getVendorSession(
+    pathWithSearch("/dashboard/reports", rawParams),
+  );
+  const { tab, year } = parseReportsParams(rawParams);
   const isPaid = isPaidPlan(await readVendorPlan(supabase, user.id));
 
   // Only the active tab's data is fetched, and Free never loads beyond today and yesterday.

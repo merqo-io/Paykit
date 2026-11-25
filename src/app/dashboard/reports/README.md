@@ -42,3 +42,5 @@ Buttons, inputs, dialogs, badges and the other shared primitives here are import
 `search-params.ts` keeps `REPORT_TABS` module-private; only the parser and the `ReportTab` type are exported.
 
 The free-plan Today and Yesterday tiles show amounts through `@merqo/ui` `formatMoney` ("S$4.50").
+
+Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

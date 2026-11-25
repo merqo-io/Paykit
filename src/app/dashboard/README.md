@@ -69,3 +69,5 @@ Buttons, inputs, dialogs, badges and the other shared primitives here are import
 The merqo base URL and the `ActionResult` shape come from `@merqo/ui/kit-api`; `useAsyncAction` comes from `@merqo/ui`.
 
 The hub tiles show amounts through `@merqo/ui` `formatMoney` ("S$4.50").
+
+Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

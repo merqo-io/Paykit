@@ -62,3 +62,5 @@ Class composition (`cn`) comes from `@merqo/ui/primitives`.
 `page.tsx` has no eyebrow. It groups the booking into Customer (phone with call and WhatsApp links via `../customer-phone.tsx`, terms), Amounts and Booking ID sections, then the payment cards and actions. The Free-plan refund hint in `cancel-booking-dialog.tsx` links to `/dashboard/plan`; the refund gate itself is unchanged.
 
 Money and times here come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.
+
+Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.

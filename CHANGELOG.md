@@ -13,10 +13,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Deep links into the vendor dashboard (bookings, transactions, reports and the rest) now survive the sign-in and legal-acceptance gates: every dashboard page passes its own path and query as the return destination, and a vendor with stale terms is sent to `/legal/accept?next=...` instead of losing the link.
 - Transaction, admin activity, admin vendor and admin overview timestamps are pinned to Asia/Singapore, fixing a hydration mismatch (React #418) where the server (UTC) and browser rendered different dates.
 
 ### Changed
 
+- A signed-out vendor who opens `/dashboard/config?return_to=...` now keeps `return_to` through sign-in (password, Google and email link) via a same-origin `next` path, and the saved state offers "Back to your booth" as the primary button.
 - Ledger, bookings and admin lists share one failed-read card, one link-based pager (the ledger pager is now plain anchors with Previous/Next at 44px) and one filter select style with the Input focus ring; filter selects are 44px tall.
 - Bookings list uses the shared `PageHeader`, shows counts on the Inquiries and Your bookings sections, and adds search by customer name or phone, a status filter, clear-filters and 20-per-page paging (URL `q`, `status`, `page`, Zod-validated and applied in the query).
 - Booking detail splits into Customer, Amounts and Booking ID sections instead of one boxed card, and the customer phone links to call and WhatsApp (shared with the inquiry page). The "Booking" and "Inquiry" eyebrows are gone.
