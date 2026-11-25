@@ -2,6 +2,7 @@
 
 import { DataTable, type DataTableColumn } from "@merqo/ui";
 import { type VendorRow } from "@/lib/admin-data";
+import { formatSgtDate } from "@/lib/utils";
 import { Badge } from "@merqo/ui/primitives";
 
 import { VendorStatusBadge } from "@/app/admin/vendors/vendor-status";
@@ -44,7 +45,7 @@ const columns: DataTableColumn<VendorRow>[] = [
   },
   {
     header: "Joined",
-    cell: (v) => new Date(v.created_at).toLocaleDateString("en-SG"),
+    cell: (v) => formatSgtDate(v.created_at),
   },
 ];
 

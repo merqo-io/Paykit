@@ -106,3 +106,5 @@ vendors — that dialog calls `issueRefundAction` in `actions.ts`.
 Page chrome here (PageHeader and EmptyState) comes from `@merqo/ui`; paykit keeps no local copy.
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+Timestamps display through `formatSgtDate`/`formatSgtDateTime` from `@/lib/utils`, pinned to Asia/Singapore so server and client render identically (no hydration mismatch).

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { EmptyState } from "@merqo/ui";
 import { DataTable, type DataTableColumn } from "@merqo/ui";
-import { formatCents } from "@/lib/utils";
+import { formatCents, formatSgtDate } from "@/lib/utils";
 import { RefundDialog } from "./refund-dialog";
 import { TransactionStatusBadge } from "./transaction-status-badge";
 import type { Transaction } from "@/lib/types";
@@ -27,7 +27,7 @@ const BASE_COLUMNS: DataTableColumn<Transaction>[] = [
   },
   {
     header: "Created",
-    cell: (tx) => new Date(tx.created_at).toLocaleDateString("en-SG"),
+    cell: (tx) => formatSgtDate(tx.created_at),
   },
 ];
 
