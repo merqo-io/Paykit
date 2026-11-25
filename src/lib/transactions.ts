@@ -78,11 +78,11 @@ export async function claimedTxSummary(
   }
 }
 
-/** Takings confirmed at or after `sinceIso` (by confirmation time, not creation), in SGD cents. */
-export async function confirmedCentsSince(
+/** Payments confirmed at or after `sinceIso` (by confirmation time, not creation), as a count and SGD cents from the same rows. */
+export async function confirmedSince(
   vendorId: string,
   sinceIso: string,
-): Promise<number> {
+): Promise<{ count: number; cents: number }> {
   const supabase = await createServerClient();
   try {
     const rows = await readAllRows<{ amount_cents: number }>((from, to) =>
@@ -95,10 +95,13 @@ export async function confirmedCentsSince(
         .order("id")
         .range(from, to),
     );
-    return rows.reduce((sum, row) => sum + row.amount_cents, 0);
+    return {
+      count: rows.length,
+      cents: rows.reduce((sum, row) => sum + row.amount_cents, 0),
+    };
   } catch (error) {
-    console.error("confirmedCentsSince failed", error);
-    return 0;
+    console.error("confirmedSince failed", error);
+    return { count: 0, cents: 0 };
   }
 }
 

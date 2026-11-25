@@ -13,16 +13,14 @@ import type { VendorPaymentConfig } from "@/lib/types";
 
 const {
   getConfigMock,
-  txCountThisMonthMock,
   claimedTxSummaryMock,
-  confirmedCentsSinceMock,
+  confirmedSinceMock,
   maybeSingleMock,
   stampTourSeenMock,
 } = vi.hoisted(() => ({
   getConfigMock: vi.fn(),
-  txCountThisMonthMock: vi.fn(),
   claimedTxSummaryMock: vi.fn(),
-  confirmedCentsSinceMock: vi.fn(),
+  confirmedSinceMock: vi.fn(),
   maybeSingleMock: vi.fn(),
   stampTourSeenMock: vi.fn(async () => {}),
 }));
@@ -45,9 +43,8 @@ vi.mock("./config/actions", () => ({
   getConfig: getConfigMock,
 }));
 vi.mock("@/lib/transactions", () => ({
-  txCountThisMonth: txCountThisMonthMock,
   claimedTxSummary: claimedTxSummaryMock,
-  confirmedCentsSince: confirmedCentsSinceMock,
+  confirmedSince: confirmedSinceMock,
 }));
 vi.mock("@/lib/tour-prefs", () => ({
   stampTourSeen: stampTourSeenMock,
@@ -82,9 +79,8 @@ beforeEach(() => {
     data: { tour_seen_at: "2026-01-01T00:00:00Z" },
   });
   getConfigMock.mockResolvedValue(PAYNOW_CONFIG);
-  txCountThisMonthMock.mockResolvedValue(0);
   claimedTxSummaryMock.mockResolvedValue({ count: 0, cents: 0 });
-  confirmedCentsSinceMock.mockResolvedValue(0);
+  confirmedSinceMock.mockResolvedValue({ count: 0, cents: 0 });
 });
 
 describe("DashboardPage", () => {
@@ -101,14 +97,14 @@ describe("DashboardPage", () => {
   });
 
   it("hides the setup prompt once a config exists", async () => {
-    txCountThisMonthMock.mockResolvedValue(10);
+    confirmedSinceMock.mockResolvedValue({ count: 10, cents: 0 });
 
     render(await DashboardPage());
 
     expect(
       screen.queryByRole("link", { name: "Set up payments" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText("10 payments this month")).toBeInTheDocument();
+    expect(screen.getByText("10 confirmed payments")).toBeInTheDocument();
   });
 
   it("starts the month at midnight Singapore time, by confirmation time", async () => {
@@ -120,7 +116,7 @@ describe("DashboardPage", () => {
       vi.useRealTimers();
     }
 
-    expect(confirmedCentsSinceMock).toHaveBeenCalledWith(
+    expect(confirmedSinceMock).toHaveBeenCalledWith(
       "v1",
       "2026-10-31T16:00:00.000Z",
     );
@@ -133,13 +129,12 @@ describe("DashboardPage", () => {
   });
 
   it("shows this month's confirmed amount next to the count", async () => {
-    txCountThisMonthMock.mockResolvedValue(1);
-    confirmedCentsSinceMock.mockResolvedValue(123450);
+    confirmedSinceMock.mockResolvedValue({ count: 1, cents: 123450 });
 
     render(await DashboardPage());
 
     expect(screen.getByText("$1,234.50")).toBeInTheDocument();
-    expect(screen.getByText("1 payment this month")).toBeInTheDocument();
+    expect(screen.getByText("1 confirmed payment")).toBeInTheDocument();
   });
 
   it("shows a masked PayNow summary with an edit link into config", async () => {

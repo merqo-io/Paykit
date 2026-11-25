@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getVendorSession } from "@/lib/vendor-session";
-import {
-  claimedTxSummary,
-  confirmedCentsSince,
-  txCountThisMonth,
-} from "@/lib/transactions";
+import { claimedTxSummary, confirmedSince } from "@/lib/transactions";
 import { sgtDate } from "@/lib/free-limits";
 import { formatCents } from "@/lib/utils";
 import { stampTourSeen } from "@/lib/tour-prefs";
@@ -53,18 +49,16 @@ export default async function DashboardPage() {
     `${sgtDate(new Date().toISOString()).slice(0, 7)}-01T00:00:00+08:00`,
   ).toISOString();
 
-  const [config, count, toConfirm, monthCents, { data: prefs }] =
-    await Promise.all([
-      getConfig(),
-      txCountThisMonth(user.id),
-      claimedTxSummary(user.id),
-      confirmedCentsSince(user.id, monthStartIso),
-      supabase
-        .from("vendor_prefs")
-        .select("tour_seen_at")
-        .eq("vendor_id", user.id)
-        .maybeSingle(),
-    ]);
+  const [config, toConfirm, month, { data: prefs }] = await Promise.all([
+    getConfig(),
+    claimedTxSummary(user.id),
+    confirmedSince(user.id, monthStartIso),
+    supabase
+      .from("vendor_prefs")
+      .select("tour_seen_at")
+      .eq("vendor_id", user.id)
+      .maybeSingle(),
+  ]);
   // Durable "start" stamp, in addition to dashboard-tour.tsx's client-fired
   // one: this route (not layout.tsx, which wraps every /dashboard/* page)
   // is specifically the tour's home route, so stamping here — synchronously,
@@ -127,10 +121,10 @@ export default async function DashboardPage() {
         <div className="space-y-2" data-tour="tx-count">
           <StatCard
             label="Confirmed this month"
-            value={formatCents(monthCents)}
+            value={formatCents(month.cents)}
           />
           <p className="text-sm tabular-nums text-muted-foreground">
-            {count} payment{count === 1 ? "" : "s"} this month
+            {month.count} confirmed payment{month.count === 1 ? "" : "s"}
           </p>
         </div>
       </div>
