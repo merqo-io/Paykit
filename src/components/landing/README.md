@@ -29,18 +29,20 @@ file. Presentational only â€” no data fetching, no client state beyond the
   card. No badge and no stat row.
 - `waitlist.ts` — `WAITLIST_URL` (every signup CTA) and `PILOT_PRICING_LINE`
   (the only pricing statement on public pages).
-- `checkout-card.tsx` — static sample of the customer pay page (stall name,
-  amount, QR silhouette, "Customer says paid / To confirm" row). Not a
-  scannable QR.
-- `sections.tsx` — `HowItWorks` (three numbered steps), `YourMoney` (paykit
-  never holds funds), `LandingFaq` (`@merqo/ui` `FaqRows`; the pricing answer
-  is `PILOT_PRICING_LINE`) and `ClosingCta`. Each is a two-column split
-  (heading left, content right) separated by a top border, no eyebrows, no
-  icon cards.
+- `checkout-card.tsx` - static copy of the QR step of the real pay page
+  (`/pay/[id]`): same header, mono amount, 220px `react-qr-code` QR and button
+  labels, with inert buttons. The QR encodes `https://paykit.merqo.io/sample`,
+  never a PayNow payload, and the card has no vendor confirm footer.
+- `sections.tsx` - `HowItWorks` (three numbered steps, numerals in
+  `text-success` for 4.5:1), `YourMoney` (one full-width statement that paykit
+  never holds funds) and `LandingFaq`, one two-column section: heading,
+  `PILOT_PRICING_LINE` and the waitlist CTA on the left, `FaqRows` on the right
+  fed from `FAQ_GROUPS` in `src/app/faq/faq-content.ts` minus the cost
+  question. Separated by a top border, no eyebrows, no icon cards.
 - `rhythm.ts` — `CONTAINER` and `SECTION_PAD_Y`, the one width and spacing
   scale for every block.
 - `sections.dom.test.tsx` — steps, no icons or eyebrows, funds statement,
-  pilot pricing line, single closing CTA.
+  pilot pricing line beside the single FAQ-section CTA.
 - `BackToTop` â€” shared scroll-to-top control imported from `@merqo/ui`.
 - `wordmark.dom.test.tsx` â€” text, mint accent and caller size override.
 - `wordmark.tsx` â€” `Wordmark`: thin wrapper over the shared `Wordmark` shell

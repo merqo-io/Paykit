@@ -1,60 +1,68 @@
+import { Download } from "lucide-react";
+import QRCode from "react-qr-code";
+import { Button } from "@merqo/ui/primitives";
+
+// A deliberately non-payable payload: the card is a picture of the pay page,
+// so scanning it must never lead anywhere near a real PayNow account.
+const SAMPLE_QR_VALUE = "https://paykit.merqo.io/sample";
+
 /**
- * A static sample of the pay page a customer sees: stall, amount, PayNow QR.
- * The QR is a silhouette, not a scannable payload.
+ * A static copy of the QR step of the real pay page (`/pay/[id]`): same
+ * header, amount, QR size and button labels. The buttons are inert, and the
+ * heading is a paragraph so the landing keeps a single h1.
  */
 export function CheckoutCard() {
   return (
     <figure
-      className="w-full max-w-sm rounded-lg border bg-card p-5"
+      className="w-full max-w-sm rounded-lg border bg-card"
       aria-label="Sample paykit pay page"
     >
-      <div className="flex items-baseline justify-between gap-3">
-        <div>
-          <p className="font-display text-lg font-semibold leading-tight">
-            Ah Seng Kopi
+      <div className="space-y-5 px-6 py-5">
+        <header className="space-y-1 text-center">
+          <p className="font-display text-xl font-semibold text-balance">
+            Scan to pay with PayNow
           </p>
-          <p className="text-sm text-muted-foreground">Order #A82F</p>
+          <p className="break-words text-sm text-muted-foreground">
+            Order #A82F
+          </p>
+        </header>
+
+        <div className="space-y-1 text-center">
+          <p className="break-words text-lg font-semibold">
+            Paying Ah Seng Kopi
+          </p>
+          <p className="font-mono text-3xl font-bold">S$7.80</p>
         </div>
-        <p className="font-display text-2xl font-semibold tabular-nums">
-          S$7.80
+
+        <div className="mx-auto w-fit rounded-lg border border-border bg-white p-4">
+          <QRCode value={SAMPLE_QR_VALUE} size={220} />
+        </div>
+        <Button
+          variant="outline"
+          disabled
+          className="mx-auto flex h-12 w-fit items-center gap-2 rounded-lg disabled:opacity-100"
+        >
+          <Download className="size-4" aria-hidden />
+          Save QR image
+        </Button>
+        <p className="mx-auto max-w-xs text-center text-xs text-muted-foreground">
+          On this phone? Save the QR, then open your banking app and scan it
+          from your photos.
         </p>
-      </div>
 
-      <div
-        className="mt-5 grid grid-cols-6 gap-1 rounded-lg bg-muted p-4"
-        aria-hidden
-      >
-        {QR_PATTERN.map((row, i) =>
-          row.map((on, j) => (
-            <span
-              key={`${i}-${j}`}
-              className={
-                on
-                  ? "aspect-square rounded-[2px] bg-foreground"
-                  : "aspect-square rounded-[2px] bg-transparent"
-              }
-            />
-          )),
-        )}
+        <div className="space-y-2">
+          <Button
+            variant="outline"
+            disabled
+            className="h-12 w-full rounded-lg disabled:opacity-100"
+          >
+            I&apos;ve paid
+          </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            The seller checks your screenshot, then you go back to your order.
+          </p>
+        </div>
       </div>
-      <p className="mt-3 text-center text-sm text-muted-foreground">
-        Scan with your bank app to pay by PayNow
-      </p>
-
-      <figcaption className="mt-4 flex items-center gap-2 border-t pt-3 text-sm">
-        <span className="size-1.5 rounded-full bg-mint" aria-hidden />
-        <span className="font-medium">Customer says paid</span>
-        <span className="ml-auto text-muted-foreground">To confirm</span>
-      </figcaption>
     </figure>
   );
 }
-
-const QR_PATTERN = [
-  [1, 1, 1, 0, 1, 1],
-  [1, 0, 1, 1, 0, 1],
-  [1, 1, 0, 1, 1, 0],
-  [0, 1, 1, 0, 1, 1],
-  [1, 0, 1, 1, 0, 1],
-  [1, 1, 0, 1, 1, 1],
-];

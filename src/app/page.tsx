@@ -1,7 +1,6 @@
 import { Nav } from "@/components/landing/nav";
 import { Hero } from "@/components/landing/hero";
 import {
-  ClosingCta,
   HowItWorks,
   LandingFaq,
   YourMoney,
@@ -26,7 +25,6 @@ export default async function HomePage() {
         <HowItWorks />
         <YourMoney />
         <LandingFaq />
-        <ClosingCta />
       </main>
       <SiteFooter showSignIn />
       <BackToTop />

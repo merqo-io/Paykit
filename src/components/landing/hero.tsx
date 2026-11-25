@@ -11,10 +11,7 @@ export function Hero() {
       <div className={CONTAINER}>
         <div className="grid items-center gap-10 min-[960px]:grid-cols-[1.05fr_1fr] min-[960px]:gap-16">
           <div className="min-w-0">
-            <p className="text-[15px] text-muted-foreground">
-              Built in Singapore for stalls and event carts
-            </p>
-            <h1 className="mt-5 text-balance font-display text-[clamp(40px,6vw,76px)] font-semibold leading-[1.02] tracking-[-0.02em]">
+            <h1 className="text-balance font-display text-[clamp(40px,6vw,76px)] font-semibold leading-[1.02] tracking-[-0.02em]">
               Get paid by PayNow. Know who has paid.
             </h1>
             <p className="mt-6 max-w-[34em] text-[clamp(17px,1.6vw,20px)] leading-[1.55] text-muted-foreground">
