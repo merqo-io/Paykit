@@ -9,7 +9,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - `/admin/vendors` searches by stall name, email or vendor id and pages 25 at a time; `/admin/activity` filters by action and date range and pages the audit log. Query values are Zod-parsed, a page past the end redirects to the last page, and a failed read shows a retry state instead of the empty state.
-- Recent-activity rows on the admin overview link to the vendor they concern.
+- Recent-activity rows on the admin overview, and each target on `/admin/activity`, link to the vendor they concern. Pager links are real anchors, and a notice says when the activity window (latest 1000 entries) is full.
 
 ### Changed
 

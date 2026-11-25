@@ -1,12 +1,54 @@
 "use client";
 
-import { AuditLogTable, type AuditLogEntry } from "@merqo/ui";
+import Link from "next/link";
+import { DataTable, type DataTableColumn } from "@merqo/ui";
 import { formatAction } from "../action-labels";
+import { listHref } from "../list-params";
 
-// `formatAction` is a function prop, so `AuditLogTable` (a `@merqo/ui`
-// Client Component) can only be rendered from another Client Component, not
-// passed the function directly from `page.tsx`'s Server Component — same
-// reasoning as `vendors-table.tsx`'s own `"use client"`.
-export function ActivitySection({ entries }: { entries: AuditLogEntry[] }) {
-  return <AuditLogTable entries={entries} formatAction={formatAction} />;
+export type ActivityEntry = {
+  id: string;
+  actor: string;
+  action: string;
+  target: string | null;
+  detail: string | null;
+  createdAt: string;
+};
+
+// The shared AuditLogTable renders `target` as plain text, so the vendor
+// link needs its own columns. `columns` holds render callbacks, which is why
+// this is a Client Component like `vendors-table.tsx`.
+const columns: DataTableColumn<ActivityEntry>[] = [
+  {
+    header: "When",
+    cell: (e) => new Date(e.createdAt).toLocaleString("en-SG"),
+    className: "whitespace-nowrap tabular-nums",
+  },
+  { header: "Actor", cell: (e) => e.actor },
+  {
+    header: "Action",
+    cell: (e) => (
+      <>
+        <p>{formatAction(e.action)}</p>
+        {e.detail && (
+          <p className="text-xs text-muted-foreground">{e.detail}</p>
+        )}
+      </>
+    ),
+  },
+  {
+    header: "Target",
+    cell: (e) =>
+      e.target ? (
+        <Link
+          href={listHref("/admin/vendors", { q: e.target })}
+          className="underline-offset-4 hover:underline"
+        >
+          {e.target}
+        </Link>
+      ) : null,
+  },
+];
+
+export function ActivitySection({ entries }: { entries: ActivityEntry[] }) {
+  return <DataTable rows={entries} columns={columns} getRowKey={(e) => e.id} />;
 }

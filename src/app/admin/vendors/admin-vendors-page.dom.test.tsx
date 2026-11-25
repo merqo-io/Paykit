@@ -1,16 +1,13 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 
-const { pushMock, redirectMock } = vi.hoisted(() => ({
-  pushMock: vi.fn(),
+const { redirectMock } = vi.hoisted(() => ({
   redirectMock: vi.fn((url: string) => {
     throw new Error(`REDIRECT ${url}`);
   }),
 }));
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock, refresh: vi.fn() }),
   redirect: redirectMock,
 }));
 vi.mock("@/lib/admin", () => ({ requireAdmin: vi.fn(async () => ({})) }));
@@ -126,14 +123,15 @@ describe("AdminVendorsPage", () => {
       status: "healthy",
     })) as Awaited<ReturnType<typeof listVendors>>;
     vi.mocked(listVendors).mockResolvedValueOnce(many);
-    const user = userEvent.setup();
     render(
       await AdminVendorsPage({ searchParams: Promise.resolve({ q: "shop" }) }),
     );
     expect(screen.getByText("30 vendors")).toBeInTheDocument();
     expect(screen.queryByText("shop29@example.com")).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /next/i }));
-    expect(pushMock).toHaveBeenCalledWith("/admin/vendors?q=shop&page=2");
+    expect(screen.getByRole("link", { name: "Next" })).toHaveAttribute(
+      "href",
+      "/admin/vendors?q=shop&page=2",
+    );
   });
 
   it("redirects a page past the end to the last page", async () => {

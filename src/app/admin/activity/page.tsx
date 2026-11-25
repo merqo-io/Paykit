@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { EmptyState, PageHeader, type AuditLogEntry } from "@merqo/ui";
+import { EmptyState, PageHeader } from "@merqo/ui";
 import { Button, Input, Label } from "@merqo/ui/primitives";
 import { requireAdmin } from "@/lib/admin";
 import { auditLog, type AuditLogRow } from "@/lib/admin-data";
@@ -15,7 +15,7 @@ import {
   paginate,
   parseActivityParams,
 } from "@/app/admin/list-params";
-import { ActivitySection } from "./activity-section";
+import { ActivitySection, type ActivityEntry } from "./activity-section";
 
 export const metadata: Metadata = {
   title: "Activity",
@@ -40,7 +40,7 @@ function formatDetail(detail: AuditLogRow["detail"]): string | null {
     .join(", ");
 }
 
-function toEntry(row: AuditLogRow): AuditLogEntry {
+function toEntry(row: AuditLogRow): ActivityEntry {
   return {
     id: row.id,
     actor: row.email ?? row.admin_id,
@@ -107,9 +107,6 @@ export default async function AdminActivityPage({
       <div className="space-y-3">
         <p className="text-sm text-muted-foreground tabular-nums">
           {paged.total} {paged.total === 1 ? "action" : "actions"}
-          {rows.length >= FETCH_CAP && !filtering
-            ? `, latest ${FETCH_CAP}`
-            : ""}
         </p>
         <ActivitySection entries={paged.rows.map(toEntry)} />
         <ListPager
@@ -177,6 +174,13 @@ export default async function AdminActivityPage({
           </Button>
         )}
       </form>
+
+      {rows.length >= FETCH_CAP && (
+        <p className="text-sm text-muted-foreground">
+          Showing the latest {FETCH_CAP} entries; older entries aren&apos;t
+          searched.
+        </p>
+      )}
 
       {body}
     </main>

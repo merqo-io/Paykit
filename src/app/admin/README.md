@@ -23,8 +23,8 @@ figure-tile helper used by the overview and vendors screens.
 - `list-params.ts` — Zod parsing of the vendors and activity `searchParams`
   (bad values fall back to defaults), `paginate` (25 per page, flags a page
   past the end), `listHref` and `dayBounds` (Singapore calendar days).
-- `list-pager.tsx` / `list-error.tsx` — shared pager (keeps active filters in
-  page links) and the retry state shown when a read fails.
+- `list-pager.tsx` / `list-error.tsx` — shared server-rendered pager (real
+  Previous/Next links that keep active filters) and the retry state shown when a read fails.
 - `action-labels.ts` — audit action to readable label, shared by the activity
   table and its action filter.
 - `page.tsx` — `AdminOverviewPage`: platform-wide stat tiles (vendors by

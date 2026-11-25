@@ -1,16 +1,13 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 
-const { pushMock, redirectMock } = vi.hoisted(() => ({
-  pushMock: vi.fn(),
+const { redirectMock } = vi.hoisted(() => ({
   redirectMock: vi.fn((url: string) => {
     throw new Error(`REDIRECT ${url}`);
   }),
 }));
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock, refresh: vi.fn() }),
   redirect: redirectMock,
 }));
 vi.mock("@/lib/admin", () => ({ requireAdmin: vi.fn(async () => ({})) }));
@@ -139,12 +136,59 @@ describe("AdminActivityPage", () => {
       created_at: "2026-08-21T00:00:00Z",
     }));
     vi.mocked(auditLog).mockResolvedValueOnce(many);
-    const user = userEvent.setup();
     render(
       await AdminActivityPage({ searchParams: Promise.resolve({ page: "2" }) }),
     );
     expect(screen.getByText("60 actions")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /next/i }));
-    expect(pushMock).toHaveBeenCalledWith("/admin/activity?page=3");
+    expect(screen.getByRole("link", { name: "Next" })).toHaveAttribute(
+      "href",
+      "/admin/activity?page=3",
+    );
+    expect(screen.getByRole("link", { name: "Previous" })).toHaveAttribute(
+      "href",
+      "/admin/activity",
+    );
+  });
+
+  it("links each target to the vendor search, encoded", async () => {
+    const { auditLog } = await import("@/lib/admin-data");
+    vi.mocked(auditLog).mockResolvedValueOnce([
+      {
+        id: "a9",
+        admin_id: "u1",
+        email: "admin@example.com",
+        action: "set_vendor_plan",
+        target_id: "ven dor/1",
+        detail: null,
+        created_at: "2026-08-20T00:00:00Z",
+      },
+    ]);
+    render(await AdminActivityPage({ searchParams: Promise.resolve({}) }));
+    expect(screen.getByRole("link", { name: "ven dor/1" })).toHaveAttribute(
+      "href",
+      "/admin/vendors?q=ven+dor%2F1",
+    );
+  });
+
+  it("notes the fetch window whenever it is full, even with filters on", async () => {
+    const { auditLog } = await import("@/lib/admin-data");
+    const full = Array.from({ length: 1000 }, (_, i) => ({
+      id: `a${i}`,
+      admin_id: "u1",
+      email: null,
+      action: "record_refund",
+      target_id: null,
+      detail: null,
+      created_at: "2026-08-21T00:00:00Z",
+    }));
+    vi.mocked(auditLog).mockResolvedValueOnce(full);
+    render(
+      await AdminActivityPage({
+        searchParams: Promise.resolve({ action: "record_refund" }),
+      }),
+    );
+    expect(
+      screen.getByText(/showing the latest 1000 entries; older entries/i),
+    ).toBeInTheDocument();
   });
 });

@@ -1,10 +1,7 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { DataTablePager } from "@merqo/ui";
+import Link from "next/link";
 import { listHref } from "./list-params";
 
-/** Page links keep the active filters so paging never drops a search. */
+/** Real anchors so paging works without JS and can be opened in a new tab; filters stay in each href. */
 export function ListPager({
   path,
   params,
@@ -16,15 +13,38 @@ export function ListPager({
   page: number;
   pageCount: number;
 }) {
-  const router = useRouter();
   if (pageCount <= 1) return null;
+  const href = (next: number) => listHref(path, { ...params, page: next });
   return (
-    <DataTablePager
-      page={page}
-      pageCount={pageCount}
-      onPageChange={(next) =>
-        router.push(listHref(path, { ...params, page: next }))
-      }
-    />
+    <nav
+      aria-label="Pagination"
+      className="flex items-center justify-between gap-3 text-sm"
+    >
+      {page > 1 ? (
+        <Link
+          href={href(page - 1)}
+          rel="prev"
+          className="inline-flex min-h-11 items-center underline-offset-4 hover:underline"
+        >
+          Previous
+        </Link>
+      ) : (
+        <span />
+      )}
+      <span className="text-muted-foreground tabular-nums">
+        Page {page} of {pageCount}
+      </span>
+      {page < pageCount ? (
+        <Link
+          href={href(page + 1)}
+          rel="next"
+          className="inline-flex min-h-11 items-center underline-offset-4 hover:underline"
+        >
+          Next
+        </Link>
+      ) : (
+        <span />
+      )}
+    </nav>
   );
 }

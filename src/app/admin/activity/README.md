@@ -8,19 +8,17 @@ that, until this folder existed, no page ever read back.
 
 ## Contents
 
-- `page.tsx` — `AdminActivityPage`: fetches the 100 most recent
-  `admin_audit` rows via `auditLog()` (`@/lib/admin-data`) under the shared `PageHeader`, maps each to
-  `@merqo/ui`'s `AuditLogEntry` (actor resolved to email, falling back to
-  the raw `admin_id`; `detail`'s jsonb rendered as a flat `key: value`
-  list, `None` for null values), and hands the mapped entries to `ActivitySection`.
-- `activity-section.tsx` — `ActivitySection`: client component (function
-  props, like `formatAction`, can't cross the server/client boundary
-  directly from `page.tsx`, same reasoning as `../vendors/vendors-table.tsx`)
-  wrapping `@merqo/ui`'s `AuditLogTable`, mapping every real action string
-  `recordAudit()` is called with today, plus the retired `set_vendor_plan` and
-  `set_pricing` so historical rows still render (`record_refund`, `create_booking`,
-  `create_balance_checkout` shown as "Created balance payment", `cancel_booking`, `reschedule_booking`) to a
-  human-readable label.
+- `page.tsx` — `AdminActivityPage`: `requireAdmin()`, then reads the latest
+  1000 `admin_audit` rows via `auditLog()` (`@/lib/admin-data`) and filters
+  (action, Singapore-day range) and pages them 25 at a time in memory. A
+  notice says older entries aren't searched whenever the window is full. Actor
+  resolves to email, falling back to the raw `admin_id`; `detail`'s jsonb
+  renders as a flat `key: value` list (`None` for null). A failed read shows a
+  retry state, not the empty state; a page past the end redirects to the last.
+- `activity-section.tsx` — `ActivitySection`: client component (`columns` are
+  render callbacks) over the shared `DataTable`. Each target links to
+  `/admin/vendors?q=<target>` because `AuditLogTable` renders targets as text.
+  Action labels come from `../action-labels.ts`.
 
 ## Tab title
 
