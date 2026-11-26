@@ -8,6 +8,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Design spec for the vendor dashboard's mobile-first shell, navigation and first-run onboarding (`docs/superpowers/specs/2026-11-27-p1-shell-design.md`), with page-audit screenshots. Documentation only.
 - Paging tests for `/admin/activity`: next/previous links at the page boundaries, the second page's rows, and the action and from/to filters kept in every paging link.
 
 ### Changed
