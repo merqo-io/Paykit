@@ -24,26 +24,37 @@ file. Presentational only — no data fetching, no client state beyond the
 - `nav.dom.test.tsx` — asserts the About link, the Sign in/Join the
   waitlist/Dashboard state switch, and that the account menu opens by touch
   and offers Sign out.
-- `hero.tsx` � headline, lede, waitlist CTA, one quiet "In pilot with Merqo
-  stalls" line (the only readiness statement on the page) and the sample pay
-  card. No badge and no stat row.
-- `waitlist.ts` � `WAITLIST_URL` (every signup CTA) and `PILOT_PRICING_LINE`
+- `hero.tsx` - headline, lede, waitlist CTA, one quiet "In pilot with Merqo
+  stalls" line (the only readiness statement on the page) and the payment
+  object. No badge and no stat row.
+- `waitlist.ts` - `WAITLIST_URL` (every signup CTA) and `PILOT_PRICING_LINE`
   (the only pricing statement on public pages).
-- `checkout-card.tsx` - static copy of the QR step of the real pay page
-  (`/pay/[id]`): same header, mono amount, 220px `react-qr-code` QR and button
-  labels (including the filled "Upload payment screenshot" step), with inert
-  buttons. The QR encodes `https://paykit.merqo.io/faq`,
-  never a PayNow payload, and the card has no vendor confirm footer.
-- `sections.tsx` - `HowItWorks` (three numbered steps, numerals in
-  `text-success` for 4.5:1), `YourMoney` (one full-width statement that paykit
-  never holds funds) and `LandingFaq`, one two-column section: heading,
-  `PILOT_PRICING_LINE` and the waitlist CTA on the left, `FaqRows` on the right
-  fed from `FAQ_GROUPS` in `src/app/faq/faq-content.ts` minus the cost
-  question. Separated by a top border, no eyebrows, no icon cards.
-- `rhythm.ts` � `CONTAINER` and `SECTION_PAD_Y`, the one width and spacing
+- `checkout-card.tsx` - `CheckoutCard`, the hero's product object: a
+  `PhoneFrame` holding the customer's pay page with a segmented control
+  (Waiting, Paid, Confirmed, `aria-pressed` buttons, 44px targets) and one
+  polite live region. Client state only.
+- `pay-screen.tsx` - the screens drawn inside phones: `PayScreen` (customer),
+  `VendorScreen`, `BankScreen`, and `StatusPill` (the only pill). The QR
+  encodes `https://paykit.merqo.io/faq`, never a PayNow payload.
+- `payment-journey.tsx` - `PaymentJourney`, the three-step story built from
+  `@merqo/ui`'s `Journey`/`JourneyStep`. Each step's stage owns a
+  `useScrollPlay(ref, 1)` play head, so scrolling plays it and scrolling up
+  rewinds it. A tap on "I've paid" or "Confirm payment" plays a step too.
+  Reduced motion renders every step complete.
+- `after-payment.tsx` - `AfterPayment` (`#after`), the part of paykit that is
+  not the QR: a searchable sample ledger (same columns and status labels as
+  `dashboard/transactions`), a report block (Total revenue, Payments, Avg /
+  day tiles and a bar chart by day, built from sample days in plain HTML) and
+  three numbered points (ledger, reports with CSV, refund tracking that only
+  records). Labelled as sample data; imports nothing from the dashboard.
+- `sections.tsx` - `LandingFaq` (three `FaqRows` picked by question from
+  `FAQ_GROUPS`, plus a link to `/faq`) and `LandingClosing` (`ClosingCall`
+  with `PILOT_PRICING_LINE`, the waitlist CTA and the funds statement).
+- `rhythm.ts` - `CONTAINER` and `SECTION_PAD_Y`, the one width and spacing
   scale for every block.
-- `sections.dom.test.tsx` � steps, no icons or eyebrows, funds statement,
-  pilot pricing line beside the single FAQ-section CTA.
+- `sections.dom.test.tsx`, `checkout-card.dom.test.tsx`,
+  `payment-journey.dom.test.tsx`, `after-payment.dom.test.tsx` - three FAQ rows that open, state switching,
+  reduced motion and tap-to-play.
 - `BackToTop` — shared scroll-to-top control imported from `@merqo/ui`.
 - `wordmark.dom.test.tsx` — text, mint accent and caller size override.
 - `wordmark.tsx` — `Wordmark`: thin wrapper over the shared `Wordmark` shell
@@ -55,13 +66,13 @@ file. Presentational only — no data fetching, no client state beyond the
 ## Surfaces
 
 The checkout card and FAQ rows use `rounded-lg`, the single small radius for
-page surfaces. The landing has no glow, shadow or load-time animation, and the
+page surfaces; the phones keep their own device corners. The landing has no glow, shadow or section reveals, and the
 body carries no background wash, per the shared public page rules.
 
 ## Connectivity
 
 Assembled by `src/app/page.tsx` in the order listed above (nav → hero →
-benefits → how-it-works → faq → closing-cta → footer → back-to-top). The
+journey → after payment → faq → closing call → footer → back-to-top). The
 footer is `src/components/site-footer.tsx`, outside this folder, because the
 dashboard and `/about` use it too. `wordmark.tsx` is also used by
 `dashboard-nav.tsx`, `site-footer.tsx` and the not-found and error pages.

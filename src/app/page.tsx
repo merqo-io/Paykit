@@ -1,10 +1,8 @@
 import { Nav } from "@/components/landing/nav";
 import { Hero } from "@/components/landing/hero";
-import {
-  HowItWorks,
-  LandingFaq,
-  YourMoney,
-} from "@/components/landing/sections";
+import { AfterPayment } from "@/components/landing/after-payment";
+import { PaymentJourney } from "@/components/landing/payment-journey";
+import { LandingClosing, LandingFaq } from "@/components/landing/sections";
 import { SiteFooter } from "@/components/site-footer";
 import { BackToTop } from "@merqo/ui";
 import { createServerClient } from "@/lib/supabase/server";
@@ -22,9 +20,10 @@ export default async function HomePage() {
       <Nav user={navUser} />
       <main>
         <Hero />
-        <HowItWorks />
-        <YourMoney />
+        <PaymentJourney />
+        <AfterPayment />
         <LandingFaq />
+        <LandingClosing />
       </main>
       <SiteFooter showSignIn />
       <BackToTop />
