@@ -13,8 +13,10 @@ import {
 import { BankScreen, PayScreen, VendorScreen } from "./pay-screen";
 import { CONTAINER } from "./rhythm";
 
-// Taller than the shared "small" phone so the button fits under the status.
-const PHONE = "h-[310px]";
+// Sized to the played content so no phone sits mostly empty.
+const PHONE = "h-[290px] w-full min-w-0 sm:w-[210px]";
+const STAGE =
+  "grid grid-cols-2 justify-items-center gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-4";
 
 /**
  * One step's play head. Scroll plays the step and rewinds it. A tap plays it
@@ -41,9 +43,9 @@ function StepOneStage() {
   const ref = useRef<HTMLDivElement>(null);
   const { played, play } = useStepPlay(ref);
   return (
-    <div ref={ref} className="flex flex-wrap justify-center gap-4">
+    <div ref={ref} className={STAGE}>
       <PhoneFrame label="Customer's pay page" size="small" className={PHONE}>
-        <PayScreen state="waiting" compact />
+        <PayScreen status="pending" compact />
       </PhoneFrame>
       <PhoneFrame label="Customer's bank app" size="small" className={PHONE}>
         <BankScreen
@@ -65,10 +67,10 @@ function StepTwoStage() {
   const ref = useRef<HTMLDivElement>(null);
   const { played, play } = useStepPlay(ref);
   return (
-    <div ref={ref} className="flex flex-wrap justify-center gap-4">
+    <div ref={ref} className={STAGE}>
       <PhoneFrame label="Customer's phone" size="small" className={PHONE}>
         <PayScreen
-          state={played ? "paid" : "waiting"}
+          status={played ? "claimed" : "pending"}
           compact
           action={
             played ? undefined : (
@@ -80,7 +82,7 @@ function StepTwoStage() {
         />
       </PhoneFrame>
       <PhoneFrame label="Vendor's screen" size="small" className={PHONE}>
-        <VendorScreen state={played ? "paid" : "empty"} />
+        <VendorScreen status={played ? "claimed" : "pending"} />
       </PhoneFrame>
     </div>
   );
@@ -90,13 +92,13 @@ function StepThreeStage() {
   const ref = useRef<HTMLDivElement>(null);
   const { played, play } = useStepPlay(ref);
   return (
-    <div ref={ref} className="flex flex-wrap justify-center gap-4">
+    <div ref={ref} className={STAGE}>
       <PhoneFrame label="Customer's phone" size="small" className={PHONE}>
-        <PayScreen state={played ? "confirmed" : "paid"} compact />
+        <PayScreen status="claimed" compact />
       </PhoneFrame>
       <PhoneFrame label="Vendor's screen" size="small" className={PHONE}>
         <VendorScreen
-          state={played ? "confirmed" : "paid"}
+          status={played ? "confirmed" : "claimed"}
           action={
             played ? undefined : (
               <PressButton onClick={play} className="h-11 text-sm">
@@ -128,13 +130,13 @@ export function PaymentJourney() {
           <JourneyStep
             label="Step 2"
             heading="They tap I've paid."
-            say="The order moves to Paid and you see it. Nothing is settled yet."
+            say="The order moves to Marked paid and you see it. Nothing counts as received yet."
             stage={<StepTwoStage />}
           />
           <JourneyStep
             label="Step 3"
             heading="You check your bank and confirm."
-            say="Once you see the money land, you confirm. The customer's screen updates."
+            say="Once you see the money land, you confirm. Only then is the order Received."
             stage={<StepThreeStage />}
           />
         </Journey>

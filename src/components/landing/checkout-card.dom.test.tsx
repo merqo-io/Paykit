@@ -4,31 +4,29 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CheckoutCard } from "./checkout-card";
 
-it("starts Waiting with a QR and amount in SGD", () => {
+it("starts Awaiting payment with a QR and amount in SGD", () => {
   const { container } = render(<CheckoutCard />);
   expect(container.querySelector("svg")).not.toBeNull();
   expect(screen.getByText("S$7.80")).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Waiting" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
+  expect(
+    screen.getByRole("button", { name: "Awaiting payment" }),
+  ).toHaveAttribute("aria-pressed", "true");
 });
 
-it("switches the phone between Waiting, Paid and Confirmed", async () => {
+it("walks the order through the dashboard's three statuses", async () => {
   render(<CheckoutCard />);
-  await userEvent.click(screen.getByRole("button", { name: "Paid" }));
-  expect(screen.getByRole("button", { name: "Paid" })).toHaveAttribute(
+  await userEvent.click(screen.getByRole("button", { name: "Marked paid" }));
+  expect(screen.getByRole("button", { name: "Marked paid" })).toHaveAttribute(
     "aria-pressed",
     "true",
   );
-  expect(screen.getByText(/You said paid/)).toBeInTheDocument();
+  expect(screen.getByText("Payment recorded")).toBeInTheDocument();
 
-  await userEvent.click(screen.getByRole("button", { name: "Confirmed" }));
-  expect(screen.getByText(/confirmed it/)).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Waiting" })).toHaveAttribute(
-    "aria-pressed",
-    "false",
-  );
+  await userEvent.click(screen.getByRole("button", { name: "Received" }));
+  expect(screen.getByText("Payment recorded")).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "Awaiting payment" }),
+  ).toHaveAttribute("aria-pressed", "false");
 });
 
 it("keeps one small radius and no shadow on page content", () => {

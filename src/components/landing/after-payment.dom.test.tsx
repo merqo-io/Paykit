@@ -54,6 +54,22 @@ it("keeps its status labels in step with the dashboard's badge", () => {
   }
 });
 
+it("uses the dashboard badge's tone for each status", () => {
+  const tones: Record<Status, string> = {
+    pending: "secondary",
+    claimed: "mint",
+    confirmed: "primary",
+  };
+  for (const status of Object.keys(STATUS) as Status[]) {
+    const { container, unmount } = render(
+      <TransactionStatusBadge status={status} />,
+    );
+    expect(container.innerHTML).toContain(`border-${tones[status]}/35`);
+    expect(STATUS[status].className).toContain(`border-${tones[status]}/35`);
+    unmount();
+  }
+});
+
 it("counts payments from the chart's days", () => {
   render(<AfterPayment />);
   expect(screen.getByText("38")).toBeInTheDocument();

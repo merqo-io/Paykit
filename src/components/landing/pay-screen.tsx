@@ -2,50 +2,24 @@ import type { ReactNode } from "react";
 import { Check, ScanLine } from "lucide-react";
 import QRCode from "react-qr-code";
 
-export type PayState = "waiting" | "paid" | "confirmed";
-
-export const PAY_STATES: readonly { id: PayState; label: string }[] = [
-  { id: "waiting", label: "Waiting" },
-  { id: "paid", label: "Paid" },
-  { id: "confirmed", label: "Confirmed" },
-];
+import { StatusPill, type Status } from "./status";
 
 // A deliberately non-payable payload: the screens are pictures of the pay
 // page, so scanning one must never lead anywhere near a real PayNow account.
 const SAMPLE_QR_VALUE = "https://paykit.merqo.io/faq";
 
-const DOT: Record<PayState, string> = {
-  waiting: "bg-muted-foreground",
-  paid: "bg-flow",
-  confirmed: "bg-mint",
-};
-
-export function StatusPill({ state }: { state: PayState }) {
-  const label = PAY_STATES.find((s) => s.id === state)?.label;
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-0.5 text-xs font-semibold">
-      <span aria-hidden className={`size-2 rounded-full ${DOT[state]}`} />
-      {label}
-    </span>
-  );
-}
-
-const SAY: Record<PayState, string> = {
-  waiting: "Scan with your bank app.",
-  paid: "You said paid. Ah Seng Kopi checks the payment.",
-  confirmed: "Ah Seng Kopi confirmed it. You are done.",
-};
-
 /**
- * The customer's pay page as it appears inside a phone: amount, then the QR
- * while waiting, then the status the vendor's confirmation moves along.
+ * The customer's pay page as it appears inside a phone: amount and QR while
+ * the order is awaiting payment, then the "Payment recorded" notice the real
+ * page shows once the customer says they have paid. The customer never sees
+ * the vendor's confirmation, so Received looks the same as Marked paid here.
  */
 export function PayScreen({
-  state,
+  status,
   compact = false,
   action,
 }: {
-  state: PayState;
+  status: Status;
   compact?: boolean;
   action?: ReactNode;
 }) {
@@ -67,59 +41,91 @@ export function PayScreen({
       <div
         className={`mt-2 flex items-center justify-center rounded-lg border border-border bg-white ${compact ? "size-[92px]" : "size-[152px]"}`}
       >
-        {state === "waiting" ? (
+        {status === "pending" ? (
           <QRCode value={SAMPLE_QR_VALUE} size={qr} />
         ) : (
           <span
-            className={`flex items-center justify-center rounded-full ${compact ? "size-10" : "size-16"} ${state === "paid" ? "bg-flow/20 text-neutral-900" : "bg-mint text-mint-foreground"}`}
+            className={`flex items-center justify-center rounded-full bg-muted text-foreground ${compact ? "size-10" : "size-16"}`}
           >
             <Check className={compact ? "size-5" : "size-8"} aria-hidden />
           </span>
         )}
       </div>
 
-      <div className="mt-2">
-        <StatusPill state={state} />
-      </div>
-      <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
-        {SAY[state]}
-      </p>
+      {status === "pending" ? (
+        <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+          Scan with your bank app, then tap I&apos;ve paid.
+        </p>
+      ) : (
+        <>
+          <p className="mt-2 text-xs font-semibold">Payment recorded</p>
+          <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
+            Ah Seng Kopi has been told. You can close this page.
+          </p>
+        </>
+      )}
       {action && <div className="mt-auto w-full pt-2">{action}</div>}
     </div>
   );
 }
 
-/** What the vendor sees for the same order, in the kit that took it. */
+const OTHER_ORDERS: readonly { ref: string; amount: string; status: Status }[] =
+  [
+    { ref: "A82E", amount: "S$12.40", status: "claimed" },
+    { ref: "A82D", amount: "S$5.60", status: "pending" },
+  ];
+
+function OrderRow({
+  orderRef,
+  amount,
+  status,
+  highlight = false,
+}: {
+  orderRef: string;
+  amount: string;
+  status: Status;
+  highlight?: boolean;
+}) {
+  return (
+    <li
+      className={`rounded-lg border p-2 ${highlight ? "border-foreground" : "border-border"}`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-mono text-xs font-bold">#{orderRef}</span>
+        <span className="font-mono text-xs font-bold">{amount}</span>
+      </div>
+      <div className="mt-1.5">
+        <StatusPill status={status} />
+      </div>
+    </li>
+  );
+}
+
+/**
+ * What the vendor sees: the Orders list with this journey's order highlighted
+ * above two others, the same rows the sample ledger below lists.
+ */
 export function VendorScreen({
-  state,
+  status,
   action,
 }: {
-  state: "empty" | "paid" | "confirmed";
+  status: Status;
   action?: ReactNode;
 }) {
   return (
     <div className="flex h-full min-h-0 flex-col text-left">
       <p className="font-display text-[13px] font-semibold">Orders</p>
-      {state === "empty" ? (
-        <p className="mt-6 text-center text-[11px] text-muted-foreground">
-          No payments yet.
-        </p>
-      ) : (
-        <div className="mt-2 rounded-lg border border-border p-2">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-mono text-xs font-bold">#A82F</span>
-            <span className="font-mono text-xs font-bold">S$7.80</span>
-          </div>
-          <div className="mt-1.5">
-            <StatusPill state={state === "paid" ? "paid" : "confirmed"} />
-          </div>
-          <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
-            {state === "paid"
-              ? "Says paid. Check your bank."
-              : "Seen in your bank. Done."}
-          </p>
-        </div>
-      )}
+      <ul className="mt-2 space-y-1.5">
+        <OrderRow orderRef="A82F" amount="S$7.80" status={status} highlight />
+        {OTHER_ORDERS.map((o) => (
+          <OrderRow
+            key={o.ref}
+            orderRef={o.ref}
+            amount={o.amount}
+            status={o.status}
+          />
+        ))}
+      </ul>
       {action && <div className="mt-auto pt-2">{action}</div>}
     </div>
   );

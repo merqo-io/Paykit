@@ -33,10 +33,10 @@ sign-in/dashboard link.
   (the only pricing statement on public pages).
 - `checkout-card.tsx` - `CheckoutCard`, the hero's product object: a
   `PhoneFrame` holding the customer's pay page with a segmented control
-  (Waiting, Paid, Confirmed, `aria-pressed` buttons, 44px targets) and one
+  (Awaiting payment, Marked paid, Received, `aria-pressed` buttons, 44px targets), the vendor-side pill for that state and one
   polite live region. Client state only.
 - `pay-screen.tsx` - the screens drawn inside phones: `PayScreen` (customer),
-  `VendorScreen`, `BankScreen`, and `StatusPill` (the only pill). The QR
+  `VendorScreen` (three Orders rows, the journey order highlighted), `BankScreen`. The QR
   encodes `https://paykit.merqo.io/faq`, never a PayNow payload.
 - `payment-journey.tsx` - `PaymentJourney`, the three-step story built from
   `@merqo/ui`'s `Journey`/`JourneyStep`. Each step's stage owns a
@@ -49,11 +49,15 @@ sign-in/dashboard link.
   not the QR: a searchable sample ledger (same columns and status labels as
   `dashboard/transactions`), a report block (Total revenue, Payments, Avg /
   day tiles and a bar chart by day, all derived from one set of sample days
-  in plain HTML; Kit and Created columns hide on phones) and
-  three numbered points (ledger, reports with CSV, refund tracking that only
-  records). Labelled as sample data; imports nothing from the dashboard.
+  in plain HTML; Kit and Created columns hide on phones). Each block has its
+  point beside it (ledger and refund tracking that only records; reports with
+  CSV), with no numerals. Labelled as sample data; imports nothing from the
+  dashboard.
+- `status.tsx` - `STATUS` (labels and tones copied from the dashboard's
+  `TransactionStatusBadge`) and `StatusPill`, so one colour means one state
+  across the hero, journey and ledger.
 - `sections.tsx` - `LandingFaq` (three `FaqRows` picked by question from
-  `FAQ_GROUPS`, plus a link to `/faq`) and `LandingClosing` (`ClosingCall`
+  `FAQ_GROUPS`, plus a link to `/faq`) and `LandingClosing` (FAQ-column layout,
   with `PILOT_PRICING_LINE`, the waitlist CTA and the funds statement).
 - `rhythm.ts` - `CONTAINER` and `SECTION_PAD_Y`, the one width and spacing
   scale for every block.

@@ -4,23 +4,9 @@ import { useState } from "react";
 
 import { CONTAINER, SECTION_PAD_Y } from "./rhythm";
 
-export type Status = "pending" | "claimed" | "confirmed";
+import { STATUS, StatusPill, type Status } from "./status";
 
-// Same labels and tones as the dashboard's TransactionStatusBadge.
-export const STATUS: Record<Status, { label: string; className: string }> = {
-  pending: {
-    label: "Awaiting payment",
-    className: "border-secondary/35 bg-secondary/12 text-secondary",
-  },
-  claimed: {
-    label: "Marked paid",
-    className: "border-mint/35 bg-mint/12 text-mint",
-  },
-  confirmed: {
-    label: "Received",
-    className: "border-primary/35 bg-primary/12 text-primary-text",
-  },
-};
+export { STATUS, type Status };
 
 const LEDGER: readonly {
   ref: string;
@@ -50,20 +36,14 @@ const total = DAYS.reduce((sum, d) => sum + d.sgd, 0);
 const paymentCount = DAYS.reduce((sum, d) => sum + d.payments, 0);
 const money = (n: number) => `S$${n.toFixed(2)}`;
 
-const POINTS = [
-  {
-    title: "One ledger for every payment.",
-    body: "Each payment across every kit sits in one list with its status. Search by reference.",
-  },
-  {
-    title: "Reports from confirmed payments.",
-    body: "Total revenue, payments and average per day, with a chart by day. Download the year as a CSV for your own records.",
-  },
-  {
-    title: "Refunds are recorded, not paid.",
-    body: "Refund tracking is on paid plans. You refund from your own bank, and paykit keeps the note.",
-  },
-];
+function Point({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="min-[960px]:self-start">
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <p className="mt-2 text-muted-foreground">{body}</p>
+    </div>
+  );
+}
 
 function Ledger() {
   const [q, setQ] = useState("");
@@ -107,11 +87,7 @@ function Ledger() {
                 <td className="px-3 py-2.5 font-mono">{r.ref}</td>
                 <td className="px-3 py-2.5 text-right font-mono">{r.amount}</td>
                 <td className="px-3 py-2.5">
-                  <span
-                    className={`inline-flex items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS[r.status].className}`}
-                  >
-                    {STATUS[r.status].label}
-                  </span>
+                  <StatusPill status={r.status} />
                 </td>
                 <td className="hidden px-3 py-2.5 whitespace-nowrap text-muted-foreground sm:table-cell">
                   {r.at}
@@ -191,24 +167,27 @@ export function AfterPayment() {
         <p className="mt-4 text-sm text-muted-foreground">
           Sample data, drawn from the screens paykit gives a vendor.
         </p>
-        <div className="mt-10 grid gap-10 min-[960px]:grid-cols-[1.3fr_1fr] min-[960px]:gap-14">
-          <div className="min-w-0 space-y-6">
+        <div className="mt-10 space-y-12">
+          <div className="grid gap-6 min-[960px]:grid-cols-[1.3fr_1fr] min-[960px]:gap-14">
             <Ledger />
-            <Report />
+            <div className="space-y-6">
+              <Point
+                title="One ledger for every payment."
+                body="Each payment across every kit sits in one list with its status. Search by reference."
+              />
+              <Point
+                title="Refunds are recorded, not paid."
+                body="Refund tracking is on paid plans. You refund from your own bank, and paykit keeps the note."
+              />
+            </div>
           </div>
-          <ol className="divide-y divide-border border-y border-border min-[960px]:self-start">
-            {POINTS.map((p, i) => (
-              <li key={p.title} className="flex gap-4 py-6">
-                <span className="w-6 shrink-0 font-display text-2xl font-semibold tabular-nums text-success">
-                  {i + 1}
-                </span>
-                <div>
-                  <h3 className="text-lg font-semibold">{p.title}</h3>
-                  <p className="mt-2 text-muted-foreground">{p.body}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
+          <div className="grid gap-6 min-[960px]:grid-cols-[1.3fr_1fr] min-[960px]:gap-14">
+            <Report />
+            <Point
+              title="Reports from received payments."
+              body="Total revenue, payments and average per day, with a chart by day. Download the year as a CSV for your own records."
+            />
+          </div>
         </div>
       </div>
     </section>

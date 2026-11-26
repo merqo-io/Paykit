@@ -27,6 +27,7 @@ it("closes with the pilot pricing line, the funds statement and one waitlist CTA
   const { container } = render(<LandingClosing />);
   expect(container.textContent).toContain("Free during the pilot");
   expect(screen.getByText(/never holds funds/)).toBeInTheDocument();
+  expect(container.textContent).not.toMatch(/marked paid/i);
   expect(
     screen.getAllByRole("link", { name: "Join the waitlist" }),
   ).toHaveLength(1);

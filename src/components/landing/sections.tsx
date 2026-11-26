@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClosingCall, FaqRows } from "@merqo/ui";
+import { FaqRows } from "@merqo/ui";
 import { Button } from "@merqo/ui/primitives";
 
 import { FAQ_GROUPS } from "@/app/faq/faq-content";
@@ -49,29 +49,26 @@ export function LandingFaq() {
 
 export function LandingClosing() {
   return (
-    <section className={`pb-20 md:pb-24`}>
+    <section className={`border-t ${SECTION_PAD_Y}`}>
       <div className={CONTAINER}>
-        <ClosingCall
-          heading="Put PayNow on your stall."
-          line={PILOT_PRICING_LINE}
-          action={
-            <Button
-              asChild
-              size="lg"
-              className="h-12 rounded-lg px-[26px] text-base font-semibold"
-            >
-              <a href={WAITLIST_URL}>Join the waitlist</a>
-            </Button>
-          }
-          aside={
-            <p className="max-w-[34em] rounded-lg border border-border p-5 text-lg leading-[1.55] text-muted-foreground">
-              The money goes to you, not through us. paykit never holds funds,
-              and nothing is marked paid until you have seen it land. qkit
-              checkout runs on paykit, so a qkit stall gets this without extra
-              setup.
+        <div className="grid gap-8 min-[960px]:grid-cols-[1fr_1.4fr] min-[960px]:gap-16">
+          <h2 className={H2}>Put PayNow on your stall.</h2>
+          <div>
+            <p className="text-lg leading-[1.55]">{PILOT_PRICING_LINE}</p>
+            <div className="mt-6">
+              <Button
+                asChild
+                size="lg"
+                className="h-12 rounded-lg px-[26px] text-base font-semibold"
+              >
+                <a href={WAITLIST_URL}>Join the waitlist</a>
+              </Button>
+            </div>
+            <p className="mt-6 text-muted-foreground">
+              The money goes to you, not through us. paykit never holds funds.
             </p>
-          }
-        />
+          </div>
+        </div>
       </div>
     </section>
   );
