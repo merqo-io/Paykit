@@ -138,6 +138,26 @@ describe("TransactionsPage", () => {
     expect(arg.search).toBeUndefined();
   });
 
+  it("lists a Free vendor's claimed payment older than the cutoff on ?status=claimed", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    queryTransactionsMock.mockResolvedValue(
+      ok([
+        {
+          ...TX,
+          order_ref: "OLD-CLAIMED",
+          status: "claimed",
+          created_at: "2026-01-02T00:00:00Z",
+        },
+      ]),
+    );
+    await renderPage({ status: "claimed" });
+    expect(queryTransactionsMock.mock.calls[0][1]).toMatchObject({
+      status: "claimed",
+      keepClaimed: true,
+    });
+    expect(screen.getByText("OLD-CLAIMED")).toBeInTheDocument();
+  });
+
   it("locks search for Free with an upgrade note", async () => {
     readVendorPlanMock.mockResolvedValue("free");
     queryTransactionsMock.mockResolvedValue(ok([TX]));
