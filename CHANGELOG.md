@@ -6,9 +6,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Fixed
+### Added
 
-- A Free vendor's claimed payments (customer marked paid, waiting for the vendor to confirm) older than 30 days are now listed on Payments, in All and under `?status=claimed`, so the dashboard's "Review these payments" count and the list agree. Other payments stay limited to the last 30 days, and the "older payments" note no longer counts claimed rows. Paid plans are unchanged.
+- Paging tests for `/admin/activity`: next/previous links at the page boundaries, the second page's rows, and the action and from/to filters kept in every paging link.
 
 ### Changed
 
@@ -18,6 +18,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- A Free vendor's claimed payments (customer marked paid, waiting for the vendor to confirm) older than 30 days are now listed on Payments, in All and under `?status=claimed`, so the dashboard's "Review these payments" count and the list agree. Other payments stay limited to the last 30 days, and the "older payments" note no longer counts claimed rows. Paid plans are unchanged.
 - A vendor with stale terms no longer lands on `/legal/accept?reason=unavailable` when the legal cache has expired: the status re-read now bypasses Next's fetch memoization, so it sees the fresh answer instead of the pre-check row.
 - Migration 0033 grants the service role `select` on `paykit.rate_limits`, fixing the 500 on the `/admin` overview for databases built from migrations (permission denied, 42501).
 - Deep links into the vendor dashboard (bookings, transactions, reports and the rest) now survive the sign-in and legal-acceptance gates: every dashboard page passes its own path and query as the return destination, and a vendor with stale terms is sent to `/legal/accept?next=...` instead of losing the link.
