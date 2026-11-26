@@ -195,7 +195,7 @@ current plan, links to the Merqo account (`/account`) and, for Free, lists what 
 (`/admin`, gated by an `admins` allow-list) shows platform-wide stats and a
 read-only per-vendor plan column. Free sees the last 30 days of payments (search, status and date filters and
 pagination on the payments list are Starter and Pro; Free sees a note counting
-the older payments it hides) and
+the older payments it hides, though a claimed payment still waiting for the vendor to confirm stays listed however old it is) and
 today and yesterday totals; weekly and monthly revenue, earnings, CSV export, automatic confirmation and refund tracking need a paid plan. `/api/merqo/vendor-status` (merqo hub's own vendor-active/plan
 lookup) paginates the Supabase admin-users API properly, via the same
 `listAllUsers` helper the admin console uses — it no longer silently
