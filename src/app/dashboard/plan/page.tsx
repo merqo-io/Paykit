@@ -60,7 +60,7 @@ export default async function PlanPage() {
     : await countTransactionsBefore(user.id, freeListCutoff());
   const currentSlug = view.plan === "pro" ? PAID_SLUG : view.plan;
   const currentListed = catalog?.plans.some((p) => p.slug === currentSlug);
-  const accountHref = `${merqoBaseUrl()}/account`;
+  const accountHref = `${merqoBaseUrl()}/dashboard`;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
