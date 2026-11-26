@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Paging tests for `/admin/activity`: next/previous links at the page boundaries, the second page's rows, and the action and from/to filters kept in every paging link.
+
 ### Changed
 
 - The landing page now follows the Merqo public-site direction: the hero is a phone showing a sample pay page with a Waiting / Paid / Confirmed switch, a three-step journey (customer pays, taps "I've paid", vendor confirms) plays as you scroll and rewinds on scroll up (a tap on its buttons plays a step too, and with reduced motion only the buttons play it), the FAQ is three rows linking to `/faq`, an "After the payment" block shows a sample payments ledger and report (labelled as sample data), and a closing call carries the waitlist link. The separate how-it-works steps and "money goes to you" sections are folded into these.
