@@ -20,14 +20,24 @@ it("has no state toggle or status pill", () => {
 
 it("records the payment on I've paid and can undo it", async () => {
   render(<QkitPhone />);
+  const status = screen.getByRole("status");
+  expect(status).toHaveTextContent("");
+  expect(status).toHaveAttribute("aria-live", "polite");
+  expect(screen.getByRole("button", { name: "I've paid" })).not.toHaveFocus();
+
   await userEvent.click(screen.getByRole("button", { name: "I've paid" }));
+  expect(screen.getByRole("status")).toHaveTextContent(
+    "Payment sent. The stall is checking it.",
+  );
   expect(
-    screen.getByText("Payment sent. The stall is checking it."),
-  ).toBeInTheDocument();
+    screen.getByRole("button", { name: "Tapped by mistake? Undo" }),
+  ).toHaveFocus();
+
   await userEvent.click(
     screen.getByRole("button", { name: "Tapped by mistake? Undo" }),
   );
-  expect(screen.getByRole("button", { name: "I've paid" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "I've paid" })).toHaveFocus();
+  expect(screen.getByRole("status")).toHaveTextContent("");
 });
 
 it("keeps one small radius and no shadow on page content", () => {

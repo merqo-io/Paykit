@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check } from "lucide-react";
 import QRCode from "react-qr-code";
 import { Money, PhoneFrame } from "@merqo/ui";
@@ -9,8 +9,7 @@ import { Money, PhoneFrame } from "@merqo/ui";
 // so scanning it must never lead anywhere near a real PayNow account.
 const SAMPLE_QR_VALUE = "https://paykit.merqo.io/faq";
 
-// Prices and names are qkit's own sample stall menu, so the order reads the
-// way a real customer's does.
+// Illustrative items and prices, not a real stall's menu.
 const ITEMS = [
   { name: "Kopi", option: "Iced", qty: 1, cents: 180 },
   { name: "Kaya Toast", option: "", qty: 1, cents: 250 },
@@ -24,6 +23,16 @@ const TOTAL_CENTS = ITEMS.reduce((sum, i) => sum + i.qty * i.cents, 0);
  */
 function Screen() {
   const [sent, setSent] = useState(false);
+  const paidRef = useRef<HTMLButtonElement>(null);
+  const undoRef = useRef<HTMLButtonElement>(null);
+  const moved = useRef(false);
+
+  // The tapped button unmounts, so focus follows to its replacement; skipped
+  // on first render so the page does not grab focus on load.
+  useEffect(() => {
+    if (!moved.current) return;
+    (sent ? undoRef : paidRef).current?.focus();
+  }, [sent]);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -55,20 +64,31 @@ function Screen() {
         </span>
       </p>
 
+      <div
+        role="status"
+        aria-live="polite"
+        className={sent ? "mt-4 text-center" : "sr-only"}
+      >
+        {sent && (
+          <>
+            <span className="mx-auto flex size-11 items-center justify-center rounded-full bg-mint/15 text-mint">
+              <Check className="size-6" aria-hidden />
+            </span>
+            <p className="mt-2 text-sm font-semibold">
+              Payment sent. The stall is checking it.
+            </p>
+          </>
+        )}
+      </div>
       {sent ? (
-        <div
-          role="status"
-          className="mt-4 flex flex-1 flex-col items-center gap-2 text-center"
-        >
-          <span className="flex size-11 items-center justify-center rounded-full bg-mint/15 text-mint">
-            <Check className="size-6" aria-hidden />
-          </span>
-          <p className="text-sm font-semibold">
-            Payment sent. The stall is checking it.
-          </p>
+        <div className="flex flex-1 flex-col items-center text-center">
           <button
+            ref={undoRef}
             type="button"
-            onClick={() => setSent(false)}
+            onClick={() => {
+              moved.current = true;
+              setSent(false);
+            }}
             className="inline-flex min-h-11 items-center px-3 text-sm font-medium text-muted-foreground underline underline-offset-4 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Tapped by mistake? Undo
@@ -85,8 +105,12 @@ function Screen() {
             </p>
           </div>
           <button
+            ref={paidRef}
             type="button"
-            onClick={() => setSent(true)}
+            onClick={() => {
+              moved.current = true;
+              setSent(true);
+            }}
             className="mt-2 flex h-12 w-full items-center justify-center rounded-lg bg-foreground text-sm font-bold text-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:brightness-90"
           >
             I&apos;ve paid
@@ -106,7 +130,7 @@ export function QkitPhone() {
       <PhoneFrame
         label="A customer's order in qkit, with its PayNow QR"
         size="large"
-        className="h-[520px]"
+        className="min-h-[520px]"
       >
         <Screen />
       </PhoneFrame>
