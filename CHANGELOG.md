@@ -6,14 +6,21 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Paging tests for `/admin/activity`: next/previous links at the page boundaries, the second page's rows, and the action and from/to filters kept in every paging link.
+
 ### Changed
 
+- The landing page now follows the Merqo public-site direction: the hero is a phone showing a sample pay page with an Awaiting payment / Marked paid / Received switch (the dashboard's labels and colours, used across the page), a three-step journey (customer pays, taps "I've paid", vendor confirms) plays as you scroll and rewinds on scroll up (a tap on its buttons plays a step too, and with reduced motion only the buttons play it), the FAQ is three rows linking to `/faq`, an "After the payment" block shows a sample payments ledger and report (labelled as sample data), and a closing call in the FAQ column carries the waitlist link. On phones each journey step shows its two screens side by side. The separate how-it-works steps and "money goes to you" sections are folded into these.
 - Repinned `@merqo/ui` to merqo-ui commit e468ecd2 (v0.61.2, from c0f1f23d / v0.61.1). The shared `/about` page now says paykit is "in pilot with Merqo stalls" instead of "in build".
 - Repinned `@merqo/ui` to merqo-ui commit c0f1f23d (v0.61.1, from d9ba206c / v0.60.0). It includes the 0.61.0 data shapes (`Money`, `Timestamp`, `align: "end"`) plus the TS2742 fix to the package's prepare build.
 - Money and time use `@merqo/ui`'s `Money`, `Timestamp`, `formatMoney`, `formatDate` and `formatDateTime` instead of local helpers (`formatCents`, `formatDate`, `formatSgtDate`, `formatSgtDateTime` removed). Amounts now read "S$4.50" with thousands separators, dates "7 Nov 2026" and date-times "7 Nov 2026, 1:30 am" (seconds dropped), all in Singapore time. Money columns in the bookings, transactions and earnings tables are right-aligned.
 
 ### Fixed
 
+- The plan page's "Change plan in your Merqo account" link now goes to merqo's `/dashboard` (the vendor dashboard with each kit's plan card) instead of `/account`, which does not exist and returned a 404.
+- A Free vendor's claimed payments (customer marked paid, waiting for the vendor to confirm) older than 30 days are now listed on Payments, in All and under `?status=claimed`, so the dashboard's "Review these payments" count and the list agree. Other payments stay limited to the last 30 days, and the "older payments" note no longer counts claimed rows. Paid plans are unchanged.
 - A vendor with stale terms no longer lands on `/legal/accept?reason=unavailable` when the legal cache has expired: the status re-read now bypasses Next's fetch memoization, so it sees the fresh answer instead of the pre-check row.
 - Migration 0033 grants the service role `select` on `paykit.rate_limits`, fixing the 500 on the `/admin` overview for databases built from migrations (permission denied, 42501).
 - Deep links into the vendor dashboard (bookings, transactions, reports and the rest) now survive the sign-in and legal-acceptance gates: every dashboard page passes its own path and query as the return destination, and a vendor with stale terms is sent to `/legal/accept?next=...` instead of losing the link.

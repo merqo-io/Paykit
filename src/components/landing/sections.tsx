@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FaqRows } from "@merqo/ui";
 import { Button } from "@merqo/ui/primitives";
 
@@ -8,86 +9,52 @@ import { PILOT_PRICING_LINE, WAITLIST_URL } from "./waitlist";
 
 const H2 =
   "text-balance font-display text-[clamp(32px,4.2vw,52px)] font-semibold leading-[1.05] tracking-[-0.015em]";
-const SPLIT =
-  "grid gap-10 min-[960px]:grid-cols-[1fr_1.4fr] min-[960px]:gap-16";
 
-const STEPS = [
-  {
-    title: "Set up PayNow once",
-    body: "Add your UEN or mobile number, or your own payment link or QR. It stays in paykit, so you never type it in again.",
-  },
-  {
-    title: "Each order gets a QR",
-    body: "The customer scans it in their own bank app and pays you directly. With PayNow details, the amount is filled in for them.",
-  },
-  {
-    title: "You confirm it",
-    body: "They attach a screenshot of the payment and tap that they have paid. You check your bank account, confirm, and paykit marks the order paid.",
-  },
+// The three objections a vendor raises first: the money, the proof and the
+// first-time setup. The rest stay on /faq.
+const LANDING_FAQ_QUESTIONS = [
+  "Does paykit hold my money?",
+  "How do I know a payment came through?",
+  "Do I need a business bank account?",
 ];
 
-export function HowItWorks() {
+const LANDING_FAQ_ROWS = LANDING_FAQ_QUESTIONS.map((q) => {
+  const row = FAQ_GROUPS.flatMap((g) => g.rows).find((r) => r.q === q);
+  if (!row) throw new Error(`Landing FAQ question missing from /faq: ${q}`);
+  return row;
+});
+
+export function LandingFaq() {
   return (
-    <section id="how" className={`scroll-mt-20 border-t ${SECTION_PAD_Y}`}>
+    <section id="faq" className={`scroll-mt-20 border-t ${SECTION_PAD_Y}`}>
       <div className={CONTAINER}>
-        <div className={SPLIT}>
-          <h2 className={H2}>How it works at your stall.</h2>
-          <ol className="divide-y divide-border">
-            {STEPS.map((s, i) => (
-              <li key={s.title} className="flex gap-5 py-6 first:pt-0">
-                <span className="w-7 shrink-0 font-display text-3xl font-semibold tabular-nums text-success">
-                  {i + 1}
-                </span>
-                <div>
-                  <h3 className="text-xl font-semibold">{s.title}</h3>
-                  <p className="mt-2 max-w-[34em] text-muted-foreground">
-                    {s.body}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ol>
+        <div className="grid gap-10 min-[960px]:grid-cols-[1fr_1.4fr] min-[960px]:gap-16">
+          <h2 className={H2}>Questions vendors ask first.</h2>
+          <div>
+            <FaqRows rows={LANDING_FAQ_ROWS} />
+            <p className="mt-4">
+              <Link
+                href="/faq"
+                className="inline-flex min-h-11 items-center font-semibold underline underline-offset-4 hover:no-underline"
+              >
+                More questions and answers
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-export function YourMoney() {
+export function LandingClosing() {
   return (
     <section className={`border-t ${SECTION_PAD_Y}`}>
       <div className={CONTAINER}>
-        <h2 className={`${H2} max-w-[18em]`}>
-          The money goes to you, not through us.
-        </h2>
-        <p className="mt-6 max-w-[34em] text-xl leading-[1.55] text-muted-foreground">
-          paykit never holds funds. The customer pays into your account, and a
-          person confirms each payment, so nothing is marked paid until you have
-          seen it land. qkit checkout already runs on paykit, so a qkit stall
-          gets this without extra setup.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-// The cost question is left out: PILOT_PRICING_LINE is shown beside the CTA.
-const LANDING_FAQ_ROWS = FAQ_GROUPS.filter(
-  (g) => g.id === "paying" || g.id === "setup",
-)
-  .flatMap((g) => g.rows)
-  .slice(0, 5);
-
-export function LandingFaq() {
-  return (
-    <section id="faq" className={`scroll-mt-20 border-t ${SECTION_PAD_Y}`}>
-      <div className={CONTAINER}>
-        <div className={SPLIT}>
+        <div className="grid gap-8 min-[960px]:grid-cols-[1fr_1.4fr] min-[960px]:gap-16">
+          <h2 className={H2}>Put PayNow on your stall.</h2>
           <div>
-            <h2 className={H2}>Put PayNow on your stall.</h2>
-            <p className="mt-5 max-w-[26em] text-lg text-muted-foreground">
-              {PILOT_PRICING_LINE}
-            </p>
+            <p className="text-lg leading-[1.55]">{PILOT_PRICING_LINE}</p>
             <div className="mt-6">
               <Button
                 asChild
@@ -97,8 +64,10 @@ export function LandingFaq() {
                 <a href={WAITLIST_URL}>Join the waitlist</a>
               </Button>
             </div>
+            <p className="mt-6 text-muted-foreground">
+              The money goes to you, not through us. paykit never holds funds.
+            </p>
           </div>
-          <FaqRows rows={LANDING_FAQ_ROWS} />
         </div>
       </div>
     </section>
