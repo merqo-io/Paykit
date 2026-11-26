@@ -44,5 +44,9 @@ cross join (values ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('REFERENCES'), ('TRIGG
 select ok(has_table_privilege('service_role', table_name, privilege), table_name || ' retains service ' || privilege)
 from (values ('paykit.admin_audit'), ('paykit.payment_audit')) tables(table_name)
 cross join (values ('SELECT'), ('INSERT')) privileges(privilege);
+select ok(has_table_privilege('service_role', 'paykit.rate_limits', 'SELECT'), 'service_role can read rate_limits');
+select ok(not has_table_privilege('service_role', 'paykit.rate_limits', 'INSERT, UPDATE, DELETE'), 'service_role cannot write rate_limits directly');
+select ok(not has_table_privilege('anon', 'paykit.rate_limits', 'SELECT'), 'anon cannot read rate_limits');
+select ok(not has_table_privilege('authenticated', 'paykit.rate_limits', 'SELECT'), 'authenticated cannot read rate_limits');
 select * from finish();
 rollback;

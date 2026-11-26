@@ -395,63 +395,199 @@ describe("admin-data", () => {
   });
 
   describe("auditLog", () => {
-    it("resolves admin email onto each row, most recent first", async () => {
-      mockTables({
-        admin_audit: [
+    type Call = [string, ...unknown[]];
+
+    // Records every filter call and serves `.range` from a fixed row set,
+    // reporting `total` as the exact count like PostgREST does.
+    function auditBuilder(
+      rows: Record<string, unknown>[],
+      total: number,
+      calls: Call[],
+      error: unknown = null,
+    ) {
+      const b: Record<string, unknown> = {};
+      for (const name of ["select", "eq", "gte", "lt", "order"]) {
+        b[name] = (...args: unknown[]) => {
+          calls.push([name, ...args]);
+          return b;
+        };
+      }
+      b.range = (from: number, to: number) => {
+        calls.push(["range", from, to]);
+        return Promise.resolve({
+          data: rows.slice(from, to + 1),
+          error,
+          count: total,
+        });
+      };
+      return b;
+    }
+
+    const mkRows = (n: number) =>
+      Array.from({ length: n }, (_, i) => ({
+        id: `a${i}`,
+        admin_id: "v1",
+        action: "set_vendor_plan",
+        target_id: "v2",
+        detail: null,
+        created_at: "2026-07-02T00:00:00Z",
+      }));
+
+    it("resolves admin email onto each row, newest first, with the total", async () => {
+      const calls: Call[] = [];
+      fromMock.mockReturnValueOnce(
+        auditBuilder(
+          [
+            {
+              id: "a1",
+              admin_id: "v1",
+              action: "set_vendor_plan",
+              target_id: "v2",
+              detail: { plan: "pro" },
+              created_at: "2026-07-02T00:00:00Z",
+            },
+          ],
+          1,
+          calls,
+        ),
+      );
+
+      const res = await auditLog({ page: 1, pageSize: 25 });
+
+      expect(res).toEqual({
+        rows: [
           {
             id: "a1",
             admin_id: "v1",
+            email: "vendor1@x.com",
             action: "set_vendor_plan",
             target_id: "v2",
             detail: { plan: "pro" },
             created_at: "2026-07-02T00:00:00Z",
           },
         ],
+        total: 1,
+        page: 1,
+        pageCount: 1,
       });
-
-      const rows = await auditLog();
-
-      expect(rows).toEqual([
-        {
-          id: "a1",
-          admin_id: "v1",
-          email: "vendor1@x.com",
-          action: "set_vendor_plan",
-          target_id: "v2",
-          detail: { plan: "pro" },
-          created_at: "2026-07-02T00:00:00Z",
-        },
+      expect(fromMock).toHaveBeenCalledWith("admin_audit");
+      expect(calls).toContainEqual([
+        "order",
+        "created_at",
+        { ascending: false },
+      ]);
+      expect(calls).toContainEqual([
+        "select",
+        expect.any(String),
+        { count: "exact" },
       ]);
     });
 
-    it("resolves a missing auth user to a null email", async () => {
-      mockTables({
-        admin_audit: [
-          {
-            id: "a1",
-            admin_id: "unknown",
-            action: "set_pricing",
-            target_id: null,
-            detail: null,
-            created_at: "2026-07-02T00:00:00Z",
-          },
-        ],
+    it("applies action and date filters in SQL and no filter when absent", async () => {
+      const calls: Call[] = [];
+      fromMock.mockReturnValueOnce(auditBuilder([], 0, calls));
+      await auditLog({
+        action: "record_refund",
+        since: "2026-01-01T00:00:00.000Z",
+        before: "2026-02-01T00:00:00.000Z",
+        page: 1,
+        pageSize: 25,
       });
+      expect(calls).toContainEqual(["eq", "action", "record_refund"]);
+      expect(calls).toContainEqual([
+        "gte",
+        "created_at",
+        "2026-01-01T00:00:00.000Z",
+      ]);
+      expect(calls).toContainEqual([
+        "lt",
+        "created_at",
+        "2026-02-01T00:00:00.000Z",
+      ]);
 
-      const rows = await auditLog();
-
-      expect(rows[0].email).toBeNull();
+      const bare: Call[] = [];
+      fromMock.mockReturnValueOnce(auditBuilder([], 0, bare));
+      await auditLog({ page: 1, pageSize: 25 });
+      expect(bare.map((c) => c[0])).not.toContain("eq");
+      expect(bare.map((c) => c[0])).not.toContain("gte");
+      expect(bare.map((c) => c[0])).not.toContain("lt");
     });
 
-    it("returns an empty list when there are no rows", async () => {
-      mockTables({ admin_audit: [] });
-      const rows = await auditLog();
-      expect(rows).toEqual([]);
+    it("computes the range from page and page size", async () => {
+      const calls: Call[] = [];
+      fromMock.mockReturnValueOnce(auditBuilder(mkRows(60), 60, calls));
+      const res = await auditLog({ page: 2, pageSize: 25 });
+      expect(calls).toContainEqual(["range", 25, 49]);
+      expect(res.rows).toHaveLength(25);
+      expect(res.page).toBe(2);
+      expect(res.pageCount).toBe(3);
+      expect(res.total).toBe(60);
+    });
+
+    it("returns no rows and the clamped page when the page is past the end", async () => {
+      const calls: Call[] = [];
+      fromMock.mockReturnValueOnce(auditBuilder([], 60, calls));
+      const res = await auditLog({ page: 9, pageSize: 25 });
+      expect(calls.filter((c) => c[0] === "range")).toEqual([
+        ["range", 200, 224],
+      ]);
+      expect(res.rows).toEqual([]);
+      expect(res.page).toBe(3);
+      expect(res.pageCount).toBe(3);
+      expect(res.total).toBe(60);
+    });
+
+    it("recovers the total when PostgREST rejects an offset past the end", async () => {
+      const calls: Call[] = [];
+      fromMock
+        .mockReturnValueOnce(
+          auditBuilder([], 0, calls, {
+            code: "PGRST103",
+            message: "Requested range not satisfiable",
+          }),
+        )
+        .mockReturnValueOnce(auditBuilder(mkRows(60), 60, calls));
+      const res = await auditLog({ page: 9, pageSize: 25 });
+      expect(calls.filter((c) => c[0] === "range")).toEqual([
+        ["range", 200, 224],
+        ["range", 0, 24],
+      ]);
+      expect(res.rows).toEqual([]);
+      expect(res.page).toBe(3);
+      expect(res.pageCount).toBe(3);
+      expect(res.total).toBe(60);
+    });
+
+    it("clamps page below 1 and an exact multiple of page size", async () => {
+      const calls: Call[] = [];
+      fromMock.mockReturnValueOnce(auditBuilder(mkRows(50), 50, calls));
+      const res = await auditLog({ page: 0, pageSize: 25 });
+      expect(calls).toContainEqual(["range", 0, 24]);
+      expect(res.page).toBe(1);
+      expect(res.pageCount).toBe(2);
+    });
+
+    it("reports one empty page when nothing matches", async () => {
+      fromMock.mockReturnValueOnce(auditBuilder([], 0, []));
+      const res = await auditLog({ page: 3, pageSize: 25 });
+      expect(res).toEqual({ rows: [], total: 0, page: 1, pageCount: 1 });
+    });
+
+    it("resolves a missing auth user to a null email", async () => {
+      fromMock.mockReturnValueOnce(
+        auditBuilder([{ ...mkRows(1)[0], admin_id: "unknown" }], 1, []),
+      );
+      const res = await auditLog({ page: 1, pageSize: 25 });
+      expect(res.rows[0].email).toBeNull();
     });
 
     it("throws when the read errors", async () => {
-      fromMock.mockReturnValueOnce(builder(null, { message: "boom" }));
-      await expect(auditLog()).rejects.toThrow("auditLog");
+      fromMock.mockReturnValueOnce(
+        auditBuilder([], 0, [], { message: "boom" }),
+      );
+      await expect(auditLog({ page: 1, pageSize: 25 })).rejects.toThrow(
+        "auditLog: boom",
+      );
     });
   });
 });

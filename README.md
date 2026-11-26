@@ -24,7 +24,7 @@ in the workspace root for why. Brand theme is "Banknote Engrave"
 of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-mark.ts`'s
 ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
-The public landing is in pre-launch mode, headlined "Get paid by PayNow. Know who has paid.": one quiet "In pilot with Merqo stalls" line, a sample pay-card hero copied from the real pay page, a "Join the waitlist" CTA, and no published price (pilot notice only, carried by the FAQ rather than a benefit tile). Sign-in and the dashboard stay reachable by direct URL. When signed in, the landing, About and FAQ nav shows a Dashboard link and the shared `LandingAccountNav` (Dashboard link and account menu with Sign out), named from the vendor profile's stall name. Landing surfaces (checkout card, FAQ rows) use one small `rounded-lg` radius and the landing has no glow or background wash, per the shared public page rules. `@merqo/ui` is pinned to merqo-ui commit c0f1f23d (v0.61.1), whose `AppLinkProvider` is mounted once in the root layout so its client exports navigate client-side without a `LinkComponent` prop. The pin also supplies the `PricingLadder`, which the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices); the ladder hides the qkit-only Event Pass block. Money and time render through its `Money`, `Timestamp`, `formatMoney` and `formatDateTime` (S$ amounts, dates like "7 Nov 2026", all in Singapore time). The dashboard also uses its `ConfirmDialog` (inquiry delete), `CopyButton` (booking ID), `downloadBlob` (earnings CSV) and `AsyncSubmitButton` (refund) rather than local copies.
+The public landing is in pre-launch mode, headlined "Get paid by PayNow. Know who has paid.": one quiet "In pilot with Merqo stalls" line, a sample pay-card hero copied from the real pay page, a "Join the waitlist" CTA, and no published price (pilot notice only, carried by the FAQ rather than a benefit tile). Sign-in and the dashboard stay reachable by direct URL. When signed in, the landing, About and FAQ nav shows a Dashboard link and the shared `LandingAccountNav` (Dashboard link and account menu with Sign out), named from the vendor profile's stall name. Landing surfaces (checkout card, FAQ rows) use one small `rounded-lg` radius and the landing has no glow or background wash, per the shared public page rules. `@merqo/ui` is pinned to merqo-ui commit e468ecd2 (v0.61.2), whose `AppLinkProvider` is mounted once in the root layout so its client exports navigate client-side without a `LinkComponent` prop. The pin also supplies the `PricingLadder`, which the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices); the ladder hides the qkit-only Event Pass block. Money and time render through its `Money`, `Timestamp`, `formatMoney` and `formatDateTime` (S$ amounts, dates like "7 Nov 2026", all in Singapore time). The dashboard also uses its `ConfirmDialog` (inquiry delete), `CopyButton` (booking ID), `downloadBlob` (earnings CSV) and `AsyncSubmitButton` (refund) rather than local copies.
 
 The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amount (the vendor's payee name, falling back to their inquiry-form business name), reports claim and upload failures inline instead of in toasts, and shows a plain retry notice when the payment cannot be loaded.
 
@@ -32,7 +32,7 @@ The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amoun
 own refund (`issueRefundAction`) is recorded too, merqo's own
 `POST /api/merqo/vendor-provision` push-provisioning call is logged under a
 `merqo_system` actor sentinel (see `src/app/api/merqo/vendor-provision/README.md`),
-it's now readable via the `/admin/activity` tab (a `DataTable` with a vendor link per target;
+it's now readable via the `/admin/activity` tab (a `DataTable` with a vendor link per target, filtered and paged in the database;
 see `src/app/admin/activity/README.md`), and the table is
 append-only at the grant level (`service_role` can no longer `UPDATE`/
 `DELETE` it, only `SELECT`/`INSERT`) — see `src/app/admin/README.md` and
@@ -370,7 +370,7 @@ An event vendor can take inquiries before there is a booking. On Bookings they s
 
 `src/proxy.ts` sets the CSP (nonce on per-request routes) and `X-Robots-Tag` off production. `src/proxy.test.ts` pins the nonce on the `/auth/*` routes. The admin area requires TOTP MFA; see `src/app/mfa/README.md` and `docs/security/`. The MFA form and the wordmark are thin adapters over the shared `MfaForm` and `Wordmark` from `@merqo/ui`.
 
-Retention: migration 0031 nulls `auth_failures.ip` after 30 days through a daily `pg_cron` job (`purge_auth_failure_ips()`); the failure rows themselves are kept. Migration 0032 queues a payment screenshot's storage path when its `payment_evidence` row is deleted, and the daily Vercel Cron route `/api/cron/proof-storage-drain` (`CRON_SECRET`) removes the object, skipping any path a live evidence row still uses.
+Retention: migration 0031 nulls `auth_failures.ip` after 30 days through a daily `pg_cron` job (`purge_auth_failure_ips()`); the failure rows themselves are kept. Migration 0032 queues a payment screenshot's storage path when its `payment_evidence` row is deleted, and the daily Vercel Cron route `/api/cron/proof-storage-drain` (`CRON_SECRET`) removes the object, skipping any path a live evidence row still uses. Migration 0033 grants the service role `select` on `rate_limits` (0001's blanket grant predates the table) so the /admin overview can read rate-limit pressure; writes stay behind `check_rate_limit`.
 
 ## Database indexes
 
@@ -400,7 +400,7 @@ section tabs that mark the current page via `aria-current`
 
 ## Public pages and the legal gate
 
-The pay and inquiry pages give every dead end a plain next step. A failed Merqo terms check still blocks the vendor, but `/legal/accept?reason=unavailable` says the check failed instead of claiming the terms changed.
+The pay and inquiry pages give every dead end a plain next step. A failed Merqo terms check still blocks the vendor, but `/legal/accept?reason=unavailable` says the check failed instead of claiming the terms changed. The status read that tells the two apart opts out of Next's fetch memoization, so it sees the row the shared check just wrote.
 
 The ledger, bookings and admin lists share one failed-read card, one link-based pager and one filter select class from `src/components/list/`.
 

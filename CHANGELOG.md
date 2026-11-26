@@ -8,16 +8,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Repinned `@merqo/ui` to merqo-ui commit e468ecd2 (v0.61.2, from c0f1f23d / v0.61.1). The shared `/about` page now says paykit is "in pilot with Merqo stalls" instead of "in build".
 - Repinned `@merqo/ui` to merqo-ui commit c0f1f23d (v0.61.1, from d9ba206c / v0.60.0). It includes the 0.61.0 data shapes (`Money`, `Timestamp`, `align: "end"`) plus the TS2742 fix to the package's prepare build.
 - Money and time use `@merqo/ui`'s `Money`, `Timestamp`, `formatMoney`, `formatDate` and `formatDateTime` instead of local helpers (`formatCents`, `formatDate`, `formatSgtDate`, `formatSgtDateTime` removed). Amounts now read "S$4.50" with thousands separators, dates "7 Nov 2026" and date-times "7 Nov 2026, 1:30 am" (seconds dropped), all in Singapore time. Money columns in the bookings, transactions and earnings tables are right-aligned.
 
 ### Fixed
 
+- A vendor with stale terms no longer lands on `/legal/accept?reason=unavailable` when the legal cache has expired: the status re-read now bypasses Next's fetch memoization, so it sees the fresh answer instead of the pre-check row.
+- Migration 0033 grants the service role `select` on `paykit.rate_limits`, fixing the 500 on the `/admin` overview for databases built from migrations (permission denied, 42501).
 - Deep links into the vendor dashboard (bookings, transactions, reports and the rest) now survive the sign-in and legal-acceptance gates: every dashboard page passes its own path and query as the return destination, and a vendor with stale terms is sent to `/legal/accept?next=...` instead of losing the link.
 - Transaction, admin activity, admin vendor and admin overview timestamps are pinned to Asia/Singapore, fixing a hydration mismatch (React #418) where the server (UTC) and browser rendered different dates.
 
 ### Changed
 
+- `/admin/activity` filters and pages in the database (action and date range, `Page X of Y`), so every audit entry is searchable; the latest-1000 window and its notice are gone.
 - A signed-out vendor who opens `/dashboard/config?return_to=...` now keeps `return_to` through sign-in (password, Google and email link) via a same-origin `next` path, and the saved state offers "Back to your booth" as the primary button.
 - Ledger, bookings and admin lists share one failed-read card, one link-based pager (the ledger pager is now plain anchors with Previous/Next at 44px) and one filter select style with the Input focus ring; filter selects are 44px tall.
 - Bookings list uses the shared `PageHeader`, shows counts on the Inquiries and Your bookings sections, and adds search by customer name or phone, a status filter, clear-filters and 20-per-page paging (URL `q`, `status`, `page`, Zod-validated and applied in the query).

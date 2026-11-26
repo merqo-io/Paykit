@@ -293,29 +293,77 @@ export async function listVendors(): Promise<VendorRow[]> {
     );
 }
 
+export type AuditLogQuery = {
+  action?: string;
+  /** Inclusive lower and exclusive upper ISO bound on `created_at`. */
+  since?: string;
+  before?: string;
+  page: number;
+  pageSize: number;
+};
+
+export type AuditLogPage = {
+  rows: AuditLogRow[];
+  total: number;
+  /**
+   * The requested page clamped to `[1, pageCount]`. A request past the end
+   * returns no rows; the caller redirects to this page.
+   */
+  page: number;
+  pageCount: number;
+};
+
 /**
- * Most recent `admin_audit` rows across every admin- and vendor-initiated
- * action, identity resolved to email the same way `recentActivity` resolves
- * a vendor — `admin_id` is any `auth.users` id (see `recordAudit`'s own
- * comment), not necessarily an `admins` member.
+ * One newest-first page of `admin_audit`, filtered and counted in SQL so
+ * every entry is searchable. `admin_id` is any `auth.users` id, so it
+ * resolves to email like `recentActivity` does.
  */
-export async function auditLog(limit = 100): Promise<AuditLogRow[]> {
+export async function auditLog(query: AuditLogQuery): Promise<AuditLogPage> {
   const supabase = await createServiceClient();
-  const { data, error } = await supabase
-    .from("admin_audit")
-    .select("id, admin_id, action, target_id, detail, created_at")
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  if (error) throw new Error(`auditLog: ${error.message}`);
+  const pageSize = Math.max(1, Math.floor(query.pageSize));
+  const requested = Math.max(1, Math.floor(query.page) || 1);
+
+  const read = (from: number) => {
+    let q = supabase
+      .from("admin_audit")
+      .select("id, admin_id, action, target_id, detail, created_at", {
+        count: "exact",
+      });
+    if (query.action) q = q.eq("action", query.action);
+    if (query.since) q = q.gte("created_at", query.since);
+    if (query.before) q = q.lt("created_at", query.before);
+    return q
+      .order("created_at", { ascending: false })
+      .range(from, from + pageSize - 1);
+  };
+
+  let pastEnd = false;
+  let res = await read((requested - 1) * pageSize);
+  // PostgREST rejects an offset past the last row (PGRST103) without a count;
+  // the first page is read only to learn the total so the caller can redirect.
+  if (res.error?.code === "PGRST103") {
+    res = await read(0);
+    pastEnd = true;
+  }
+  if (res.error) throw new Error(`auditLog: ${res.error.message}`);
+  const data = pastEnd ? [] : (res.data ?? []);
+  const total = res.count ?? 0;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const page = Math.min(requested, pageCount);
 
   const emails = await emailByUserId(supabase);
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    admin_id: row.admin_id,
-    email: emails.get(row.admin_id) ?? null,
-    action: row.action,
-    target_id: row.target_id,
-    detail: row.detail,
-    created_at: row.created_at,
-  }));
+  return {
+    rows: data.map((row) => ({
+      id: row.id,
+      admin_id: row.admin_id,
+      email: emails.get(row.admin_id) ?? null,
+      action: row.action,
+      target_id: row.target_id,
+      detail: row.detail,
+      created_at: row.created_at,
+    })),
+    total,
+    page,
+    pageCount,
+  };
 }

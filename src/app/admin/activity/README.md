@@ -8,10 +8,10 @@ that, until this folder existed, no page ever read back.
 
 ## Contents
 
-- `page.tsx` — `AdminActivityPage`: `requireAdmin()`, then reads the latest
-  1000 `admin_audit` rows via `auditLog()` (`@/lib/admin-data`) and filters
-  (action, Singapore-day range) and pages them 25 at a time in memory. A
-  notice says older entries aren't searched whenever the window is full. Actor
+- `page.tsx` — `AdminActivityPage`: `requireAdmin()`, then reads one page
+  (25 rows) of `admin_audit` via `auditLog()` (`@/lib/admin-data`), which
+  applies the action and Singapore-day range filters, orders newest first and
+  counts in SQL, so every entry is searchable and there is no row cap. Actor
   resolves to email, falling back to the raw `admin_id`; `detail`'s jsonb
   renders as a flat `key: value` list (`None` for null). A failed read shows a
   retry state, not the empty state; a page past the end redirects to the last.
