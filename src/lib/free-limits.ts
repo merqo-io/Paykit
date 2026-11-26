@@ -83,6 +83,12 @@ export type ListRange = {
   gteIso?: string;
   /** Exclusive upper bound on `created_at`. */
   ltIso?: string;
+  /**
+   * The lower bound is Free's history cutoff, not a vendor-chosen date, so
+   * claimed rows (payments the vendor still has to confirm) stay listed
+   * however old they are.
+   */
+  keepClaimed?: boolean;
 };
 
 /**
@@ -100,5 +106,5 @@ export function resolveListRange(
   if (isPaid) return { gteIso: requested, ltIso };
   const cutoff = freeListCutoff(now);
   const gteIso = requested && requested > cutoff ? requested : cutoff;
-  return { gteIso, ltIso };
+  return { gteIso, ltIso, keepClaimed: gteIso === cutoff };
 }

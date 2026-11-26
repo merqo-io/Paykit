@@ -8,6 +8,8 @@ export type TransactionQuery = {
   gteIso?: string;
   /** Exclusive upper bound on created_at. */
   ltIso?: string;
+  /** Lets `claimed` rows through the `gteIso` bound (Free's cutoff only). */
+  keepClaimed?: boolean;
   status?: TxStatus;
   search?: string;
   page: number;
@@ -50,7 +52,11 @@ export async function queryTransactions(
       .from("transactions")
       .select(TRANSACTION_COLUMNS, { count: "exact" })
       .eq("vendor_id", vendorId);
-    if (query.gteIso) q = q.gte("created_at", query.gteIso);
+    if (query.gteIso) {
+      q = query.keepClaimed
+        ? q.or(`created_at.gte.${query.gteIso},status.eq.claimed`)
+        : q.gte("created_at", query.gteIso);
+    }
     if (query.ltIso) q = q.lt("created_at", query.ltIso);
     if (query.status) q = q.eq("status", query.status);
     if (term) {
@@ -173,7 +179,10 @@ export async function listAllTransactions(
   );
 }
 
-/** How many of the vendor's transactions predate `cutoff`; counted, never fetched. */
+/**
+ * How many of the vendor's transactions predate `cutoff` and are hidden by it;
+ * counted, never fetched. Claimed rows are excluded because the list shows them.
+ */
 export async function countTransactionsBefore(
   vendorId: string,
   cutoff: string,
@@ -183,7 +192,8 @@ export async function countTransactionsBefore(
     .from("transactions")
     .select("id", { count: "exact", head: true })
     .eq("vendor_id", vendorId)
-    .lt("created_at", cutoff);
+    .lt("created_at", cutoff)
+    .neq("status", "claimed");
   if (error) {
     console.error("countTransactionsBefore failed", error.message);
     return 0;

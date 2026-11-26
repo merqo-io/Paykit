@@ -95,6 +95,22 @@ describe("queryTransactions", () => {
     expect(calls).toContainEqual(["range", [50, 74]]);
   });
 
+  it("lets claimed rows past the Free cutoff with one or-filter instead of gte", async () => {
+    const calls = recorder({ data: [], count: 0, error: null });
+    const { queryTransactions } = await import("./transactions");
+    await queryTransactions("v1", {
+      gteIso: "2026-10-26T00:00:00.000Z",
+      keepClaimed: true,
+      page: 1,
+      pageSize: 25,
+    });
+    expect(calls).toContainEqual([
+      "or",
+      ["created_at.gte.2026-10-26T00:00:00.000Z,status.eq.claimed"],
+    ]);
+    expect(calls.map(([m]) => m)).not.toContain("gte");
+  });
+
   it("adds no optional filters when none are given", async () => {
     const calls = recorder({ data: null, count: null, error: null });
     const { queryTransactions } = await import("./transactions");
@@ -284,20 +300,22 @@ describe("countTransactionsBefore", () => {
     count: number | null;
     error: { message: string } | null;
   }) => {
-    const ltMock = vi.fn().mockResolvedValue(result);
+    const neqMock = vi.fn().mockResolvedValue(result);
+    const ltMock = vi.fn(() => ({ neq: neqMock }));
     createServerClientMock.mockResolvedValue({
       from: () => ({
         select: () => ({ eq: () => ({ lt: ltMock }) }),
       }),
     });
-    return ltMock;
+    return { ltMock, neqMock };
   };
 
   it("head-counts rows older than the cutoff", async () => {
-    const ltMock = ltClient({ count: 4, error: null });
+    const { ltMock, neqMock } = ltClient({ count: 4, error: null });
     const { countTransactionsBefore } = await import("./transactions");
     expect(await countTransactionsBefore("v1", "2026-10-17T00:00:00Z")).toBe(4);
     expect(ltMock).toHaveBeenCalledWith("created_at", "2026-10-17T00:00:00Z");
+    expect(neqMock).toHaveBeenCalledWith("status", "claimed");
   });
 
   it("logs and returns 0 on a query error", async () => {

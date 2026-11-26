@@ -95,7 +95,7 @@ describe("PlanPage", () => {
       screen.getByRole("link", { name: "Change plan in your Merqo account" }),
     ).toHaveAttribute(
       "href",
-      expect.stringMatching(/^https?:\/\/.+\/account$/),
+      expect.stringMatching(/^https?:\/\/.+\/dashboard$/),
     );
     expect(fetchPlanCatalogMock).toHaveBeenCalledWith(
       expect.stringMatching(/^https?:\/\//),
