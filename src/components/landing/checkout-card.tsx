@@ -1,76 +1,55 @@
-import { Download, ImageUp } from "lucide-react";
-import QRCode from "react-qr-code";
-import { Button } from "@merqo/ui/primitives";
+"use client";
 
-// A deliberately non-payable payload: the card is a picture of the pay page,
-// so scanning it must never lead anywhere near a real PayNow account.
-const SAMPLE_QR_VALUE = "https://paykit.merqo.io/faq";
+import { useState } from "react";
+import { PhoneFrame } from "@merqo/ui";
+
+import { PayScreen } from "./pay-screen";
+import { STATUS, STATUS_ORDER, StatusPill, type Status } from "./status";
 
 /**
- * A static copy of the QR step of the real pay page (`/pay/[id]`): same
- * header, amount, QR size and button labels. The buttons are inert, and the
- * heading is a paragraph so the landing keeps a single h1.
+ * The hero's product object: the customer's pay page in a phone, with a
+ * segmented control that walks it through Waiting, Paid and Confirmed. Client
+ * state only, so it works the same with or without reduced motion.
  */
 export function CheckoutCard() {
+  const [state, setState] = useState<Status>("pending");
+
   return (
     <figure
-      className="w-full max-w-sm rounded-lg border bg-card"
+      className="flex w-full flex-col items-center gap-5"
       aria-label="Sample paykit pay page"
     >
-      <div className="space-y-5 px-6 py-5">
-        <header className="space-y-1 text-center">
-          <p className="font-display text-xl font-semibold text-balance">
-            Scan to pay with PayNow
-          </p>
-          <p className="break-words text-sm text-muted-foreground">
-            Order #A82F
-          </p>
-        </header>
+      <PhoneFrame
+        label="Sample pay page on a customer's phone"
+        size="large"
+        className="h-[340px]"
+      >
+        <PayScreen status={state} />
+      </PhoneFrame>
 
-        <div className="space-y-1 text-center">
-          <p className="break-words text-lg font-semibold">
-            Paying Ah Seng Kopi
-          </p>
-          <p className="font-mono text-3xl font-bold">S$7.80</p>
-        </div>
-
-        <div className="mx-auto w-fit rounded-lg border border-border bg-white p-4">
-          <QRCode value={SAMPLE_QR_VALUE} size={220} />
-        </div>
-        <Button
-          variant="outline"
-          disabled
-          className="mx-auto flex h-12 w-fit items-center gap-2 rounded-lg disabled:opacity-100"
-        >
-          <Download className="size-4" aria-hidden />
-          Save QR image
-        </Button>
-        <p className="mx-auto max-w-xs text-center text-xs text-muted-foreground">
-          On this phone? Save the QR, then open your banking app and scan it
-          from your photos.
-        </p>
-
-        <Button
-          disabled
-          className="h-12 w-full rounded-lg disabled:opacity-100"
-        >
-          <ImageUp className="size-4" aria-hidden />
-          Upload payment screenshot
-        </Button>
-
-        <div className="space-y-2">
-          <Button
-            variant="outline"
-            disabled
-            className="h-12 w-full rounded-lg disabled:opacity-100"
+      <div
+        role="group"
+        aria-label="Payment status"
+        className="flex w-full max-w-[28rem] rounded-lg border border-border p-1"
+      >
+        {STATUS_ORDER.map((s) => (
+          <button
+            key={s}
+            type="button"
+            aria-pressed={state === s}
+            onClick={() => setState(s)}
+            className="min-h-11 flex-auto whitespace-nowrap rounded-lg px-2 text-xs font-semibold sm:px-3 sm:text-sm transition-colors hover:bg-muted active:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-pressed:bg-foreground aria-pressed:text-background aria-pressed:hover:bg-foreground/85"
           >
-            I&apos;ve paid
-          </Button>
-          <p className="text-center text-xs text-muted-foreground">
-            The seller checks your screenshot, then you go back to your order.
-          </p>
-        </div>
+            {STATUS[s].label}
+          </button>
+        ))}
       </div>
+      <p
+        className="flex items-center gap-2 text-sm text-muted-foreground"
+        aria-live="polite"
+      >
+        On the vendor&apos;s screen: <StatusPill status={state} />
+      </p>
     </figure>
   );
 }
