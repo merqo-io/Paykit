@@ -405,3 +405,5 @@ The pay and inquiry pages give every dead end a plain next step. A failed Merqo 
 The ledger, bookings and admin lists share one failed-read card, one link-based pager and one filter select class from `src/components/list/`.
 
 A deep link into the vendor dashboard survives the login and legal gates: every dashboard page passes its own path and query to `getVendorSession` as `returnTo`, and a stale terms acceptance goes to `/legal/accept?next=...`.
+
+The `/admin/activity` paging links and boundaries are pinned by `src/app/admin/activity/activity-paging.dom.test.tsx` (listed in `CHANGELOG.md`).
