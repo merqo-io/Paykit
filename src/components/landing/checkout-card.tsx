@@ -30,7 +30,7 @@ export function CheckoutCard() {
       <div
         role="group"
         aria-label="Payment status"
-        className="flex w-full max-w-[26rem] rounded-lg border border-border p-1"
+        className="flex w-full max-w-[28rem] rounded-lg border border-border p-1"
       >
         {STATUS_ORDER.map((s) => (
           <button
@@ -38,7 +38,7 @@ export function CheckoutCard() {
             type="button"
             aria-pressed={state === s}
             onClick={() => setState(s)}
-            className="min-h-11 flex-1 rounded-lg px-2 text-sm font-semibold transition-colors hover:bg-muted active:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-pressed:bg-foreground aria-pressed:text-background aria-pressed:hover:bg-foreground/85"
+            className="min-h-11 flex-auto whitespace-nowrap rounded-lg px-2 text-xs font-semibold sm:px-3 sm:text-sm transition-colors hover:bg-muted active:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-pressed:bg-foreground aria-pressed:text-background aria-pressed:hover:bg-foreground/85"
           >
             {STATUS[s].label}
           </button>
