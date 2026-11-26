@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- A Free vendor's claimed payments (customer marked paid, waiting for the vendor to confirm) older than 30 days are now listed on Payments, in All and under `?status=claimed`, so the dashboard's "Review these payments" count and the list agree. Other payments stay limited to the last 30 days, and the "older payments" note no longer counts claimed rows. Paid plans are unchanged.
+
 ### Changed
 
 - Repinned `@merqo/ui` to merqo-ui commit e468ecd2 (v0.61.2, from c0f1f23d / v0.61.1). The shared `/about` page now says paykit is "in pilot with Merqo stalls" instead of "in build".

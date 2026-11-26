@@ -50,6 +50,24 @@ describe("resolveListRange", () => {
     );
   });
 
+  it("lets claimed rows through the cutoff for Free, never for paid", () => {
+    expect(resolveListRange(false, {}, now).keepClaimed).toBe(true);
+    expect(resolveListRange(false, { from: "2020-01-01" }, now)).toMatchObject({
+      gteIso: cutoff,
+      keepClaimed: true,
+    });
+    expect(resolveListRange(true, {}, now).keepClaimed).toBeUndefined();
+    expect(
+      resolveListRange(true, { from: "2020-01-01" }, now).keepClaimed,
+    ).toBeUndefined();
+  });
+
+  it("does not keep claimed rows past a Free from the vendor chose", () => {
+    expect(
+      resolveListRange(false, { from: "2026-11-20" }, now).keepClaimed,
+    ).toBe(false);
+  });
+
   it("keeps the floor even when to is before the cutoff", () => {
     const range = resolveListRange(false, { to: "2020-01-31" }, now);
     expect(range.gteIso).toBe(cutoff);

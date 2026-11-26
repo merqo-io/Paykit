@@ -170,7 +170,7 @@ provide authorization.
 
 `transactions.ts` and `bookings.ts` read vendor-owned records with the session
 client; `queryTransactions(vendorId, query)` returns one filtered page (window, status, search) with an exact count; Free callers get their window from `resolveListRange` in `free-limits.ts`,
-`countTransactionsBefore` counts hidden older rows and `listConfirmedBetween`
+`countTransactionsBefore` counts hidden older rows (claimed ones are shown, so not counted) and `listConfirmedBetween`
 reads a bounded window for the Free totals; `claimedTxSummary` is an RLS-scoped count and SGD-cent total of claimed (awaiting
 confirmation) transactions and `confirmedSince` sums confirmed takings since a cutoff, both for the dashboard home. `read-all-rows.ts` follows ordered numeric ranges to an empty page and rejects
 partial collections on later errors; it does not provide a transaction snapshot.
