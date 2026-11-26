@@ -4,10 +4,10 @@ import { useState } from "react";
 
 import { CONTAINER, SECTION_PAD_Y } from "./rhythm";
 
-type Status = "pending" | "claimed" | "confirmed";
+export type Status = "pending" | "claimed" | "confirmed";
 
 // Same labels and tones as the dashboard's TransactionStatusBadge.
-const STATUS: Record<Status, { label: string; className: string }> = {
+export const STATUS: Record<Status, { label: string; className: string }> = {
   pending: {
     label: "Awaiting payment",
     className: "border-secondary/35 bg-secondary/12 text-secondary",
@@ -35,19 +35,19 @@ const LEDGER: readonly {
   { ref: "A829", amount: "S$18.20", status: "confirmed", at: "26 Nov, 12:12" },
 ];
 
-// Seven days of sample revenue in dollars; the tiles below are derived from it.
-const DAYS: readonly { day: string; sgd: number }[] = [
-  { day: "Fri", sgd: 62 },
-  { day: "Sat", sgd: 48 },
-  { day: "Sun", sgd: 71 },
-  { day: "Mon", sgd: 39 },
-  { day: "Tue", sgd: 88 },
-  { day: "Wed", sgd: 55 },
-  { day: "Thu", sgd: 49.6 },
+// Seven days of sample revenue in dollars and payment counts; the tiles are derived from them.
+const DAYS: readonly { day: string; sgd: number; payments: number }[] = [
+  { day: "Fri", sgd: 62, payments: 6 },
+  { day: "Sat", sgd: 48, payments: 5 },
+  { day: "Sun", sgd: 71, payments: 7 },
+  { day: "Mon", sgd: 39, payments: 4 },
+  { day: "Tue", sgd: 88, payments: 9 },
+  { day: "Wed", sgd: 55, payments: 4 },
+  { day: "Thu", sgd: 49.6, payments: 3 },
 ];
-const PAYMENTS = 38;
 
 const total = DAYS.reduce((sum, d) => sum + d.sgd, 0);
+const paymentCount = DAYS.reduce((sum, d) => sum + d.payments, 0);
 const money = (n: number) => `S$${n.toFixed(2)}`;
 
 const POINTS = [
@@ -85,31 +85,35 @@ function Ledger() {
         />
       </label>
       <div className="mt-3 overflow-x-auto rounded-lg border border-border">
-        <table className="w-full min-w-[30rem] text-left text-sm">
+        <table className="w-full text-left text-sm sm:min-w-[30rem]">
           <caption className="sr-only">Sample payments ledger</caption>
           <thead className="border-b border-border text-muted-foreground">
             <tr>
-              <th className="px-3 py-2.5 font-medium">Kit</th>
+              <th className="hidden px-3 py-2.5 font-medium sm:table-cell">
+                Kit
+              </th>
               <th className="px-3 py-2.5 font-medium">Reference</th>
               <th className="px-3 py-2.5 text-right font-medium">Amount</th>
               <th className="px-3 py-2.5 font-medium">Status</th>
-              <th className="px-3 py-2.5 font-medium">Created</th>
+              <th className="hidden px-3 py-2.5 font-medium sm:table-cell">
+                Created
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {rows.map((r) => (
               <tr key={r.ref}>
-                <td className="px-3 py-2.5">qkit</td>
+                <td className="hidden px-3 py-2.5 sm:table-cell">qkit</td>
                 <td className="px-3 py-2.5 font-mono">{r.ref}</td>
                 <td className="px-3 py-2.5 text-right font-mono">{r.amount}</td>
                 <td className="px-3 py-2.5">
                   <span
-                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS[r.status].className}`}
+                    className={`inline-flex items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS[r.status].className}`}
                   >
                     {STATUS[r.status].label}
                   </span>
                 </td>
-                <td className="px-3 py-2.5 whitespace-nowrap text-muted-foreground">
+                <td className="hidden px-3 py-2.5 whitespace-nowrap text-muted-foreground sm:table-cell">
                   {r.at}
                 </td>
               </tr>
@@ -135,7 +139,7 @@ function Report() {
   const max = Math.max(...DAYS.map((d) => d.sgd));
   const tiles = [
     ["Total revenue", money(total)],
-    ["Payments", String(PAYMENTS)],
+    ["Payments", String(paymentCount)],
     ["Avg / day", money(total / DAYS.length)],
   ];
   return (
@@ -164,7 +168,7 @@ function Report() {
             className="flex h-full min-w-0 flex-1 flex-col justify-end gap-1.5"
           >
             <div
-              className="w-full rounded-t-sm bg-mint"
+              className="w-full rounded-t-lg bg-mint"
               style={{ height: `${(d.sgd / max) * 100}%` }}
             />
             <span className="text-center text-[11px] text-muted-foreground">

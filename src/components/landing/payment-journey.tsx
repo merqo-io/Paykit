@@ -6,6 +6,7 @@ import {
   JourneyStep,
   PhoneFrame,
   PressButton,
+  usePrefersReducedMotion,
   useScrollPlay,
 } from "@merqo/ui";
 
@@ -16,26 +17,45 @@ import { CONTAINER } from "./rhythm";
 const PHONE = "h-[310px]";
 
 /**
- * One step's play head. Scroll plays the step and rewinds it; a tap plays it
- * too, so the demo stays operable by touch and under reduced motion (where
- * the hook already reports every step complete).
+ * One step's play head. Scroll plays the step and rewinds it. A tap plays it
+ * as an override that lapses as soon as the scroll position moves to another
+ * step, so scrolling back up still rewinds. Under reduced motion nothing
+ * animates with scroll: the step waits in its first state and only a tap
+ * plays it.
  */
 function useStepPlay(ref: RefObject<HTMLElement | null>) {
-  const scrolled = useScrollPlay(ref, 1) >= 1;
-  const [tapped, setTapped] = useState(false);
-  return { played: scrolled || tapped, play: () => setTapped(true) };
+  const reduced = usePrefersReducedMotion();
+  const scrollStep = useScrollPlay(ref, 1);
+  const [tappedAt, setTappedAt] = useState<number | null>(null);
+  if (tappedAt !== null && !reduced && tappedAt !== scrollStep) {
+    setTappedAt(null);
+  }
+  const scrolled = !reduced && scrollStep >= 1;
+  return {
+    played: scrolled || tappedAt !== null,
+    play: () => setTappedAt(scrollStep),
+  };
 }
 
 function StepOneStage() {
   const ref = useRef<HTMLDivElement>(null);
-  const { played } = useStepPlay(ref);
+  const { played, play } = useStepPlay(ref);
   return (
     <div ref={ref} className="flex flex-wrap justify-center gap-4">
       <PhoneFrame label="Customer's pay page" size="small" className={PHONE}>
         <PayScreen state="waiting" compact />
       </PhoneFrame>
       <PhoneFrame label="Customer's bank app" size="small" className={PHONE}>
-        <BankScreen sent={played} />
+        <BankScreen
+          sent={played}
+          action={
+            played ? undefined : (
+              <PressButton onClick={play} className="h-11 text-sm">
+                Pay S$7.80
+              </PressButton>
+            )
+          }
+        />
       </PhoneFrame>
     </div>
   );

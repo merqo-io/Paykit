@@ -126,7 +126,13 @@ export function VendorScreen({
 }
 
 /** The customer's own bank app: the money moves here, never through paykit. */
-export function BankScreen({ sent }: { sent: boolean }) {
+export function BankScreen({
+  sent,
+  action,
+}: {
+  sent: boolean;
+  action?: ReactNode;
+}) {
   return (
     <div className="flex h-full min-h-0 flex-col items-center text-center">
       <p className="font-display text-[13px] font-semibold">Your bank</p>
@@ -150,6 +156,7 @@ export function BankScreen({ sent }: { sent: boolean }) {
           </p>
         </>
       )}
+      {action && <div className="mt-auto w-full pt-2">{action}</div>}
     </div>
   );
 }

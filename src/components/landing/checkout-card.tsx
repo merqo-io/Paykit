@@ -33,7 +33,7 @@ export function CheckoutCard() {
             type="button"
             aria-pressed={state === s.id}
             onClick={() => setState(s.id)}
-            className="min-h-11 flex-1 rounded-sm px-2 text-sm font-semibold transition-colors hover:bg-muted active:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-pressed:bg-foreground aria-pressed:text-background aria-pressed:hover:bg-foreground/85"
+            className="min-h-11 flex-1 rounded-lg px-2 text-sm font-semibold transition-colors hover:bg-muted active:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-pressed:bg-foreground aria-pressed:text-background aria-pressed:hover:bg-foreground/85"
           >
             {s.label}
           </button>

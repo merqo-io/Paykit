@@ -3,8 +3,10 @@
 ## Purpose
 
 The marketing homepage (`src/app/page.tsx`), broken into one section per
-file. Presentational only — no data fetching, no client state beyond the
-`authed` prop threaded down from the page for the nav sign-in/dashboard link.
+file. No data fetching. Client state is limited to the interactive demos: the
+hero's state switch, the journey's scroll and tap play heads and the sample
+ledger search, plus the `authed` prop threaded down from the page for the nav
+sign-in/dashboard link.
 
 ## Contents
 
@@ -39,12 +41,15 @@ file. Presentational only — no data fetching, no client state beyond the
 - `payment-journey.tsx` - `PaymentJourney`, the three-step story built from
   `@merqo/ui`'s `Journey`/`JourneyStep`. Each step's stage owns a
   `useScrollPlay(ref, 1)` play head, so scrolling plays it and scrolling up
-  rewinds it. A tap on "I've paid" or "Confirm payment" plays a step too.
-  Reduced motion renders every step complete.
+  rewinds it. A tap on "Pay S$7.80", "I've paid" or "Confirm payment" plays a
+  step as an override that lapses once scroll moves to another step. Under
+  reduced motion nothing plays with scroll: every step starts in its first
+  state and only the tap buttons play it.
 - `after-payment.tsx` - `AfterPayment` (`#after`), the part of paykit that is
   not the QR: a searchable sample ledger (same columns and status labels as
   `dashboard/transactions`), a report block (Total revenue, Payments, Avg /
-  day tiles and a bar chart by day, built from sample days in plain HTML) and
+  day tiles and a bar chart by day, all derived from one set of sample days
+  in plain HTML; Kit and Created columns hide on phones) and
   three numbered points (ledger, reports with CSV, refund tracking that only
   records). Labelled as sample data; imports nothing from the dashboard.
 - `sections.tsx` - `LandingFaq` (three `FaqRows` picked by question from
@@ -52,9 +57,12 @@ file. Presentational only — no data fetching, no client state beyond the
   with `PILOT_PRICING_LINE`, the waitlist CTA and the funds statement).
 - `rhythm.ts` - `CONTAINER` and `SECTION_PAD_Y`, the one width and spacing
   scale for every block.
-- `sections.dom.test.tsx`, `checkout-card.dom.test.tsx`,
-  `payment-journey.dom.test.tsx`, `after-payment.dom.test.tsx` - three FAQ rows that open, state switching,
-  reduced motion and tap-to-play.
+- `sections.dom.test.tsx` - three FAQ rows that open and the closing call.
+- `checkout-card.dom.test.tsx` - hero state switching and the live region.
+- `payment-journey.dom.test.tsx` - three steps, tap-to-play, the tap lapsing
+  on scroll, and reduced motion keeping the buttons usable.
+- `after-payment.dom.test.tsx` - sample labelling, ledger search, derived
+  tiles, and status labels kept in step with the dashboard's badge.
 - `BackToTop` — shared scroll-to-top control imported from `@merqo/ui`.
 - `wordmark.dom.test.tsx` — text, mint accent and caller size override.
 - `wordmark.tsx` — `Wordmark`: thin wrapper over the shared `Wordmark` shell
