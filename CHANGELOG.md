@@ -12,6 +12,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- The landing hero is now a customer's qkit phone (stall, items, total and the PayNow QR paykit makes for the order, ending in qkit's "I've paid" recorded state) instead of a generic pay page with a Waiting/Paid/Confirmed switch, and the three-step journey section is removed. The sample ledger stays.
 - The landing page now follows the Merqo public-site direction: the hero is a phone showing a sample pay page with an Awaiting payment / Marked paid / Received switch (the dashboard's labels and colours, used across the page), a three-step journey (customer pays, taps "I've paid", vendor confirms) plays as you scroll and rewinds on scroll up (a tap on its buttons plays a step too, and with reduced motion only the buttons play it), the FAQ is three rows linking to `/faq`, an "After the payment" block shows a sample payments ledger and report (labelled as sample data), and a closing call in the FAQ column carries the waitlist link. On phones each journey step shows its two screens side by side. The separate how-it-works steps and "money goes to you" sections are folded into these.
 - Repinned `@merqo/ui` to merqo-ui commit e468ecd2 (v0.61.2, from c0f1f23d / v0.61.1). The shared `/about` page now says paykit is "in pilot with Merqo stalls" instead of "in build".
 - Repinned `@merqo/ui` to merqo-ui commit c0f1f23d (v0.61.1, from d9ba206c / v0.60.0). It includes the 0.61.0 data shapes (`Money`, `Timestamp`, `align: "end"`) plus the TS2742 fix to the package's prepare build.
