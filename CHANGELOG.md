@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Paging tests for `/admin/activity`: next/previous links at the page boundaries, the second page's rows, and the action and from/to filters kept in every paging link.
+
 ### Changed
 
 - Repinned `@merqo/ui` to merqo-ui commit e468ecd2 (v0.61.2, from c0f1f23d / v0.61.1). The shared `/about` page now says paykit is "in pilot with Merqo stalls" instead of "in build".
