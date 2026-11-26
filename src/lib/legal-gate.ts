@@ -43,6 +43,8 @@ export async function legalStatus(email: string): Promise<LegalStatus> {
       .from("legal_check_state")
       .select("checked_at, is_current")
       .eq("email", email.toLowerCase())
+      // A signal makes Next skip fetch memoization, which would return the pre-upsert row.
+      .abortSignal(new AbortController().signal)
       .maybeSingle();
     if (error) console.error("legalStatus: state read failed", error.message);
     const age = data ? Date.now() - new Date(data.checked_at).getTime() : null;

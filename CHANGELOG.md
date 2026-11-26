@@ -14,6 +14,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- A vendor with stale terms no longer lands on `/legal/accept?reason=unavailable` when the legal cache has expired: the status re-read now bypasses Next's fetch memoization, so it sees the fresh answer instead of the pre-check row.
 - Migration 0033 grants the service role `select` on `paykit.rate_limits`, fixing the 500 on the `/admin` overview for databases built from migrations (permission denied, 42501).
 - Deep links into the vendor dashboard (bookings, transactions, reports and the rest) now survive the sign-in and legal-acceptance gates: every dashboard page passes its own path and query as the return destination, and a vendor with stale terms is sent to `/legal/accept?next=...` instead of losing the link.
 - Transaction, admin activity, admin vendor and admin overview timestamps are pinned to Asia/Singapore, fixing a hydration mismatch (React #418) where the server (UTC) and browser rendered different dates.

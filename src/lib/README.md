@@ -207,7 +207,8 @@ mocked tests do not verify its database locking.
 `admin.ts` establishes team authorization. `legal-gate.ts` validates Merqo's
 legal-status response and caches it briefly; lookup failures fail closed, but a
 cache write failure is logged and ignored. `legalStatus` tells a stale acceptance
-from a failed check (recent `is_current=false` row, 30 s clock skew allowed), and
+from a failed check (recent `is_current=false` row, 30 s clock skew allowed;
+the row read opts out of Next fetch memoization so it sees the fresh upsert), and
 `requireCurrentLegalAcceptance(email, returnTo?)` sends an outage to
 `/legal/accept?reason=unavailable` and a stale acceptance to
 `/legal/accept?next=<returnTo>`. `getVendorSession(returnTo?)` forwards the
