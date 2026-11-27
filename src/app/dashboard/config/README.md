@@ -8,7 +8,7 @@ own BYO payment link/QR image, and saves it as their `vendor_payment_config`.
 ## Contents
 
 - `page.tsx` — server component: loads the vendor's current config, renders
-  a `PageHeader` (title and description, no eyebrow) and `PaymentConfigForm`. Content sits in a plain `mx-auto max-w-lg` div (not
+  a `PageHeader` (title and description, no eyebrow) and `PaymentConfigForm`. Content sits in a plain `mx-auto max-w-2xl` div (not
   `<main>` — the parent `dashboard/layout.tsx` owns that landmark and the
   page-family's canonical `max-w-7xl` outer width); a form this size reads
   better narrower than the full dashboard width.
