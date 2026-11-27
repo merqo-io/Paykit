@@ -6,7 +6,7 @@
   confirm timing), and how to rotate the separate callback secret.
 - `merqo-ui-login-gaps.md`: where the shared `AuthShell` and `LoginForm` from `@merqo/ui` (v0.49.1) fall short of paykit's old login page, with the smallest change to close each gap; written for the other five kits before they adopt the shared form.
 - `FILE-LAYOUT.md` (lists the entitlement receiver, cache readers, the `src/lib/db-types/` type files, and the proof-storage drain and its cron route): the repo file tree with one-line descriptions (moved from `AGENTS.md`).
-- `DATA-MODEL.md` (includes `vendor_entitlements`, merqo's cached per-vendor plan): tables, constraints and RLS rules (moved from `AGENTS.md`).
+- `DATA-MODEL.md` (includes `vendor_entitlements`, merqo's cached per-vendor plan, and the `vendor_prefs` onboarding columns `onboarding_dismissed_at` and `qr_previewed_at`): tables, constraints and RLS rules (moved from `AGENTS.md`).
 - `meta/` — standing backlog / cross-cutting project-management docs.
 - `superpowers/` — per-feature specs (`specs/`) and implementation plans
   (`plans/`). Granular per-task history for the MVP build itself lives at
