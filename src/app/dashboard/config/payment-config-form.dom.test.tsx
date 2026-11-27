@@ -10,12 +10,16 @@ import {
 import userEvent from "@testing-library/user-event";
 import { PaymentConfigForm } from "./payment-config-form";
 
-const { saveConfigActionMock } = vi.hoisted(() => ({
+const { saveConfigActionMock, markQrPreviewedMock } = vi.hoisted(() => ({
   saveConfigActionMock: vi.fn(),
+  markQrPreviewedMock: vi.fn(async () => {}),
 }));
 
 vi.mock("./actions", () => ({
   saveConfigAction: saveConfigActionMock,
+}));
+vi.mock("../onboarding-actions", () => ({
+  markQrPreviewed: markQrPreviewedMock,
 }));
 vi.mock("@merqo/ui", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@merqo/ui")>();
@@ -27,6 +31,7 @@ vi.mock("@merqo/ui", async (importOriginal) => {
 
 beforeEach(() => {
   saveConfigActionMock.mockReset();
+  markQrPreviewedMock.mockClear();
 });
 
 describe("PaymentConfigForm", () => {
@@ -47,6 +52,23 @@ describe("PaymentConfigForm", () => {
       target: { value: "53312345A" },
     });
     expect(document.querySelector("svg")).toBeInTheDocument();
+  });
+
+  it("records the QR preview once, when it first renders", () => {
+    render(<PaymentConfigForm initial={null} vendorId="v1" />);
+    expect(markQrPreviewedMock).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByLabelText("Payee name"), {
+      target: { value: "Kopitiam Cart" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "UEN" }), {
+      target: { value: "53312345A" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "UEN" }), {
+      target: { value: "53312345B" },
+    });
+
+    expect(markQrPreviewedMock).toHaveBeenCalledTimes(1);
   });
 
   it("renders a role=alert error message once the server action returns status: error", async () => {

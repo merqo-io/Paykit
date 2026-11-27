@@ -4,9 +4,7 @@ Paykit-specific client adapters and presentation. Shared controls live in
 `@merqo/ui`; raw CLI-managed primitives live under `ui/`.
 
 - `app-link-provider.tsx` — `AppLinks`, a Client Component mounting `@merqo/ui`'s `AppLinkProvider` with `next/link`; the root layout renders it once. `app-link-provider.dom.test.tsx` covers it.
-- `dashboard-tour.tsx` adapts routing, mark-seen action and `tour-steps.ts` to
-  the shared tour (its Reports step anchors on `nav-reports`). Step descriptions render the real transaction-status badge
-  into static markup when steps are requested, never at import (an import-time render breaks SSR); their HTML is authored configuration, not customer input.
+- `onboarding-checklist.tsx` is the "Get set up" card at the top of Home. It renders the state from `lib/onboarding.ts` (progress out of the three counted steps, step links, a greyed optional "Coming soon" GST step, the "You're set up" state) and hides itself on dismiss, calling `dismissOnboarding` best-effort. `onboarding-checklist.dom.test.tsx` covers it. The spotlight tour that preceded it is no longer mounted in Paykit.
 - `list/` — shared list-page pieces for the ledger, bookings and admin lists:
   `ListError` (`role="alert"` failed-read card with a Try again link and an
   optional `message`), `UrlPager` (server-rendered real-anchor pager with

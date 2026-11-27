@@ -226,9 +226,13 @@ export interface Database {
         Insert: {
           vendor_id: string;
           tour_seen_at?: string | null;
+          onboarding_dismissed_at?: string | null;
+          qr_previewed_at?: string | null;
         };
         Update: {
           tour_seen_at?: string | null;
+          onboarding_dismissed_at?: string | null;
+          qr_previewed_at?: string | null;
         };
         Relationships: [];
       };

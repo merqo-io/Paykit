@@ -219,7 +219,11 @@ instead of redirecting an open dialog.
 `merqo-rpc.ts` is the typed cross-schema RPC boundary used by shared profile,
 feedback and support adapters. `merqo-vendor-profile.ts` uses field-specific
 patches: omitted columns stay unchanged and empty social links clear links.
-`tour-prefs.ts` contains best-effort onboarding timestamps.
+`onboarding.ts` derives the Home checklist's step state and visibility from
+plain inputs (payment config present, `qr_previewed_at`, a confirmed payment,
+`onboarding_dismissed_at`, `tour_seen_at`); `tour_seen_at` now only means
+"already onboarded under the retired tour". `tour-prefs.ts` holds the legacy
+best-effort `tour_seen_at` stamp and has no caller.
 
 ## Storage and shared UI
 
