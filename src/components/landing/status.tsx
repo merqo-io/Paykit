@@ -17,6 +17,12 @@ export const STATUS: Record<Status, { label: string; className: string }> = {
   },
 };
 
+export const STATUS_ORDER: readonly Status[] = [
+  "pending",
+  "claimed",
+  "confirmed",
+];
+
 export function StatusPill({ status }: { status: Status }) {
   return (
     <span
