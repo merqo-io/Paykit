@@ -25,6 +25,27 @@ beforeEach(() => {
 });
 
 describe("OnboardingChecklist", () => {
+  it("styles every done step the same way, whichever step it is", () => {
+    render(
+      <OnboardingChecklist
+        state={deriveOnboarding({
+          ...FRESH,
+          hasConfig: true,
+          hasConfirmedPayment: true,
+        })}
+      />,
+    );
+
+    const doneClass = screen.getByText("Add your PayNow details").className;
+    expect(doneClass).toContain("line-through");
+    expect(
+      screen.getByText("Take your first payment and confirm it").className,
+    ).toBe(doneClass);
+    expect(screen.getByText("Preview your QR").className).not.toContain(
+      "line-through",
+    );
+  });
+
   it("renders nothing when hidden", () => {
     const { container } = render(
       <OnboardingChecklist
