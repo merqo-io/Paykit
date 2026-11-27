@@ -48,6 +48,18 @@ describe("BottomTabBar", () => {
     );
   });
 
+  it("marks More as current only when a More-sheet route is active", () => {
+    const { rerender } = render(<BottomTabBar {...baseProps} />);
+    expect(screen.getByRole("button", { name: "More" })).not.toHaveAttribute(
+      "aria-current",
+    );
+    rerender(<BottomTabBar {...baseProps} moreActive />);
+    expect(screen.getByRole("button", { name: "More" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+
   it("badges the count with screen-reader text and omits a zero badge", () => {
     const { rerender } = render(<BottomTabBar {...baseProps} />);
     expect(
