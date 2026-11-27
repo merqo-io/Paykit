@@ -25,7 +25,7 @@ export default async function ConfigPage({
   );
   const config = await getConfig();
   return (
-    <div className="mx-auto max-w-lg">
+    <div className="mx-auto max-w-2xl">
       <PageHeader
         responsive
         title="Payment setup"

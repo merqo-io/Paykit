@@ -8,9 +8,18 @@ reports, plan display and account settings.
 `layout.tsx` obtains the vendor session, shared profile and plan, then composes
 `dashboard-nav.tsx`. The navigation adapter owns
 Paykit's routes, brand and tier display (labels from `tierLabel`), and adapts feedback/support results to
-the shared account menu's rejecting-promise contract. The bar links only to
-daily-work places (Payments, Bookings, Reports); Payment setup, Profile and Plan
-live in the avatar menu.
+the shared account menu's rejecting-promise contract. Below 1024px the vendor
+navigates with a fixed bottom tab bar (Home, Payments with a badge counting
+payments waiting to confirm, Bookings, Reports, More); `layout.tsx` reads that
+count and mounts the bar, so it and the header do not re-render on navigation.
+`DashboardNav` passes `mobileNav="none"` to the shared header (no burger) and no
+inline links: the tab bar below `lg` and the left rail (`DashboardRail`) from
+`lg` carry the destinations. More holds Payment setup, Profile, Plan, a Setup
+guide row (reopens the Home checklist, then goes Home) and the legal links (the
+footer is hidden below `lg`); Help,
+Feedback, Switch products and Sign out stay in the account menu. All of it comes
+from `src/lib/nav.ts`. `main` has bottom padding that clears the tab bar and the
+safe-area inset.
 
 The navigation wrapper uses `contents print:hidden` so it does not constrain the
 shared sticky header. One layout-level `main` owns the outer content width;
@@ -24,7 +33,7 @@ of a short page instead of mid-screen. The footer is wrapped in
 `contents print:hidden`, like the navigation, so a printed booking or report
 leaves it out.
 
-`loading.tsx` (using the shared `Skeleton`) covers page loading inside this shell. `error.tsx` (shared `ErrorPage` from `@merqo/ui`, titled "This page didn't load") offers retry
+`loading.tsx` (using the shared `Skeleton`) covers page loading inside this shell with a title, two stat cards and five list rows at the list-page width. `error.tsx` (shared `ErrorPage` from `@merqo/ui`, titled "This page didn't load") offers retry
 for page render/data failures; it offers "Try again" and a "Back to dashboard" link; it cannot catch its own segment's layout errors.
 
 ## Routes

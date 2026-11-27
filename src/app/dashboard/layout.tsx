@@ -5,7 +5,8 @@ import { readVendorPlan } from "@/lib/vendor-entitlement";
 import { getOrCreateVendorProfile } from "@/lib/merqo-vendor-profile";
 import { signOutAction } from "@/app/actions/auth";
 import { SiteFooter } from "@/components/site-footer";
-import { DashboardNav } from "./dashboard-nav";
+import { claimedTxCount } from "@/lib/transactions";
+import { DashboardNav, DashboardRail, DashboardTabBar } from "./dashboard-nav";
 
 export default async function DashboardLayout({
   children,
@@ -13,10 +14,14 @@ export default async function DashboardLayout({
   children: ReactNode;
 }) {
   const { supabase, user } = await getVendorSession();
+  // Started before the profile reads so the tab-bar badge adds no round trip.
+  const waitingPromise = claimedTxCount(user.id);
   const [plan, profile] = await Promise.all([
     readVendorPlan(supabase, user.id),
     getOrCreateVendorProfile(supabase, user.id, null),
   ]);
+
+  const waiting = await waitingPromise;
 
   // Profile icon lives on the auth user's metadata, same as qkit/loopkit —
   // no schema change needed.
@@ -54,10 +59,16 @@ export default async function DashboardLayout({
           plan={plan ?? "free"}
         />
       </div>
-      <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-7">
-        {children}
-      </main>
-      <div className="contents print:hidden">
+      <div className="mx-auto flex w-full max-w-7xl flex-1">
+        <DashboardRail plan={plan ?? "free"} waitingCount={waiting} />
+        {/* Bottom padding clears the fixed phone tab bar (3.5rem) and any
+            anchored page action above it, plus the home-indicator inset. */}
+        <main className="min-w-0 flex-1 px-5 py-7 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-7">
+          {children}
+        </main>
+      </div>
+      <DashboardTabBar plan={plan ?? "free"} waitingCount={waiting} />
+      <div className="hidden lg:contents print:hidden">
         <SiteFooter />
       </div>
     </div>

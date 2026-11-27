@@ -243,6 +243,38 @@ describe("claimedTxSummary", () => {
   });
 });
 
+describe("claimedTxCount", () => {
+  const countClient = (result: unknown) => {
+    const statusEq = vi.fn(async () => result);
+    const select = vi.fn(() => ({ eq: () => ({ eq: statusEq }) }));
+    createServerClientMock.mockResolvedValue({ from: () => ({ select }) });
+    return { select, statusEq };
+  };
+
+  it("runs a head-only exact count of the vendor's claimed rows", async () => {
+    const { select, statusEq } = countClient({ count: 7, error: null });
+    const { claimedTxCount } = await import("./transactions");
+    expect(await claimedTxCount("v1")).toBe(7);
+    expect(select).toHaveBeenCalledWith("id", { count: "exact", head: true });
+    expect(statusEq).toHaveBeenCalledWith("status", "claimed");
+  });
+
+  it("treats a null count as zero", async () => {
+    countClient({ count: null, error: null });
+    const { claimedTxCount } = await import("./transactions");
+    expect(await claimedTxCount("v1")).toBe(0);
+  });
+
+  it("logs and returns 0 on a query error", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    countClient({ count: null, error: { message: "boom" } });
+    const { claimedTxCount } = await import("./transactions");
+    expect(await claimedTxCount("v1")).toBe(0);
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+});
+
 describe("confirmedSince", () => {
   const confirmedClient = (pages: unknown[]) => {
     const rangeMock = vi.fn();

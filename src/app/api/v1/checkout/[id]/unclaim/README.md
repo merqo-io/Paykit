@@ -32,3 +32,5 @@ The transaction lookup and guarded write both include the authenticated kit slug
 `recordPaymentAudit` takes one object: `{ transactionId, kitSlug, action, detail? }`.
 
 The route is a thin call to `runTransition` and `conditionalTransition` in `@/lib/payment-transition`, which own the shared auth, rate-limit, id and scoped-read pipeline and the guarded update with its recheck.
+
+A successful transition revalidates the dashboard layout (in `runTransition`) so the vendor's Payments badge recounts.
