@@ -4,7 +4,7 @@
 
 The marketing homepage (`src/app/page.tsx`), broken into one section per
 file. No data fetching. Client state is limited to the interactive demos: the
-hero phone's "I've paid" tap and the sample
+hero's state switch, the journey's scroll and tap play heads and the sample
 ledger search, plus the `authed` prop threaded down from the page for the nav
 sign-in/dashboard link.
 
@@ -26,17 +26,25 @@ sign-in/dashboard link.
 - `nav.dom.test.tsx` — asserts the About link, the Sign in/Join the
   waitlist/Dashboard state switch, and that the account menu opens by touch
   and offers Sign out.
-- `hero.tsx` - headline, lede, waitlist CTA, one quiet "In pilot with Merqo
-  stalls" line (the only readiness statement on the page) and the payment
-  object. No badge and no stat row.
+- `hero.tsx` - headline, lede, waitlist CTA, an "In build" badge with a
+  short "not yet tried with vendors" line (the only readiness statement on the
+  page) and the payment object. No stat row.
 - `waitlist.ts` - `WAITLIST_URL` (every signup CTA) and `PILOT_PRICING_LINE`
   (the only pricing statement on public pages).
-- `qkit-phone.tsx` - `QkitPhone` (`#how`), the hero's product object: a
-  `PhoneFrame` showing a customer's qkit order (stall, two items, total from
-  `Money`), the PayNow QR paykit makes for it and qkit's "I've paid" tap, which
-  leads to "Payment sent. The stall is checking it." with an Undo. Wording is
-  qkit's own. Only the tap moves it, so reduced motion needs no case. The QR
+- `checkout-card.tsx` - `CheckoutCard`, the hero's product object: a
+  `PhoneFrame` holding the customer's pay page with a segmented control
+  (Awaiting payment, Marked paid, Received, `aria-pressed` buttons, 44px targets), the vendor-side pill for that state and one
+  polite live region. Client state only.
+- `pay-screen.tsx` - the screens drawn inside phones: `PayScreen` (customer),
+  `VendorScreen` (three Orders rows, the journey order highlighted), `BankScreen`. The QR
   encodes `https://paykit.merqo.io/faq`, never a PayNow payload.
+- `payment-journey.tsx` - `PaymentJourney`, the three-step story built from
+  `@merqo/ui`'s `Journey`/`JourneyStep`. Each step's stage owns a
+  `useScrollPlay(ref, 1)` play head, so scrolling plays it and scrolling up
+  rewinds it. A tap on "Pay S$7.80", "I've paid" or "Confirm payment" plays a
+  step as an override that lapses once scroll moves to another step. Under
+  reduced motion nothing plays with scroll: every step starts in its first
+  state and only the tap buttons play it.
 - `after-payment.tsx` - `AfterPayment` (`#after`), the part of paykit that is
   not the QR: a searchable sample ledger (same columns and status labels as
   `dashboard/transactions`), a report block (Total revenue, Payments, Avg /
@@ -47,14 +55,16 @@ sign-in/dashboard link.
   dashboard.
 - `status.tsx` - `STATUS` (labels and tones copied from the dashboard's
   `TransactionStatusBadge`) and `StatusPill`, so one colour means one state
-  in the ledger.
+  across the hero, journey and ledger.
 - `sections.tsx` - `LandingFaq` (three `FaqRows` picked by question from
   `FAQ_GROUPS`, plus a link to `/faq`) and `LandingClosing` (FAQ-column layout,
   with `PILOT_PRICING_LINE`, the waitlist CTA and the funds statement).
 - `rhythm.ts` - `CONTAINER` and `SECTION_PAD_Y`, the one width and spacing
   scale for every block.
 - `sections.dom.test.tsx` - three FAQ rows that open and the closing call.
-- `qkit-phone.dom.test.tsx` - order total and QR, no state toggle, the "I've paid" tap and Undo.
+- `checkout-card.dom.test.tsx` - hero state switching and the live region.
+- `payment-journey.dom.test.tsx` - three steps, tap-to-play, the tap lapsing
+  on scroll, and reduced motion keeping the buttons usable.
 - `after-payment.dom.test.tsx` - sample labelling, ledger search, derived
   tiles, and status labels kept in step with the dashboard's badge.
 - `BackToTop` — shared scroll-to-top control imported from `@merqo/ui`.
@@ -74,7 +84,7 @@ body carries no background wash, per the shared public page rules.
 ## Connectivity
 
 Assembled by `src/app/page.tsx` in the order listed above (nav → hero →
-after payment → faq → closing call → footer → back-to-top). The
+journey → after payment → faq → closing call → footer → back-to-top). The
 footer is `src/components/site-footer.tsx`, outside this folder, because the
 dashboard and `/about` use it too. `wordmark.tsx` is also used by
 `dashboard-nav.tsx`, `site-footer.tsx` and the not-found and error pages.

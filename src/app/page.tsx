@@ -1,6 +1,7 @@
 import { Nav } from "@/components/landing/nav";
 import { Hero } from "@/components/landing/hero";
 import { AfterPayment } from "@/components/landing/after-payment";
+import { PaymentJourney } from "@/components/landing/payment-journey";
 import { LandingClosing, LandingFaq } from "@/components/landing/sections";
 import { SiteFooter } from "@/components/site-footer";
 import { BackToTop } from "@merqo/ui";
@@ -19,6 +20,7 @@ export default async function HomePage() {
       <Nav user={navUser} />
       <main>
         <Hero />
+        <PaymentJourney />
         <AfterPayment />
         <LandingFaq />
         <LandingClosing />

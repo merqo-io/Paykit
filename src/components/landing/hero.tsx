@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Button } from "@merqo/ui/primitives";
+import { Badge, Button } from "@merqo/ui/primitives";
 
-import { QkitPhone } from "./qkit-phone";
+import { CheckoutCard } from "./checkout-card";
 import { CONTAINER } from "./rhythm";
 import { WAITLIST_URL } from "./waitlist";
 
@@ -11,6 +11,14 @@ export function Hero() {
       <div className={CONTAINER}>
         <div className="grid items-center gap-10 min-[960px]:grid-cols-[1.05fr_1fr] min-[960px]:gap-16">
           <div className="min-w-0">
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              <Badge variant="outline" className="rounded-lg">
+                In build
+              </Badge>
+              <p className="text-sm text-muted-foreground">
+                Built, not yet tried with vendors.
+              </p>
+            </div>
             <h1 className="text-balance font-display text-[clamp(40px,6vw,76px)] font-semibold leading-[1.02] tracking-[-0.02em]">
               Get paid by PayNow. Know who has paid.
             </h1>
@@ -36,12 +44,9 @@ export function Hero() {
                 <Link href="#how">See how</Link>
               </Button>
             </div>
-            <p className="mt-6 text-sm text-muted-foreground">
-              In pilot with Merqo stalls
-            </p>
           </div>
           <div className="flex min-w-0 justify-center min-[960px]:justify-end">
-            <QkitPhone />
+            <CheckoutCard />
           </div>
         </div>
       </div>
