@@ -16,6 +16,7 @@ const {
   maybeSingleMock,
   confirmedRowsMock,
   queryTransactionsMock,
+  readVendorPlanMock,
 } = vi.hoisted(() => ({
   getConfigMock: vi.fn(),
   claimedTxSummaryMock: vi.fn(),
@@ -23,6 +24,10 @@ const {
   maybeSingleMock: vi.fn(),
   confirmedRowsMock: vi.fn(),
   queryTransactionsMock: vi.fn(),
+  readVendorPlanMock: vi.fn(),
+}));
+vi.mock("@/lib/vendor-entitlement", () => ({
+  readVendorPlan: readVendorPlanMock,
 }));
 
 vi.mock("@/lib/vendor-session", () => ({
@@ -77,6 +82,7 @@ const POINTER_CONFIG: VendorPaymentConfig = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  readVendorPlanMock.mockResolvedValue("pro");
   maybeSingleMock.mockResolvedValue({
     data: { tour_seen_at: "2026-01-01T00:00:00Z" },
   });
@@ -319,6 +325,31 @@ describe("DashboardPage", () => {
     expect(
       screen.getByRole("link", { name: "View all payments" }),
     ).toHaveAttribute("href", "/dashboard/transactions");
+  });
+
+  it("links Free-plan rows to the plain ledger, since search is paid-only", async () => {
+    readVendorPlanMock.mockResolvedValue("free");
+    queryTransactionsMock.mockResolvedValue({
+      rows: [
+        {
+          id: "t1",
+          kit_slug: "qkit",
+          order_ref: "ORD-1",
+          amount_cents: 1250,
+          status: "confirmed",
+          created_at: "2026-11-27T02:00:00Z",
+        },
+      ],
+      total: 1,
+      failed: false,
+    });
+
+    render(await DashboardPage());
+
+    expect(screen.getByRole("link", { name: /12[.]50/ })).toHaveAttribute(
+      "href",
+      "/dashboard/transactions",
+    );
   });
 
   it("shows a quiet empty line when there are no payments yet", async () => {

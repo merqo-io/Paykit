@@ -6,7 +6,8 @@ import {
   confirmedSince,
   queryTransactions,
 } from "@/lib/transactions";
-import { sgtDate } from "@/lib/free-limits";
+import { isPaidPlan, sgtDate } from "@/lib/free-limits";
+import { readVendorPlan } from "@/lib/vendor-entitlement";
 import { deriveOnboarding } from "@/lib/onboarding";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { getConfig } from "./config/actions";
@@ -112,6 +113,9 @@ export default async function DashboardPage() {
         .maybeSingle(),
     ]);
 
+  // The ledger only honours `q` for paid plans, so Free rows link unfiltered.
+  const isPaid = isPaidPlan(await readVendorPlan(supabase, user.id));
+
   const onboarding = await loadOnboarding(
     supabase,
     user.id,
@@ -151,7 +155,7 @@ export default async function DashboardPage() {
 
       <OnboardingChecklist state={onboarding} />
 
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           label="Confirmed today"
           value={formatMoney(today.cents)}
@@ -203,9 +207,13 @@ export default async function DashboardPage() {
               {recent.rows.map((tx) => (
                 <li key={tx.id} className="border-b last:border-b-0">
                   <div className="relative grid min-h-11 grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 px-1 py-3">
-                    {/* No per-payment page exists yet, so a row opens the ledger filtered to its reference. */}
+                    {/* No per-payment page exists yet, so a row opens the ledger (filtered to its reference on paid plans). */}
                     <Link
-                      href={`/dashboard/transactions?q=${encodeURIComponent(tx.order_ref)}`}
+                      href={
+                        isPaid
+                          ? `/dashboard/transactions?q=${encodeURIComponent(tx.order_ref)}`
+                          : "/dashboard/transactions"
+                      }
                       className="min-w-0 truncate font-medium after:absolute after:inset-0"
                     >
                       <Money cents={tx.amount_cents} />
