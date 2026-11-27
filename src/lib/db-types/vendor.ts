@@ -29,6 +29,8 @@ export type VendorPaymentConfig = {
 export type VendorPrefs = {
   vendor_id: string;
   tour_seen_at: string | null;
+  onboarding_dismissed_at: string | null;
+  qr_previewed_at: string | null;
 };
 
 export type VendorEntitlement = {

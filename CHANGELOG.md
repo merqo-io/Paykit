@@ -8,11 +8,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- A "Get set up" checklist at the top of Home: add PayNow details, preview your QR, take and confirm a first payment (progress "N of 3"), plus a greyed optional "Coming soon" GST step. It can be dismissed, and shows a short "You're set up" state once the three steps are done. New `vendor_prefs.onboarding_dismissed_at` and `qr_previewed_at` columns (migration 0034) hold the dismissal and the first QR preview; `reopenOnboarding` clears the dismissal.
 - Design spec for the vendor dashboard's mobile-first shell, navigation and first-run onboarding (`docs/superpowers/specs/2026-11-27-p1-shell-design.md`), with page-audit screenshots. Documentation only.
 - Paging tests for `/admin/activity`: next/previous links at the page boundaries, the second page's rows, and the action and from/to filters kept in every paging link.
 
 ### Changed
 
+- The dashboard spotlight tour is retired for every vendor and its component, steps and server action are removed. `vendor_prefs.tour_seen_at` is kept and now only means "already onboarded", so existing vendors see the checklist only if their payment setup is missing; Home no longer stamps it.
 - The landing hero is now a customer's qkit phone (stall, items, total and the PayNow QR paykit makes for the order, ending in qkit's "I've paid" recorded state) instead of a generic pay page with a Waiting/Paid/Confirmed switch, and the three-step journey section is removed. The sample ledger stays.
 - The landing page now follows the Merqo public-site direction: the hero is a phone showing a sample pay page with an Awaiting payment / Marked paid / Received switch (the dashboard's labels and colours, used across the page), a three-step journey (customer pays, taps "I've paid", vendor confirms) plays as you scroll and rewinds on scroll up (a tap on its buttons plays a step too, and with reduced motion only the buttons play it), the FAQ is three rows linking to `/faq`, an "After the payment" block shows a sample payments ledger and report (labelled as sample data), and a closing call in the FAQ column carries the waitlist link. On phones each journey step shows its two screens side by side. The separate how-it-works steps and "money goes to you" sections are folded into these.
 - Repinned `@merqo/ui` to merqo-ui commit e468ecd2 (v0.61.2, from c0f1f23d / v0.61.1). The shared `/about` page now says paykit is "in pilot with Merqo stalls" instead of "in build".

@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { markQrPreviewed } from "../onboarding-actions";
 import { RadioOptionCard } from "./radio-option-card";
 import Image from "next/image";
 import QRCode from "react-qr-code";
@@ -114,6 +115,17 @@ function PayNowFields({
           reference: "PREVIEW",
         })
       : null;
+
+  // Step 2 of the Home checklist: the vendor has seen their QR render. The
+  // ref keeps this to one call per mount while they edit; the action itself
+  // keeps the first timestamp.
+  const previewStamped = useRef(false);
+  const hasPreview = previewPayload !== null;
+  useEffect(() => {
+    if (!hasPreview || previewStamped.current) return;
+    previewStamped.current = true;
+    void markQrPreviewed();
+  }, [hasPreview]);
 
   return (
     <>

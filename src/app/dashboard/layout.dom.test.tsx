@@ -31,12 +31,6 @@ vi.mock("@/lib/merqo-vendor-profile", () => ({
 vi.mock("@/app/actions/auth", () => ({
   signOutAction: vi.fn(async () => {}),
 }));
-// The onboarding tour's own auto-run/driver.js behavior is covered by
-// dashboard-tour.dom.test.tsx; stubbed here so this test stays focused on
-// layout.tsx's header composition.
-vi.mock("@/components/dashboard-tour", () => ({
-  DashboardTour: () => null,
-}));
 
 describe("DashboardLayout", () => {
   it("renders exactly one <header> landmark (@merqo/ui's DashboardNav owns it — layout.tsx must not wrap it in its own)", async () => {

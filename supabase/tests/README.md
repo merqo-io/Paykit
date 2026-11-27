@@ -49,6 +49,7 @@ _permits_.
   Keep `select plan(N)` in step with the number of assertions; pgTAP fails
   the run on a count mismatch.
 
+- `vendor-prefs-onboarding.test.sql` — the `0034` `vendor_prefs` onboarding columns exist, and a vendor can update their own row (including upsert with no row yet) but not another vendor's.
 - `db-hygiene.test.sql`, the `0027` foreign key indexes, RLS on every table, admin-only `admins` reads, own-row-only `vendor_entitlements` reads and no client access to `auth_failures`.
 
 ## Connectivity
