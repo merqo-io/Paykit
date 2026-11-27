@@ -5,7 +5,7 @@ import { useId, useState, type ReactNode } from "react";
 /**
  * One phone list row: a two-line summary that expands to reveal its detail and
  * action. The toggle button holds only the title; its `::after` stretches over
- * the whole row so the entire row is the tap target. The badge sits outside
+ * the summary (not the expanded panel, so its actions stay tappable) so the entire row is the tap target. The badge sits outside
  * the button (raised above the overlay) because status badges carry their own
  * info popover, and a button must not nest another button.
  */
@@ -26,20 +26,28 @@ export function PhoneRow({
 }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
+  const badgeId = `${panelId}-badge`;
+  const detailId = `${panelId}-detail`;
   return (
-    <li className="relative border-b last:border-b-0">
-      <div className="grid min-h-11 grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 px-1 py-3">
+    <li className="border-b last:border-b-0">
+      <div className="relative grid min-h-11 grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 px-1 py-3">
         <button
           type="button"
           aria-expanded={open}
           aria-controls={panelId}
+          aria-describedby={`${badgeId} ${detailId}`}
           onClick={() => setOpen((value) => !value)}
           className="min-w-0 truncate text-left font-medium after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-[-2px] focus-visible:after:outline-ring"
         >
           {title}
         </button>
-        <div className="relative z-10 justify-self-end">{badge}</div>
-        <div className="col-span-2 flex items-center justify-between gap-3 text-sm text-muted-foreground">
+        <div id={badgeId} className="relative z-10 justify-self-end">
+          {badge}
+        </div>
+        <div
+          id={detailId}
+          className="col-span-2 flex items-center justify-between gap-3 text-sm text-muted-foreground"
+        >
           {secondary}
         </div>
       </div>

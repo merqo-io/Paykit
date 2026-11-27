@@ -73,7 +73,7 @@ describe("TransactionTable", () => {
     it("expands to reveal the reference and the Refund action", () => {
       render(<TransactionTable transactions={[TX]} isPro={true} />);
       const list = within(screen.getByRole("list", { name: "Payments" }));
-      const toggle = list.getByRole("button", { name: "S$4.50" });
+      const toggle = list.getByRole("button", { name: /S\$4\.50/ });
       fireEvent.click(toggle);
       expect(toggle).toHaveAttribute("aria-expanded", "true");
       expect(list.getByText("A-001")).toBeInTheDocument();
@@ -83,10 +83,29 @@ describe("TransactionTable", () => {
       expect(list.queryByText("A-001")).not.toBeInTheDocument();
     });
 
+    it("keeps the Refund action outside the toggle so tapping it does not collapse the row", () => {
+      render(<TransactionTable transactions={[TX]} isPro={true} />);
+      const list = within(screen.getByRole("list", { name: "Payments" }));
+      const toggle = list.getByRole("button", { name: /S\$4\.50/ });
+      fireEvent.click(toggle);
+      const refund = list.getByRole("button", { name: /refund/i });
+      expect(toggle).not.toContainElement(refund);
+      fireEvent.click(refund);
+      expect(toggle).toHaveAttribute("aria-expanded", "true");
+    });
+
+    it("describes the toggle with the status and secondary line", () => {
+      render(<TransactionTable transactions={[TX]} isPro={true} />);
+      const list = within(screen.getByRole("list", { name: "Payments" }));
+      expect(
+        list.getByRole("button", { name: /S\$4\.50/ }),
+      ).toHaveAccessibleDescription(/Received[\s\S]*qkit/);
+    });
+
     it("offers no Refund on a Free vendor's expanded row", () => {
       render(<TransactionTable transactions={[TX]} isPro={false} />);
       const list = within(screen.getByRole("list", { name: "Payments" }));
-      fireEvent.click(list.getByRole("button", { name: "S$4.50" }));
+      fireEvent.click(list.getByRole("button", { name: /S\$4\.50/ }));
       expect(list.getByText("A-001")).toBeInTheDocument();
       expect(
         list.queryByRole("button", { name: /refund/i }),

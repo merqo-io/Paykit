@@ -37,10 +37,14 @@ const BASE_COLUMNS: DataTableColumn<Transaction>[] = [
 
 // Refunds are Pro-only, so the column exists or it doesn't — an empty cell
 // would still widen the table for a Free vendor.
+function canRefund(tx: Transaction, isPro: boolean) {
+  return isPro && tx.status === "confirmed";
+}
+
 const REFUND_COLUMN: DataTableColumn<Transaction> = {
   header: "Refund",
   cell: (tx) =>
-    tx.status === "confirmed" ? <RefundDialog transactionId={tx.id} /> : null,
+    canRefund(tx, true) ? <RefundDialog transactionId={tx.id} /> : null,
 };
 
 export function TransactionTable({
@@ -93,7 +97,7 @@ export function TransactionTable({
               <span className="text-muted-foreground">Reference </span>
               {tx.order_ref}
             </p>
-            {isPro && tx.status === "confirmed" ? (
+            {canRefund(tx, isPro) ? (
               <RefundDialog transactionId={tx.id} />
             ) : null}
           </PhoneRow>
