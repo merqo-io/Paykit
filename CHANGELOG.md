@@ -9,6 +9,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - A "Get set up" checklist at the top of Home: add PayNow details, preview your QR, take and confirm a first payment (progress "N of 3"), plus a greyed optional "Coming soon" GST step. It can be dismissed, and shows a short "You're set up" state once the three steps are done. New `vendor_prefs.onboarding_dismissed_at` and `qr_previewed_at` columns (migration 0034) hold the dismissal and the first QR preview; `reopenOnboarding` clears the dismissal.
+- Design spec for the vendor dashboard's mobile-first shell, navigation and first-run onboarding (`docs/superpowers/specs/2026-11-27-p1-shell-design.md`), with page-audit screenshots. Documentation only.
 - Paging tests for `/admin/activity`: next/previous links at the page boundaries, the second page's rows, and the action and from/to filters kept in every paging link.
 
 ### Changed
