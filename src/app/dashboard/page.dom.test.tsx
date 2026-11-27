@@ -15,12 +15,14 @@ const {
   confirmedSinceMock,
   maybeSingleMock,
   confirmedRowsMock,
+  queryTransactionsMock,
 } = vi.hoisted(() => ({
   getConfigMock: vi.fn(),
   claimedTxSummaryMock: vi.fn(),
   confirmedSinceMock: vi.fn(),
   maybeSingleMock: vi.fn(),
   confirmedRowsMock: vi.fn(),
+  queryTransactionsMock: vi.fn(),
 }));
 
 vi.mock("@/lib/vendor-session", () => ({
@@ -47,6 +49,7 @@ vi.mock("./config/actions", () => ({
 vi.mock("@/lib/transactions", () => ({
   claimedTxSummary: claimedTxSummaryMock,
   confirmedSince: confirmedSinceMock,
+  queryTransactions: queryTransactionsMock,
 }));
 
 const PAYNOW_CONFIG: VendorPaymentConfig = {
@@ -81,6 +84,11 @@ beforeEach(() => {
   getConfigMock.mockResolvedValue(PAYNOW_CONFIG);
   claimedTxSummaryMock.mockResolvedValue({ count: 0, cents: 0 });
   confirmedSinceMock.mockResolvedValue({ count: 0, cents: 0 });
+  queryTransactionsMock.mockResolvedValue({
+    rows: [],
+    total: 0,
+    failed: false,
+  });
 });
 
 describe("DashboardPage", () => {
@@ -142,7 +150,9 @@ describe("DashboardPage", () => {
   });
 
   it("shows this month's confirmed amount next to the count", async () => {
-    confirmedSinceMock.mockResolvedValue({ count: 1, cents: 123450 });
+    confirmedSinceMock
+      .mockResolvedValueOnce({ count: 1, cents: 123450 })
+      .mockResolvedValueOnce({ count: 0, cents: 0 });
 
     render(await DashboardPage());
 
@@ -259,5 +269,64 @@ describe("DashboardPage", () => {
     render(await DashboardPage());
 
     expect(screen.getByText("Get set up")).toBeInTheDocument();
+  });
+
+  it("starts today at midnight Singapore time for the Confirmed today card", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-02T20:00:00Z"));
+    try {
+      render(await DashboardPage());
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(confirmedSinceMock).toHaveBeenCalledWith(
+      "v1",
+      "2026-11-02T16:00:00.000Z",
+    );
+    expect(screen.getByText("Confirmed today")).toBeInTheDocument();
+  });
+
+  it("lists recent payments linking to the ledger, with a View all link", async () => {
+    queryTransactionsMock.mockResolvedValue({
+      rows: [
+        {
+          id: "t1",
+          kit_slug: "qkit",
+          order_ref: "ORD-1",
+          amount_cents: 1250,
+          status: "confirmed",
+          created_at: "2026-11-27T02:00:00Z",
+        },
+      ],
+      total: 1,
+      failed: false,
+    });
+
+    render(await DashboardPage());
+
+    expect(queryTransactionsMock).toHaveBeenCalledWith("v1", {
+      page: 1,
+      pageSize: 5,
+    });
+    expect(
+      screen.getByRole("heading", { name: "Recent payments" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /12\.50/ })).toHaveAttribute(
+      "href",
+      "/dashboard/transactions?q=ORD-1",
+    );
+    expect(
+      screen.getByRole("link", { name: "View all payments" }),
+    ).toHaveAttribute("href", "/dashboard/transactions");
+  });
+
+  it("shows a quiet empty line when there are no payments yet", async () => {
+    render(await DashboardPage());
+
+    expect(screen.getByText("No payments yet.")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "View all payments" }),
+    ).not.toBeInTheDocument();
   });
 });
