@@ -54,7 +54,7 @@ for page render/data failures; it offers "Try again" and a "Back to dashboard" l
 - `profile/` saves shared stall name/social links and Supabase account metadata.
 - `layout.tsx` labels the account menu with `accountLabel(user, stall_name)` from `@merqo/ui`: the stall name, else the auth name, else the email local part.
 
-`page.tsx` (Home) renders the "Get set up" checklist above the summary, from
+`page.tsx` (Home, titled "Home") renders the "Get set up" checklist above the summary, from
 `lib/onboarding.ts`: step 1 is a payment config row, step 2 is
 `vendor_prefs.qr_previewed_at`, step 3 is any `confirmed` transaction.
 `onboarding-actions.ts` holds the writes: `dismissOnboarding`, `reopenOnboarding`
