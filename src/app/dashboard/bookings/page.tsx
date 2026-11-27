@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { PageHeader } from "@merqo/ui";
+import { PageShell } from "@/components/page-shell";
 import { getVendorSession } from "@/lib/vendor-session";
 import { pathWithSearch } from "@/lib/return-to";
 import { searchBookings } from "@/lib/bookings";
@@ -46,14 +46,11 @@ export default async function BookingsPage({
   const filtered = hasActiveFilters(params);
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <PageHeader
-        responsive
-        title="Bookings"
-        description="Deposit now, balance later, for events booked ahead."
-        action={<NewBookingDialog />}
-      />
-
+    <PageShell
+      title="Bookings"
+      description="Deposit now, balance later, for events booked ahead."
+      action={<NewBookingDialog />}
+    >
       <section aria-labelledby="inquiries-heading">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="inquiries-heading" className="text-lg font-semibold">
@@ -98,6 +95,6 @@ export default async function BookingsPage({
           />
         )}
       </section>
-    </div>
+    </PageShell>
   );
 }

@@ -127,7 +127,7 @@ shared `DataTable` instead of a hand-rolled `<table>`/shadcn `Table` — same
 columns and cell content, just the shared shell. Because `DataTable` ships
 as a Client Component, `/admin/vendors` renders it through a `"use client"`
 `VendorsTable` wrapper (`src/app/admin/vendors/README.md`) so its `cell`/
-`getRowKey` function props never cross the Server → Client boundary directly. The dashboard nav's
+`getRowKey` function props never cross the Server → Client boundary directly. Below 640px the Payments, Bookings and Inquiries tables reflow into tap-to-expand phone list rows (`src/components/list/phone-row.tsx`) by CSS alone; the tables are unchanged from 640px up. The dashboard nav's
 account menu also passes `switchKits` via `@merqo/ui`'s `getSwitchKits("paykit")`
 helper (qkit/loopkit/stockkit, resolved to their real `<kit>.merqo.io`
 domains as of v0.14.1 — v0.14.0 had pointed at each kit's `-sg.vercel.app`

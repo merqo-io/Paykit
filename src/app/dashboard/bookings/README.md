@@ -59,8 +59,9 @@ form derives balance until the vendor edits it; the server always validates
 that deposit plus balance equals total. `booking-badges.tsx` shares status and
 due indicators with the detail view; its status chip is the same `StatusBadge`
 as the payment status, with sentence-case labels. An empty list renders the
-shared dashed `EmptyState`, and the table scrolls inside its own wrapper on
-narrow screens.
+shared dashed `EmptyState`. Below 640px the booking and inquiry tables are
+replaced (CSS only) by `PhoneList` rows: name + status, date + total, tap to expand
+the balance indicator and a View link; the tables show from `sm` up.
 
 `[id]/` displays payment instructions, deposit recovery, balance creation,
 cancel/reschedule, copy-ID and print controls. The booking ID is the value a
