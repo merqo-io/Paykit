@@ -110,7 +110,7 @@ export default async function DashboardPage() {
   if (!config) {
     return (
       <div className="mx-auto max-w-lg">
-        <PageHeader responsive title="Payments" />
+        <PageHeader responsive title="Home" />
         <OnboardingChecklist state={onboarding} />
         <section className="space-y-3">
           <h2 className="text-xl font-semibold">
@@ -135,7 +135,7 @@ export default async function DashboardPage() {
   const methodSummary = paymentMethodSummary(config);
   return (
     <div>
-      <PageHeader responsive title="Payments" />
+      <PageHeader responsive title="Home" />
 
       <OnboardingChecklist state={onboarding} />
 

@@ -121,6 +121,20 @@ describe("DashboardPage", () => {
     );
   });
 
+  it("titles the page Home, matching its nav label", async () => {
+    getConfigMock.mockResolvedValue(null);
+    const { unmount } = render(await DashboardPage());
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Home" }),
+    ).toBeInTheDocument();
+    unmount();
+
+    render(await DashboardPage());
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Home" }),
+    ).toBeInTheDocument();
+  });
+
   it("has no eyebrow above the title", async () => {
     render(await DashboardPage());
 

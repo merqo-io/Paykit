@@ -27,6 +27,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- The Home page heading now reads "Home" (it said "Payments"), and on a phone the More tab is marked as the current page while you are on Payment setup, Profile or Plan.
 - The plan page's "Change plan in your Merqo account" link now goes to merqo's `/dashboard` (the vendor dashboard with each kit's plan card) instead of `/account`, which does not exist and returned a 404.
 - A Free vendor's claimed payments (customer marked paid, waiting for the vendor to confirm) older than 30 days are now listed on Payments, in All and under `?status=claimed`, so the dashboard's "Review these payments" count and the list agree. Other payments stay limited to the last 30 days, and the "older payments" note no longer counts claimed rows. Paid plans are unchanged.
 - A vendor with stale terms no longer lands on `/legal/accept?reason=unavailable` when the legal cache has expired: the status re-read now bypasses Next's fetch memoization, so it sees the fresh answer instead of the pre-check row.

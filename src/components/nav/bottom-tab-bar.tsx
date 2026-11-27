@@ -74,6 +74,7 @@ export function BottomTabBar({
             type="button"
             aria-haspopup="dialog"
             aria-expanded={moreOpen}
+            aria-current={moreActive ? "page" : undefined}
             onClick={onMoreClick}
             style={{ minHeight: TAB_BAR_HEIGHT }}
             className={cn(TAB_CLASS, tabTone(moreActive || moreOpen))}

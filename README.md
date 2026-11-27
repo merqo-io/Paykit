@@ -70,7 +70,7 @@ a view over existing data, not a new invoice/receipt subsystem.
 In production, the Supabase auth cookie is scoped to `.merqo.io`
 (`NEXT_PUBLIC_AUTH_COOKIE_DOMAIN`, `src/lib/supabase/`), so signing in on
 one merqo kit signs you in on the rest. First-run onboarding is a "Get set up"
-checklist at the top of Home (`src/components/onboarding-checklist.tsx`,
+checklist at the top of Home (titled "Home"; on phones the bottom bar's More tab is marked current on its sheet's pages) (`src/components/onboarding-checklist.tsx`,
 state from `src/lib/onboarding.ts`) instead of the old spotlight tour, which
 Paykit no longer mounts. The transaction status badge
 (`src/app/dashboard/transactions/transaction-status-badge.tsx`, built
