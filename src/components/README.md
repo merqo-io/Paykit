@@ -15,6 +15,16 @@ Paykit-specific client adapters and presentation. Shared controls live in
   with its focus ring). Covered by `list-error.dom.test.tsx` and `url-pager.dom.test.tsx`.
 - Dashboard page chrome (`PageHeader`, `EmptyState`) and the navigation plan chip
   (`TierChip`) come from `@merqo/ui`; there are no local copies.
+- `nav/` — dashboard navigation pieces that import nothing paykit-specific, so
+  they can move to `@merqo/ui` later: `BottomTabBar` (phone, fixed, safe-area
+  aware, badge, More trigger), `SideRail` (`lg` and up) and `MoreSheet`
+  (bottom sheet of setup pages and legal links). They take `NavLinkItem`s;
+  `app/dashboard/dashboard-nav.tsx` builds those from `lib/nav.ts`.
+  Covered by `nav.dom.test.tsx`.
+- `page-shell.tsx` — `PageShell`, the dashboard page frame around `@merqo/ui`'s
+  `PageHeader`: title, description, optional sub-tabs, `max-w-5xl` (list) or
+  `max-w-2xl` (form) width, and an action beside the title from `sm` that is
+  anchored above the tab bar on phones.
 - `site-footer.tsx` — `SiteFooter({ showSignIn })`, paykit's copy of the
   family footer: `@merqo/ui`'s `Footer` with the paykit wordmark (linking to
   `/`), the tagline "A shared payment setup for merqo vendors." and `kitName`.

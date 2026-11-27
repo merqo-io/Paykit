@@ -6,6 +6,8 @@ provide authorization.
 
 ## Contracts
 
+- `nav.ts` is the dashboard's single nav config (key, label, icon, href, tier, placement, `showWhen`) plus pure helpers (`navItems`, `isActivePath`, `isLocked`, `tourAnchor`). The phone tab bar, the `lg` rail and the More sheet all read it; `nav.test.ts` covers it.
+
 - `schemas.ts` validates dashboard forms and actions; `api-schemas.ts` validates
   the peer-kit API. Monetary values are integer cents. `types.ts` is a type-only barrel over `db-types/`, which mirrors the
   migration schema and RPC signatures: `database.ts` holds the `Database`

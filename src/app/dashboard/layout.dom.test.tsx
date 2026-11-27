@@ -28,6 +28,9 @@ vi.mock("@/lib/merqo-vendor-profile", () => ({
     social_links: {},
   })),
 }));
+vi.mock("@/lib/transactions", () => ({
+  claimedTxSummary: vi.fn(async () => ({ count: 4, cents: 1200 })),
+}));
 vi.mock("@/app/actions/auth", () => ({
   signOutAction: vi.fn(async () => {}),
 }));
@@ -55,12 +58,39 @@ describe("DashboardLayout", () => {
     expect(header?.parentElement).toHaveClass("contents", "print:hidden");
   });
 
+  it("hides the footer on phones and in print", async () => {
+    const jsx = await DashboardLayout({ children: <div>page content</div> });
+    const { container } = render(jsx);
+
+    expect(container.querySelector("footer")?.parentElement).toHaveClass(
+      "hidden",
+      "sm:contents",
+      "print:hidden",
+    );
+  });
+
+  it("mounts the phone tab bar with the waiting-payments badge, and the rail", async () => {
+    const jsx = await DashboardLayout({ children: <div>page content</div> });
+    render(jsx);
+
+    expect(
+      screen.getByRole("navigation", { name: "Primary" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: /Payments, 4 waiting to confirm/ })
+        .length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("navigation", { name: "Sections" }),
+    ).toBeInTheDocument();
+  });
+
   it("ends with the family footer, hidden in print, without a sign-in link", async () => {
     const jsx = await DashboardLayout({ children: <div>page content</div> });
     const { container } = render(jsx);
 
     const footer = container.querySelector("footer");
-    expect(footer?.parentElement).toHaveClass("contents", "print:hidden");
+    expect(footer?.parentElement).toHaveClass("sm:contents", "print:hidden");
     expect(
       screen.queryByRole("link", { name: "Vendor sign in →" }),
     ).not.toBeInTheDocument();

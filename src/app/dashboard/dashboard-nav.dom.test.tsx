@@ -52,6 +52,13 @@ describe("DashboardNav", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("renders no burger: phones navigate through the bottom tab bar", () => {
+    render(<DashboardNav {...baseProps} />);
+    expect(
+      screen.queryByRole("button", { name: /mobile navigation menu/i }),
+    ).not.toBeInTheDocument();
+  });
+
   it("links the wordmark to the dashboard home", () => {
     render(<DashboardNav {...baseProps} />);
     expect(
@@ -61,9 +68,6 @@ describe("DashboardNav", () => {
 
   it("exposes data-tour anchors for the onboarding tour", () => {
     render(<DashboardNav {...baseProps} />);
-    expect(
-      screen.getByRole("button", { name: /mobile navigation menu/i }),
-    ).toHaveAttribute("data-tour", "nav-menu");
     expect(
       screen.getByRole("button", { name: /account menu/i }),
     ).toHaveAttribute("data-tour", "nav-account");

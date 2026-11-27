@@ -1,6 +1,7 @@
 "use client";
 import { Wordmark } from "@/components/landing/wordmark";
 
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -12,22 +13,111 @@ import type { SupportMessageInput } from "@/lib/schemas";
 import { SUPPORT_CATEGORY_LABELS } from "@/lib/schemas";
 import { submitFeedbackAction } from "@/app/actions/feedback";
 import { submitSupportMessageAction } from "@/app/actions/support";
+import {
+  isActivePath,
+  isLocked,
+  isMoreActive,
+  navItems,
+  tourAnchor,
+  type NavItem,
+} from "@/lib/nav";
+import { BottomTabBar } from "@/components/nav/bottom-tab-bar";
+import { MoreSheet } from "@/components/nav/more-sheet";
+import { SideRail } from "@/components/nav/side-rail";
+import type { NavLinkItem } from "@/components/nav/types";
 
 type Tier = "free" | "pro";
 
-const LINKS = [
-  { href: "/dashboard/transactions", label: "Payments" },
-  { href: "/dashboard/bookings", label: "Bookings" },
-  { href: "/dashboard/reports", label: "Reports" },
-];
+// Inline top-bar links duplicate the rail, so they step aside at `lg`.
+const LG_QUERY = "(min-width: 1024px)";
 
-function isActive(path: string, href: string): boolean {
-  return href === "/dashboard" ? path === "/dashboard" : path.startsWith(href);
+function subscribeLg(onChange: () => void): () => void {
+  if (typeof window.matchMedia !== "function") return () => {};
+  const mql = window.matchMedia(LG_QUERY);
+  mql.addEventListener("change", onChange);
+  return () => mql.removeEventListener("change", onChange);
 }
 
-/** Stable anchor id for the onboarding tour, e.g. "/dashboard/transactions" -> "nav-transactions". */
-function tourAnchor(href: string): string {
-  return `nav-${href === "/dashboard" ? "dashboard" : href.split("/").pop()}`;
+function useIsLg(): boolean {
+  return useSyncExternalStore(
+    subscribeLg,
+    () =>
+      typeof window.matchMedia === "function" &&
+      window.matchMedia(LG_QUERY).matches,
+    () => false,
+  );
+}
+
+function toLinkItem(
+  item: NavItem,
+  plan: Tier,
+  waitingCount: number,
+): NavLinkItem {
+  return {
+    key: item.key,
+    label: item.label,
+    href: item.href,
+    icon: item.icon,
+    badge: item.key === "payments" ? waitingCount : undefined,
+    badgeLabel: item.key === "payments" ? "waiting to confirm" : undefined,
+    chip: isLocked(item, { plan }) ? <TierChip tier={item.tier} /> : undefined,
+  };
+}
+
+/** Phone tab bar plus its More sheet; lives in the layout so it never remounts on navigation. */
+export function DashboardTabBar({
+  plan,
+  waitingCount,
+}: {
+  plan: Tier;
+  waitingCount: number;
+}) {
+  const path = usePathname();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const ctx = { plan };
+  const isActive = (href: string) => isActivePath(path, href);
+  return (
+    <>
+      <BottomTabBar
+        items={navItems("primary", ctx).map((i) =>
+          toLinkItem(i, plan, waitingCount),
+        )}
+        isActive={isActive}
+        moreActive={isMoreActive(path, ctx)}
+        moreOpen={moreOpen}
+        onMoreClick={() => setMoreOpen(true)}
+      />
+      <MoreSheet
+        open={moreOpen}
+        onOpenChange={setMoreOpen}
+        items={navItems("more", ctx).map((i) =>
+          toLinkItem(i, plan, waitingCount),
+        )}
+        isActive={isActive}
+      />
+    </>
+  );
+}
+
+/** Desktop left rail (`lg` and up). */
+export function DashboardRail({
+  plan,
+  waitingCount,
+}: {
+  plan: Tier;
+  waitingCount: number;
+}) {
+  const path = usePathname();
+  const isLg = useIsLg();
+  const ctx = { plan };
+  const items = [...navItems("primary", ctx), ...navItems("more", ctx)];
+  return (
+    <SideRail
+      items={items.map((i) => toLinkItem(i, plan, waitingCount))}
+      isActive={(href) => isActivePath(path, href)}
+      anchorFor={isLg ? tourAnchor : undefined}
+    />
+  );
 }
 
 // Category list/labels for the nav's Get-help sheet.
@@ -54,7 +144,8 @@ function isHelpCategory(
 
 /**
  * Dashboard nav — composes `@merqo/ui`'s `DashboardNav`/`AccountMenu` for the
- * sticky header row (burger + inline links + account dropdown) instead of
+ * sticky header row (inline links from `sm` + account dropdown; no burger,
+ * the phone navigates through the bottom tab bar) instead of
  * hand-rolling it. This file now owns only paykit-specific bits: the
  * wordmark, the link list, active-route/tour-anchor logic, the tier badge,
  * and thin throw-adapting wrappers around
@@ -75,6 +166,12 @@ export function DashboardNav({
   plan: Tier;
 }) {
   const path = usePathname();
+  const isLg = useIsLg();
+  const inlineLinks = isLg
+    ? []
+    : navItems("primary", { plan })
+        .filter((i) => i.key !== "home")
+        .map((i) => ({ href: i.href, label: i.label }));
 
   return (
     <SharedDashboardNav
@@ -87,8 +184,9 @@ export function DashboardNav({
           <Wordmark className="text-3xl" />
         </Link>
       }
-      navLinks={LINKS}
-      isActiveHref={(href) => isActive(path, href)}
+      navLinks={inlineLinks}
+      mobileNav="none"
+      isActiveHref={(href) => isActivePath(path, href)}
       tourAnchor={tourAnchor}
       vendor={{
         name: vendorName,
