@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Check, X } from "lucide-react";
 import { dismissOnboarding } from "@/app/dashboard/onboarding-actions";
@@ -82,6 +82,15 @@ function StepRow({ step }: { step: OnboardingStep }) {
 
 export function OnboardingChecklist({ state }: { state: OnboardingState }) {
   const [dismissed, setDismissed] = useState(false);
+  const autoDismissed = useRef(false);
+
+  // The set-up state is a one-time congratulation: recording the dismissal on
+  // first render means the next Home load hides it without a click.
+  useEffect(() => {
+    if (state.mode !== "complete" || autoDismissed.current) return;
+    autoDismissed.current = true;
+    void dismissOnboarding();
+  }, [state.mode]);
 
   if (state.mode === "hidden" || dismissed) return null;
 

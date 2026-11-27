@@ -39,6 +39,22 @@ with upd as (
    where vendor_id = '10000000-0000-4000-8000-0000000000f2'
   returning 1)
 select is((select count(*)::int from upd), 0, 'a vendor cannot update another vendor''s onboarding columns');
+
+-- The app writes through an upsert, which must also work when the vendor has
+-- no vendor_prefs row yet.
+delete from paykit.vendor_prefs where vendor_id = '10000000-0000-4000-8000-0000000000f1';
+select lives_ok(
+  $$insert into paykit.vendor_prefs (vendor_id, onboarding_dismissed_at)
+    values ('10000000-0000-4000-8000-0000000000f1', now())
+    on conflict (vendor_id) do update set onboarding_dismissed_at = excluded.onboarding_dismissed_at$$,
+  'a vendor can upsert their own row when none exists');
+
+select throws_ok(
+  $$insert into paykit.vendor_prefs (vendor_id, onboarding_dismissed_at)
+    values ('10000000-0000-4000-8000-0000000000f2', now())
+    on conflict (vendor_id) do update set onboarding_dismissed_at = excluded.onboarding_dismissed_at$$,
+  '42501', null,
+  'a vendor cannot upsert another vendor''s row');
 reset role;
 
 select is(

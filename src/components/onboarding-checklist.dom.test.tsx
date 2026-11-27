@@ -112,6 +112,24 @@ describe("OnboardingChecklist", () => {
       screen.getByRole("button", { name: "Dismiss setup guide" }),
     );
     expect(screen.queryByText("You're set up")).not.toBeInTheDocument();
+  });
+
+  it("records the dismissal once when the set-up state first renders", () => {
+    const done = deriveOnboarding({
+      ...FRESH,
+      hasConfig: true,
+      qrPreviewedAt: "2026-01-01T00:00:00Z",
+      hasConfirmedPayment: true,
+    });
+    const { rerender } = render(<OnboardingChecklist state={done} />);
+    rerender(<OnboardingChecklist state={{ ...done }} />);
+
     expect(dismissMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not auto-dismiss while the list is still showing", () => {
+    render(<OnboardingChecklist state={deriveOnboarding(FRESH)} />);
+
+    expect(dismissMock).not.toHaveBeenCalled();
   });
 });
