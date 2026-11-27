@@ -338,7 +338,9 @@ how it's wired together. See
 `docs/superpowers/specs/2026-07-15-paykit-mvp-design.md` for the original
 approved design and `docs/superpowers/plans/2026-07-15-paykit-mvp.md` for
 its implementation plan — later work has its own dated specs/plans under
-the same `docs/superpowers/` folders.
+the same `docs/superpowers/` folders. The mobile-first shell, navigation and
+first-run onboarding design is `docs/superpowers/specs/2026-11-27-p1-shell-design.md`;
+its desktop baseline screenshots sit in `docs/superpowers/specs/assets/p1-shell/`.
 
 Source lives in the `merqo-io` GitHub organization (`github.com/merqo-io/paykit`); `@merqo/ui` installs from `github:merqo-io/merqo-ui`.
 
