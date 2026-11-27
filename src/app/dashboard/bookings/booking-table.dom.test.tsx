@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { BookingTable } from "./booking-table";
 import type { Booking } from "@/lib/types";
 
@@ -26,8 +26,12 @@ describe("BookingTable", () => {
     render(<BookingTable bookings={[BOOKING]} />);
     const link = screen.getByRole("link", { name: "Jane Tan" });
     expect(link).toHaveAttribute("href", "/dashboard/bookings/b1");
-    expect(screen.getByText("S$1,000.00")).toBeInTheDocument();
-    expect(screen.getByText("Awaiting deposit")).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("table")).getByText("S$1,000.00"),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("table")).getByText("Awaiting deposit"),
+    ).toBeInTheDocument();
   });
 
   it("shows an empty state with no bookings", () => {
@@ -53,5 +57,25 @@ describe("BookingTable", () => {
     );
     const row = screen.getByRole("row", { name: /jane tan/i });
     expect(within(row).getByText(/balance due in/i)).toBeInTheDocument();
+  });
+
+  describe("phone list", () => {
+    it("shows name, status, date and total, then expands to the detail link", () => {
+      render(<BookingTable bookings={[BOOKING]} />);
+      const list = within(screen.getByRole("list", { name: "Bookings" }));
+      expect(list.getByText("Jane Tan")).toBeInTheDocument();
+      expect(list.getByText("Awaiting deposit")).toBeInTheDocument();
+      expect(list.getByText("S$1,000.00")).toBeInTheDocument();
+      expect(
+        list.queryByRole("link", { name: /view booking/i }),
+      ).not.toBeInTheDocument();
+      const toggle = list.getByRole("button", { name: "Jane Tan" });
+      fireEvent.click(toggle);
+      expect(toggle).toHaveAttribute("aria-expanded", "true");
+      expect(list.getByRole("link", { name: /view booking/i })).toHaveAttribute(
+        "href",
+        "/dashboard/bookings/b1",
+      );
+    });
   });
 });

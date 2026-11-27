@@ -8,6 +8,7 @@ import {
   Timestamp,
   type DataTableColumn,
 } from "@merqo/ui";
+import { PhoneList, PhoneRow } from "@/components/list/phone-row";
 import { RefundDialog } from "./refund-dialog";
 import { TransactionStatusBadge } from "./transaction-status-badge";
 import type { Transaction } from "@/lib/types";
@@ -74,12 +75,37 @@ export function TransactionTable({
     );
   }
   return (
-    <div className="min-w-0 overflow-x-auto">
-      <DataTable
-        rows={transactions}
-        columns={isPro ? [...BASE_COLUMNS, REFUND_COLUMN] : BASE_COLUMNS}
-        getRowKey={(tx) => tx.id}
-      />
-    </div>
+    <>
+      <PhoneList label="Payments">
+        {transactions.map((tx) => (
+          <PhoneRow
+            key={tx.id}
+            title={<Money cents={tx.amount_cents} />}
+            badge={<TransactionStatusBadge status={tx.status} />}
+            secondary={
+              <>
+                <span>{tx.kit_slug}</span>
+                <Timestamp value={tx.created_at} variant="date" />
+              </>
+            }
+          >
+            <p>
+              <span className="text-muted-foreground">Reference </span>
+              {tx.order_ref}
+            </p>
+            {isPro && tx.status === "confirmed" ? (
+              <RefundDialog transactionId={tx.id} />
+            ) : null}
+          </PhoneRow>
+        ))}
+      </PhoneList>
+      <div className="hidden min-w-0 overflow-x-auto sm:block">
+        <DataTable
+          rows={transactions}
+          columns={isPro ? [...BASE_COLUMNS, REFUND_COLUMN] : BASE_COLUMNS}
+          getRowKey={(tx) => tx.id}
+        />
+      </div>
+    </>
   );
 }

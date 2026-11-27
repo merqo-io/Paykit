@@ -8,6 +8,7 @@ import {
   Timestamp,
   type DataTableColumn,
 } from "@merqo/ui";
+import { PhoneList, PhoneRow } from "@/components/list/phone-row";
 import { BookingStatusBadge, BalanceDueIndicator } from "./booking-badges";
 import type { Booking } from "@/lib/types";
 
@@ -78,12 +79,37 @@ export function BookingTable({
     );
   }
   return (
-    <div className="min-w-0 overflow-x-auto">
-      <DataTable
-        rows={bookings}
-        columns={columns}
-        getRowKey={(booking) => booking.id}
-      />
-    </div>
+    <>
+      <PhoneList label="Bookings">
+        {bookings.map((booking) => (
+          <PhoneRow
+            key={booking.id}
+            title={booking.customer_name}
+            badge={<BookingStatusBadge status={booking.status} />}
+            secondary={
+              <>
+                <Timestamp value={booking.event_date} variant="date" />
+                <Money cents={booking.total_amount_cents} />
+              </>
+            }
+          >
+            <BalanceDueIndicator booking={booking} />
+            <Link
+              href={`/dashboard/bookings/${booking.id}`}
+              className="inline-flex min-h-11 items-center font-medium underline underline-offset-4"
+            >
+              View booking
+            </Link>
+          </PhoneRow>
+        ))}
+      </PhoneList>
+      <div className="hidden min-w-0 overflow-x-auto sm:block">
+        <DataTable
+          rows={bookings}
+          columns={columns}
+          getRowKey={(booking) => booking.id}
+        />
+      </div>
+    </>
   );
 }

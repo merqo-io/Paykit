@@ -97,7 +97,7 @@ describe("BookingsPage", () => {
       "href",
       "/dashboard/bookings/inquiries/i1",
     );
-    expect(screen.getByText("Inquiry")).toBeInTheDocument();
+    expect(screen.getAllByText("Inquiry")).toHaveLength(2);
     expect(screen.getByText("Not given")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Set up inquiry form" }),
@@ -145,7 +145,7 @@ describe("BookingsPage", () => {
     });
     const jsx = await BookingsPage(PAGE_PROPS);
     render(jsx);
-    expect(screen.getByText("Jane Tan")).toBeInTheDocument();
+    expect(screen.getAllByText("Jane Tan").length).toBeGreaterThan(0);
     expect(searchBookingsMock).toHaveBeenCalledWith(
       "v1",
       expect.objectContaining({ page: 1 }),

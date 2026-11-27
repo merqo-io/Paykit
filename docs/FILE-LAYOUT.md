@@ -13,7 +13,7 @@ src/components/page-shell.tsx     — PageShell: title/description/action frame 
 src/components/onboarding-checklist.tsx — "Get set up" card on Home (progress, step links, dismiss, set-up state)
 src/app/dashboard/onboarding-actions.ts — best-effort writes: dismissOnboarding, reopenOnboarding, markQrPreviewed
 src/lib/onboarding.ts             — pure deriveOnboarding(): step state and card visibility
-src/components/list/              — shared list-page pieces: ListError, UrlPager (link pager), FILTER_SELECT_CLASS
+src/components/list/              — shared list-page pieces: ListError, UrlPager (link pager), PhoneRow/PhoneList (phone list rows), FILTER_SELECT_CLASS
 src/proxy.ts                      — Supabase session refresh + /dashboard guard (Next 16)
 src/lib/supabase/                 — browser / server / service clients + mw helper (schema=paykit)
 src/lib/payments/paynow.ts        — EMVCo PayNow QR builder (ported verbatim from qkit)
