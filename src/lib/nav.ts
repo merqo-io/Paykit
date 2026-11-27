@@ -115,11 +115,6 @@ export function isActivePath(path: string, href: string): boolean {
   return path === href || path.startsWith(`${href}/`);
 }
 
-/** Anchor id the onboarding tour targets, e.g. "/dashboard/transactions" -> "nav-transactions". */
-export function tourAnchor(href: string): string {
-  return `nav-${href === "/dashboard" ? "dashboard" : href.split("/").pop()}`;
-}
-
 /** The More trigger reads as current on any page the sheet owns. */
 export function isMoreActive(path: string, ctx: NavContext): boolean {
   return navItems("more", ctx).some((item) => isActivePath(path, item.href));

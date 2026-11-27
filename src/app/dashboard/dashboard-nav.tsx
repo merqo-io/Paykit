@@ -1,9 +1,9 @@
 "use client";
 import { Wordmark } from "@/components/landing/wordmark";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   DashboardNav as SharedDashboardNav,
   getSwitchKits,
@@ -13,12 +13,12 @@ import type { SupportMessageInput } from "@/lib/schemas";
 import { SUPPORT_CATEGORY_LABELS } from "@/lib/schemas";
 import { submitFeedbackAction } from "@/app/actions/feedback";
 import { submitSupportMessageAction } from "@/app/actions/support";
+import { reopenOnboarding } from "@/app/dashboard/onboarding-actions";
 import {
   isActivePath,
   isLocked,
   isMoreActive,
   navItems,
-  tourAnchor,
   type NavItem,
 } from "@/lib/nav";
 import { BottomTabBar } from "@/components/nav/bottom-tab-bar";
@@ -27,26 +27,6 @@ import { SideRail } from "@/components/nav/side-rail";
 import type { NavLinkItem } from "@/components/nav/types";
 
 type Tier = "free" | "pro";
-
-// Inline top-bar links duplicate the rail, so they step aside at `lg`.
-const LG_QUERY = "(min-width: 1024px)";
-
-function subscribeLg(onChange: () => void): () => void {
-  if (typeof window.matchMedia !== "function") return () => {};
-  const mql = window.matchMedia(LG_QUERY);
-  mql.addEventListener("change", onChange);
-  return () => mql.removeEventListener("change", onChange);
-}
-
-function useIsLg(): boolean {
-  return useSyncExternalStore(
-    subscribeLg,
-    () =>
-      typeof window.matchMedia === "function" &&
-      window.matchMedia(LG_QUERY).matches,
-    () => false,
-  );
-}
 
 function toLinkItem(
   item: NavItem,
@@ -73,6 +53,7 @@ export function DashboardTabBar({
   waitingCount: number;
 }) {
   const path = usePathname();
+  const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const ctx = { plan };
   const isActive = (href: string) => isActivePath(path, href);
@@ -94,6 +75,10 @@ export function DashboardTabBar({
           toLinkItem(i, plan, waitingCount),
         )}
         isActive={isActive}
+        onSetupGuide={async () => {
+          await reopenOnboarding();
+          router.push("/dashboard");
+        }}
       />
     </>
   );
@@ -108,14 +93,12 @@ export function DashboardRail({
   waitingCount: number;
 }) {
   const path = usePathname();
-  const isLg = useIsLg();
   const ctx = { plan };
   const items = [...navItems("primary", ctx), ...navItems("more", ctx)];
   return (
     <SideRail
       items={items.map((i) => toLinkItem(i, plan, waitingCount))}
       isActive={(href) => isActivePath(path, href)}
-      anchorFor={isLg ? tourAnchor : undefined}
     />
   );
 }
@@ -144,10 +127,10 @@ function isHelpCategory(
 
 /**
  * Dashboard nav — composes `@merqo/ui`'s `DashboardNav`/`AccountMenu` for the
- * sticky header row (inline links from `sm` + account dropdown; no burger,
- * the phone navigates through the bottom tab bar) instead of
+ * sticky header row (account dropdown only; no inline links and no burger,
+ * the tab bar below `lg` and the rail from `lg` carry navigation) instead of
  * hand-rolling it. This file now owns only paykit-specific bits: the
- * wordmark, the link list, active-route/tour-anchor logic, the tier badge,
+ * wordmark, the link list, active-route logic, the tier badge,
  * and thin throw-adapting wrappers around
  * `submitFeedbackAction`/`submitSupportMessageAction` (both return a
  * `{success, error}` result rather than throwing, but the shared
@@ -166,13 +149,6 @@ export function DashboardNav({
   plan: Tier;
 }) {
   const path = usePathname();
-  const isLg = useIsLg();
-  const inlineLinks = isLg
-    ? []
-    : navItems("primary", { plan })
-        .filter((i) => i.key !== "home")
-        .map((i) => ({ href: i.href, label: i.label }));
-
   return (
     <SharedDashboardNav
       wordmark={
@@ -184,10 +160,9 @@ export function DashboardNav({
           <Wordmark className="text-3xl" />
         </Link>
       }
-      navLinks={inlineLinks}
+      navLinks={[]}
       mobileNav="none"
       isActiveHref={(href) => isActivePath(path, href)}
-      tourAnchor={tourAnchor}
       vendor={{
         name: vendorName,
         avatarUrl: avatarUrl ?? undefined,

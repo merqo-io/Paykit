@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CreditCard, Home } from "lucide-react";
 import { BottomTabBar } from "./bottom-tab-bar";
@@ -29,10 +29,10 @@ describe("BottomTabBar", () => {
     onMoreClick: vi.fn(),
   };
 
-  it("shows each item plus More, hidden from sm up and in print", () => {
+  it("shows each item plus More, hidden from lg up and in print", () => {
     render(<BottomTabBar {...baseProps} />);
     const nav = screen.getByRole("navigation", { name: "Primary" });
-    expect(nav).toHaveClass("sm:hidden", "print:hidden");
+    expect(nav).toHaveClass("lg:hidden", "print:hidden");
     expect(within(nav).getAllByRole("link")).toHaveLength(2);
     expect(within(nav).getByRole("button", { name: "More" })).toBeVisible();
   });
@@ -76,7 +76,6 @@ describe("SideRail", () => {
       <SideRail
         items={[items[0], { ...items[1], chip: <span>Pro</span> }]}
         isActive={(href) => href === "/dashboard/transactions"}
-        anchorFor={(href) => `anchor-${href.split("/").pop()}`}
       />,
     );
     expect(screen.getByRole("complementary")).toHaveClass(
@@ -86,7 +85,6 @@ describe("SideRail", () => {
     );
     const payments = screen.getByRole("link", { name: /Payments/ });
     expect(payments).toHaveAttribute("aria-current", "page");
-    expect(payments).toHaveAttribute("id", "anchor-transactions");
     expect(within(payments).getByText("Pro")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Home" })).not.toHaveAttribute(
       "aria-current",
@@ -139,5 +137,55 @@ describe("MoreSheet", () => {
     );
     await userEvent.click(screen.getByRole("link", { name: "Plan" }));
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("shows a Setup guide row only when given an action, which closes the sheet and runs it", async () => {
+    const onOpenChange = vi.fn();
+    const onSetupGuide = vi.fn();
+    const { rerender } = render(
+      <MoreSheet
+        open
+        onOpenChange={onOpenChange}
+        items={moreItems}
+        isActive={() => false}
+      />,
+    );
+    expect(
+      screen.queryByRole("button", { name: "Setup guide" }),
+    ).not.toBeInTheDocument();
+    rerender(
+      <MoreSheet
+        open
+        onOpenChange={onOpenChange}
+        items={moreItems}
+        isActive={() => false}
+        onSetupGuide={onSetupGuide}
+      />,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Setup guide" }));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(onSetupGuide).toHaveBeenCalledTimes(1);
+  });
+
+  it("closes when the viewport grows to the rail breakpoint", () => {
+    let listener: ((event: { matches: boolean }) => void) | undefined;
+    vi.stubGlobal("matchMedia", () => ({
+      addEventListener: (_: string, fn: typeof listener) => (listener = fn),
+      removeEventListener: () => {},
+    }));
+    const onOpenChange = vi.fn();
+    render(
+      <MoreSheet
+        open
+        onOpenChange={onOpenChange}
+        items={moreItems}
+        isActive={() => false}
+      />,
+    );
+    listener?.({ matches: false });
+    expect(onOpenChange).not.toHaveBeenCalled();
+    act(() => listener?.({ matches: true }));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    vi.unstubAllGlobals();
   });
 });

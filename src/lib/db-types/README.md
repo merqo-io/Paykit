@@ -6,7 +6,7 @@ Hand-maintained TypeScript mirror of `supabase/migrations`, split by domain so e
 
 - `database.ts`: the `Database` interface (tables, views and RPC signatures) in one file, including the `purge_auth_failure_ips` and `purge_ops_events` retention functions.
 - `json.ts`: the `Json` alias used by JSON columns.
-- `vendor.ts`: social links, plan, verification method, payment config, prefs, entitlement and legal-check types.
+- `vendor.ts`: social links, plan, verification method, payment config, prefs (including the nullable `onboarding_dismissed_at` and `qr_previewed_at`), entitlement and legal-check types.
 - `payments.ts`: transaction, refund, feedback, payment audit and payment evidence types.
 - `bookings.ts`: booking and inquiry types.
 - `admin.ts`: admin, admin audit, auth failure, ops event and proof storage deletion types.

@@ -3,9 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ActionResult } from "@merqo/ui/kit-api";
-import { DashboardNav } from "./dashboard-nav";
+import { DashboardNav, DashboardTabBar } from "./dashboard-nav";
 
 const mocks = vi.hoisted(() => ({
+  push: vi.fn(),
+  reopenOnboarding: vi.fn(async () => {}),
   submitFeedbackAction: vi.fn(async (): Promise<ActionResult> => ({
     success: true,
   })),
@@ -14,7 +16,13 @@ const mocks = vi.hoisted(() => ({
   })),
 }));
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/dashboard" }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/dashboard",
+  useRouter: () => ({ push: mocks.push }),
+}));
+vi.mock("@/app/dashboard/onboarding-actions", () => ({
+  reopenOnboarding: mocks.reopenOnboarding,
+}));
 vi.mock("@/app/actions/feedback", () => ({
   submitFeedbackAction: mocks.submitFeedbackAction,
 }));
@@ -30,26 +38,11 @@ describe("DashboardNav", () => {
     plan: "free" as const,
   };
 
-  it("renders exactly Payments, Bookings and Reports as page links", () => {
+  it("renders no inline page links: the tab bar and rail carry navigation", () => {
     render(<DashboardNav {...baseProps} />);
-    expect(screen.getByRole("link", { name: "Payments" })).toHaveAttribute(
-      "href",
-      "/dashboard/transactions",
-    );
-    expect(screen.getByRole("link", { name: "Bookings" })).toHaveAttribute(
-      "href",
-      "/dashboard/bookings",
-    );
-    expect(screen.getByRole("link", { name: "Reports" })).toHaveAttribute(
-      "href",
-      "/dashboard/reports",
-    );
-    expect(
-      screen.queryByRole("link", { name: "Payment setup" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("link", { name: "Dashboard" }),
-    ).not.toBeInTheDocument();
+    for (const name of ["Payments", "Bookings", "Reports", "Payment setup"]) {
+      expect(screen.queryByRole("link", { name })).not.toBeInTheDocument();
+    }
   });
 
   it("renders no burger: phones navigate through the bottom tab bar", () => {
@@ -64,21 +57,6 @@ describe("DashboardNav", () => {
     expect(
       screen.getByRole("link", { name: "paykit dashboard home" }),
     ).toHaveAttribute("href", "/dashboard");
-  });
-
-  it("exposes data-tour anchors for the onboarding tour", () => {
-    render(<DashboardNav {...baseProps} />);
-    expect(
-      screen.getByRole("button", { name: /account menu/i }),
-    ).toHaveAttribute("data-tour", "nav-account");
-    expect(screen.getByRole("link", { name: "Payments" })).toHaveAttribute(
-      "data-tour",
-      "nav-transactions",
-    );
-    expect(screen.getByRole("link", { name: "Reports" })).toHaveAttribute(
-      "data-tour",
-      "nav-reports",
-    );
   });
 
   it("account menu holds Payment setup, Profile, Plan, help and feedback, theme, then Sign out", async () => {
@@ -127,13 +105,6 @@ describe("DashboardNav", () => {
     render(<DashboardNav {...baseProps} plan="pro" />);
     await user.click(screen.getByRole("button", { name: /account menu/i }));
     expect(screen.getByText("Pro")).toBeInTheDocument();
-  });
-
-  it("marks no page link current on the dashboard home", () => {
-    render(<DashboardNav {...baseProps} />);
-    expect(screen.getByRole("link", { name: "Payments" })).not.toHaveAttribute(
-      "aria-current",
-    );
   });
 
   it("Get help opens a form Sheet (not a mailto link) and maps its message to submitSupportMessage's body field", async () => {
@@ -229,5 +200,14 @@ describe("DashboardNav", () => {
     expect(
       screen.queryByRole("menuitem", { name: "paykit" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("the More sheet's Setup guide reopens onboarding, then goes to Home", async () => {
+    const user = userEvent.setup();
+    render(<DashboardTabBar plan="free" waitingCount={0} />);
+    await user.click(screen.getByRole("button", { name: "More" }));
+    await user.click(screen.getByRole("button", { name: "Setup guide" }));
+    await waitFor(() => expect(mocks.push).toHaveBeenCalledWith("/dashboard"));
+    expect(mocks.reopenOnboarding).toHaveBeenCalledTimes(1);
   });
 });

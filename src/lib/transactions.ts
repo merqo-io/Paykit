@@ -137,6 +137,23 @@ export async function claimedTxSummary(
   }
 }
 
+/** How many payments are claimed and awaiting confirmation. A head-only count: no rows are read, so it stays cheap on every dashboard render. */
+export async function claimedTxCount(vendorId: string): Promise<number> {
+  try {
+    const supabase = await createServerClient();
+    const { count, error } = await supabase
+      .from("transactions")
+      .select("id", { count: "exact", head: true })
+      .eq("vendor_id", vendorId)
+      .eq("status", "claimed");
+    if (error) throw error;
+    return count ?? 0;
+  } catch (error) {
+    console.error("claimedTxCount failed", error);
+    return 0;
+  }
+}
+
 /** Payments confirmed at or after `sinceIso` (by confirmation time, not creation), as a count and SGD cents from the same rows. */
 export async function confirmedSince(
   vendorId: string,

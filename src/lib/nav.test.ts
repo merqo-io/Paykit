@@ -5,7 +5,6 @@ import {
   isLocked,
   isMoreActive,
   navItems,
-  tourAnchor,
   type NavItem,
 } from "./nav";
 
@@ -67,13 +66,6 @@ describe("isActivePath", () => {
     expect(isActivePath("/dashboard/bookings-old", "/dashboard/bookings")).toBe(
       false,
     );
-  });
-});
-
-describe("tourAnchor", () => {
-  it("derives the anchor id from the last path segment", () => {
-    expect(tourAnchor("/dashboard")).toBe("nav-dashboard");
-    expect(tourAnchor("/dashboard/reports")).toBe("nav-reports");
   });
 });
 

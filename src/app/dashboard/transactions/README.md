@@ -28,8 +28,7 @@ across every kit — plus, for Pro vendors, a per-payment refund action.
   (labels: pending → "Awaiting payment", claimed → "Marked paid", confirmed
   → "Received"; stored values are unchanged): a
   pure presentational component (extracted from `transaction-table.tsx` so
-  `src/components/tour-steps.ts` can render the real thing instead of a
-  hand-copied color), now a thin wrapper around `@merqo/ui`'s shared
+  the badge has one shared definition), now a thin wrapper around `@merqo/ui`'s shared
   `StatusBadge` (the dot + uppercase bordered-pill chip qkit's
   `OrderStatusBadge` originated) instead of shadcn's `Badge`. `claimed` keeps
   its own `text-mint border-mint/35 bg-mint/12` treatment instead of falling

@@ -5,7 +5,13 @@ import { render, screen } from "@testing-library/react";
 import DashboardLayout from "./layout";
 import { getOrCreateVendorProfile } from "@/lib/merqo-vendor-profile";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/dashboard" }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/dashboard",
+  useRouter: () => ({ push: vi.fn() }),
+}));
+vi.mock("@/app/dashboard/onboarding-actions", () => ({
+  reopenOnboarding: vi.fn(async () => {}),
+}));
 vi.mock("@/lib/vendor-session", () => ({
   getVendorSession: vi.fn(async () => ({
     supabase: {
@@ -29,16 +35,10 @@ vi.mock("@/lib/merqo-vendor-profile", () => ({
   })),
 }));
 vi.mock("@/lib/transactions", () => ({
-  claimedTxSummary: vi.fn(async () => ({ count: 4, cents: 1200 })),
+  claimedTxCount: vi.fn(async () => 4),
 }));
 vi.mock("@/app/actions/auth", () => ({
   signOutAction: vi.fn(async () => {}),
-}));
-// The onboarding tour's own auto-run/driver.js behavior is covered by
-// dashboard-tour.dom.test.tsx; stubbed here so this test stays focused on
-// layout.tsx's header composition.
-vi.mock("@/components/dashboard-tour", () => ({
-  DashboardTour: () => null,
 }));
 
 describe("DashboardLayout", () => {
@@ -64,7 +64,7 @@ describe("DashboardLayout", () => {
 
     expect(container.querySelector("footer")?.parentElement).toHaveClass(
       "hidden",
-      "sm:contents",
+      "lg:contents",
       "print:hidden",
     );
   });
@@ -90,7 +90,7 @@ describe("DashboardLayout", () => {
     const { container } = render(jsx);
 
     const footer = container.querySelector("footer");
-    expect(footer?.parentElement).toHaveClass("sm:contents", "print:hidden");
+    expect(footer?.parentElement).toHaveClass("lg:contents", "print:hidden");
     expect(
       screen.queryByRole("link", { name: "Vendor sign in →" }),
     ).not.toBeInTheDocument();

@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { verifyKitAuth } from "@/lib/kit-auth";
@@ -90,7 +91,17 @@ export async function runTransition<B>(
   }
   if (!current) return fail("Not found", 404);
 
-  return spec.apply({ supabase, kitSlug, id, current, body: read.body });
+  const response = await spec.apply({
+    supabase,
+    kitSlug,
+    id,
+    current,
+    body: read.body,
+  });
+  // The dashboard layout's Payments badge counts claimed rows; a transition
+  // changes that count, so the layout must not serve its cached render.
+  if (response.ok) revalidatePath("/dashboard", "layout");
+  return response;
 }
 
 type Patch = { status: TxStatus } & Partial<

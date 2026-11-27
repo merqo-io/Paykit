@@ -30,30 +30,27 @@ describe("PageShell", () => {
     expect(container.firstElementChild).toHaveClass("max-w-2xl");
   });
 
-  it("renders the action beside the title and again anchored for phones", () => {
+  it("renders the action once, anchored above the tab bar below lg and static in the title row from lg", () => {
     render(
       <PageShell title="Bookings" action={<button>New booking</button>}>
         x
       </PageShell>,
     );
     expect(screen.getAllByRole("button", { name: "New booking" })).toHaveLength(
-      2,
+      1,
     );
-    expect(screen.getByTestId("page-shell-mobile-action")).toHaveClass(
-      "sm:hidden",
-      "print:hidden",
-    );
+    const action = screen.getByTestId("page-shell-action");
+    expect(action).toHaveClass("fixed", "lg:static");
+    expect(action.style.bottom).toContain("3.5rem");
   });
 
-  it("renders no anchored bar without an action, and shows sub-tabs", () => {
+  it("renders no action element without an action, and shows sub-tabs", () => {
     render(
       <PageShell title="Reports" tabs={<nav aria-label="Report tabs" />}>
         x
       </PageShell>,
     );
-    expect(
-      screen.queryByTestId("page-shell-mobile-action"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("page-shell-action")).not.toBeInTheDocument();
     expect(
       screen.getByRole("navigation", { name: "Report tabs" }),
     ).toBeInTheDocument();

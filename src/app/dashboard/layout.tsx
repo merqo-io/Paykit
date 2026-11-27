@@ -4,9 +4,8 @@ import { getVendorSession } from "@/lib/vendor-session";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
 import { getOrCreateVendorProfile } from "@/lib/merqo-vendor-profile";
 import { signOutAction } from "@/app/actions/auth";
-import { DashboardTour } from "@/components/dashboard-tour";
 import { SiteFooter } from "@/components/site-footer";
-import { claimedTxSummary } from "@/lib/transactions";
+import { claimedTxCount } from "@/lib/transactions";
 import { DashboardNav, DashboardRail, DashboardTabBar } from "./dashboard-nav";
 
 export default async function DashboardLayout({
@@ -16,15 +15,10 @@ export default async function DashboardLayout({
 }) {
   const { supabase, user } = await getVendorSession();
   // Started before the profile reads so the tab-bar badge adds no round trip.
-  const waitingPromise = claimedTxSummary(user.id);
-  const [plan, profile, { data: prefs }] = await Promise.all([
+  const waitingPromise = claimedTxCount(user.id);
+  const [plan, profile] = await Promise.all([
     readVendorPlan(supabase, user.id),
     getOrCreateVendorProfile(supabase, user.id, null),
-    supabase
-      .from("vendor_prefs")
-      .select("tour_seen_at")
-      .eq("vendor_id", user.id)
-      .maybeSingle(),
   ]);
 
   const waiting = await waitingPromise;
@@ -66,18 +60,17 @@ export default async function DashboardLayout({
         />
       </div>
       <div className="mx-auto flex w-full max-w-7xl flex-1">
-        <DashboardRail plan={plan ?? "free"} waitingCount={waiting.count} />
+        <DashboardRail plan={plan ?? "free"} waitingCount={waiting} />
         {/* Bottom padding clears the fixed phone tab bar (3.5rem) and any
             anchored page action above it, plus the home-indicator inset. */}
-        <main className="min-w-0 flex-1 px-5 py-7 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-7">
+        <main className="min-w-0 flex-1 px-5 py-7 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-7">
           {children}
         </main>
       </div>
-      <DashboardTabBar plan={plan ?? "free"} waitingCount={waiting.count} />
-      <div className="hidden sm:contents print:hidden">
+      <DashboardTabBar plan={plan ?? "free"} waitingCount={waiting} />
+      <div className="hidden lg:contents print:hidden">
         <SiteFooter />
       </div>
-      <DashboardTour seen={!!prefs?.tour_seen_at} />
     </div>
   );
 }

@@ -69,31 +69,20 @@ a view over existing data, not a new invoice/receipt subsystem.
 
 In production, the Supabase auth cookie is scoped to `.merqo.io`
 (`NEXT_PUBLIC_AUTH_COOKIE_DOMAIN`, `src/lib/supabase/`), so signing in on
-one merqo kit signs you in on the rest. The dashboard's onboarding tour
-(`src/components/dashboard-tour.tsx`) stamps its "seen" state as soon as
-it auto-runs rather than when it finishes, so a refresh mid-tour can't
-make it re-trigger on the next load — and since that client-fired stamp
-is fire-and-forget and could be aborted by a hard navigation (the tour's
-own steps spotlight a nav link), `/dashboard`'s own server render
-(`src/app/dashboard/page.tsx`) also stamps it synchronously, durably, as
-part of the request, as defense-in-depth. The tour's first step now shows
-an example transaction preview, and its copy no longer uses em dashes; the
-preview's status pill renders the real `TransactionStatusBadge` component
-(`src/app/dashboard/transactions/transaction-status-badge.tsx`, now built
-on `@merqo/ui`'s shared `StatusBadge` dot+pill shape) instead of
-a hand-copied color, so it can't drift from what the real badge looks like;
-see `../docs/superpowers/specs/2026-08-25-tour-example-badge-drift-fix-design.md`
-(workspace root, cross-kit spec). The badge itself now carries a persistent
+one merqo kit signs you in on the rest. First-run onboarding is a "Get set up"
+checklist at the top of Home (`src/components/onboarding-checklist.tsx`,
+state from `src/lib/onboarding.ts`) instead of the old spotlight tour, which
+Paykit no longer mounts. The transaction status badge
+(`src/app/dashboard/transactions/transaction-status-badge.tsx`, built
+on `@merqo/ui`'s shared `StatusBadge` dot+pill shape) carries a persistent
 tap-to-open hint (`@merqo/ui`'s `InfoTooltip`, `trigger="tap"`) explaining
 what the "Marked paid" (`claimed`) and "Received" (`confirmed`) labels mean,
-so that distinction survives past the one-time tour — tap, not the
+so that distinction is always available — tap, not the
 component's hover default, since a native hover hint has no touch equivalent
 and most vendors check this on a
-phone. The tour covers Payments, Bookings and Reports in the nav, and
-points Payment setup at the avatar menu. The tour renders its example badge
-only when it starts (never at import), and the landing nav's signed-in menu
-is wired in the client component `src/components/landing/account-nav.tsx`;
-both keep signed-in pages from returning HTTP 500.
+phone. The landing nav's signed-in menu
+is wired in the client component `src/components/landing/account-nav.tsx`,
+which keeps signed-in pages from returning HTTP 500.
 `@merqo/ui`'s `DashboardNav`
 (v0.10.0+) is now wired with `LinkComponent={Link}`
 (`src/app/dashboard/dashboard-nav.tsx`), so its nav links do a

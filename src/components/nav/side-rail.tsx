@@ -9,12 +9,9 @@ import type { NavLinkItem } from "./types";
 export function SideRail({
   items,
   isActive,
-  anchorFor,
 }: {
   items: readonly NavLinkItem[];
   isActive: (href: string) => boolean;
-  /** Optional element id per item, for guided-tour anchors. */
-  anchorFor?: (href: string) => string;
 }) {
   return (
     <aside className="hidden w-56 shrink-0 border-r lg:block print:hidden">
@@ -26,7 +23,6 @@ export function SideRail({
             return (
               <li key={item.key}>
                 <Link
-                  id={anchorFor?.(item.href)}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={cn(

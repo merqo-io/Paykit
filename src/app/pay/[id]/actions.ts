@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 // eslint-disable-next-line no-restricted-imports -- anonymous customer flow; the pay token or public form id is the credential
 import { createServiceClient } from "@/lib/supabase/server";
@@ -85,6 +86,7 @@ export async function claimHostedPayment(
   if (!outcome.ok || outcome.row.status === "pending")
     return { success: false, error: TRY_AGAIN };
 
+  revalidatePath("/dashboard", "layout");
   return { success: true, returnUrl: read.payment.returnUrl };
 }
 
