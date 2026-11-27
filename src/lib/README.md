@@ -6,6 +6,8 @@ provide authorization.
 
 ## Contracts
 
+- `nav.ts` is the dashboard's single nav config (key, label, icon, href, tier, placement, `showWhen`) plus pure helpers (`navItems`, `isActivePath`, `isLocked`). The phone tab bar, the `lg` rail and the More sheet all read it; `nav.test.ts` covers it.
+
 - `schemas.ts` validates dashboard forms and actions; `api-schemas.ts` validates
   the peer-kit API. Monetary values are integer cents. `types.ts` is a type-only barrel over `db-types/`, which mirrors the
   migration schema and RPC signatures: `database.ts` holds the `Database`
@@ -162,7 +164,7 @@ provide authorization.
 - `payment-audit.ts` appends real checkout transitions (`recordPaymentAudit(supabase, { transactionId, kitSlug, action, detail })`); idempotent no-ops add no
   transition row. `admin-audit.ts` records administrative and vendor operations
   without exposing its helper as a remotely callable Server Action.
-- `payment-transition.ts` - `runTransition(request, params, spec)`: the pipeline shared by the claim, unclaim and confirm routes (kit auth, per-action rate limit, id check, optional body read, kit-scoped row read), then the spec's `apply`. `conditionalTransition` builds the `apply` for unclaim and confirm: a guarded update, a recheck when it matches no row, then audit and callback.
+- `payment-transition.ts` - `runTransition(request, params, spec)`: the pipeline shared by the claim, unclaim and confirm routes (kit auth, per-action rate limit, id check, optional body read, kit-scoped row read), then the spec's `apply`; a successful transition revalidates the dashboard layout so the Payments badge recounts. `conditionalTransition` builds the `apply` for unclaim and confirm: a guarded update, a recheck when it matches no row, then audit and callback.
 
 ## Reads and reports
 
@@ -171,7 +173,7 @@ provide authorization.
 `transactions.ts` and `bookings.ts` read vendor-owned records with the session
 client; `queryTransactions(vendorId, query)` returns one filtered page (window, status, search) with an exact count; Free callers get their window from `resolveListRange` in `free-limits.ts`,
 `countTransactionsBefore` counts hidden older rows (claimed ones are shown, so not counted) and `listConfirmedBetween`
-reads a bounded window for the Free totals; `claimedTxSummary` is an RLS-scoped count and SGD-cent total of claimed (awaiting
+reads a bounded window for the Free totals; `claimedTxCount` is the head-only RLS-scoped count behind the Payments badge, `claimedTxSummary` an RLS-scoped count and SGD-cent total of claimed (awaiting
 confirmation) transactions and `confirmedSince` sums confirmed takings since a cutoff, both for the dashboard home. `read-all-rows.ts` follows ordered numeric ranges to an empty page and rejects
 partial collections on later errors; it does not provide a transaction snapshot.
 `list-all-users.ts` paginates auth users and reports its safety ceiling as failure.
@@ -219,7 +221,11 @@ instead of redirecting an open dialog.
 `merqo-rpc.ts` is the typed cross-schema RPC boundary used by shared profile,
 feedback and support adapters. `merqo-vendor-profile.ts` uses field-specific
 patches: omitted columns stay unchanged and empty social links clear links.
-`tour-prefs.ts` contains best-effort onboarding timestamps.
+`onboarding.ts` derives the Home checklist's step state and visibility from
+plain inputs (payment config present, `qr_previewed_at`, a confirmed payment,
+`onboarding_dismissed_at`, `tour_seen_at`); `tour_seen_at` now only means
+"already onboarded under the retired tour". `tour-prefs.ts` holds the legacy
+best-effort `tour_seen_at` stamp and has no caller.
 
 ## Storage and shared UI
 

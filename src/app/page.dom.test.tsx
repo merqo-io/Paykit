@@ -34,7 +34,7 @@ describe("HomePage copy guardrails", () => {
     expect(text).not.toContain("not yet tried");
   });
 
-  it("leads with one vendor-worded h1, the sample pay card and the family footer", async () => {
+  it("leads with one vendor-worded h1, the qkit phone and the family footer", async () => {
     await renderLanding();
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(
@@ -43,7 +43,12 @@ describe("HomePage copy guardrails", () => {
         name: "Get paid by PayNow. Know who has paid.",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Sample paykit pay page")).toBeInTheDocument();
+    expect(screen.getByText("Kopitiam Cart")).toBeInTheDocument();
+    expect(screen.getByText("S$4.30")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("group", { name: "Payment status" }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Your bank")).not.toBeInTheDocument();
     expect(screen.getByRole("contentinfo")).toBeInTheDocument();
   });
 

@@ -37,3 +37,5 @@ The file is stored before the claim commits (`@/lib/payment-evidence`'s `storeSc
 Once a screenshot is stored, `@/lib/proof-amount-check`'s `scheduleProofAmountCheck` reads the transaction's amount out of it after the response has gone out and records the result on the evidence row. It never delays the claim and never decides it; a screenshot that cannot be read leaves the amount unchecked.
 
 The route is a thin call to `runTransition` in `@/lib/payment-transition` (strict limiter, proof read before the row read); the claim itself stays in `@/lib/claim`.
+
+A successful transition revalidates the dashboard layout (in `runTransition`) so the vendor's Payments badge recounts.

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@merqo/ui/primitives";
 
-import { CheckoutCard } from "./checkout-card";
+import { QkitPhone } from "./qkit-phone";
 import { CONTAINER } from "./rhythm";
 import { WAITLIST_URL } from "./waitlist";
 
@@ -41,7 +41,7 @@ export function Hero() {
             </p>
           </div>
           <div className="flex min-w-0 justify-center min-[960px]:justify-end">
-            <CheckoutCard />
+            <QkitPhone />
           </div>
         </div>
       </div>

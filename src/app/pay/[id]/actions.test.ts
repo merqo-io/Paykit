@@ -8,6 +8,8 @@ const { loadMock, allowedMock, claimMock, createServiceClientMock } =
     createServiceClientMock: vi.fn(),
   }));
 
+const { revalidateMock } = vi.hoisted(() => ({ revalidateMock: vi.fn() }));
+vi.mock("next/cache", () => ({ revalidatePath: revalidateMock }));
 vi.mock("next/headers", () => ({
   headers: async () => new Headers({ "x-forwarded-for": "203.0.113.5" }),
 }));
@@ -65,6 +67,7 @@ beforeEach(() => {
   loadMock
     .mockReset()
     .mockResolvedValue({ ok: true, row: ROW, payment: PAYMENT });
+  revalidateMock.mockReset();
   claimMock.mockReset().mockResolvedValue({
     ok: true,
     row: { ...ROW, status: "claimed" },
@@ -75,6 +78,7 @@ describe("claimHostedPayment", () => {
   it("claims with the screenshot and answers the return address", async () => {
     const res = await claimHostedPayment(TX_ID, TOKEN, form(image()));
     expect(res).toEqual({ success: true, returnUrl: RETURN_URL });
+    expect(revalidateMock).toHaveBeenCalledWith("/dashboard", "layout");
     expect(allowedMock).toHaveBeenCalledWith(
       SUPABASE,
       "claim",

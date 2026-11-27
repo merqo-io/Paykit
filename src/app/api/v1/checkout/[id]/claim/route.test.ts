@@ -17,6 +17,7 @@ const {
   createServiceClientMock: vi.fn(),
 }));
 
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/kit-auth", () => ({ verifyKitAuth: verifyKitAuthMock }));
 vi.mock("@/lib/supabase/server", () => ({
   createServiceClient: createServiceClientMock,

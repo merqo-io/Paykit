@@ -24,7 +24,7 @@ in the workspace root for why. Brand theme is "Banknote Engrave"
 of 2026-08-19 — see `globals.css`'s own header comment; `src/lib/brand-mark.ts`'s
 ImageResponse-generated favicon/apple-touch-icon carries the same rebrand.
 
-The public landing is in pre-launch mode, headlined "Get paid by PayNow. Know who has paid.": one quiet "In pilot with Merqo stalls" line, a hero with a switchable Waiting/Paid/Confirmed pay-card object, a three-step payment journey that plays on scroll (and by tap or button under reduced motion), an "After the payment" sample ledger and report, three FAQ rows linking to `/faq`, a closing "Join the waitlist" CTA, and no published price (pilot notice only, carried by the FAQ rather than a benefit tile). Sign-in and the dashboard stay reachable by direct URL. When signed in, the landing, About and FAQ nav shows a Dashboard link and the shared `LandingAccountNav` (Dashboard link and account menu with Sign out), named from the vendor profile's stall name. Landing surfaces (checkout card, FAQ rows) use one small `rounded-lg` radius and the landing has no glow or background wash, per the shared public page rules. `@merqo/ui` is pinned to merqo-ui commit e468ecd2 (v0.61.2), whose `AppLinkProvider` is mounted once in the root layout so its client exports navigate client-side without a `LinkComponent` prop. The pin also supplies the `PricingLadder`, which the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices); the ladder hides the qkit-only Event Pass block. Money and time render through its `Money`, `Timestamp`, `formatMoney` and `formatDateTime` (S$ amounts, dates like "7 Nov 2026", all in Singapore time). The dashboard also uses its `ConfirmDialog` (inquiry delete), `CopyButton` (booking ID), `downloadBlob` (earnings CSV) and `AsyncSubmitButton` (refund) rather than local copies.
+The public landing is in pre-launch mode, headlined "Get paid by PayNow. Know who has paid.": one quiet "In pilot with Merqo stalls" line, a hero showing a customer's qkit order phone (stall, items, total, the PayNow QR and an "I've paid" tap), an "After the payment" sample ledger and report, three FAQ rows linking to `/faq`, a closing "Join the waitlist" CTA, and no published price (pilot notice only, carried by the FAQ rather than a benefit tile). Sign-in and the dashboard stay reachable by direct URL. When signed in, the landing, About and FAQ nav shows a Dashboard link and the shared `LandingAccountNav` (Dashboard link and account menu with Sign out), named from the vendor profile's stall name. Landing surfaces (qkit phone, FAQ rows) use one small `rounded-lg` radius and the landing has no glow or background wash, per the shared public page rules. `@merqo/ui` is pinned to merqo-ui commit dcaf1100 (v0.62.0), whose `AppLinkProvider` is mounted once in the root layout so its client exports navigate client-side without a `LinkComponent` prop. The pin also supplies the `PricingLadder`, which the vendor plan page renders (the navigation plan chip is its `TierChip`) from merqo's public plan catalog (paykit stores no prices); the ladder hides the qkit-only Event Pass block. Money and time render through its `Money`, `Timestamp`, `formatMoney` and `formatDateTime` (S$ amounts, dates like "7 Nov 2026", all in Singapore time). The dashboard also uses its `ConfirmDialog` (inquiry delete), `CopyButton` (booking ID), `downloadBlob` (earnings CSV) and `AsyncSubmitButton` (refund) rather than local copies.
 
 The hosted pay page (`/pay/{id}`) shows "Paying <business name>" above the amount (the vendor's payee name, falling back to their inquiry-form business name), reports claim and upload failures inline instead of in toasts, and shows a plain retry notice when the payment cannot be loaded.
 
@@ -69,31 +69,20 @@ a view over existing data, not a new invoice/receipt subsystem.
 
 In production, the Supabase auth cookie is scoped to `.merqo.io`
 (`NEXT_PUBLIC_AUTH_COOKIE_DOMAIN`, `src/lib/supabase/`), so signing in on
-one merqo kit signs you in on the rest. The dashboard's onboarding tour
-(`src/components/dashboard-tour.tsx`) stamps its "seen" state as soon as
-it auto-runs rather than when it finishes, so a refresh mid-tour can't
-make it re-trigger on the next load — and since that client-fired stamp
-is fire-and-forget and could be aborted by a hard navigation (the tour's
-own steps spotlight a nav link), `/dashboard`'s own server render
-(`src/app/dashboard/page.tsx`) also stamps it synchronously, durably, as
-part of the request, as defense-in-depth. The tour's first step now shows
-an example transaction preview, and its copy no longer uses em dashes; the
-preview's status pill renders the real `TransactionStatusBadge` component
-(`src/app/dashboard/transactions/transaction-status-badge.tsx`, now built
-on `@merqo/ui`'s shared `StatusBadge` dot+pill shape) instead of
-a hand-copied color, so it can't drift from what the real badge looks like;
-see `../docs/superpowers/specs/2026-08-25-tour-example-badge-drift-fix-design.md`
-(workspace root, cross-kit spec). The badge itself now carries a persistent
+one merqo kit signs you in on the rest. First-run onboarding is a "Get set up"
+checklist at the top of Home (`src/components/onboarding-checklist.tsx`,
+state from `src/lib/onboarding.ts`) instead of the old spotlight tour, which
+Paykit no longer mounts. The transaction status badge
+(`src/app/dashboard/transactions/transaction-status-badge.tsx`, built
+on `@merqo/ui`'s shared `StatusBadge` dot+pill shape) carries a persistent
 tap-to-open hint (`@merqo/ui`'s `InfoTooltip`, `trigger="tap"`) explaining
 what the "Marked paid" (`claimed`) and "Received" (`confirmed`) labels mean,
-so that distinction survives past the one-time tour — tap, not the
+so that distinction is always available — tap, not the
 component's hover default, since a native hover hint has no touch equivalent
 and most vendors check this on a
-phone. The tour covers Payments, Bookings and Reports in the nav, and
-points Payment setup at the avatar menu. The tour renders its example badge
-only when it starts (never at import), and the landing nav's signed-in menu
-is wired in the client component `src/components/landing/account-nav.tsx`;
-both keep signed-in pages from returning HTTP 500.
+phone. The landing nav's signed-in menu
+is wired in the client component `src/components/landing/account-nav.tsx`,
+which keeps signed-in pages from returning HTTP 500.
 `@merqo/ui`'s `DashboardNav`
 (v0.10.0+) is now wired with `LinkComponent={Link}`
 (`src/app/dashboard/dashboard-nav.tsx`), so its nav links do a
@@ -338,7 +327,9 @@ how it's wired together. See
 `docs/superpowers/specs/2026-07-15-paykit-mvp-design.md` for the original
 approved design and `docs/superpowers/plans/2026-07-15-paykit-mvp.md` for
 its implementation plan — later work has its own dated specs/plans under
-the same `docs/superpowers/` folders.
+the same `docs/superpowers/` folders. The mobile-first shell, navigation and
+first-run onboarding design is `docs/superpowers/specs/2026-11-27-p1-shell-design.md`;
+its desktop baseline screenshots sit in `docs/superpowers/specs/assets/p1-shell/`.
 
 Source lives in the `merqo-io` GitHub organization (`github.com/merqo-io/paykit`); `@merqo/ui` installs from `github:merqo-io/merqo-ui`.
 

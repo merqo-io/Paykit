@@ -3,9 +3,7 @@
 // DashboardPage is an async Server Component, same pattern as
 // layout.dom.test.tsx: await it directly and render the returned element
 // tree with RTL. Covers the empty-state prompt, the payment-method summary
-// card, the transaction count, and the durable tour-seen stamp (see page.tsx's own comment, and
-// tour-actions.ts's stampTourSeen/markTourSeen) firing exactly when it
-// should.
+// card, the transaction count, and the onboarding checklist's visibility.
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import DashboardPage from "./page";
@@ -16,28 +14,32 @@ const {
   claimedTxSummaryMock,
   confirmedSinceMock,
   maybeSingleMock,
-  stampTourSeenMock,
+  confirmedRowsMock,
 } = vi.hoisted(() => ({
   getConfigMock: vi.fn(),
   claimedTxSummaryMock: vi.fn(),
   confirmedSinceMock: vi.fn(),
   maybeSingleMock: vi.fn(),
-  stampTourSeenMock: vi.fn(async () => {}),
+  confirmedRowsMock: vi.fn(),
 }));
 
 vi.mock("@/lib/vendor-session", () => ({
   getVendorSession: vi.fn(async () => ({
     supabase: {
-      from: () => ({
+      from: (table: string) => ({
         select: () => ({
-          eq: () => ({
-            maybeSingle: maybeSingleMock,
-          }),
+          eq: () =>
+            table === "vendor_prefs"
+              ? { maybeSingle: maybeSingleMock }
+              : { eq: () => ({ limit: confirmedRowsMock }) },
         }),
       }),
     },
     user: { id: "v1" },
   })),
+}));
+vi.mock("./onboarding-actions", () => ({
+  dismissOnboarding: vi.fn(async () => {}),
 }));
 vi.mock("./config/actions", () => ({
   getConfig: getConfigMock,
@@ -45,9 +47,6 @@ vi.mock("./config/actions", () => ({
 vi.mock("@/lib/transactions", () => ({
   claimedTxSummary: claimedTxSummaryMock,
   confirmedSince: confirmedSinceMock,
-}));
-vi.mock("@/lib/tour-prefs", () => ({
-  stampTourSeen: stampTourSeenMock,
 }));
 
 const PAYNOW_CONFIG: VendorPaymentConfig = {
@@ -78,6 +77,7 @@ beforeEach(() => {
   maybeSingleMock.mockResolvedValue({
     data: { tour_seen_at: "2026-01-01T00:00:00Z" },
   });
+  confirmedRowsMock.mockResolvedValue({ data: [] });
   getConfigMock.mockResolvedValue(PAYNOW_CONFIG);
   claimedTxSummaryMock.mockResolvedValue({ count: 0, cents: 0 });
   confirmedSinceMock.mockResolvedValue({ count: 0, cents: 0 });
@@ -92,7 +92,6 @@ describe("DashboardPage", () => {
     expect(
       screen.getByRole("link", { name: "Set up payments" }),
     ).toHaveAttribute("href", "/dashboard/config");
-    expect(screen.getAllByRole("link")).toHaveLength(1);
     expect(screen.queryByText("Confirmed this month")).not.toBeInTheDocument();
   });
 
@@ -195,32 +194,56 @@ describe("DashboardPage", () => {
     );
   });
 
-  it("stamps tour_seen_at durably when the vendor hasn't seen the tour yet", async () => {
-    maybeSingleMock.mockResolvedValue({ data: { tour_seen_at: null } });
-
-    const jsx = await DashboardPage();
-    render(jsx);
-
-    expect(stampTourSeenMock).toHaveBeenCalledWith(expect.anything(), "v1");
-  });
-
-  it("stamps tour_seen_at when no vendor_prefs row exists yet", async () => {
+  it("shows the Get set up card above the content for a new vendor", async () => {
     maybeSingleMock.mockResolvedValue({ data: null });
 
-    const jsx = await DashboardPage();
-    render(jsx);
+    render(await DashboardPage());
 
-    expect(stampTourSeenMock).toHaveBeenCalledWith(expect.anything(), "v1");
+    expect(screen.getByText("Get set up")).toBeInTheDocument();
+    expect(screen.getByText("1 of 3 done")).toBeInTheDocument();
+    expect(screen.getByText("Payment method")).toBeInTheDocument();
   });
 
-  it("does not re-stamp once the tour has already been seen", async () => {
+  it("counts the stored preview stamp and a confirmed payment", async () => {
     maybeSingleMock.mockResolvedValue({
-      data: { tour_seen_at: "2026-01-01T00:00:00Z" },
+      data: {
+        tour_seen_at: null,
+        onboarding_dismissed_at: null,
+        qr_previewed_at: "2026-01-01T00:00:00Z",
+      },
+    });
+    confirmedRowsMock.mockResolvedValue({ data: [{ id: "t1" }] });
+
+    render(await DashboardPage());
+
+    expect(screen.getByText("You're set up")).toBeInTheDocument();
+  });
+
+  it("hides the card once dismissed", async () => {
+    maybeSingleMock.mockResolvedValue({
+      data: {
+        tour_seen_at: null,
+        onboarding_dismissed_at: "2026-01-01T00:00:00Z",
+        qr_previewed_at: null,
+      },
     });
 
-    const jsx = await DashboardPage();
-    render(jsx);
+    render(await DashboardPage());
 
-    expect(stampTourSeenMock).not.toHaveBeenCalled();
+    expect(screen.queryByText("Get set up")).not.toBeInTheDocument();
+  });
+
+  it("hides the card for an existing vendor whose payment setup is done", async () => {
+    render(await DashboardPage());
+
+    expect(screen.queryByText("Get set up")).not.toBeInTheDocument();
+  });
+
+  it("shows an existing vendor the card when payment setup is missing", async () => {
+    getConfigMock.mockResolvedValue(null);
+
+    render(await DashboardPage());
+
+    expect(screen.getByText("Get set up")).toBeInTheDocument();
   });
 });

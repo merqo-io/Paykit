@@ -6,11 +6,20 @@ reports, plan display and account settings.
 ## Shell
 
 `layout.tsx` obtains the vendor session, shared profile and plan, then composes
-`dashboard-nav.tsx` and the shared dashboard tour. The navigation adapter owns
+`dashboard-nav.tsx`. The navigation adapter owns
 Paykit's routes, brand and tier display (labels from `tierLabel`), and adapts feedback/support results to
-the shared account menu's rejecting-promise contract. The bar links only to
-daily-work places (Payments, Bookings, Reports); Payment setup, Profile and Plan
-live in the avatar menu.
+the shared account menu's rejecting-promise contract. Below 1024px the vendor
+navigates with a fixed bottom tab bar (Home, Payments with a badge counting
+payments waiting to confirm, Bookings, Reports, More); `layout.tsx` reads that
+count and mounts the bar, so it and the header do not re-render on navigation.
+`DashboardNav` passes `mobileNav="none"` to the shared header (no burger) and no
+inline links: the tab bar below `lg` and the left rail (`DashboardRail`) from
+`lg` carry the destinations. More holds Payment setup, Profile, Plan, a Setup
+guide row (reopens the Home checklist, then goes Home) and the legal links (the
+footer is hidden below `lg`); Help,
+Feedback, Switch products and Sign out stay in the account menu. All of it comes
+from `src/lib/nav.ts`. `main` has bottom padding that clears the tab bar and the
+safe-area inset.
 
 The navigation wrapper uses `contents print:hidden` so it does not constrain the
 shared sticky header. One layout-level `main` owns the outer content width;
@@ -24,7 +33,7 @@ of a short page instead of mid-screen. The footer is wrapped in
 `contents print:hidden`, like the navigation, so a printed booking or report
 leaves it out.
 
-`loading.tsx` (using the shared `Skeleton`) covers page loading inside this shell. `error.tsx` (shared `ErrorPage` from `@merqo/ui`, titled "This page didn't load") offers retry
+`loading.tsx` (using the shared `Skeleton`) covers page loading inside this shell with a title, two stat cards and five list rows at the list-page width. `error.tsx` (shared `ErrorPage` from `@merqo/ui`, titled "This page didn't load") offers retry
 for page render/data failures; it offers "Try again" and a "Back to dashboard" link; it cannot catch its own segment's layout errors.
 
 ## Routes
@@ -45,15 +54,20 @@ for page render/data failures; it offers "Try again" and a "Back to dashboard" l
 - `profile/` saves shared stall name/social links and Supabase account metadata.
 - `layout.tsx` labels the account menu with `accountLabel(user, stall_name)` from `@merqo/ui`: the stall name, else the auth name, else the email local part.
 
-`tour-actions.ts` and the overview's server-render stamp delegate to
-`lib/tour-prefs.ts`. Both are best-effort; navigation or a failed write can
-prevent persistence, so the tour must not be treated as business authorization.
+`page.tsx` (Home) renders the "Get set up" checklist above the summary, from
+`lib/onboarding.ts`: step 1 is a payment config row, step 2 is
+`vendor_prefs.qr_previewed_at`, step 3 is any `confirmed` transaction.
+`onboarding-actions.ts` holds the writes: `dismissOnboarding`, `reopenOnboarding`
+(for a later "Setup guide" entry) and `markQrPreviewed` (called by the payment
+setup form when the live QR preview first renders). All are best-effort and
+RLS-scoped; a failed write can lose a stamp, so none of this is authorization.
+Home never writes `tour_seen_at`; it only marks vendors who saw the retired tour.
 
 ## Verification
 
 Layout tests cover the sticky wrapper and single header. Navigation tests cover
 route links, feedback/support adaptation, sign-out and product switching.
-Overview tests cover payment summary, usage, nudge and tour timestamp branches.
+Overview tests cover payment summary, usage, nudge and checklist visibility branches.
 Each feature folder documents its own boundary and behavior coverage.
 
 ## Parent

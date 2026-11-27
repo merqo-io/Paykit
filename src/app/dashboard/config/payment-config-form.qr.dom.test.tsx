@@ -14,6 +14,9 @@ const {
 }));
 
 vi.mock("./actions", () => ({ saveConfigAction: saveConfigActionMock }));
+vi.mock("../onboarding-actions", () => ({
+  markQrPreviewed: vi.fn(async () => {}),
+}));
 vi.mock("@/lib/image-upload-adapter", () => ({
   uploadPaykitImage: vi.fn(),
   removeUnsavedImages: removeUnsavedImagesMock,

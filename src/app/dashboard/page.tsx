@@ -3,7 +3,8 @@ import Link from "next/link";
 import { getVendorSession } from "@/lib/vendor-session";
 import { claimedTxSummary, confirmedSince } from "@/lib/transactions";
 import { sgtDate } from "@/lib/free-limits";
-import { stampTourSeen } from "@/lib/tour-prefs";
+import { deriveOnboarding } from "@/lib/onboarding";
+import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { getConfig } from "./config/actions";
 import type { VendorPaymentConfig } from "@/lib/types";
 import { PageHeader, StatCard, formatMoney } from "@merqo/ui";
@@ -40,6 +41,46 @@ function paymentMethodSummary(config: VendorPaymentConfig): {
   };
 }
 
+type VendorSupabase = Awaited<ReturnType<typeof getVendorSession>>["supabase"];
+
+async function loadOnboarding(
+  supabase: VendorSupabase,
+  vendorId: string,
+  hasConfig: boolean,
+  prefs: {
+    tour_seen_at: string | null;
+    onboarding_dismissed_at: string | null;
+    qr_previewed_at: string | null;
+  } | null,
+) {
+  const dismissedAt = prefs?.onboarding_dismissed_at ?? null;
+  const tourSeenAt = prefs?.tour_seen_at ?? null;
+  // Mirrors deriveOnboarding's eligibility so the extra read is skipped for
+  // vendors who will never see the checklist.
+  const eligible = dismissedAt === null && (tourSeenAt === null || !hasConfig);
+
+  // Step 3 is derived: any confirmed payment at all, not just this month's.
+  const { data: confirmedRows } = eligible
+    ? await supabase
+        .from("transactions")
+        .select("id")
+        .eq("vendor_id", vendorId)
+        .eq("status", "confirmed")
+        .limit(1)
+    : { data: null };
+
+  // tour_seen_at is deliberately not written on Home: it only marks vendors who
+  // finished the retired tour, so stamping it on first visit would hide the
+  // checklist from every new vendor.
+  return deriveOnboarding({
+    hasConfig,
+    qrPreviewedAt: prefs?.qr_previewed_at ?? null,
+    hasConfirmedPayment: (confirmedRows?.length ?? 0) > 0,
+    dismissedAt,
+    tourSeenAt,
+  });
+}
+
 export default async function DashboardPage() {
   const { supabase, user } = await getVendorSession("/dashboard");
 
@@ -54,25 +95,23 @@ export default async function DashboardPage() {
     confirmedSince(user.id, monthStartIso),
     supabase
       .from("vendor_prefs")
-      .select("tour_seen_at")
+      .select("tour_seen_at, onboarding_dismissed_at, qr_previewed_at")
       .eq("vendor_id", user.id)
       .maybeSingle(),
   ]);
-  // Durable "start" stamp, in addition to dashboard-tour.tsx's client-fired
-  // one: this route (not layout.tsx, which wraps every /dashboard/* page)
-  // is specifically the tour's home route, so stamping here — synchronously,
-  // as part of this request — lands before the response is even sent, no
-  // matter what happens client-side afterwards. See tour-actions.ts's
-  // stampTourSeen/markTourSeen comments for the hard-navigation race this
-  // closes.
-  if (!prefs?.tour_seen_at) {
-    await stampTourSeen(supabase, user.id);
-  }
+
+  const onboarding = await loadOnboarding(
+    supabase,
+    user.id,
+    config !== null,
+    prefs,
+  );
 
   if (!config) {
     return (
       <div className="mx-auto max-w-lg">
         <PageHeader responsive title="Payments" />
+        <OnboardingChecklist state={onboarding} />
         <section className="space-y-3">
           <h2 className="text-xl font-semibold">
             Add your PayNow details to start taking payments
@@ -97,6 +136,8 @@ export default async function DashboardPage() {
   return (
     <div>
       <PageHeader responsive title="Payments" />
+
+      <OnboardingChecklist state={onboarding} />
 
       <div className="grid gap-6 sm:grid-cols-2">
         <StatCard

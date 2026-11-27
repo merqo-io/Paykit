@@ -8,12 +8,18 @@ src/app/api/v1/checkout/          — POST /api/v1/checkout, GET/POST /api/v1/ch
 src/app/api/v1/vendors/           — GET/POST /api/v1/vendors/{vendor_id}/config
 src/app/api/v1/bookings/          — GET /api/v1/bookings/{booking_id}
 src/app/dashboard/                — vendor dashboard (config, transactions, stats)
+src/components/nav/               — phone BottomTabBar, MoreSheet and desktop SideRail (no paykit imports)
+src/components/page-shell.tsx     — PageShell: title/description/action frame and page widths (action anchored above the tab bar below lg)
+src/components/onboarding-checklist.tsx — "Get set up" card on Home (progress, step links, dismiss, set-up state)
+src/app/dashboard/onboarding-actions.ts — best-effort writes: dismissOnboarding, reopenOnboarding, markQrPreviewed
+src/lib/onboarding.ts             — pure deriveOnboarding(): step state and card visibility
 src/components/list/              — shared list-page pieces: ListError, UrlPager (link pager), FILTER_SELECT_CLASS
 src/proxy.ts                      — Supabase session refresh + /dashboard guard (Next 16)
 src/lib/supabase/                 — browser / server / service clients + mw helper (schema=paykit)
 src/lib/payments/paynow.ts        — EMVCo PayNow QR builder (ported verbatim from qkit)
 src/lib/payments/adapter.ts       — renderCheckout (paynow|pointer) + reserved-but-dark auto-verify stub
 src/lib/payments/provider.ts      — PaymentProvider seam: direct provider (wraps renderCheckout, unchanged) + getProvider() (PAYKIT_PROVIDER-selected, defaults/falls back to direct)
+src/lib/nav.ts                   — dashboard nav config (key, label, icon, href, tier, placement, showWhen) for the tab bar, rail and More sheet
 src/lib/tx-state.ts               — pure pending→claimed→confirmed transition logic
 src/lib/checkout.ts               — createCheckout(): shared by POST /api/v1/checkout and dashboard/bookings/actions.ts
 src/lib/booking-status.ts         — pure balanceDueBadge(): dashboard-badge-only "balance due soon" reminder

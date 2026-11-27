@@ -66,8 +66,11 @@ status.ts`) — not a push. `rescheduleBookingAction` updates `event_date`/
   norm for a small Singapore business; no archival/purge job exists yet —
   this is the stated policy so retention isn't decided ad hoc later.
 - `vendor_prefs` (PK `vendor_id`): dashboard UI state, currently just
-  `tour_seen_at` (nullable — a missing row means "hasn't seen the
-  onboarding tour yet"). Deliberately separate from
+  `tour_seen_at` (nullable; set for vendors who saw the retired tour, now
+  read as "already onboarded"), `onboarding_dismissed_at` (nullable; the
+  vendor hid the Home setup checklist) and `qr_previewed_at` (nullable; first
+  time the vendor saw the live QR preview). A missing row means none of these
+  apply. Deliberately separate from
   `vendor_payment_config`, which stays payment-config-only per its own
   column contract above.
 - `payment_evidence` (`0022_payment_evidence.sql`): one row per transaction

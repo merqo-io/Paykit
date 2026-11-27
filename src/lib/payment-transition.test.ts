@@ -17,6 +17,8 @@ const { verifyKitAuthMock, auditMock, callbackMock, readMock, updateMock } =
     updateMock: vi.fn(),
   }));
 
+const { revalidateMock } = vi.hoisted(() => ({ revalidateMock: vi.fn() }));
+vi.mock("next/cache", () => ({ revalidatePath: revalidateMock }));
 vi.mock("@/lib/kit-auth", () => ({ verifyKitAuth: verifyKitAuthMock }));
 vi.mock("@/lib/payment-audit", () => ({ recordPaymentAudit: auditMock }));
 vi.mock("@/lib/payment-status-callback", () => ({
@@ -62,10 +64,22 @@ beforeEach(() => {
   updateMock.mockReset();
   auditMock.mockReset();
   callbackMock.mockReset();
+  revalidateMock.mockReset();
   vi.spyOn(console, "error").mockImplementation(() => undefined);
 });
 
 describe("runTransition", () => {
+  it("refreshes the dashboard layout so the Payments badge recounts", async () => {
+    await runTransition(request, params, spec);
+    expect(revalidateMock).toHaveBeenCalledWith("/dashboard", "layout");
+  });
+
+  it("leaves the dashboard cache alone when apply fails", async () => {
+    apply.mockResolvedValue(new Response("nope", { status: 503 }));
+    await runTransition(request, params, spec);
+    expect(revalidateMock).not.toHaveBeenCalled();
+  });
+
   it("hands the scoped row to apply", async () => {
     const res = await runTransition(request, params, spec);
     expect(await res.text()).toBe("applied");
