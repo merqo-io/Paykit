@@ -26,9 +26,9 @@ sign-in/dashboard link.
 - `nav.dom.test.tsx` — asserts the About link, the Sign in/Join the
   waitlist/Dashboard state switch, and that the account menu opens by touch
   and offers Sign out.
-- `hero.tsx` - headline, lede, waitlist CTA, one quiet "In pilot with Merqo
-  stalls" line (the only readiness statement on the page) and the payment
-  object. No badge and no stat row.
+- `hero.tsx` - headline, lede, waitlist CTA, an "In build" badge with a
+  short "not yet tried with vendors" line (the only readiness statement on the
+  page) and the payment object. No stat row.
 - `waitlist.ts` - `WAITLIST_URL` (every signup CTA) and `PILOT_PRICING_LINE`
   (the only pricing statement on public pages).
 - `checkout-card.tsx` - `CheckoutCard`, the hero's product object: a

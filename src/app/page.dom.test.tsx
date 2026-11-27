@@ -27,11 +27,11 @@ async function renderLanding() {
 }
 
 describe("HomePage copy guardrails", () => {
-  it("shows the pilot line once and none of the old readiness copy", async () => {
+  it("shows the In build badge once and never claims a pilot", async () => {
     const text = await renderLanding();
-    expect(screen.getAllByText("In pilot with Merqo stalls")).toHaveLength(1);
-    expect(text).not.toContain("In build");
-    expect(text).not.toContain("not yet tried");
+    expect(screen.getAllByText("In build")).toHaveLength(1);
+    expect(text).toContain("not yet tried with vendors");
+    expect(text).not.toMatch(/in pilot/i);
   });
 
   it("leads with one vendor-worded h1, the sample pay card and the family footer", async () => {
