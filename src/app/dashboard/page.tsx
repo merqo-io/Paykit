@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getVendorSession } from "@/lib/vendor-session";
-import { claimedTxSummary, confirmedSince } from "@/lib/transactions";
-import { sgtDate } from "@/lib/free-limits";
+import {
+  claimedTxSummary,
+  confirmedSince,
+  queryTransactions,
+} from "@/lib/transactions";
+import { isPaidPlan, sgtDate } from "@/lib/free-limits";
+import { readVendorPlan } from "@/lib/vendor-entitlement";
 import { deriveOnboarding } from "@/lib/onboarding";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { getConfig } from "./config/actions";
 import type { VendorPaymentConfig } from "@/lib/types";
-import { PageHeader, StatCard, formatMoney } from "@merqo/ui";
+import { TransactionStatusBadge } from "./transactions/transaction-status-badge";
+import { PageHeader, StatCard, Money, Timestamp, formatMoney } from "@merqo/ui";
 import { buttonVariants } from "@merqo/ui/primitives";
 
 export const metadata: Metadata = {
@@ -89,16 +95,26 @@ export default async function DashboardPage() {
     `${sgtDate(new Date().toISOString()).slice(0, 7)}-01T00:00:00+08:00`,
   ).toISOString();
 
-  const [config, toConfirm, month, { data: prefs }] = await Promise.all([
-    getConfig(),
-    claimedTxSummary(user.id),
-    confirmedSince(user.id, monthStartIso),
-    supabase
-      .from("vendor_prefs")
-      .select("tour_seen_at, onboarding_dismissed_at, qr_previewed_at")
-      .eq("vendor_id", user.id)
-      .maybeSingle(),
-  ]);
+  const todayStartIso = new Date(
+    `${sgtDate(new Date().toISOString())}T00:00:00+08:00`,
+  ).toISOString();
+
+  const [config, toConfirm, month, today, recent, { data: prefs }] =
+    await Promise.all([
+      getConfig(),
+      claimedTxSummary(user.id),
+      confirmedSince(user.id, monthStartIso),
+      confirmedSince(user.id, todayStartIso),
+      queryTransactions(user.id, { page: 1, pageSize: 5 }),
+      supabase
+        .from("vendor_prefs")
+        .select("tour_seen_at, onboarding_dismissed_at, qr_previewed_at")
+        .eq("vendor_id", user.id)
+        .maybeSingle(),
+    ]);
+
+  // The ledger only honours `q` for paid plans, so Free rows link unfiltered.
+  const isPaid = isPaidPlan(await readVendorPlan(supabase, user.id));
 
   const onboarding = await loadOnboarding(
     supabase,
@@ -139,7 +155,13 @@ export default async function DashboardPage() {
 
       <OnboardingChecklist state={onboarding} />
 
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <StatCard
+          label="Confirmed today"
+          value={formatMoney(today.cents)}
+          caption={`${today.count} payment${today.count === 1 ? "" : "s"}`}
+        />
+
         <StatCard
           label="Waiting for you to confirm"
           value={formatMoney(toConfirm.cents)}
@@ -169,6 +191,53 @@ export default async function DashboardPage() {
       >
         {toConfirm.count === 0 ? "View payments" : "Review these payments"}
       </Link>
+
+      <section className="mt-8" aria-labelledby="recent-payments">
+        <h2
+          id="recent-payments"
+          className="text-sm font-medium text-muted-foreground"
+        >
+          Recent payments
+        </h2>
+        {recent.rows.length === 0 ? (
+          <p className="mt-2 text-sm text-muted-foreground">No payments yet.</p>
+        ) : (
+          <>
+            <ul className="mt-2">
+              {recent.rows.map((tx) => (
+                <li key={tx.id} className="border-b last:border-b-0">
+                  <div className="relative grid min-h-11 grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 px-1 py-3">
+                    {/* No per-payment page exists yet, so a row opens the ledger (filtered to its reference on paid plans). */}
+                    <Link
+                      href={
+                        isPaid
+                          ? `/dashboard/transactions?q=${encodeURIComponent(tx.order_ref)}`
+                          : "/dashboard/transactions"
+                      }
+                      className="min-w-0 truncate font-medium after:absolute after:inset-0"
+                    >
+                      <Money cents={tx.amount_cents} />
+                    </Link>
+                    <div className="relative z-10 justify-self-end">
+                      <TransactionStatusBadge status={tx.status} />
+                    </div>
+                    <div className="col-span-2 flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                      <span className="min-w-0 truncate">{tx.kit_slug}</span>
+                      <Timestamp value={tx.created_at} variant="date" />
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/dashboard/transactions"
+              className="mt-2 inline-block text-sm underline underline-offset-4"
+            >
+              View all payments
+            </Link>
+          </>
+        )}
+      </section>
 
       <section className="mt-8 space-y-1">
         <h2 className="text-sm font-medium text-muted-foreground">

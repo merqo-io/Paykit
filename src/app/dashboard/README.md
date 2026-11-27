@@ -41,7 +41,7 @@ for page render/data failures; it offers "Try again" and a "Back to dashboard" l
 - `page.tsx` is a status hub: payment method (or "Not set"), the SGD amount
   and count of payments waiting to be confirmed (as `StatCard` captions; the link goes to `/dashboard/transactions?status=claimed` when something is waiting) and this
   month's confirmed amount and payment count; a vendor with no setup sees only the setup prompt. Usage does not impose a volume
-  cap.
+  cap. It also shows a Confirmed today card (Singapore day) and the five most recent payments (each opens the ledger, filtered to its reference on paid plans) with a "View all payments" link.
 - `config/` saves PayNow or a payment link/QR image. Deferred uploads commit on
   Save.
 - `transactions/` lists vendor transactions and Pro-gated refund bookkeeping.
