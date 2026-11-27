@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { TransactionTable } from "./transaction-table";
 import type { Transaction } from "@/lib/types";
 
@@ -17,13 +17,16 @@ const TX: Transaction = {
   created_at: "2026-07-15T00:00:00Z",
 };
 
+// jsdom applies no Tailwind CSS, so both the phone list and the table are in
+// the DOM; each assertion scopes to the one it means.
 describe("TransactionTable", () => {
-  it("renders one row per transaction with kit, order ref, amount, status", () => {
+  it("renders one table row per transaction with kit, order ref, amount, status", () => {
     render(<TransactionTable transactions={[TX]} isPro={false} />);
-    expect(screen.getByText("qkit")).toBeInTheDocument();
-    expect(screen.getByText("A-001")).toBeInTheDocument();
-    expect(screen.getByText("S$4.50")).toBeInTheDocument();
-    expect(screen.getByText("Received")).toBeInTheDocument();
+    const table = within(screen.getByRole("table"));
+    expect(table.getByText("qkit")).toBeInTheDocument();
+    expect(table.getByText("A-001")).toBeInTheDocument();
+    expect(table.getByText("S$4.50")).toBeInTheDocument();
+    expect(table.getByText("Received")).toBeInTheDocument();
   });
 
   it("shows an empty state with no transactions", () => {
@@ -41,11 +44,72 @@ describe("TransactionTable", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows the Refund button for a Pro vendor's confirmed transaction", () => {
+  it("shows the Refund column and button for a Pro vendor's confirmed transaction", () => {
     render(<TransactionTable transactions={[TX]} isPro={true} />);
-    expect(screen.getByRole("button", { name: /refund/i })).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("table")).getByRole("button", {
+        name: /refund/i,
+      }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("columnheader", { name: /refund/i }),
     ).toBeInTheDocument();
+  });
+
+  describe("phone list", () => {
+    it("shows amount, status, kit and date on the collapsed row", () => {
+      render(<TransactionTable transactions={[TX]} isPro={true} />);
+      const list = within(screen.getByRole("list", { name: "Payments" }));
+      expect(list.getByText("S$4.50")).toBeInTheDocument();
+      expect(list.getByText("Received")).toBeInTheDocument();
+      expect(list.getByText("qkit")).toBeInTheDocument();
+      expect(list.getByText(/2026/)).toBeInTheDocument();
+      expect(list.queryByText("A-001")).not.toBeInTheDocument();
+      expect(
+        list.queryByRole("button", { name: /refund/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("expands to reveal the reference and the Refund action", () => {
+      render(<TransactionTable transactions={[TX]} isPro={true} />);
+      const list = within(screen.getByRole("list", { name: "Payments" }));
+      const toggle = list.getByRole("button", { name: /S\$4\.50/ });
+      fireEvent.click(toggle);
+      expect(toggle).toHaveAttribute("aria-expanded", "true");
+      expect(list.getByText("A-001")).toBeInTheDocument();
+      expect(list.getByRole("button", { name: /refund/i })).toBeInTheDocument();
+      fireEvent.click(toggle);
+      expect(toggle).toHaveAttribute("aria-expanded", "false");
+      expect(list.queryByText("A-001")).not.toBeInTheDocument();
+    });
+
+    it("keeps the Refund action outside the toggle so tapping it does not collapse the row", () => {
+      render(<TransactionTable transactions={[TX]} isPro={true} />);
+      const list = within(screen.getByRole("list", { name: "Payments" }));
+      const toggle = list.getByRole("button", { name: /S\$4\.50/ });
+      fireEvent.click(toggle);
+      const refund = list.getByRole("button", { name: /refund/i });
+      expect(toggle).not.toContainElement(refund);
+      fireEvent.click(refund);
+      expect(toggle).toHaveAttribute("aria-expanded", "true");
+    });
+
+    it("describes the toggle with the status and secondary line", () => {
+      render(<TransactionTable transactions={[TX]} isPro={true} />);
+      const list = within(screen.getByRole("list", { name: "Payments" }));
+      expect(
+        list.getByRole("button", { name: /S\$4\.50/ }),
+      ).toHaveAccessibleDescription(/Received[\s\S]*qkit/);
+    });
+
+    it("offers no Refund on a Free vendor's expanded row", () => {
+      render(<TransactionTable transactions={[TX]} isPro={false} />);
+      const list = within(screen.getByRole("list", { name: "Payments" }));
+      fireEvent.click(list.getByRole("button", { name: /S\$4\.50/ }));
+      expect(list.getByText("A-001")).toBeInTheDocument();
+      expect(
+        list.queryByRole("button", { name: /refund/i }),
+      ).not.toBeInTheDocument();
+    });
   });
 });

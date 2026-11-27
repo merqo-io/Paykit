@@ -21,7 +21,7 @@ across every kit — plus, for Pro vendors, a per-payment refund action.
   renders `Kit`/`Reference`/`Amount`/`Status`/`Created` columns through `@merqo/ui` DataTable, plus a `Refund` column with `RefundDialog` when `isPro`. Amounts
   are shown with `Money` from `@merqo/ui` ("S$4.50"), in a right-aligned column. Empty state is the
   shared dashed `EmptyState` ("No payments yet"); the table sits in an
-  `overflow-x-auto` wrapper so it scrolls instead of widening the page on a phone.
+  `hidden sm:block` wrapper; below 640px a `PhoneList` of expandable rows (amount + status, kit + date; tap for the reference and `RefundDialog`) replaces it, switched by CSS only. The Refund gate (Pro and confirmed) is the shared `canRefund` in `transaction-table.tsx`.
 - `transaction-notices.tsx` — `HiddenNote` (older payments Free hides) and `FreeRangeNote` ("Free shows the
   last 30 days."). A failed read renders the shared `ListError` ("Couldn't load payments"); the filter select uses `FILTER_SELECT_CLASS`.
 - `transaction-status-badge.tsx` — `TransactionStatusBadge({ status })`

@@ -11,7 +11,7 @@ import {
   sgtDayStartIso,
 } from "@/lib/free-limits";
 import { countTransactionsBefore, queryTransactions } from "@/lib/transactions";
-import { PageHeader } from "@merqo/ui";
+import { PageShell } from "@/components/page-shell";
 import { TransactionTable } from "./transaction-table";
 import { TransactionFilters } from "./transaction-filters";
 import { ListError } from "@/components/list/list-error";
@@ -74,16 +74,14 @@ export default async function TransactionsPage({
   );
 
   return (
-    <div>
-      <PageHeader
-        responsive
-        title="Payments"
-        description={
-          isPaid
-            ? "Every payment across your kits."
-            : "Your payments from the last 30 days."
-        }
-      />
+    <PageShell
+      title="Payments"
+      description={
+        isPaid
+          ? "Every payment across your kits."
+          : "Your payments from the last 30 days."
+      }
+    >
       <TransactionFilters
         params={params}
         isPaid={isPaid}
@@ -110,6 +108,6 @@ export default async function TransactionsPage({
         </>
       )}
       <HiddenNote count={hiddenCount} />
-    </div>
+    </PageShell>
   );
 }
