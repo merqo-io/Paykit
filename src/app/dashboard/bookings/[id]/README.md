@@ -64,3 +64,5 @@ Class composition (`cn`) comes from `@merqo/ui/primitives`.
 Money and times here come from `@merqo/ui` (`Money`, `formatMoney`, `Timestamp`, `formatDate`, `formatDateTime`): "S$4.50", "7 Nov 2026", Singapore time.
 
 Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.
+
+The cancel and reschedule dialogs show their inline error through the shared `FormError`.

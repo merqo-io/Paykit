@@ -33,7 +33,7 @@ of a short page instead of mid-screen. The footer is wrapped in
 `contents print:hidden`, like the navigation, so a printed booking or report
 leaves it out.
 
-`loading.tsx` (using the shared `Skeleton`) covers page loading inside this shell with a title, two stat cards and five list rows at the list-page width. `error.tsx` (shared `ErrorPage` from `@merqo/ui`, titled "This page didn't load") offers retry
+`loading.tsx` (shared `StatTileSkeleton` and `ListSkeleton`) covers page loading inside this shell with a title, two stat tiles and five list rows at the list-page width. Start of today and of the month on Home come from the shared `startOfSgDay`. `error.tsx` (shared `ErrorPage` from `@merqo/ui`, titled "This page didn't load") offers retry
 for page render/data failures; it offers "Try again" and a "Back to dashboard" link; it cannot catch its own segment's layout errors.
 
 ## Routes

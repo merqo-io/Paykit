@@ -59,6 +59,6 @@ Every page and action is gated by `requireAdmin()`, which needs `aal2`; a passwo
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
-`loading.tsx` is the `/admin/*` loading fallback (shared `Skeleton`): it keeps the page's `<main>` landmark and marks an inner element `role="status"` with an sr-only "Loading" label.
+`loading.tsx` is the `/admin/*` loading fallback: it keeps the page's `<main>` landmark and shows a hidden title block above three shared `StatTileSkeleton` tiles, each a `role="status"` region with an sr-only "Loading" label.
 
 Timestamps display through `Timestamp` (or `formatDate`/`formatDateTime`) from `@merqo/ui`, always in Asia/Singapore so server and client render identically (no hydration mismatch).

@@ -98,3 +98,5 @@ dashboard and `/about` use it too. `wordmark.tsx` is also used by
 [components](../README.md)
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+The nav's signed-out buttons rely on the shared `Button`'s `pointer-coarse:h-11` (no `sm:h-8` override), so they stay 44px on tablets. The `after-payment.tsx` ledger mock formats amounts with the shared `formatMoney`.

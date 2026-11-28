@@ -47,3 +47,5 @@ folder's job is entirely to collect the vendor's consent and forward it.
 The `next` form field is length-checked by Zod before `safeRedirectPath` runs.
 
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
+
+The "We couldn't check the terms right now" state uses the shared `PageHeader` for its heading and line.
