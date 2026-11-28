@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { toast } from "sonner";
-import { CopyButton } from "@merqo/ui";
+import { CopyButton, FormError } from "@merqo/ui";
 import {
   Dialog,
   DialogContent,
@@ -111,11 +111,7 @@ export function InquiryFormSettings({ form }: { form: InquiryForm | null }) {
                 Accept new inquiries
               </Label>
             </div>
-            {state.status === "error" && (
-              <p role="alert" className="text-sm font-medium text-destructive">
-                {state.message}
-              </p>
-            )}
+            {state.status === "error" && <FormError message={state.message} />}
             <DialogFooter>
               <Button
                 type="button"

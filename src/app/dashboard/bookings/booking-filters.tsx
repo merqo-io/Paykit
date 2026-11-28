@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { FORM_LABEL_CLASS } from "@merqo/ui";
-import { Button, Input, Label } from "@merqo/ui/primitives";
+import { FORM_LABEL_CLASS, SearchField } from "@merqo/ui";
+import { Button, Label } from "@merqo/ui/primitives";
 import { FILTER_SELECT_CLASS } from "@/components/list/filter-classes";
 import {
   BOOKING_STATUS_FILTERS,
@@ -27,13 +27,17 @@ export function BookingFilters({ params }: { params: BookingListParams }) {
       role="search"
     >
       <div className="grid gap-1.5 sm:flex-1">
-        <Label htmlFor="booking-search" className={FORM_LABEL_CLASS}>
+        <Label
+          id="booking-search-label"
+          htmlFor="booking-search"
+          className={FORM_LABEL_CLASS}
+        >
           Search
         </Label>
-        <Input
+        <SearchField
           id="booking-search"
+          aria-labelledby="booking-search-label"
           name="q"
-          type="search"
           defaultValue={params.q}
           placeholder="Customer name or phone"
           maxLength={80}

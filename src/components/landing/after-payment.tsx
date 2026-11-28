@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatMoney } from "@merqo/ui";
 
 import { CONTAINER, SECTION_PAD_Y } from "./rhythm";
 
@@ -34,7 +35,7 @@ const DAYS: readonly { day: string; sgd: number; payments: number }[] = [
 
 const total = DAYS.reduce((sum, d) => sum + d.sgd, 0);
 const paymentCount = DAYS.reduce((sum, d) => sum + d.payments, 0);
-const money = (n: number) => `S$${n.toFixed(2)}`;
+const money = (n: number) => formatMoney(Math.round(n * 100));
 
 function Point({ title, body }: { title: string; body: string }) {
   return (

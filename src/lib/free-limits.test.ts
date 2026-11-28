@@ -1,10 +1,10 @@
+import { sgDayKey } from "@merqo/ui";
 import { describe, expect, it } from "vitest";
 import {
   freeListCutoff,
   freeRevenueWindow,
   isPaidPlan,
   resolveListRange,
-  sgtDate,
   sgtDayStartIso,
   sgtNextDayStartIso,
   sumFreeRevenue,
@@ -153,19 +153,19 @@ describe("sumFreeRevenue", () => {
   });
 });
 
-describe("sgtDate", () => {
+describe("sgDayKey against the Free window", () => {
   it("keeps 15:59 UTC on the same Singapore day as 23:59 SGT and moves 16:00 UTC to the next", () => {
-    expect(sgtDate("2026-11-16T15:59:00Z")).toBe("2026-11-16");
-    expect(sgtDate("2026-11-16T16:00:00Z")).toBe("2026-11-17");
+    expect(sgDayKey("2026-11-16T15:59:00Z")).toBe("2026-11-16");
+    expect(sgDayKey("2026-11-16T16:00:00Z")).toBe("2026-11-17");
   });
 
   it("rolls the month and year over at 16:00 UTC", () => {
-    expect(sgtDate("2026-11-30T16:00:00Z")).toBe("2026-12-01");
-    expect(sgtDate("2026-12-31T16:00:00Z")).toBe("2027-01-01");
+    expect(sgDayKey("2026-11-30T16:00:00Z")).toBe("2026-12-01");
+    expect(sgDayKey("2026-12-31T16:00:00Z")).toBe("2027-01-01");
   });
 
   it("agrees with the Free window start", () => {
     const { todayStartIso } = freeRevenueWindow(NOW);
-    expect(sgtDate(todayStartIso)).toBe("2026-11-16");
+    expect(sgDayKey(todayStartIso)).toBe("2026-11-16");
   });
 });

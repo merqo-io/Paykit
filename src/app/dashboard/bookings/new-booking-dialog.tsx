@@ -15,6 +15,7 @@ import {
 
 import { createBookingAction, type BookingActionState } from "./actions";
 import { Field, MoneyField } from "./field";
+import { FormError } from "@merqo/ui";
 
 /** `""` unless total/deposit are both valid numbers with a positive remainder. */
 function deriveBalance(total: string, deposit: string): string {
@@ -188,11 +189,7 @@ export function NewBookingDialog({
           <p className="text-xs text-muted-foreground">
             Deposit and balance must add up to the total.
           </p>
-          {state.status === "error" && (
-            <p role="alert" className="text-sm font-medium text-destructive">
-              {state.message}
-            </p>
-          )}
+          {state.status === "error" && <FormError message={state.message} />}
           <DialogFooter>
             <Button
               type="button"

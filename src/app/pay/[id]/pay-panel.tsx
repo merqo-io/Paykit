@@ -3,7 +3,13 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import QRCode from "react-qr-code";
 import { Download, ImageUp } from "lucide-react";
-import { FormError, Money, resizeToWebp, useAsyncAction } from "@merqo/ui";
+import {
+  FormError,
+  Money,
+  resizeToWebp,
+  useAsyncAction,
+  usePolling,
+} from "@merqo/ui";
 import { Button, buttonVariants, cn } from "@merqo/ui/primitives";
 
 import { callHandler } from "@/lib/utils";
@@ -188,6 +194,28 @@ function EndNotice({
   );
 }
 
+// The payment can be confirmed from somewhere else while this page is
+// open (the seller's own screen). When that happens the customer is done
+// here, so the page moves them on without waiting for a tap.
+function useConfirmedElsewhere(
+  id: string,
+  token: string,
+  enabled: boolean,
+  onRecorded: () => void,
+) {
+  const [settled, setSettled] = useState(false);
+  usePolling(
+    async () => {
+      const current = await getHostedPaymentStatus(id, token).catch(() => null);
+      if (!current || current.status === "pending") return;
+      setSettled(true);
+      if (current.returnUrl) leaveTo(current.returnUrl);
+      else onRecorded();
+    },
+    { intervalMs: POLL_MS, enabled: enabled && !settled },
+  );
+}
+
 export function PayPanel({
   id,
   token,
@@ -221,26 +249,7 @@ export function PayPanel({
 
   useEffect(() => () => releasePreview(proofRef.current), []);
 
-  // The payment can be confirmed from somewhere else while this page is
-  // open (the seller's own screen). When that happens the customer is done
-  // here, so the page moves them on without waiting for a tap.
-  useEffect(() => {
-    if (recorded) return;
-    let stopped = false;
-    const timer = setInterval(async () => {
-      if (document.hidden) return;
-      const current = await getHostedPaymentStatus(id, token).catch(() => null);
-      if (stopped || !current || current.status === "pending") return;
-      stopped = true;
-      clearInterval(timer);
-      if (current.returnUrl) leaveTo(current.returnUrl);
-      else setRecorded(true);
-    }, POLL_MS);
-    return () => {
-      stopped = true;
-      clearInterval(timer);
-    };
-  }, [id, token, recorded]);
+  useConfirmedElsewhere(id, token, !recorded, () => setRecorded(true));
 
   async function saveQrImage() {
     const svg = qrWrapperRef.current?.querySelector("svg");

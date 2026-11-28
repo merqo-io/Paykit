@@ -15,6 +15,7 @@ import {
 
 import { rescheduleBookingAction } from "../actions";
 import { Field } from "../field";
+import { FormError } from "@merqo/ui";
 
 export function RescheduleBookingDialog({
   bookingId,
@@ -79,11 +80,7 @@ export function RescheduleBookingDialog({
           value={newBalanceDueDate}
           onChange={(e) => setNewBalanceDueDate(e.target.value)}
         />
-        {error && (
-          <p role="alert" className="text-sm font-medium text-destructive">
-            {error}
-          </p>
-        )}
+        {error && <FormError message={error} />}
         <DialogFooter>
           <Button
             variant="outline"

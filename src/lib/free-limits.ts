@@ -5,11 +5,6 @@ export const FREE_LIST_DAYS = 30;
 const DAY_MS = 86_400_000;
 const SGT_OFFSET_MS = 8 * 3_600_000;
 
-/** Singapore calendar date (YYYY-MM-DD) of an ISO timestamp; Singapore has no DST. */
-export function sgtDate(iso: string): string {
-  return new Date(Date.parse(iso) + SGT_OFFSET_MS).toISOString().slice(0, 10);
-}
-
 /** An unreadable plan counts as free so a failed read never opens paid data. */
 export function isPaidPlan(plan: VendorPlan | null): boolean {
   return plan === "pro";

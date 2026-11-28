@@ -1,4 +1,4 @@
-import { sgtDate } from "@/lib/free-limits";
+import { sgDayKey } from "@merqo/ui";
 import type { Transaction } from "@/lib/types";
 
 export type DailyRevenue = { date: string; cents: number; count: number };
@@ -10,7 +10,8 @@ export function aggregateRevenueByDay(
   const totals = new Map<string, { cents: number; count: number }>();
   for (const tx of transactions) {
     if (tx.status !== "confirmed") continue;
-    const date = sgtDate(tx.created_at);
+    const date = sgDayKey(tx.created_at);
+    if (!date) continue;
     const prior = totals.get(date) ?? { cents: 0, count: 0 };
     totals.set(date, {
       cents: prior.cents + tx.amount_cents,

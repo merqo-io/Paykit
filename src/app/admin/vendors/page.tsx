@@ -4,8 +4,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin";
 import { listVendors, type VendorRow } from "@/lib/admin-data";
-import { EmptyState, PageHeader } from "@merqo/ui";
-import { Button, Input, Label } from "@merqo/ui/primitives";
+import { EmptyState, PageHeader, SearchField } from "@merqo/ui";
+import { Button, Label } from "@merqo/ui/primitives";
 import { VendorsTable } from "@/app/admin/vendors/vendors-table";
 import { ListError } from "@/components/list/list-error";
 import { UrlPager } from "@/components/list/url-pager";
@@ -98,11 +98,13 @@ export default async function AdminVendorsPage({
         className="flex flex-wrap items-end gap-2"
       >
         <div className="min-w-0 flex-1 space-y-1.5 sm:max-w-sm">
-          <Label htmlFor="vendor-search">Search by stall name or email</Label>
-          <Input
+          <Label id="vendor-search-label" htmlFor="vendor-search">
+            Search by stall name or email
+          </Label>
+          <SearchField
             id="vendor-search"
+            aria-labelledby="vendor-search-label"
             name="q"
-            type="search"
             defaultValue={q}
             maxLength={100}
             className="h-11"

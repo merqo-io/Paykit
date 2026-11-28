@@ -2,7 +2,7 @@
 
 import { useActionState, useRef, useState } from "react";
 import { toast } from "sonner";
-import { AsyncSubmitButton } from "@merqo/ui";
+import { AsyncSubmitButton, FormError } from "@merqo/ui";
 import {
   Dialog,
   DialogContent,
@@ -70,11 +70,7 @@ export function RefundDialog({ transactionId }: { transactionId: string }) {
             <Label htmlFor="reason">Reason (optional)</Label>
             <Input id="reason" name="reason" />
           </div>
-          {state.status === "error" && (
-            <p role="alert" className="text-sm font-medium text-destructive">
-              {state.message}
-            </p>
-          )}
+          {state.status === "error" && <FormError message={state.message} />}
           <AsyncSubmitButton pending={pending} pendingChildren="Recording…">
             Record refund
           </AsyncSubmitButton>

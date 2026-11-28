@@ -1,5 +1,5 @@
 import LoginPage from "./page";
-import { PASSWORD_REQUIREMENTS_HINT } from "./weak-password";
+import { PASSWORD_REQUIREMENTS_HINT } from "@merqo/ui";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
@@ -283,7 +283,7 @@ describe("LoginPage", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(
-        "Wrong email or password. Try again.",
+        "Email or password is wrong. Try again or reset your password.",
       );
     });
   });

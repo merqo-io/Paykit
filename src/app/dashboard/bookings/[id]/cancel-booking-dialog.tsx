@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { AsyncSubmitButton } from "@merqo/ui";
+import { AsyncSubmitButton, FormError } from "@merqo/ui";
 import {
   Dialog,
   DialogContent,
@@ -154,11 +154,7 @@ export function CancelBookingDialog({
               . You can still cancel this booking.
             </p>
           )}
-          {error && (
-            <p role="alert" className="text-sm font-medium text-destructive">
-              {error}
-            </p>
-          )}
+          {error && <FormError message={error} />}
           <DialogFooter>
             <Button
               type="button"

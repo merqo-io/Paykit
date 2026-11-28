@@ -4,7 +4,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { ResetPasswordForm } from "./reset-password-form";
-import { PASSWORD_REQUIREMENTS_HINT } from "../login/weak-password";
+import { PASSWORD_REQUIREMENTS_HINT } from "@merqo/ui";
 
 const {
   getUserMock,

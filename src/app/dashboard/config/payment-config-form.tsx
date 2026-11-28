@@ -19,7 +19,7 @@ import {
   removeUnsavedImages,
   uploadPaykitImage,
 } from "@/lib/image-upload-adapter";
-import { resizeToWebp } from "@merqo/ui";
+import { FormError, resizeToWebp } from "@merqo/ui";
 import { buildPayNowPayload } from "@/lib/payments/paynow";
 import { isHttpUrl } from "@/lib/schemas";
 import { saveConfigAction, type SaveConfigState } from "./actions";
@@ -281,11 +281,7 @@ function SaveStatus({
 }) {
   return (
     <>
-      {state.status === "error" && (
-        <p role="alert" className="text-sm font-medium text-destructive">
-          {state.message}
-        </p>
-      )}
+      {state.status === "error" && <FormError message={state.message} />}
       {state.status === "ok" && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <p

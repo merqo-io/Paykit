@@ -1,4 +1,4 @@
-import { sgtDate } from "@/lib/free-limits";
+import { sgDayKey } from "@merqo/ui";
 import type { Booking, Transaction } from "@/lib/types";
 
 export type EarningsMonth = { month: string; revenue_cents: number };
@@ -71,7 +71,7 @@ export function buildEarningsReport(
   for (const tx of transactions) {
     if (tx.status !== "confirmed") continue;
     const booking = bookingByTxId.get(tx.id);
-    const eventDate = booking?.event_date ?? sgtDate(tx.created_at);
+    const eventDate = booking?.event_date ?? sgDayKey(tx.created_at);
     if (Number(eventDate.slice(0, 4)) !== year) continue;
 
     const key = booking ? `booking:${booking.id}` : `tx:${tx.id}`;
