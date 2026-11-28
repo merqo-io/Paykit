@@ -12,10 +12,10 @@ import {
   DialogTrigger,
   Button,
 } from "@merqo/ui/primitives";
+import { FormError } from "@merqo/ui";
 
 import { rescheduleBookingAction } from "../actions";
 import { Field } from "../field";
-import { FormError } from "@merqo/ui";
 
 export function RescheduleBookingDialog({
   bookingId,

@@ -371,6 +371,8 @@ Every foreign key column is indexed (migration `0027`, applied by hand), which t
 
 Badge, button, checkbox, dialog, input, label, textarea, tooltip and `cn` come from `@merqo/ui/primitives`. `Skeleton` also comes from `@merqo/ui/primitives`. Only `radio-group` lives in `src/components/ui/`, because the shared package has no equivalent.
 
+The loading skeletons `StatTileSkeleton` and `ListSkeleton`, and the dollar-to-cents parser that `src/lib/money.ts` wraps, also come from `@merqo/ui`, so the kits share one copy of each.
+
 ## Timestamps
 
 Timestamps are shown through `formatSgtDate` and `formatSgtDateTime` in `src/lib/utils.ts`, pinned to Asia/Singapore so server-rendered and client output match and hydration does not mismatch.

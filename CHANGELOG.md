@@ -26,7 +26,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The dashboard's start-of-today and start-of-month use the shared `startOfSgDay`.
 - The Admin and Home loading states use the shared `StatTileSkeleton` and `ListSkeleton`.
 - The terms-check error page heading uses the shared `PageHeader`; the landing ledger mock formats amounts with `formatMoney`.
-
 - Repinned `@merqo/ui` to v0.62.1 (About page kit status copy, footer and nav tap targets of at least 44px).
 - Reverted #274: the landing hero is the switchable Waiting/Paid/Confirmed pay-card object again and the three-step payment journey is restored; the qkit order phone is removed. The hero and `/faq` now carry an "In build" badge ("Built, not yet tried with vendors.") instead of "In pilot with Merqo stalls", since paykit is not live with vendors.
 - Repinned `@merqo/ui` to merqo-ui commit dcaf1100 (v0.62.0, from e468ecd2 / v0.61.2). It adds `DashboardNav`'s opt-in `mobileNav="none"`, which paykit now uses so the phone header has no burger; other kits are unaffected.
