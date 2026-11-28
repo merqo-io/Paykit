@@ -33,15 +33,11 @@ export function Nav({ user }: { user?: NavUser | null }) {
                 asChild
                 variant="ghost"
                 size="sm"
-                className="hidden h-11 min-w-11 sm:inline-flex sm:h-8 sm:min-w-0"
+                className="hidden sm:inline-flex"
               >
                 <Link href="/login">Sign in</Link>
               </Button>
-              <Button
-                asChild
-                size="sm"
-                className="h-11 min-w-11 sm:h-8 sm:min-w-0"
-              >
+              <Button asChild size="sm">
                 <a href={WAITLIST_URL}>Join the waitlist</a>
               </Button>
             </>

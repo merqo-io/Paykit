@@ -79,7 +79,7 @@ provide authorization.
 - `free-limits.ts` — the Free-plan windows in one place: `isPaidPlan(plan)`
   (an unreadable plan is not paid), `FREE_LIST_DAYS` and `freeListCutoff()`
   for the 30-day transaction list, `freeRevenueWindow()` (Singapore midnight
-  bounds for today and yesterday) `sumFreeRevenue()` and `sgtDate()`, the Singapore calendar date of a timestamp
+  bounds for today and yesterday) `sumFreeRevenue()` (the Singapore calendar date of a timestamp comes from the shared `sgDayKey`)
   that reports and earnings also use to bucket days and months.
 - `pay-token.ts` — the hosted pay page's token: `mintPayToken()` (32 random
   bytes as 43 base64url characters, with the sha256 hex to store),
@@ -262,7 +262,7 @@ session/service client separation; `payments/` explains checkout builders.
 
 [paykit](../../README.md)
 
-`money.ts` converts form dollars into integer cents for booking/refund actions; their schemas validate range and finite values. Empty/null form values retain the existing Number conversion to zero.
+`money.ts` converts form dollars into integer cents for booking/refund actions; their schemas validate range and finite values. It delegates to the shared `dollarsToCents` and returns `null` for blank, invalid or file values; the schemas coerce that to 0 and reject it with the same "Enter a valid ... amount." message.
 
 `nonce-prefixes.ts` holds the nonce route list (including `/login` and `/reset-password`, whose layouts force dynamic rendering), while CSP source lists and theme props come from `@merqo/ui`; `columns.ts` lists the columns each table read selects; `admin.ts` also requires `aal2` in `requireAdmin()`.
 

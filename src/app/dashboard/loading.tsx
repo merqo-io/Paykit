@@ -1,3 +1,4 @@
+import { ListSkeleton, StatTileSkeleton } from "@merqo/ui";
 import { Skeleton } from "@merqo/ui/primitives";
 
 /**
@@ -9,23 +10,16 @@ import { Skeleton } from "@merqo/ui/primitives";
  */
 export default function DashboardLoading() {
   return (
-    <div
-      className="mx-auto w-full max-w-5xl animate-pulse motion-reduce:animate-none"
-      aria-hidden="true"
-    >
-      <div className="mb-7 space-y-2">
+    <div className="mx-auto w-full max-w-5xl">
+      <div className="mb-7 space-y-2" aria-hidden="true">
         <Skeleton className="h-10 w-56" />
         <Skeleton className="h-4 w-72 max-w-full" />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Skeleton className="h-28 w-full rounded-xl" />
-        <Skeleton className="h-28 w-full rounded-xl" />
+        <StatTileSkeleton />
+        <StatTileSkeleton />
       </div>
-      <div className="mt-6 space-y-3">
-        {Array.from({ length: 5 }, (_, i) => (
-          <Skeleton key={i} className="h-14 w-full rounded-lg" />
-        ))}
-      </div>
+      <ListSkeleton rows={5} className="mt-6" />
     </div>
   );
 }

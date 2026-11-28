@@ -7,7 +7,9 @@ import { toast } from "sonner";
 import {
   FORM_ERROR_CLASS,
   FORM_LABEL_CLASS,
+  authErrorMessage,
   InfoTooltip,
+  PASSWORD_REQUIREMENTS_HINT,
   navigatingAway,
   useAsyncAction,
 } from "@merqo/ui";
@@ -15,8 +17,6 @@ import { Button, Input, Label } from "@merqo/ui/primitives";
 
 import { passwordChangeSchema } from "@/lib/schemas";
 import { createClient } from "@/lib/supabase/client";
-import { friendlyAuthError } from "../login/auth-errors";
-import { PASSWORD_REQUIREMENTS_HINT } from "../login/weak-password";
 
 type SessionState = "checking" | "ready" | "no-session" | "failed";
 
@@ -65,7 +65,7 @@ export function ResetPasswordForm() {
       return;
     }
     if (updateError) {
-      setError(friendlyAuthError(updateError, "update"));
+      setError(authErrorMessage(updateError, "update"));
       return;
     }
     // Navigation stays outside the try so a router failure after a successful

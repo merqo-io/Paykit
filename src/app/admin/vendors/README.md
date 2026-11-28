@@ -9,7 +9,7 @@ status, plan (read-only, from the entitlement cache), and transaction count.
 
 - `page.tsx` — `AdminVendorsPage`: `requireAdmin()` + fetches
   `listVendors()` (pre-sorted most-urgent status first), filters by the `q`
-  search param (email, stall name, label or vendor id), pages 25 at a time and
+  search param (a shared `SearchField`; email, stall name, label or vendor id), pages 25 at a time and
   renders `VendorsTable`, or `EmptyState` when there are no vendors or no
   match. A failed read shows a retry state; a page past the end redirects.
 - `vendors-table.tsx` — `VendorsTable`: `"use client"` wrapper owning the

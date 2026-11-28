@@ -44,3 +44,5 @@ Buttons, inputs, dialogs, badges and the other shared primitives here are import
 The free-plan Today and Yesterday tiles show amounts through `@merqo/ui` `formatMoney` ("S$4.50").
 
 Signed-out and stale-terms vendors come back here after sign-in or terms acceptance: the page passes its own path and query to `getVendorSession` as `returnTo`.
+
+The default report year comes from the shared `sgDayKey` (Singapore calendar day); the local `sgtDate` is gone.

@@ -47,7 +47,7 @@ from.
 `page.tsx` renders the Inquiries section (settings, inquiry table) above
 the bookings section, each heading with a count. The bookings list is driven
 by URL params parsed in `list-params.ts` (`q`, `status`, `page`; invalid values
-fall back to defaults) and queried through `searchBookings` in
+fall back to defaults; the search box is a shared `SearchField`) and queried through `searchBookings` in
 `src/lib/bookings.ts` (RLS unchanged; search text is sanitized before it enters
 the `or()` filter). `booking-filters.tsx` is a plain GET form (labels use `FORM_LABEL_CLASS`; the status select uses the shared `FILTER_SELECT_CLASS`); paging is the shared `UrlPager`. A failed query renders the shared `ListError` ("Couldn't load bookings") with a Try again link;
 `customer-phone.tsx` renders the call and WhatsApp links used by both detail
@@ -82,7 +82,7 @@ Mocked action tests do not establish database RLS, locking or trigger behavior.
 
 [dashboard](../README.md)
 
-Booking amount conversion uses `dollarsToCents` from `@/lib/money`; the action keeps its existing schema validation and rounding behavior.
+Booking amount conversion uses `dollarsToCents` from `@/lib/money`; the action keeps its schema validation; the shared parser rounds on the decimal digits and also accepts `S$` and thousands separators.
 
 Booking and transaction reads list their columns (`@/lib/columns`).
 

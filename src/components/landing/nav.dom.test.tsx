@@ -84,4 +84,15 @@ describe("Nav account menu", () => {
     render(<Nav />);
     expect(screen.queryByRole("button", { name: /account/i })).toBeNull();
   });
+
+  it("keeps the 44px touch height on the signed-out buttons at every width", async () => {
+    const user = userEvent.setup();
+    render(<Nav />);
+    for (const name of ["Sign in", "Join the waitlist"]) {
+      const link = screen.getByRole("link", { name });
+      expect(link).toHaveClass("pointer-coarse:h-11");
+      expect(link.className).not.toMatch(/(^|\s)sm:h-8/);
+      await user.pointer({ keys: "[TouchA]", target: link });
+    }
+  });
 });

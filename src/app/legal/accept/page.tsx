@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { z } from "zod";
-import { AcceptTermsPage, safeRedirectPath } from "@merqo/ui";
+import { AcceptTermsPage, PageHeader, safeRedirectPath } from "@merqo/ui";
 import { Wordmark } from "@/components/landing/wordmark";
 import { acceptLegalTerms } from "./actions";
 
@@ -33,12 +33,10 @@ export default async function LegalAcceptPage({
     return (
       <main className="mx-auto flex min-h-screen max-w-md flex-col gap-4 px-5 py-10">
         <Wordmark className="text-xl" />
-        <h1 className="font-display text-2xl font-semibold text-balance">
-          We couldn&apos;t check the terms right now
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          This is a temporary problem on our side. Try again in a moment.
-        </p>
+        <PageHeader
+          title="We couldn't check the terms right now"
+          description="This is a temporary problem on our side. Try again in a moment."
+        />
         <Link
           href={safeRedirectPath(next, "/dashboard")}
           className="w-fit text-sm font-medium underline underline-offset-4"

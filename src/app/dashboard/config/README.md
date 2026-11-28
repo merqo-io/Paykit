@@ -108,3 +108,5 @@ Page chrome here (PageHeader) comes from `@merqo/ui`; paykit keeps no local copy
 Buttons, inputs, dialogs, badges and the other shared primitives here are imported from `@merqo/ui/primitives`, not from a local `components/ui` copy.
 
 `pointer-presets.ts` keeps `PointerPresetMode` module-private; only the preset shape and lookups are exported.
+
+Inline save errors on the payment form use the shared `FormError`. The Stripe and HitPay link warnings in `pointer-presets.ts` contain no em dash.

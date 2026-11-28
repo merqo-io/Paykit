@@ -5,7 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   AuthShell,
+  authErrorMessage,
   InfoTooltip,
+  PASSWORD_REQUIREMENTS_HINT,
   LoginForm,
   navigatingAway,
   type LoginCredentials,
@@ -16,8 +18,6 @@ import { Button } from "@merqo/ui/primitives";
 import { createClient } from "@/lib/supabase/client";
 import { Wordmark } from "@/components/landing/wordmark";
 import { safeNextPath } from "@/lib/return-to";
-import { friendlyAuthError } from "./auth-errors";
-import { PASSWORD_REQUIREMENTS_HINT } from "./weak-password";
 
 const OAUTH_ERROR_MESSAGE = "Could not sign in with Google. Try again.";
 const LINK_ERROR_MESSAGE =
@@ -35,7 +35,7 @@ export default function LoginPage() {
 // Callbacks return final vendor copy, never a raw provider message, so the
 // form's `mapError` can pass strings straight through. The shared form only
 // hands `mapError` a string, which would drop the HTTP status that the
-// rate-limit rule in auth-errors.ts matches on.
+// rate-limit rule in authErrorMessage matches on.
 async function guarded(
   run: () => Promise<string | void>,
 ): Promise<string | void> {
@@ -78,7 +78,7 @@ function LoginScreen() {
         email,
         password,
       });
-      if (error) return friendlyAuthError(error, "signin");
+      if (error) return authErrorMessage(error, "signin");
       router.push(nextPath);
       router.refresh();
     });
@@ -93,7 +93,7 @@ function LoginScreen() {
           emailRedirectTo: callbackUrl(),
         },
       });
-      if (error) return friendlyAuthError(error, "signup");
+      if (error) return authErrorMessage(error, "signup");
       if (!result.session) {
         setShowInitialError(false);
         setCheckEmail(email);
@@ -113,7 +113,7 @@ function LoginScreen() {
           queryParams: { hl: "en" },
         },
       });
-      if (error) return friendlyAuthError(error, "oauth");
+      if (error) return authErrorMessage(error, "oauth");
       // The browser is leaving for Google; keep the button disabled.
       await navigatingAway();
     });
@@ -127,7 +127,7 @@ function LoginScreen() {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
       });
-      if (error) return friendlyAuthError(error, "reset");
+      if (error) return authErrorMessage(error, "reset");
       toast.success(`Password reset link sent to ${email}`);
     });
 

@@ -20,7 +20,7 @@ establishes, so it renders for both signed-in and signed-out visitors (only
   "Try again" retry). Submit validates with `passwordChangeSchema`, then
   calls `supabase.auth.updateUser({ password })`; success toasts "Password
   updated" and goes to `/dashboard`. Update errors go through
-  `friendlyAuthError(error, "update")` and show inline with `role="alert"`,
+  the shared `authErrorMessage(error, "update")` and show inline with `role="alert"`,
   so a `weak_password` rejection names the failed rule and the raw Supabase
   message is never shown. A "Password requirements" tap-to-open `InfoTooltip`
   (`PASSWORD_REQUIREMENTS_HINT`) sits beside the New password label.

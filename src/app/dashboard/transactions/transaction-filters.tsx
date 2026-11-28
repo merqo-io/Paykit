@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button, Input, Label } from "@merqo/ui/primitives";
-import { FORM_LABEL_CLASS } from "@merqo/ui";
+import { FORM_LABEL_CLASS, SearchField } from "@merqo/ui";
 import { FILTER_SELECT_CLASS } from "@/components/list/filter-classes";
 import type { TransactionsParams } from "./search-params";
 import { transactionsHref } from "./search-params";
@@ -28,13 +28,13 @@ export function TransactionFilters({
       className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_auto] lg:items-end"
     >
       <div className="space-y-1.5">
-        <Label htmlFor="tx-q" className={FORM_LABEL_CLASS}>
+        <Label id="tx-q-label" htmlFor="tx-q" className={FORM_LABEL_CLASS}>
           Search
         </Label>
-        <Input
+        <SearchField
           id="tx-q"
+          aria-labelledby="tx-q-label"
           name="q"
-          type="search"
           maxLength={80}
           placeholder="Reference or title"
           defaultValue={isPaid ? params.q : undefined}

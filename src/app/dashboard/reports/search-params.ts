@@ -1,5 +1,5 @@
+import { sgDayKey } from "@merqo/ui";
 import { z } from "zod";
-import { sgtDate } from "@/lib/free-limits";
 
 const REPORT_TABS = ["overview", "earnings"] as const;
 export type ReportTab = (typeof REPORT_TABS)[number];
@@ -22,7 +22,7 @@ export function parseReportsParams(
       .int()
       .min(2001)
       .max(2999)
-      .catch(Number(sgtDate(now.toISOString()).slice(0, 4))),
+      .catch(Number(sgDayKey(now.toISOString()).slice(0, 4))),
   });
   return schema.parse({ tab: first(raw.tab), year: first(raw.year) });
 }

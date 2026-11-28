@@ -6,14 +6,22 @@ import {
   confirmedSince,
   queryTransactions,
 } from "@/lib/transactions";
-import { isPaidPlan, sgtDate } from "@/lib/free-limits";
+import { isPaidPlan } from "@/lib/free-limits";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
 import { deriveOnboarding } from "@/lib/onboarding";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { getConfig } from "./config/actions";
 import type { VendorPaymentConfig } from "@/lib/types";
 import { TransactionStatusBadge } from "./transactions/transaction-status-badge";
-import { PageHeader, StatCard, Money, Timestamp, formatMoney } from "@merqo/ui";
+import {
+  PageHeader,
+  StatCard,
+  Money,
+  Timestamp,
+  formatMoney,
+  sgDayKey,
+  startOfSgDay,
+} from "@merqo/ui";
 import { buttonVariants } from "@merqo/ui/primitives";
 
 export const metadata: Metadata = {
@@ -90,13 +98,10 @@ async function loadOnboarding(
 export default async function DashboardPage() {
   const { supabase, user } = await getVendorSession("/dashboard");
 
-  // Singapore has no DST, so the first of the month is a fixed +08:00 offset.
-  const monthStartIso = new Date(
-    `${sgtDate(new Date().toISOString()).slice(0, 7)}-01T00:00:00+08:00`,
-  ).toISOString();
-
-  const todayStartIso = new Date(
-    `${sgtDate(new Date().toISOString())}T00:00:00+08:00`,
+  const now = new Date();
+  const todayStartIso = startOfSgDay(now).toISOString();
+  const monthStartIso = startOfSgDay(
+    `${sgDayKey(now).slice(0, 7)}-01`,
   ).toISOString();
 
   const [config, toConfirm, month, today, recent, { data: prefs }] =

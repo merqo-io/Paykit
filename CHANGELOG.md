@@ -17,6 +17,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
+- Inline form errors in the booking, refund, reschedule, cancel, inquiry-settings and payment-setup forms use the shared `FormError`.
+- Form dollars convert through the shared `dollarsToCents`, so amounts such as `S$1,234.50` are accepted and `1.005` rounds to 101 cents.
+- The dashboard's start-of-today and start-of-month use the shared `startOfSgDay`.
+- The Admin and Home loading states use the shared `StatTileSkeleton` and `ListSkeleton`.
+- The terms-check error page heading uses the shared `PageHeader`; the landing ledger mock formats amounts with `formatMoney`.
 - Repinned `@merqo/ui` to v0.62.1 (About page kit status copy, footer and nav tap targets of at least 44px).
 - Reverted #274: the landing hero is the switchable Waiting/Paid/Confirmed pay-card object again and the three-step payment journey is restored; the qkit order phone is removed. The hero and `/faq` now carry an "In build" badge ("Built, not yet tried with vendors.") instead of "In pilot with Merqo stalls", since paykit is not live with vendors.
 - Repinned `@merqo/ui` to merqo-ui commit dcaf1100 (v0.62.0, from e468ecd2 / v0.61.2). It adds `DashboardNav`'s opt-in `mobileNav="none"`, which paykit now uses so the phone header has no burger; other kits are unaffected.
@@ -29,6 +38,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Landing nav "Sign in" and "Join the waitlist" no longer shrink to 32px on tablets; they keep the shared 44px touch height.
+- Preset warnings for Stripe and HitPay links no longer use an em dash.
 - The Home page heading now reads "Home" (it said "Payments"), and on a phone the More tab is marked as the current page while you are on Payment setup, Profile or Plan.
 - The plan page's "Change plan in your Merqo account" link now goes to merqo's `/dashboard` (the vendor dashboard with each kit's plan card) instead of `/account`, which does not exist and returned a 404.
 - A Free vendor's claimed payments (customer marked paid, waiting for the vendor to confirm) older than 30 days are now listed on Payments, in All and under `?status=claimed`, so the dashboard's "Review these payments" count and the list agree. Other payments stay limited to the last 30 days, and the "older payments" note no longer counts claimed rows. Paid plans are unchanged.
@@ -39,6 +50,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - `/admin/activity` filters and pages in the database (action and date range, `Page X of Y`), so every audit entry is searchable; the latest-1000 window and its notice are gone.
 - A signed-out vendor who opens `/dashboard/config?return_to=...` now keeps `return_to` through sign-in (password, Google and email link) via a same-origin `next` path, and the saved state offers "Back to your booth" as the primary button.
 - Ledger, bookings and admin lists share one failed-read card, one link-based pager (the ledger pager is now plain anchors with Previous/Next at 44px) and one filter select style with the Input focus ring; filter selects are 44px tall.
@@ -54,6 +69,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - The admin header and tabs, `/mfa` and the dashboard error boundary use the shared `AdminShell`, `AuthShell` and `ErrorPage` from `@merqo/ui`; the local `admin-nav.tsx` is removed. The repeated "Admin" eyebrows are gone.
 - Reports: the locked-tab copy now says what Starter and Pro give you (best days and hours, CSV for your accountant), the Free summary uses the shared `StatCard`, and the "Ledger" and "Insights" eyebrows are gone.
 - AGENTS.md plan-gate line now matches the pricing spec.
@@ -70,6 +89,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Repinned `@merqo/ui` to merqo-ui commit d9ba206c (v0.60.0, from 94eb4548 / v0.59.1).
 - The landing nav collapses About and FAQ into a burger menu below `sm` (`@merqo/ui` v0.59.1 `LandingNav` `links`), keeping the header on one line on phones.
 - `/legal/terms`, `/legal/privacy` and `/legal/accept` now render the shared `LegalPage` and `AcceptTermsPage` from `@merqo/ui` (with the paykit wordmark linked home); the local `accept-form.tsx` is removed. `LegalPage` is rendered through a small client wrapper because the published bundle drops `LegalDocument`'s client boundary.
@@ -81,6 +104,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - The dashboard account menu now shows the vendor's stall name, using the shared `accountLabel` from `@merqo/ui` v0.58.0 (repinned from v0.56.0), so it matches the landing nav. With no stall name it falls back to the auth name or the email local part, never the full email, and the "Your account" fallback is gone.
 - Repinned `@merqo/ui` to v0.57.0 and mounted its `AppLinkProvider` (with `next/link`) once in the root layout through `components/app-link-provider.tsx`. The dashboard navigation and landing account nav no longer take a `LinkComponent` prop, so a Server Component can no longer pass a function into a client export.
 - Repinned `@merqo/ui` to v0.56.0. The landing page, `/about` and `/faq` now use the shared `LandingAccountNav` and `toNavUser` in place of paykit's own account menu wrapper. The nav shows the vendor's stall name, falling back to the auth name or email.
@@ -101,6 +128,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Deleting an inquiry now uses the shared `ConfirmDialog` from `@merqo/ui`: it names what is lost, stays open with the error if the delete fails, and works by touch.
 - The "Copy inquiry link" button uses `CopyButton`: it now shows a "Copied" state and a failure toast when the clipboard is blocked. The booking ID copy button also toasts when the clipboard is blocked. The cancel-booking dialog confirm is now an `AsyncSubmitButton` styled with the semantic destructive classes inside a form, keeping its "Cancelling…" pending label. `MoneyField` stays because its decimal-string form value does not match `useMoneyField`'s cents contract.
 - The booking ID copy button, the earnings CSV download and the refund submit button use `CopyButton`, `downloadBlob` and `AsyncSubmitButton` from `@merqo/ui` instead of local copies. The "Booking ID copied" toast is gone; the button shows its own "Copied" state.
@@ -125,6 +156,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - `/login` now renders the shared `AuthShell` and `LoginForm` from `@merqo/ui` (about 315 lines down to about 170). Password sign-in, sign-up, Google, forgot-password, the "Check your email" card, the `?error=oauth` and `?mode=signup` links, the redirect to `/dashboard` and every vendor-facing message are unchanged. Visible differences: uppercase labels and `rounded-xl` controls, "New here?" in the mode toggle, no input placeholders, inputs disabled while a request runs, an empty-email forgot-password shows "Enter your email first." in the alert line instead of under the field, the sign-in heading is larger and left-aligned, the pending button label is "Please wait" without an ellipsis, and the email field is empty after "Back to sign in". The gaps are listed in `docs/merqo-ui-login-gaps.md`.
 - Bumped `@merqo/ui` to v0.49.1 (commit 016f59f6). Cards have 16px corners with a medium shadow, the back-to-top button transitions, and the footer is compact on mobile.
 - Bumped `@merqo/ui` to v0.46.0: the plan page price ladder now shows a notice that Merqo is free during the pilot.
@@ -144,6 +179,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Removed the unused `@eslint/eslintrc` and `@tailwindcss/typography` dev dependencies, and deleted or un-exported symbols nothing imports (unused form input types, `FIELD_INPUT_CLASS`, `REPORT_TABS`, `MAX_INPUT_PIXELS` and similar). `metrics.ts` now reuses `MS_PER_DAY` from `utils.ts`. No behaviour change.
 - Kit auth failure reasons in `auth_failures` changed to the shared wording: `missing/malformed Authorization header` is now `missing or malformed Authorization header`, and a malformed bearer token (`malformed bearer token`) is now recorded with that same new reason. The unknown-slug and secret-mismatch console warnings no longer include the kit slug; it is still in `auth_failures`.
 - Client IP detection stops at the first trusted header that is present: a bad `x-vercel-forwarded-for` gives no address and the request goes to the `unknown` rate-limit bucket instead of falling through to `x-real-ip`.
@@ -166,6 +205,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Claim, unclaim and confirm share one typed handler, `runTransition` in `src/lib/payment-transition.ts`; responses are unchanged.
 
 ### Fixed
@@ -176,6 +219,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Database types split from one 570-line file into `src/lib/db-types/` by domain, with `src/lib/types.ts` kept as a type-only barrel; no type shapes changed.
 - `@merqo/ui` moved to v0.42.1 (commit 53ec5baa47e29e4d7acc23180cba63aa9539d5af). Page header, empty state, stat card and plan chip now come from the shared package; the local `PageHeader`, `EmptyState`, `Stat` and navigation `TierBadge` are deleted. Page titles lose `tracking-tight`, stat tiles gain the shared card shadow, and the Pro plan chip uses the shared tint instead of mint.
 - Bookings forms and dialogs restyled to the qkit baseline: booking and inquiry detail pages use the shared page header, dialogs share one title, description and footer layout, money fields are labelled S$ decimal inputs with inline errors, free vendors see a refund-tracking hint, and copy drops "checkout" and "Terms version" jargon. Error messages read "Could not ... Try again." and toasts have no trailing period.
@@ -198,6 +245,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - The dashboard nav bar shows only Payments, Bookings and Reports. Payment setup moved into the avatar menu next to Profile and Plan, the tier chip is readable, and the shell uses qkit's page width and padding. The onboarding tour now points Payment setup at the avatar menu. The plan page uses `PageHeader` and no longer has a back button.
 - Sign-in, two-step sign-in, terms acceptance, inquiry form and error pages use flatter, smaller qkit-style layouts with 44px controls and plain copy. Sign-in errors are mapped to short sentences (for example "Wrong email or password. Try again.") instead of raw Supabase messages, a missing email on "Forgot password?" shows an inline field error, and the dashboard error page links back to the dashboard.
 
@@ -214,6 +265,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - `vercel.json` now builds from git only for `main` (`git.deploymentEnabled`, with `**` so branch names containing `/` are covered), because every PR preview was exhausting the Vercel Hobby daily deployment cap. Staging still deploys through the `staging-sync` deploy hook; ad-hoc previews come from the `vercel` CLI.
 - The `staging-sync` workflow pushes to `staging` with the `merqo-staging-sync` GitHub App token instead of `GITHUB_TOKEN`, because a ruleset limits `staging` pushes to that app. The job's own permissions drop to `contents: read`.
 
@@ -225,6 +280,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - The public landing shows an "In build" badge with "Built, not yet tried with vendors." and every signup CTA now reads "Join the waitlist" (https://merqo.io/waitlist?kit=paykit). The dashboard and login stay reachable by direct URL.
 - The landing, FAQ and footer publish no price or plan name. Pricing reads "Free during the pilot. If we start charging, you'll get at least 30 days' notice first."
 - Cross-kit claims are scoped to what exists: qkit is the only kit wired to paykit. The "proven" and "live" wording, em dashes and capitalised brand names are gone from public copy, and the dashboard tour no longer mentions billing.
@@ -246,6 +305,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Migration `0027`: indexes the foreign key columns the Supabase advisor flagged as unindexed (`admin_audit.admin_id`, `feedback.vendor_id`, `refunds.created_by`). New pgTAP file `db-hygiene.test.sql` covers the indexes, RLS on every table and server-only access to `auth_failures`.
 
 ## [0.4.0] - 2026-10-29
@@ -267,6 +330,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - `.claude/skill-usage.log` is git-ignored, matching the other kits (the skill-usage hook writes it locally on every skill call).
 
 ## [0.3.0] - 2026-10-26
@@ -297,6 +364,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Lint config now consumes the shared `@merqo/ui/eslint` preset (`@merqo/ui` v0.35.0): comment and directive hygiene, size and complexity limits, and a ban on colour literals and the em dash in `src`. `eslint-plugin-sonarjs` 4.2.2 and `@eslint-community/eslint-plugin-eslint-comments` 4.8.1 pinned. `eslint.config.test.ts` asserts the key rules resolve to `error`. `src/lib/types.ts` (511 lines) is the only `max-lines` exception until the split-long-files task.
 - Ten oversized functions split into helpers (checkout, vendor-activity, bookings and config actions, pay panel, config and profile forms). `recordPaymentAudit` and `addToLine` take an object instead of five positional arguments. The config row builder is shared between the dashboard and the API route. No behaviour change.
 - Em dashes removed from user-facing copy.
@@ -322,6 +393,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Bookings page copy no longer uses an em dash, and the bookings list sits under its own "Your bookings" heading below Inquiries.
 
 ### Security
@@ -345,6 +420,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - The family footer now also ends every dashboard page, at the bottom of a short page and left out of print, without the sign-in link a signed-in vendor does not need. It moved from `src/components/landing/footer.tsx` to `src/components/site-footer.tsx` as `SiteFooter({ showSignIn })`, the same shape printkit uses; the landing page and `/about` show it as before.
 - The plan page compares Free and Pro side by side (price, unlimited transactions, revenue stats, refund tracking) with `@merqo/ui`'s `PlanComparisonTable`, the table qkit and loopkit use, instead of listing only the current plan's features. `resolvePlanView` returns `comparisonRows` in place of `features`.
 - Every page has its own browser-tab title ("Transactions | Paykit", "Sign in | Paykit" and so on) through a `%s | Paykit` template on the root layout. The landing page keeps "Paykit | Vendor Payments", and the pay page's "Pay | Paykit" is unchanged.
@@ -358,6 +437,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Internal: the AI harness follows templateCentral 6.0.4. Hook commands no
   longer depend on the shell's current directory, the end-of-turn test run
   is skipped when nothing changed, the guard against skipping git hooks
@@ -394,6 +477,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - The repository moved from the `cljiahao` GitHub account to the `merqo-io` organization. `@merqo/ui` now installs from `github:merqo-io/merqo-ui` at the same tag, with the lockfile and tarball URLs updated to match.
 - The `secret scan (gitleaks)` CI job runs the pinned gitleaks release binary, verified against the release checksum, instead of `gitleaks-action`. The action is free only for personal-account repos and needs a paid license on organization-owned ones, so every run failed after the move to `merqo-io`. It scans the PR commits, or the pushed range on `main`.
 
@@ -458,6 +545,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Bumped `@merqo/ui` to `v0.31.2`. v0.31.0 replaced the package-wide
   `"use client"` banner with per-module directives, so a plain-data export
   is a real value inside a Server Component rather than an opaque
@@ -509,12 +600,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Bumped `@merqo/ui` to `v0.30.0`.
 
 ## [0.1.9] - 2026-09-16
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - `BackButton`, `ElevatedCard`, and the landing `Footer` now come from
   `@merqo/ui` (bumped to v0.29.1) instead of a paykit-local copy — each
   was confirmed byte-for-byte or structurally identical to qkit's/
@@ -621,6 +720,10 @@ actions.ts`) pointed at `https://merqo-sg.vercel.app`, a stale host that
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Dropped the required typed legal-name field from terms/privacy
   acceptance — a plain ToS/Privacy clickwrap doesn't need a signatory
   name for evidentiary strength beyond the existing acceptance record
@@ -683,6 +786,10 @@ actions.ts`) pointed at `https://merqo-sg.vercel.app`, a stale host that
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Bumped `@merqo/ui` to v0.22.0 and migrated the earnings report's
   monthly/per-booking tables and the admin vendors table onto its new
   shared `DataTable` component, replacing a hand-rolled `<table>` and the
@@ -841,6 +948,10 @@ actions.ts`) pointed at `https://merqo-sg.vercel.app`, a stale host that
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Onboarding tour copy: no more em dashes, and two new steps
   (Transactions, Stats) covering ground the tour skipped before. The
   first step now shows an example transaction preview.
@@ -880,6 +991,10 @@ actions.ts`) pointed at `https://merqo-sg.vercel.app`, a stale host that
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Brand theme: `globals.css`'s color tokens replaced with "Banknote
   Engrave" (engraved teal-green primary, steel-blue secondary), light
   and dark, across the full shadcn token set. Purely cosmetic — no
@@ -914,6 +1029,10 @@ actions.ts`) pointed at `https://merqo-sg.vercel.app`, a stale host that
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Bumped `@merqo/ui` to v0.14.0 and switched the dashboard nav's
   `switchKits` prop to the new `getSwitchKits("paykit")` helper, replacing
   the locally hardcoded sibling-kit array. `@merqo/ui` now owns the
@@ -1020,6 +1139,10 @@ actions.ts`) pointed at `https://merqo-sg.vercel.app`, a stale host that
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Design pass from a completed frontend-design/impeccable critique:
   claimed transactions now have a distinct visual state instead of
   looking identical to pending ones; dashboard home gained a
@@ -1100,6 +1223,10 @@ actions.ts`) pointed at `https://merqo-sg.vercel.app`, a stale host that
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - `merqo-support.ts`, `merqo-vendor-feedback.ts`, and
   `merqo-vendor-profile.ts` now delegate their `.schema("merqo").rpc(...)`
   call to a new shared `callMerqoRpc` helper (`src/lib/merqo-rpc.ts`)
@@ -1206,6 +1333,10 @@ variant="ghost" size="sm"` control instead of a hand-rolled `Link`,
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - Migrated git hooks from lefthook to husky — lefthook's unsigned
   `lefthook.exe` is unconditionally blocked by Windows Smart App Control on
   this machine; husky has no native binary. Same checks, same rigor.
@@ -1255,6 +1386,10 @@ variant="ghost" size="sm"` control instead of a hand-rolled `Link`,
 
 ### Changed
 
+- Search boxes on Bookings, Payments and the admin vendor list use the shared `SearchField`: a 44px touch height, a clear button and Escape to clear.
+- Sign-in, sign-up and password-reset errors use the shared `authErrorMessage`; the local copy of the auth error and weak-password mapping is gone. The wrong-password line now reads "Email or password is wrong. Try again or reset your password.", and a network failure now shows "Check your connection and try again."
+- The hosted payment page polls through the shared `usePolling`: it checks once on open, then every 5 seconds, and pauses while the tab is hidden.
+- Singapore calendar days come from the shared `sgDayKey`; the local `sgtDate` is removed.
 - `eslint.config.mjs` expanded from one hand-picked sonarjs rule to the
   plugin's full `sonarjs.configs.recommended` set (206 of 268 rules at
   `error`), with scoped overrides for generated shadcn primitives and

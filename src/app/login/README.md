@@ -26,8 +26,8 @@ password happens on `/reset-password`.
   - "Forgot password?" (sign-in mode only) calls
     `supabase.auth.resetPasswordForEmail`. The shared form asks for the
     email first, a failed call shows a plain sentence, and success toasts.
-    Every callback maps Supabase errors through `auth-errors.ts`
-    (`friendlyAuthError`) and returns the final copy; a thrown failure shows
+    Every callback maps Supabase errors through the shared
+    `authErrorMessage` and returns the final copy; a thrown failure shows
     "Could not connect. Try again.". `mapError` is the identity because the
     form only passes it a string, which would lose the HTTP status the
     rate-limit rule matches. The reset link lands on `/auth/callback`, which
@@ -40,8 +40,7 @@ password happens on `/reset-password`.
     `onModeChange`.
   - Gaps against the shared components are in
     [`docs/merqo-ui-login-gaps.md`](../../../docs/merqo-ui-login-gaps.md).
-- `auth-errors.ts`: `friendlyAuthError(error, context)` maps Supabase errors to plain copy; the sign-up `weak_password` case goes through `weakPasswordMessage`.
-- `weak-password.ts`: `weakPasswordMessage({ reasons, message })` names the failed rule (length, character classes, breached) from what the server reported, and exports `PASSWORD_REQUIREMENTS_HINT`. `weak-password.test.ts` covers it.
+- Error copy and the password hint come from `@merqo/ui` (`authErrorMessage`, `weakPasswordMessage`, `PASSWORD_REQUIREMENTS_HINT`); the kit keeps no copy of them.
 - `page.test.tsx`: RTL/jsdom tests: the `?error=oauth` and `?error=link` banners, the
   check-your-email state on a sessionless sign-up (and returning from it via
   "Back to sign in"), the redirect-on-session-present path, password sign-in

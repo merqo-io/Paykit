@@ -257,12 +257,13 @@ describe("PayPanel", () => {
       vi.useFakeTimers();
     });
 
-    it("asks for the status every 5 seconds and stays while pending", async () => {
+    it("asks for the status on open, then every 5 seconds, and stays while pending", async () => {
       panel();
-      expect(statusMock).not.toHaveBeenCalled();
+      await act(() => vi.advanceTimersByTimeAsync(0));
+      expect(statusMock).toHaveBeenCalledTimes(1);
       await act(() => vi.advanceTimersByTimeAsync(5000));
       await act(() => vi.advanceTimersByTimeAsync(5000));
-      expect(statusMock).toHaveBeenCalledTimes(2);
+      expect(statusMock).toHaveBeenCalledTimes(3);
       expect(statusMock).toHaveBeenCalledWith(TX_ID, TOKEN);
       expect(leaveMock).not.toHaveBeenCalled();
     });
@@ -273,7 +274,7 @@ describe("PayPanel", () => {
         returnUrl: RETURN_URL,
       });
       panel();
-      await act(() => vi.advanceTimersByTimeAsync(5000));
+      await act(() => vi.advanceTimersByTimeAsync(0));
       expect(leaveMock).toHaveBeenCalledWith(RETURN_URL);
       await act(() => vi.advanceTimersByTimeAsync(15000));
       expect(statusMock).toHaveBeenCalledTimes(1);
@@ -282,7 +283,7 @@ describe("PayPanel", () => {
     it("says the payment is recorded when it is claimed with no return address", async () => {
       statusMock.mockResolvedValue({ status: "claimed", returnUrl: null });
       panel();
-      await act(() => vi.advanceTimersByTimeAsync(5000));
+      await act(() => vi.advanceTimersByTimeAsync(0));
       expect(
         screen.getByRole("heading", { name: "Payment recorded" }),
       ).toBeInTheDocument();
@@ -295,15 +296,31 @@ describe("PayPanel", () => {
       statusMock.mockImplementation(answer);
       panel();
       await act(() => vi.advanceTimersByTimeAsync(10000));
-      expect(statusMock).toHaveBeenCalledTimes(2);
+      expect(statusMock).toHaveBeenCalledTimes(3);
       expect(leaveMock).not.toHaveBeenCalled();
+    });
+
+    it("does not ask while the tab is hidden, and asks again when it is shown", async () => {
+      const hidden = vi.spyOn(document, "hidden", "get").mockReturnValue(true);
+      try {
+        panel();
+        await act(() => vi.advanceTimersByTimeAsync(15000));
+        expect(statusMock).not.toHaveBeenCalled();
+        hidden.mockReturnValue(false);
+        await act(async () => {
+          document.dispatchEvent(new Event("visibilitychange"));
+        });
+        expect(statusMock).toHaveBeenCalledTimes(1);
+      } finally {
+        hidden.mockRestore();
+      }
     });
 
     it("stops asking when the page is closed", async () => {
       const { unmount } = panel();
       unmount();
       await vi.advanceTimersByTimeAsync(15000);
-      expect(statusMock).not.toHaveBeenCalled();
+      expect(statusMock).toHaveBeenCalledTimes(1);
     });
   });
 });

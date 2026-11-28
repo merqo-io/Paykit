@@ -28,7 +28,7 @@ export const POINTER_PRESETS: Record<PointerPresetId, PointerPreset> = {
       "Stripe Dashboard → Payment Links → New → Create link, then copy the link (starts with buy.stripe.com).",
     urlPattern: /^https:\/\/buy\.stripe\.com\//,
     urlWarning:
-      "This doesn't look like a Stripe Payment Link (usually starts with buy.stripe.com) — check you copied the right one.",
+      "This doesn't look like a Stripe Payment Link (usually starts with buy.stripe.com). Check you copied the right one.",
   },
   hitpay: {
     id: "hitpay",
@@ -43,7 +43,7 @@ export const POINTER_PRESETS: Record<PointerPresetId, PointerPreset> = {
     // host like evil.com/hit-pay.com or hit-pay.com.attacker.example.
     urlPattern: /^https:\/\/([a-z0-9-]+\.)*hit-pay\.com(\/|$|\?|:)/i,
     urlWarning:
-      "This doesn't look like a HitPay link (usually contains hit-pay.com) — check you copied the right one.",
+      "This doesn't look like a HitPay link (usually contains hit-pay.com). Check you copied the right one.",
   },
   paylah: {
     id: "paylah",

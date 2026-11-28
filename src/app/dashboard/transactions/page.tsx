@@ -3,11 +3,11 @@ import { redirect } from "next/navigation";
 import { getVendorSession } from "@/lib/vendor-session";
 import { pathWithSearch } from "@/lib/return-to";
 import { readVendorPlan } from "@/lib/vendor-entitlement";
+import { sgDayKey } from "@merqo/ui";
 import {
   freeListCutoff,
   isPaidPlan,
   resolveListRange,
-  sgtDate,
   sgtDayStartIso,
 } from "@/lib/free-limits";
 import { countTransactionsBefore, queryTransactions } from "@/lib/transactions";
@@ -30,6 +30,11 @@ export const metadata: Metadata = {
 /** Free's list stops at the cutoff; true when the requested `from` reaches past it. */
 function cutRangeShort(cutoff: string | undefined, from: string | undefined) {
   return Boolean(cutoff && from && sgtDayStartIso(from) < cutoff);
+}
+
+// An unreadable cutoff gives no date bound rather than an empty `min`.
+function minDateOf(cutoff: string | null | undefined): string | undefined {
+  return (cutoff && sgDayKey(cutoff)) || undefined;
 }
 
 export default async function TransactionsPage({
@@ -85,7 +90,7 @@ export default async function TransactionsPage({
       <TransactionFilters
         params={params}
         isPaid={isPaid}
-        minDate={cutoff ? sgtDate(cutoff) : undefined}
+        minDate={minDateOf(cutoff)}
       />
       {cutRangeShort(cutoff, params.from) && <FreeRangeNote />}
       {result.failed ? (
